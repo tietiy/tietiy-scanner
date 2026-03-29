@@ -26,8 +26,7 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          cd scanner
-          python main.py morning
+          python scanner/main.py morning
 
       - name: Commit outputs
         run: |
