@@ -7,7 +7,9 @@ from config import OUTPUT_DIR
 
 def build_html(signals, market_info,
                sector_momentum, open_trades,
-               recent_trades, system_health):
+               recent_trades, system_health,
+               rejected_signals=None):
+
 
     today      = market_info.get('today', '')
     regime     = market_info.get('regime', 'Choppy')
@@ -44,6 +46,54 @@ BEAR BONUS ACTIVE — UP TRI signals highest conviction
             f'border-radius:12px;padding:3px 8px;font-size:10px;">'
             f'{ic} {sec}</span>')
     hm_html += '</div>'
+        # Rejected signals section
+    rejected_signals = rejected_signals or []
+    rej_html = ''
+    if rejected_signals:
+        rej_rows = ''
+        for s in rejected_signals:
+            sym    = s.get('symbol','').replace('.NS','')
+            signal = s.get('signal','')
+            score  = s.get('score', 0)
+            age    = s.get('age', 0)
+            stop   = s.get('stop', 0)
+            bd     = s.get('breakdown', '')
+            arrow  = '▲' if signal in ('UP_TRI','BULL_PROXY') else '▼'
+            # Build rejection reason
+            reasons = []
+            if score < 2:
+                reasons.append(f'Score {score}/10 below minimum')
+            if age > 1 and signal == 'DOWN_TRI':
+                reasons.append('DOWN_TRI age>0 — edge gone')
+            if not reasons:
+                reasons.append(f'Score {score}/10')
+            reason = ' | '.join(reasons)
+            rej_rows += f'''<tr>
+<td style="color:#666;">{sym}</td>
+<td style="color:#666;">{signal} {arrow}</td>
+<td style="color:#444;">{score}/10</td>
+<td style="color:#444;">Age:{age}</td>
+<td style="color:#555;font-size:10px;">{reason}</td>
+</tr>'''
+        rej_html = f'''
+<div class="section-hdr" style="color:#444;border-color:#333;">
+  <span onclick="toggleRej()" style="cursor:pointer;">
+  ▶ REJECTED SIGNALS ({len(rejected_signals)})
+  </span>
+</div>
+<div id="rej-section" style="display:none;overflow-x:auto;">
+<table>
+<tr>
+  <th>Stock</th><th>Signal</th><th>Score</th>
+  <th>Age</th><th>Reason</th>
+</tr>
+{rej_rows}
+</table>
+<div style="font-size:10px;color:#444;padding:6px 0;">
+These signals were detected but did not meet minimum score threshold.
+</div>
+</div>'''
+             
 
     all_journal = (list(open_trades or []) + list(recent_trades or []))
     jrows = ''
