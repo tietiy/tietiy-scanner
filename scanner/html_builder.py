@@ -236,14 +236,17 @@ let currentCard = {{}};
 async function loadSignals() {{
   const el = document.getElementById('signals');
   try {{
-    const res  = await fetch('output/scan_log.json?t=' + Date.now());
+    const res  = await fetch('scan_log.json?t=' + Date.now());
     const data = await res.json();
     if (!Array.isArray(data) || !data.length) throw new Error('empty');
     const latest = data[data.length - 1];
     const sigs   = latest.signals || [];
-    document.querySelector('.filter-btn').textContent = 'All (' + sigs.length + ')';
+    document.querySelector('.filter-btn').textContent =
+      'All (' + sigs.length + ')';
     if (!sigs.length) {{
-      el.innerHTML = '<div style="text-align:center;color:#666;padding:40px 20px;font-size:14px;">No signals on ' + latest.date + '</div>';
+      el.innerHTML = '<div style="text-align:center;color:#666;'
+        + 'padding:40px 20px;font-size:14px;">No signals on '
+        + latest.date + '</div>';
       return;
     }}
     el.innerHTML = sigs.map(s => {{
@@ -256,21 +259,24 @@ async function loadSignals() {{
       const age    = s.age    || 0;
       const sector = s.sector || '';
       const grade  = s.grade  || 'B';
-      const sc     = score >= 7 ? '#00C851' : score >= 4 ? '#FFD700' : '#f85149';
+      const sc     = score >= 7 ? '#00C851'
+                   : score >= 4 ? '#FFD700' : '#f85149';
       const arrow  = signal.includes('DOWN') ? '▼' : '▲';
       const t_val  = target ? target.toFixed(2) : '0';
       return `<div class="signal-card"
-        data-signal="${{signal}}" data-age="${{age}}" data-action=""
-        data-grade="${{grade}}" data-symbol="${{sym}}"
+        data-signal="${{signal}}" data-age="${{age}}"
+        data-action="" data-grade="${{grade}}"
+        data-symbol="${{sym}}"
         data-entry="${{entry.toFixed ? entry.toFixed(2) : entry}}"
-        data-stop="${{stop.toFixed  ? stop.toFixed(2)  : stop}}"
+        data-stop="${{stop.toFixed   ? stop.toFixed(2)  : stop}}"
         data-target="${{t_val}}" data-shares="0"
         data-sector="${{sector}}" data-score="${{score}}"
         onclick="openPanel(this)"
         style="background:#0d1117;border:1px solid #21262d;
         border-left:3px solid ${{sc}};border-radius:8px;
         padding:12px 14px;margin-bottom:10px;cursor:pointer;">
-        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+        <div style="display:flex;justify-content:space-between;
+        margin-bottom:6px;">
           <div>
             <span style="font-size:16px;font-weight:700;color:#fff;">
             ${{sym || '?'}}</span>
@@ -290,7 +296,8 @@ async function loadSignals() {{
           <div>Stop: <span style="color:#f85149;">
           ${{stop  ? '₹'+fmt(stop)  : '—'}}</span></div>
           ${{target
-            ? '<div><span style="color:#58a6ff;">Target: ₹'+fmt(target)+'</span></div>'
+            ? '<div><span style="color:#58a6ff;">Target: ₹'
+              +fmt(target)+'</span></div>'
             : '<div style="color:#666;">Exit: Day 6 open</div>'}}
         </div>
       </div>`;
@@ -311,18 +318,25 @@ function openPanel(el) {{
   const score  = el.dataset.score;
   currentCard  = {{ sym, entry, stop, target, shares, signal }};
 
-  document.getElementById('panel-symbol').textContent       = sym || '?';
-  document.getElementById('panel-signal-badge').textContent = signal + ' | Score ' + score;
-  document.getElementById('panel-entry').textContent  = entry  ? '₹' + fmt(entry)  : '—';
-  document.getElementById('panel-stop').textContent   = stop   ? '₹' + fmt(stop)   : '—';
-  document.getElementById('panel-target').textContent = target ? '₹' + fmt(target) : 'Day 6 open';
+  document.getElementById('panel-symbol').textContent =
+    sym || '?';
+  document.getElementById('panel-signal-badge').textContent =
+    signal + ' | Score ' + score;
+  document.getElementById('panel-entry').textContent =
+    entry  ? '₹' + fmt(entry)  : '—';
+  document.getElementById('panel-stop').textContent =
+    stop   ? '₹' + fmt(stop)   : '—';
+  document.getElementById('panel-target').textContent =
+    target ? '₹' + fmt(target) : 'Day 6 open';
   document.getElementById('panel-live').textContent   = '...';
   document.getElementById('panel-pnl-row').style.display = 'none';
   document.getElementById('panel-status').textContent    = '';
 
   const inPos = getPositions().find(p => p.sym === sym);
-  document.getElementById('panel-add-btn').style.display    = inPos ? 'none'  : 'block';
-  document.getElementById('panel-remove-btn').style.display = inPos ? 'block' : 'none';
+  document.getElementById('panel-add-btn').style.display =
+    inPos ? 'none' : 'block';
+  document.getElementById('panel-remove-btn').style.display =
+    inPos ? 'block' : 'none';
 
   document.getElementById('tap-overlay').style.display = 'block';
   document.getElementById('tap-panel').classList.add('open');
@@ -339,11 +353,12 @@ async function fetchLivePrice(sym) {{
   const liveEl   = document.getElementById('panel-live');
   const statusEl = document.getElementById('panel-status');
   try {{
-    const url  = 'https://query2.finance.yahoo.com/v8/finance/chart/'
-                 + sym + '.NS?interval=1d&range=1d&t=' + Date.now();
+    const url = 'https://query2.finance.yahoo.com/v8/finance/chart/'
+      + sym + '.NS?interval=1d&range=1d&t=' + Date.now();
     const res  = await fetch(url);
     const data = await res.json();
-    const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+    const price =
+      data?.chart?.result?.[0]?.meta?.regularMarketPrice;
     if (!price) throw new Error('no price');
     liveEl.textContent = '₹' + fmt(price);
     const pos = getPositions().find(p => p.sym === sym);
@@ -353,20 +368,26 @@ async function fetchLivePrice(sym) {{
       const pnlAmt = (diff * (pos.shares || 1)).toFixed(0);
       const color  = diff >= 0 ? '#00C851' : '#f85149';
       const sign   = diff >= 0 ? '+' : '';
-      document.getElementById('panel-pnl-row').style.display = 'block';
-      document.getElementById('panel-pnl-val').style.color   = color;
-      document.getElementById('panel-pnl-val').textContent   = sign + '₹' + pnlAmt;
-      document.getElementById('panel-pnl-pct').textContent   = '(' + sign + pct + '%)';
+      document.getElementById('panel-pnl-row').style.display =
+        'block';
+      document.getElementById('panel-pnl-val').style.color =
+        color;
+      document.getElementById('panel-pnl-val').textContent =
+        sign + '₹' + pnlAmt;
+      document.getElementById('panel-pnl-pct').textContent =
+        '(' + sign + pct + '%)';
     }}
   }} catch(e) {{
-    liveEl.textContent = '—';
+    liveEl.textContent   = '—';
     statusEl.textContent = 'Live price unavailable';
   }}
 }}
 
 function getPositions() {{
-  try {{ return JSON.parse(localStorage.getItem('tietiy_pos') || '[]'); }}
-  catch(e) {{ return []; }}
+  try {{
+    return JSON.parse(
+      localStorage.getItem('tietiy_pos') || '[]');
+  }} catch(e) {{ return []; }}
 }}
 
 function savePositions(arr) {{
@@ -379,23 +400,31 @@ function addPosition() {{
   if (!sym) return;
   const arr = getPositions();
   if (arr.find(p => p.sym === sym)) {{
-    document.getElementById('panel-status').textContent = 'Already in positions';
+    document.getElementById('panel-status').textContent =
+      'Already in positions';
     return;
   }}
   arr.push({{ sym, entry, stop, shares, signal,
-              added: new Date().toISOString().slice(0,10) }});
+    added: new Date().toISOString().slice(0,10) }});
   savePositions(arr);
-  document.getElementById('panel-add-btn').style.display    = 'none';
-  document.getElementById('panel-remove-btn').style.display = 'block';
-  document.getElementById('panel-status').textContent       = '✓ Added';
+  document.getElementById('panel-add-btn').style.display =
+    'none';
+  document.getElementById('panel-remove-btn').style.display =
+    'block';
+  document.getElementById('panel-status').textContent =
+    '✓ Added';
 }}
 
 function removeCurrentPosition() {{
   removePosition(currentCard.sym);
-  document.getElementById('panel-add-btn').style.display    = 'block';
-  document.getElementById('panel-remove-btn').style.display = 'none';
-  document.getElementById('panel-pnl-row').style.display    = 'none';
-  document.getElementById('panel-status').textContent       = 'Removed';
+  document.getElementById('panel-add-btn').style.display =
+    'block';
+  document.getElementById('panel-remove-btn').style.display =
+    'none';
+  document.getElementById('panel-pnl-row').style.display =
+    'none';
+  document.getElementById('panel-status').textContent =
+    'Removed';
 }}
 
 function removePosition(sym) {{
@@ -409,22 +438,26 @@ function renderPositions() {{
   document.getElementById('pos-count-footer').textContent = cnt;
   const el = document.getElementById('positions-list');
   if (!cnt) {{
-    el.innerHTML = '<div style="color:#444;font-size:11px;text-align:center;'
-      + 'padding:14px;">No open positions — tap any signal card to add</div>';
+    el.innerHTML =
+      '<div style="color:#444;font-size:11px;'
+      + 'text-align:center;padding:14px;">'
+      + 'No open positions — tap any signal card to add</div>';
     return;
   }}
   el.innerHTML = arr.map(p => `
     <div class="pos-card">
-      <div style="display:flex;justify-content:space-between;align-items:center;">
+      <div style="display:flex;justify-content:space-between;
+      align-items:center;">
         <div>
-          <span style="font-weight:700;color:#fff;font-size:15px;">${{p.sym}}</span>
-          <span style="color:#666;font-size:10px;margin-left:8px;">
-            ${{p.signal}} | Added ${{p.added}}</span>
+          <span style="font-weight:700;color:#fff;
+          font-size:15px;">${{p.sym}}</span>
+          <span style="color:#666;font-size:10px;
+          margin-left:8px;">${{p.signal}} | ${{p.added}}</span>
         </div>
         <button onclick="removePosition('${{p.sym}}')"
-          style="background:none;border:1px solid #f85149;color:#f85149;
-          border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;">
-          Exit</button>
+          style="background:none;border:1px solid #f85149;
+          color:#f85149;border-radius:4px;padding:3px 8px;
+          font-size:10px;cursor:pointer;">Exit</button>
       </div>
       <div style="display:grid;grid-template-columns:repeat(3,1fr);
       gap:4px;margin-top:8px;font-size:11px;">
@@ -433,21 +466,24 @@ function renderPositions() {{
           ${{p.entry ? '₹'+fmt(p.entry) : '—'}}</span></div>
         <div style="color:#666;">Stop<br>
           <span style="color:#f85149;">
-          ${{p.stop ? '₹'+fmt(p.stop) : '—'}}</span></div>
+          ${{p.stop  ? '₹'+fmt(p.stop)  : '—'}}</span></div>
         <div style="color:#666;">Shares<br>
-          <span style="color:#c9d1d9;">${{p.shares || '—'}}</span></div>
+          <span style="color:#c9d1d9;">
+          ${{p.shares || '—'}}</span></div>
       </div>
     </div>`).join('');
 }}
 
 async function loadJournal() {{
-  const tbl    = document.getElementById('journal-table');
-  const header = `<tr><th>Date</th><th>Stock</th><th>Signal</th>
-    <th>Score</th><th>Entry</th><th>Stop</th><th>Age</th></tr>`;
+  const tbl = document.getElementById('journal-table');
+  const header = `<tr><th>Date</th><th>Stock</th>
+    <th>Signal</th><th>Score</th><th>Entry</th>
+    <th>Stop</th><th>Age</th></tr>`;
   try {{
-    const res  = await fetch('output/scan_log.json?t=' + Date.now());
+    const res  = await fetch('scan_log.json?t=' + Date.now());
     const data = await res.json();
-    if (!Array.isArray(data) || !data.length) throw new Error('empty');
+    if (!Array.isArray(data) || !data.length)
+      throw new Error('empty');
     const rows = [];
     data.slice(-10).reverse().forEach(day => {{
       (day.signals || []).forEach(s => {{
@@ -464,34 +500,39 @@ async function loadJournal() {{
     }});
     if (!rows.length) throw new Error('no rows');
     const tbody = rows.slice(0,40).map(r => {{
-      const sc  = r.score >= 7 ? '#00C851' : r.score >= 4 ? '#FFD700' : '#f85149';
+      const sc  = r.score >= 7 ? '#00C851'
+                : r.score >= 4 ? '#FFD700' : '#f85149';
       const arr = r.signal.includes('DOWN') ? '▼' : '▲';
       return `<tr>
-        <td style="color:#555;white-space:nowrap;">${{r.date}}</td>
+        <td style="color:#555;white-space:nowrap;">
+          ${{r.date}}</td>
         <td style="color:#58a6ff;">${{r.stock || '?'}}</td>
         <td>${{r.signal}} ${{arr}}</td>
         <td style="color:${{sc}};">${{r.score}}</td>
         <td>${{r.entry ? '₹'+fmt(r.entry) : '—'}}</td>
-        <td style="color:#f85149;">${{r.stop ? '₹'+fmt(r.stop) : '—'}}</td>
+        <td style="color:#f85149;">
+          ${{r.stop ? '₹'+fmt(r.stop) : '—'}}</td>
         <td style="color:#666;">${{r.age}}</td>
       </tr>`;
     }}).join('');
     tbl.innerHTML = header + tbody;
   }} catch(e) {{
     tbl.innerHTML = header +
-      '<tr><td colspan="7" style="color:#666;text-align:center;'
-      + 'padding:12px;">Could not load signal log</td></tr>';
+      '<tr><td colspan="7" style="color:#666;'
+      + 'text-align:center;padding:12px;">'
+      + 'Could not load signal log</td></tr>';
   }}
 }}
 
 function filterS(f, ev) {{
-  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.filter-btn')
+    .forEach(b => b.classList.remove('active'));
   ev.target.classList.add('active');
   document.querySelectorAll('.signal-card').forEach(c => {{
     const show = (
       f === 'all' ||
-      (f === 'UP_TRI'     && c.dataset.signal === 'UP_TRI')     ||
-      (f === 'DOWN_TRI'   && c.dataset.signal === 'DOWN_TRI')   ||
+      (f === 'UP_TRI'     && c.dataset.signal === 'UP_TRI') ||
+      (f === 'DOWN_TRI'   && c.dataset.signal === 'DOWN_TRI') ||
       (f === 'BULL_PROXY' && c.dataset.signal === 'BULL_PROXY') ||
       (f === 'age0'       && c.dataset.age === '0')
     );
