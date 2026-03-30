@@ -125,7 +125,6 @@ def check_stops():
 
 
 def check_exits():
-    """Check all open trades for Day 6 exit"""
     open_trades = get_open_trades()
     exits_done  = []
     for trade in open_trades:
@@ -165,9 +164,9 @@ def write_scan_log(signals, scan_date):
                 "stock":  s.get('stock', ''),
                 "signal": s.get('signal', ''),
                 "score":  s.get('score', 0),
-                "entry":  round(float(s.get('entry', 0)), 2),
-                "stop":   round(float(s.get('stop', 0)), 2),
-                "target": round(float(s.get('target', 0)), 2),
+                "entry":  round(float(s.get('entry')  or 0), 2),
+                "stop":   round(float(s.get('stop')   or 0), 2),
+                "target": round(float(s.get('target') or 0), 2),
                 "age":    s.get('age', 0),
                 "sector": s.get('sector', ''),
                 "grade":  s.get('grade', 'B'),
