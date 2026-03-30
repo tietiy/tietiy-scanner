@@ -43,3 +43,37 @@ jobs:
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+
+  deploy:
+    needs: scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Prepare Pages content
+        run: |
+          mkdir -p _site/output
+          # Copy main HTML page
+          cp output/index.html _site/index.html
+          # Copy scan_log.json so Pages can serve it
+          cp output/scan_log.json _site/output/scan_log.json || true
+
+      - name: Upload Pages artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
