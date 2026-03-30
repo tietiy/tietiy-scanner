@@ -21,7 +21,7 @@ from scanner_core import prepare, detect_signals
 from scorer import enrich_signal, filter_signals
 from journal import (
     log_signal, get_open_trades, get_recent_trades,
-    get_system_health, update_pnl, close_trade, check_exits
+    get_system_health, update_pnl, close_trade
 )
 from telegram_bot import (
     send_morning_alert, send_eod_summary,
@@ -67,10 +67,10 @@ def get_nifty_info():
                         else -1 if ret20 < -2 else 0)
 
         return {
-            'regime':       regime,
-            'regime_score': regime_score,
-            'nifty_close':  round(float(closes.iloc[-1]), 2),
-            'ret20':        round(float(ret20), 2),
+            'regime':        regime,
+            'regime_score':  regime_score,
+            'nifty_close':   round(float(closes.iloc[-1]), 2),
+            'ret20':         round(float(ret20), 2),
             'sector_leaders': []
         }
     except Exception as e:
@@ -115,8 +115,8 @@ def check_stops():
                               progress=False, auto_adjust=True)
             if isinstance(df.columns, pd.MultiIndex):
                 df.columns = [c[0] for c in df.columns]
-            low     = float(df['Low'].iloc[-1])
-            stop    = float(trade.get('stop', 0))
+            low  = float(df['Low'].iloc[-1])
+            stop = float(trade.get('stop', 0))
             if low <= stop:
                 close_trade(trade['trade_id'], stop, 'STOP')
                 send_stop_alert(trade, stop)
@@ -124,7 +124,27 @@ def check_stops():
             pass
 
 
-# ── SCAN LOG WRITER ───────────────────────────────
+def check_exits():
+    """Check all open trades for Day 6 exit"""
+    open_trades = get_open_trades()
+    exits_done  = []
+    for trade in open_trades:
+        try:
+            entry_date = trade.get('date_detected', '')
+            if not entry_date:
+                continue
+            days_left = days_until_exit(entry_date)
+            if days_left <= 0:
+                exit_price = float(
+                    trade.get('entry_estimate', 0))
+                close_trade(
+                    trade['trade_id'], exit_price, 'DAY6')
+                exits_done.append(trade)
+        except:
+            pass
+    return exits_done
+
+
 def write_scan_log(signals, scan_date):
     import json
     log_path = os.path.abspath(os.path.join(
@@ -164,7 +184,8 @@ def write_scan_log(signals, scan_date):
     with open(log_path, 'w') as f:
         json.dump(log, f, indent=2)
 
-    print(f"Scan log written — {len(signals)} signals for {scan_date}")
+    print(f"Scan log written — "
+          f"{len(signals)} signals for {scan_date}")
 
 
 # ── MORNING SCAN ──────────────────────────────────
@@ -193,7 +214,8 @@ def run_morning_scan():
             NIFTY_SYMBOL, period='3mo',
             progress=False, auto_adjust=True)
         if isinstance(nifty_df.columns, pd.MultiIndex):
-            nifty_df.columns = [c[0] for c in nifty_df.columns]
+            nifty_df.columns = [c[0]
+                                 for c in nifty_df.columns]
         nifty_close = nifty_df['Close']
     except:
         nifty_close = None
@@ -259,7 +281,8 @@ def run_stop_check():
     status = get_market_status()
     if not status['is_trading']:
         return
-    print(f"Stop check — {datetime.now().strftime('%H:%M')}")
+    print(f"Stop check — "
+          f"{datetime.now().strftime('%H:%M')}")
     check_stops()
 
 
@@ -281,7 +304,8 @@ def run_eod():
                     sym, period='5d',
                     progress=False, auto_adjust=True)
                 if isinstance(df.columns, pd.MultiIndex):
-                    df.columns = [c[0] for c in df.columns]
+                    df.columns = [c[0]
+                                  for c in df.columns]
                 current = float(df['Close'].iloc[-1])
                 update_pnl(trade['trade_id'], current)
             except:
