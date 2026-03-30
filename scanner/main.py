@@ -1,6 +1,10 @@
 import sys
 import os
-sys.path.insert(0, os.path.dirname(__file__))
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir  = os.path.dirname(current_dir)
+sys.path.insert(0, current_dir)
+sys.path.insert(0, parent_dir)
 
 import yfinance as yf
 import pandas as pd
@@ -17,7 +21,7 @@ from scanner_core import prepare, detect_signals
 from scorer import enrich_signal, filter_signals
 from journal import (
     log_signal, get_open_trades, get_recent_trades,
-    get_system_health, update_pnl, close_trade
+    get_system_health, update_pnl, close_trade, check_exits
 )
 from telegram_bot import (
     send_morning_alert, send_eod_summary,
@@ -25,8 +29,7 @@ from telegram_bot import (
 )
 from html_builder import build_html
 
-NIFTY_SYMBOL = "^NSEI"
-
+NIFTY_SYMBOL   = "^NSEI"
 SECTOR_INDICES = {
     "Bank":   "^NSEBANK",
     "IT":     "^CNXIT",
@@ -49,7 +52,7 @@ def get_nifty_info():
         ema50      = closes.ewm(span=50).mean()
         slope      = ema50.diff(10) / ema50.shift(10)
         above      = closes > ema50
-        last_slope = float(slope.iloc[-1])
+        last_slope = slope.iloc[-1]
         last_above = bool(above.iloc[-1])
 
         if last_slope > 0.005 and last_above:
@@ -59,37 +62,23 @@ def get_nifty_info():
         else:
             regime = 'Choppy'
 
-        ret20     = (float(closes.iloc[-1]) /
-                     float(closes.iloc[-20]) - 1) * 100
-        s_ret     = (2 if ret20 > 5 else
-                     1 if ret20 > 2 else
-                    -2 if ret20 < -5 else
-                    -1 if ret20 < -2 else 0)
-        s_ema     = 1 if last_above else -1
-        reg_score = int(np.clip(s_ret + s_ema, -4, 4))
-
-        prev_close = float(closes.iloc[-2])
-        last_close = float(closes.iloc[-1])
-        nifty_chg  = ((last_close - prev_close) /
-                      prev_close * 100)
+        ret20        = (closes.iloc[-1] / closes.iloc[-20] - 1) * 100
+        regime_score = (2 if ret20 > 5 else 1 if ret20 > 2
+                        else -1 if ret20 < -2 else 0)
 
         return {
             'regime':       regime,
-            'regime_score': reg_score,
-            'nifty_price':  round(last_close, 2),
-            'nifty_change': round(nifty_chg, 2),
-            'today':        date.today().strftime(
-                                '%d %b %Y'),
+            'regime_score': regime_score,
+            'nifty_close':  round(float(closes.iloc[-1]), 2),
+            'ret20':        round(float(ret20), 2),
+            'sector_leaders': []
         }
     except Exception as e:
-        print(f"Nifty fetch error: {e}")
+        print(f"Nifty info error: {e}")
         return {
-            'regime':       'Choppy',
-            'regime_score': 0,
-            'nifty_price':  0,
-            'nifty_change': 0,
-            'today':        date.today().strftime(
-                                '%d %b %Y'),
+            'regime': 'Choppy', 'regime_score': 0,
+            'nifty_close': 0, 'ret20': 0,
+            'sector_leaders': []
         }
 
 
@@ -98,82 +87,92 @@ def get_sector_momentum():
     for sector, sym in SECTOR_INDICES.items():
         try:
             df = yf.download(sym, period='1mo',
-                              progress=False,
-                              auto_adjust=True)
+                             progress=False, auto_adjust=True)
             if isinstance(df.columns, pd.MultiIndex):
                 df.columns = [c[0] for c in df.columns]
-            ret = (float(df['Close'].iloc[-1]) /
-                   float(df['Close'].iloc[0]) - 1) * 100
-            momentum[sector] = ('Leading' if ret > 2 else
-                                 'Lagging' if ret < -2 else
-                                 'Neutral')
+            closes = df['Close']
+            ret    = (closes.iloc[-1] / closes.iloc[0] - 1) * 100
+            momentum[sector] = round(float(ret), 2)
         except:
-            momentum[sector] = 'Neutral'
+            momentum[sector] = 0.0
     return momentum
 
 
 def get_sector_leaders(momentum):
-    return [s for s, m in momentum.items()
-            if m == 'Leading']
-
-
-def check_exits():
-    today  = date.today()
-    trades = get_open_trades()
-    exits  = []
-    for t in trades:
-        try:
-            entry_d = datetime.strptime(
-                t.get('entry_date', ''),
-                '%Y-%m-%d').date()
-            exit_d = days_until_exit(entry_d, 6)
-            if exit_d <= today:
-                exits.append(t)
-                close_trade(
-                    t['trade_id'],
-                    t.get('current_price',
-                          t.get('entry_actual', 0)),
-                    'Day6')
-        except:
-            pass
-    return exits
+    sorted_s = sorted(momentum.items(),
+                      key=lambda x: x[1], reverse=True)
+    return [s[0] for s in sorted_s[:3]]
 
 
 def check_stops():
-    trades = get_open_trades()
-    for t in trades:
+    open_trades = get_open_trades()
+    for trade in open_trades:
+        if trade.get('status') != 'OPEN':
+            continue
         try:
-            sym = t['stock']
-            df  = yf.download(sym, period='2d',
-                               progress=False,
-                               auto_adjust=True)
+            sym = trade['stock']
+            df  = yf.download(sym, period='5d',
+                              progress=False, auto_adjust=True)
             if isinstance(df.columns, pd.MultiIndex):
                 df.columns = [c[0] for c in df.columns]
-            if df.empty:
-                continue
             low     = float(df['Low'].iloc[-1])
-            high    = float(df['High'].iloc[-1])
-            stop    = float(t.get('stop_price', 0))
-            sig_dir = t.get('direction', 'LONG')
-            hit = (sig_dir == 'LONG'  and low  <= stop or
-                   sig_dir == 'SHORT' and high >= stop)
-            if hit:
-                close_trade(t['trade_id'], stop, 'StopHit')
-                send_stop_alert(t, stop)
-                print(f"STOP HIT: {sym} @ {stop}")
-        except Exception as e:
-            print(f"Stop check error "
-                  f"{t.get('stock','')}: {e}")
+            stop    = float(trade.get('stop', 0))
+            if low <= stop:
+                close_trade(trade['trade_id'], stop, 'STOP')
+                send_stop_alert(trade, stop)
+        except:
+            pass
 
 
+# ── SCAN LOG WRITER ───────────────────────────────
+def write_scan_log(signals, scan_date):
+    import json
+    log_path = os.path.abspath(os.path.join(
+        os.path.dirname(__file__),
+        '..', 'docs', 'scan_log.json'
+    ))
+
+    if os.path.exists(log_path):
+        with open(log_path, 'r') as f:
+            log = json.load(f)
+    else:
+        log = []
+
+    entry = {
+        "date": scan_date,
+        "signals": [
+            {
+                "stock":  s.get('stock', ''),
+                "signal": s.get('signal', ''),
+                "score":  s.get('score', 0),
+                "entry":  round(float(s.get('entry', 0)), 2),
+                "stop":   round(float(s.get('stop', 0)), 2),
+                "target": round(float(s.get('target', 0)), 2),
+                "age":    s.get('age', 0),
+                "sector": s.get('sector', ''),
+                "grade":  s.get('grade', 'B'),
+            }
+            for s in signals
+        ]
+    }
+
+    log = [e for e in log if e.get('date') != scan_date]
+    log.append(entry)
+    log = sorted(log, key=lambda x: x['date'])[-30:]
+
+    os.makedirs(os.path.dirname(log_path), exist_ok=True)
+    with open(log_path, 'w') as f:
+        json.dump(log, f, indent=2)
+
+    print(f"Scan log written — {len(signals)} signals for {scan_date}")
+
+
+# ── MORNING SCAN ──────────────────────────────────
 def run_morning_scan():
     status = get_market_status()
     if not status['is_trading']:
         print(f"Not a trading day: {status['reason']}")
-        try:
-            send_holiday_notice(status['reason'])
-        except:
-            pass
+        send_holiday_notice(status['reason'])
         return
 
     print("Fetching market data...")
@@ -194,8 +193,7 @@ def run_morning_scan():
             NIFTY_SYMBOL, period='3mo',
             progress=False, auto_adjust=True)
         if isinstance(nifty_df.columns, pd.MultiIndex):
-            nifty_df.columns = [c[0]
-                                 for c in nifty_df.columns]
+            nifty_df.columns = [c[0] for c in nifty_df.columns]
         nifty_close = nifty_df['Close']
     except:
         nifty_close = None
@@ -223,22 +221,8 @@ def run_morning_scan():
             print(f"Scan error {sym}: {e}")
             continue
 
-    print(f"Raw signals before filter: {len(all_signals)}")
-
-    # min_score=1 — age2/3 in non-bear score 1 point
-    # (regime only). min_score=2 was dropping them.
-    # WATCH/DEPLOY labels still separate quality tiers.
-    signals = filter_signals(all_signals, min_score=1)
+    signals = filter_signals(all_signals, min_score=2)
     print(f"Signals found: {len(signals)}")
-
-    # Print breakdown for monitoring
-    deploy = [s for s in signals
-              if s.get('action') == 'DEPLOY']
-    watch  = [s for s in signals
-              if s.get('action') == 'WATCH']
-    print(f"  DEPLOY: {len(deploy)}  "
-          f"WATCH: {len(watch)}  "
-          f"OTHER: {len(signals)-len(deploy)-len(watch)}")
 
     for sig in signals:
         try:
@@ -265,18 +249,21 @@ def run_morning_scan():
         open_trades, recent, system_health
     )
 
+    write_scan_log(signals, date.today().isoformat())
+
     print("Morning scan complete.")
 
 
+# ── STOP CHECK ────────────────────────────────────
 def run_stop_check():
     status = get_market_status()
     if not status['is_trading']:
         return
-    print(f"Stop check — "
-          f"{datetime.now().strftime('%H:%M')}")
+    print(f"Stop check — {datetime.now().strftime('%H:%M')}")
     check_stops()
 
 
+# ── EOD UPDATE ────────────────────────────────────
 def run_eod():
     status = get_market_status()
     if not status['is_trading']:
@@ -294,8 +281,7 @@ def run_eod():
                     sym, period='5d',
                     progress=False, auto_adjust=True)
                 if isinstance(df.columns, pd.MultiIndex):
-                    df.columns = [c[0]
-                                  for c in df.columns]
+                    df.columns = [c[0] for c in df.columns]
                 current = float(df['Close'].iloc[-1])
                 update_pnl(trade['trade_id'], current)
             except:
@@ -313,14 +299,13 @@ def run_eod():
         [], market_info, sector_momentum,
         get_open_trades(), recent, system_health
     )
-    send_eod_summary(open_trades, exits_done,
-                     market_info)
+    send_eod_summary(open_trades, exits_done, market_info)
     print("EOD complete.")
 
 
+# ── ENTRY POINT ───────────────────────────────────
 if __name__ == '__main__':
-    mode = (sys.argv[1]
-            if len(sys.argv) > 1 else 'morning')
+    mode = sys.argv[1] if len(sys.argv) > 1 else 'morning'
     if mode == 'morning':
         run_morning_scan()
     elif mode == 'stops':
@@ -329,5 +314,4 @@ if __name__ == '__main__':
         run_eod()
     else:
         print(f"Unknown mode: {mode}")
-        print("Usage: python main.py "
-              "[morning|stops|eod]")
+        print("Usage: python main.py [morning|stops|eod]")
