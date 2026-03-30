@@ -1,20 +1,31 @@
 <!DOCTYPE html>
-<html>
-<head>
+<html><head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TIE TIY Scanner</title>
 <style>
-body{background:#0d1117;color:#e6edf3;font-family:-apple-system,sans-serif;display:flex;justify-content:center;align-items:center;height:100vh;margin:0}
-.box{text-align:center}
-.logo{font-size:32px;font-weight:700;color:#58a6ff}
-.msg{margin-top:16px;color:#8b949e}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;background:#07070f;
+     color:#c9d1d9;padding:12px;max-width:600px;margin:0 auto}
 </style>
-</head>
-<body>
-<div class="box">
-  <div class="logo">🎯 TIE TIY Scanner</div>
-  <div class="msg">Market closed today.<br>Scanner runs on trading days at 8:45 AM IST.</div>
-</div>
-</body>
-</html>
+</head><body>
+<script>
+async function init() {
+  const res  = await fetch('scan_log.json?t=' + Date.now());
+  const data = await res.json();
+  const latest = data[data.length - 1];
+  const sigs = latest.signals || [];
+  document.body.innerHTML = '<h2 style="color:#ffd700;padding:20px">TIE TIY — ' 
+    + latest.date + '</h2>'
+    + sigs.map(s => '<div style="background:#0d1117;border:1px solid #21262d;'
+    + 'border-radius:8px;padding:12px;margin:8px;">'
+    + '<b style="color:#fff">' + (s.stock||'?') + '</b> '
+    + '<span style="color:#ffd700">' + s.signal + '</span> '
+    + 'Score:' + s.score
+    + '<br><span style="color:#f85149">Stop: ₹' + s.stop + '</span>'
+    + (s.target ? ' <span style="color:#58a6ff">Target: ₹' + s.target + '</span>' : '')
+    + '</div>').join('');
+}
+init();
+</script>
+</body></html>
