@@ -3,7 +3,7 @@ name: Deploy Scanner to GitHub Pages
 on:
   push:
     paths:
-      - 'scanner/output/**'
+      - 'output/**'
   workflow_dispatch:
 
 jobs:
