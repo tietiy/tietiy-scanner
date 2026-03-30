@@ -1,96 +1,75 @@
 import os
 import sys
 sys.path.insert(0, os.path.dirname(__file__))
-from datetime import date, timedelta
+from datetime import date
 from calendar_utils import next_trading_day, days_until_exit
 
-# ── SCORE WEIGHTS (from backtest calibration) ─────
-SCORE_AGE_0       = 3
-SCORE_AGE_1       = 2
-SCORE_BEAR_BONUS  = 3   # UP_TRI in bear = highest conviction
-SCORE_DOWN_ALL    = 2   # DOWN_TRI works all regimes
-SCORE_BULL_CHOPPY = 1   # Bull/Choppy regime baseline
-SCORE_BEAR_BASE   = 1   # Bear baseline (not a penalty)
-SCORE_VOL_CONFIRM = 1
-SCORE_SEC_LEADING = 1
-SCORE_RS_STRONG   = 1
-SCORE_GRADE_A     = 1
-
-# ── RISK SIZING ───────────────────────────────────
 CAPITAL         = 100_000
 RISK_PCT_HIGH   = 0.05
 RISK_PCT_NORMAL = 0.03
 RISK_PCT_LOW    = 0.01
 
-# ── EXIT RULES (from backtest) ────────────────────
 EXIT_UPTRI_BEAR = 'Target2x'
 EXIT_DEFAULT    = 'Day6'
+
+SCORE_AGE_0       = 3
+SCORE_AGE_1       = 2
+SCORE_BEAR_BONUS  = 3
+SCORE_DOWN_ALL    = 2
+SCORE_BULL_CHOPPY = 1
+SCORE_BEAR_BASE   = 1
+SCORE_VOL_CONFIRM = 1
+SCORE_SEC_LEADING = 1
+SCORE_RS_STRONG   = 1
+SCORE_GRADE_A     = 1
 
 
 def score_signal(sig, grade='B'):
     score     = 0
     breakdown = []
-
-    # Age — biggest factor
-    age = sig.get('age', 3)
+    age       = sig.get('age', 3)
     if age == 0:
         score += SCORE_AGE_0
-        breakdown.append(f"Age0 +{SCORE_AGE_0}")
+        breakdown.append(f"Age0+{SCORE_AGE_0}")
     elif age == 1:
         score += SCORE_AGE_1
-        breakdown.append(f"Age1 +{SCORE_AGE_1}")
+        breakdown.append(f"Age1+{SCORE_AGE_1}")
 
-    # Regime — signal-aware
-    # DOWN_TRI works all regimes — no regime penalty ever
-    # UP_TRI in bear = bear bonus
-    # Everything else gets baseline points
     regime = sig.get('regime', 'Choppy')
     signal = sig.get('signal', '')
-
     if signal == 'UP_TRI' and regime == 'Bear':
         score += SCORE_BEAR_BONUS
-        breakdown.append(f"BearBonus +{SCORE_BEAR_BONUS}")
+        breakdown.append(f"BearBonus+{SCORE_BEAR_BONUS}")
     elif signal == 'DOWN_TRI':
         score += SCORE_DOWN_ALL
-        breakdown.append(f"DownAllRegimes +{SCORE_DOWN_ALL}")
+        breakdown.append(f"DownAll+{SCORE_DOWN_ALL}")
     elif regime in ('Bull', 'Choppy'):
         score += SCORE_BULL_CHOPPY
-        breakdown.append(f"{regime} +{SCORE_BULL_CHOPPY}")
+        breakdown.append(f"{regime}+{SCORE_BULL_CHOPPY}")
     elif regime == 'Bear':
         score += SCORE_BEAR_BASE
-        breakdown.append(f"Bear +{SCORE_BEAR_BASE}")
+        breakdown.append(f"Bear+{SCORE_BEAR_BASE}")
 
-    # Volume confirmation
     if sig.get('vol_confirm', False):
         score += SCORE_VOL_CONFIRM
-        breakdown.append(f"Vol +{SCORE_VOL_CONFIRM}")
-
-    # Sector momentum
+        breakdown.append(f"Vol+{SCORE_VOL_CONFIRM}")
     if sig.get('sec_mom', 'Neutral') == 'Leading':
         score += SCORE_SEC_LEADING
-        breakdown.append(f"SecLead +{SCORE_SEC_LEADING}")
-
-    # Relative strength
+        breakdown.append(f"SecLead+{SCORE_SEC_LEADING}")
     if sig.get('rs_q', 'Neutral') == 'Strong':
         score += SCORE_RS_STRONG
-        breakdown.append(f"RS +{SCORE_RS_STRONG}")
-
-    # Grade A stock
+        breakdown.append(f"RS+{SCORE_RS_STRONG}")
     if grade == 'A':
         score += SCORE_GRADE_A
-        breakdown.append(f"GradeA +{SCORE_GRADE_A}")
+        breakdown.append(f"GradeA+{SCORE_GRADE_A}")
 
-    score = min(score, 10)
-    return score, breakdown
+    return min(score, 10), breakdown
 
 
-def get_action(score, signal, regime):
-    if score >= 6:
-        return 'DEPLOY'
-    elif score >= 3:
-        return 'WATCH'
-    elif score >= 2:
-        return 'CAUTION'
+def get_action(score):
+    if score >= 6:  return 'DEPLOY'
+    if score >= 3:  return 'WATCH'
+    if score >= 2:  return 'CAUTION'
     return 'NO_TRADE'
 
 
@@ -100,7 +79,7 @@ def get_exit_rule(signal, regime):
     return EXIT_DEFAULT
 
 
-def calc_target(entry, stop, exit_rule, atr):
+def calc_target(entry, stop, exit_rule):
     risk = abs(entry - stop)
     if exit_rule == 'Target2x':
         mult = 2.0
@@ -108,10 +87,9 @@ def calc_target(entry, stop, exit_rule, atr):
         mult = 1.5
     else:
         return None
-    if entry > stop:
-        return round(entry + risk * mult, 2)
-    else:
-        return round(entry - risk * mult, 2)
+    return round(entry + risk * mult, 2) \
+           if entry > stop \
+           else round(entry - risk * mult, 2)
 
 
 def calc_rr(entry, stop, target):
@@ -119,9 +97,7 @@ def calc_rr(entry, stop, target):
         return None
     risk   = abs(entry - stop)
     reward = abs(target - entry)
-    if risk <= 0:
-        return None
-    return round(reward / risk, 2)
+    return round(reward / risk, 2) if risk > 0 else None
 
 
 def calc_position_size(entry, stop, score):
@@ -134,25 +110,21 @@ def calc_position_size(entry, stop, score):
     stop_dist = abs(entry - stop)
     if stop_dist <= 0:
         return 0, 0
-    shares     = int(risk_amt / stop_dist)
-    actual_risk= shares * stop_dist
-    return shares, round(actual_risk, 0)
+    shares = int(risk_amt / stop_dist)
+    return shares, round(shares * stop_dist, 0)
 
 
 def enrich_signal(sig, grade='B'):
     score, breakdown = score_signal(sig, grade)
-    action    = get_action(score, sig['signal'],
-                           sig.get('regime',''))
-    exit_rule = get_exit_rule(sig['signal'],
-                              sig.get('regime',''))
+    action    = get_action(score)
+    exit_rule = get_exit_rule(
+        sig['signal'], sig.get('regime', ''))
     entry  = sig.get('entry_est', 0)
     stop   = sig.get('stop', 0)
-    target = calc_target(entry, stop, exit_rule,
-                         sig.get('atr', 0))
+    target = calc_target(entry, stop, exit_rule)
     rr     = calc_rr(entry, stop, target)
     shares, risk_amt = calc_position_size(
         entry, stop, score)
-
     today   = date.today()
     exit_dt = days_until_exit(today, 6)
 
@@ -164,7 +136,8 @@ def enrich_signal(sig, grade='B'):
     sig['rr']         = rr
     sig['shares']     = shares
     sig['risk_amt']   = risk_amt
-    sig['entry_date'] = next_trading_day(today).strftime('%d %b')
+    sig['entry_date'] = next_trading_day(
+        today).strftime('%d %b')
     sig['exit_date']  = exit_dt.strftime('%d %b')
     sig['expiry_warn']= False
     sig['grade']      = grade
@@ -175,11 +148,6 @@ def filter_signals(signals, min_score=2,
                    age0_only=False,
                    grade_a_only=False,
                    deploy_only=False):
-    """
-    Filter signals by criteria.
-    min_score default = 2 (was 3 — lowered so bear
-    regime signals are not suppressed).
-    """
     out = []
     for s in signals:
         if s.get('score', 0) < min_score:
