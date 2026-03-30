@@ -45,98 +45,6 @@ BEAR BONUS ACTIVE — UP TRI signals highest conviction
             f'{ic} {sec}</span>')
     hm_html += '</div>'
 
-    signal_cards = ''
-    if not signals:
-        signal_cards = '''
-<div style="text-align:center;color:#666;
-padding:40px 20px;font-size:14px;">
-No signals today. Market closed or no setups found.
-</div>'''
-    else:
-        for sig in signals:
-            action   = sig.get('action', '')
-            score    = sig.get('score', 0)
-            signal   = sig.get('signal', '')
-            symbol   = sig.get('symbol', '').replace('.NS', '')
-            sector   = sig.get('sector', '')
-            age      = sig.get('age', 0)
-            regime_s = sig.get('regime', '')
-            vol_q    = sig.get('vol_q', '')
-            rs_q     = sig.get('rs_q', '')
-            entry    = sig.get('entry_est', 0)
-            stop     = sig.get('stop', 0)
-            target   = sig.get('target', None)
-            rr       = sig.get('rr', None)
-            shares   = sig.get('shares', 0)
-            risk     = sig.get('risk_amt', 0)
-            ex_date  = sig.get('exit_date', '')
-            bear_b   = sig.get('bear_bonus', False)
-            grade    = sig.get('grade', 'B')
-            bdown    = sig.get('breakdown', '')
-
-            ac = ('#00C851' if action == 'DEPLOY' else
-                  '#FFD700' if action == 'WATCH' else
-                  '#FF8800')
-            sc = ('#00C851' if score >= 7 else
-                  '#FFD700' if score >= 4 else '#FF4444')
-            arrow = '▲' if signal in ('UP_TRI', 'BULL_PROXY') else '▼'
-            bb_badge = (
-                '<span style="background:#3a1a00;color:#ff8800;'
-                'border-radius:4px;padding:1px 5px;font-size:9px;'
-                'font-weight:700;margin-left:4px;">BEAR BONUS</span>'
-                if bear_b else '')
-
-            tgt_line = (
-                f'<span style="color:#58a6ff;">'
-                f'Target: ₹{target:,.2f} | R:R {rr}x</span>'
-                if target else
-                f'<span style="color:#666;">Exit: {ex_date} open</span>')
-
-            t_val = f'{target:.2f}' if target else '0'
-
-            signal_cards += f'''
-<div class="signal-card"
-     data-action="{action}"
-     data-signal="{signal}"
-     data-age="{age}"
-     data-grade="{grade}"
-     data-symbol="{symbol}"
-     data-entry="{entry:.2f}"
-     data-stop="{stop:.2f}"
-     data-target="{t_val}"
-     data-shares="{shares}"
-     data-sector="{sector}"
-     data-score="{score}"
-     onclick="openPanel(this)"
-     style="background:#0d1117;border:1px solid #21262d;
-     border-left:3px solid {ac};border-radius:8px;
-     padding:12px 14px;margin-bottom:10px;cursor:pointer;">
-  <div style="display:flex;justify-content:space-between;
-  align-items:flex-start;margin-bottom:6px;">
-    <div>
-      <span style="font-size:16px;font-weight:700;color:#fff;">{symbol}</span>
-      {bb_badge}
-      <span style="color:#666;font-size:11px;margin-left:6px;">{sector}</span>
-    </div>
-    <div style="text-align:right;">
-      <span style="background:{ac};color:#000;border-radius:4px;
-      padding:2px 7px;font-size:10px;font-weight:700;">{action}</span>
-      <span style="display:block;color:{sc};font-size:11px;margin-top:2px;">{score}/10</span>
-    </div>
-  </div>
-  <div style="color:#8b949e;font-size:11px;margin-bottom:6px;">
-    {signal} {arrow} | Age:{age} | {regime_s} | Vol:{vol_q} | RS:{rs_q}
-  </div>
-  <div style="display:grid;grid-template-columns:1fr 1fr;
-  gap:4px;font-size:12px;margin-bottom:6px;">
-    <div>Entry: <span style="color:#58a6ff;">₹{entry:,.2f}</span></div>
-    <div>Stop: <span style="color:#f85149;">₹{stop:,.2f}</span></div>
-    <div>{tgt_line}</div>
-    <div style="color:#666;">{shares} sh | Risk ₹{risk:,.0f}</div>
-  </div>
-  <div style="color:#444;font-size:9px;">{bdown}</div>
-</div>'''
-
     all_journal = (list(open_trades or []) + list(recent_trades or []))
     jrows = ''
     for t in all_journal[:15]:
@@ -220,16 +128,17 @@ border-radius:10px;padding:12px 14px;margin-bottom:12px;">
 {hm_html}
 
 <div style="display:flex;flex-wrap:wrap;gap:4px;margin:10px 0;">
-<button class="filter-btn active" onclick="filterS('all',event)">All ({len(signals)})</button>
-<button class="filter-btn" onclick="filterS('deploy',event)">Deploy</button>
-<button class="filter-btn" onclick="filterS('watch',event)">Watch</button>
+<button class="filter-btn active" onclick="filterS('all',event)">All</button>
 <button class="filter-btn" onclick="filterS('UP_TRI',event)">UP TRI</button>
 <button class="filter-btn" onclick="filterS('DOWN_TRI',event)">DOWN TRI</button>
 <button class="filter-btn" onclick="filterS('BULL_PROXY',event)">Proxy</button>
 <button class="filter-btn" onclick="filterS('age0',event)">Age 0</button>
 </div>
 
-<div id="signals">{signal_cards}</div>
+<div id="signals">
+  <div style="color:#666;text-align:center;padding:20px;font-size:12px;">
+  Loading signals...</div>
+</div>
 
 <div class="section-hdr">OPEN POSITIONS
   <span id="pos-count-badge"
@@ -323,6 +232,74 @@ Open positions: <span id="pos-count-footer">0</span>
 
 <script>
 let currentCard = {{}};
+
+async function loadSignals() {{
+  const el = document.getElementById('signals');
+  try {{
+    const res  = await fetch('output/scan_log.json?t=' + Date.now());
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) throw new Error('empty');
+    const latest = data[data.length - 1];
+    const sigs   = latest.signals || [];
+    document.querySelector('.filter-btn').textContent = 'All (' + sigs.length + ')';
+    if (!sigs.length) {{
+      el.innerHTML = '<div style="text-align:center;color:#666;padding:40px 20px;font-size:14px;">No signals on ' + latest.date + '</div>';
+      return;
+    }}
+    el.innerHTML = sigs.map(s => {{
+      const sym    = (s.stock || s.symbol || '').replace('.NS','');
+      const signal = s.signal || '';
+      const score  = s.score  || 0;
+      const entry  = s.entry  || 0;
+      const stop   = s.stop   || 0;
+      const target = s.target || 0;
+      const age    = s.age    || 0;
+      const sector = s.sector || '';
+      const grade  = s.grade  || 'B';
+      const sc     = score >= 7 ? '#00C851' : score >= 4 ? '#FFD700' : '#f85149';
+      const arrow  = signal.includes('DOWN') ? '▼' : '▲';
+      const t_val  = target ? target.toFixed(2) : '0';
+      return `<div class="signal-card"
+        data-signal="${{signal}}" data-age="${{age}}" data-action=""
+        data-grade="${{grade}}" data-symbol="${{sym}}"
+        data-entry="${{entry.toFixed ? entry.toFixed(2) : entry}}"
+        data-stop="${{stop.toFixed  ? stop.toFixed(2)  : stop}}"
+        data-target="${{t_val}}" data-shares="0"
+        data-sector="${{sector}}" data-score="${{score}}"
+        onclick="openPanel(this)"
+        style="background:#0d1117;border:1px solid #21262d;
+        border-left:3px solid ${{sc}};border-radius:8px;
+        padding:12px 14px;margin-bottom:10px;cursor:pointer;">
+        <div style="display:flex;justify-content:space-between;margin-bottom:6px;">
+          <div>
+            <span style="font-size:16px;font-weight:700;color:#fff;">
+            ${{sym || '?'}}</span>
+            <span style="color:#666;font-size:11px;margin-left:6px;">
+            ${{sector}}</span>
+          </div>
+          <span style="color:${{sc}};font-size:13px;font-weight:700;">
+          ${{score}}/10</span>
+        </div>
+        <div style="color:#8b949e;font-size:11px;margin-bottom:6px;">
+          ${{signal}} ${{arrow}} | Age:${{age}} | Grade:${{grade}}
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;
+        gap:4px;font-size:12px;">
+          <div>Entry: <span style="color:#58a6ff;">
+          ${{entry ? '₹'+fmt(entry) : '—'}}</span></div>
+          <div>Stop: <span style="color:#f85149;">
+          ${{stop  ? '₹'+fmt(stop)  : '—'}}</span></div>
+          ${{target
+            ? '<div><span style="color:#58a6ff;">Target: ₹'+fmt(target)+'</span></div>'
+            : '<div style="color:#666;">Exit: Day 6 open</div>'}}
+        </div>
+      </div>`;
+    }}).join('');
+  }} catch(e) {{
+    el.innerHTML = '<div style="text-align:center;color:#666;'
+      + 'padding:40px 20px;">Could not load signals</div>';
+  }}
+}}
 
 function openPanel(el) {{
   const sym    = el.dataset.symbol;
@@ -513,8 +490,6 @@ function filterS(f, ev) {{
   document.querySelectorAll('.signal-card').forEach(c => {{
     const show = (
       f === 'all' ||
-      (f === 'deploy'     && c.dataset.action === 'DEPLOY')     ||
-      (f === 'watch'      && c.dataset.action === 'WATCH')      ||
       (f === 'UP_TRI'     && c.dataset.signal === 'UP_TRI')     ||
       (f === 'DOWN_TRI'   && c.dataset.signal === 'DOWN_TRI')   ||
       (f === 'BULL_PROXY' && c.dataset.signal === 'BULL_PROXY') ||
@@ -530,6 +505,7 @@ function fmt(n) {{
 }}
 
 renderPositions();
+loadSignals();
 loadJournal();
 </script>
 </body></html>'''
