@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html><head>
+<meta charset="UTF-8">
+<meta name="viewport"
+      content="width=device-width,initial-scale=1">
+<title>TIE TIY Scanner</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,sans-serif;
+     background:#07070f;color:#c9d1d9;
+     padding:12px;max-width:600px;margin:0 auto}
+.filter-btn{background:#161b22;color:#8b949e;
+             border:1px solid #30363d;border-radius:6px;
+             padding:5px 10px;font-size:10px;
+             cursor:pointer;margin:2px}
+.filter-btn.active{background:#58a6ff;color:#000}
+table{width:100%;border-collapse:collapse;
+       font-size:11px}
+th{background:#161b22;color:#8b949e;
+    padding:6px 8px;text-align:left;
+    border-bottom:1px solid #21262d}
+td{padding:5px 8px;border-bottom:1px solid #0c0c1a}
+</style>
+</head><body>
+<div style="background:#0d1117;border:1px solid #21262d;
+border-radius:10px;padding:12px 14px;margin-bottom:12px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:4px;">
+    <span style="color:#ffd700;font-size:18px;
+    font-weight:700;">TIE TIY</span>
+    <span style="color:#FF4444;font-size:13px;">
+    Nifty 22,469 ▼
+    -1.5%</span>
+  </div>
+  <div style="display:flex;justify-content:space-between;
+  font-size:11px;color:#8b949e;">
+    <span>30 Mar 2026 | Updated 05:59</span>
+    <span style="background:#FF4444;color:#000;
+    border-radius:4px;padding:1px 7px;font-weight:700;">
+    Bear -3</span>
+  </div>
+</div>
+
+<div style="background:#1a0a0a;border:1px solid #ff4444;
+border-radius:8px;padding:10px 14px;margin:8px 0;
+color:#ff6666;font-size:12px;font-weight:700;">
+BEAR BONUS ACTIVE — UP TRI signals highest conviction
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;"><span style="background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:3px 8px;font-size:10px;">🔴 Bank</span><span style="background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:3px 8px;font-size:10px;">🔴 IT</span><span style="background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:3px 8px;font-size:10px;">🔴 Pharma</span><span style="background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:3px 8px;font-size:10px;">🔴 Auto</span><span style="background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:3px 8px;font-size:10px;">🔴 Metal</span><span style="background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:3px 8px;font-size:10px;">🔴 Energy</span><span style="background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:3px 8px;font-size:10px;">🔴 FMCG</span><span style="background:#0d1117;border:1px solid #30363d;border-radius:12px;padding:3px 8px;font-size:10px;">🔴 Infra</span></div>
+<div style="display:flex;flex-wrap:wrap;
+gap:4px;margin:10px 0;">
+<button class="filter-btn active"
+        onclick="filterS('all')">
+All (9)</button>
+<button class="filter-btn"
+        onclick="filterS('deploy')">Deploy</button>
+<button class="filter-btn"
+        onclick="filterS('watch')">Watch</button>
+<button class="filter-btn"
+        onclick="filterS('UP_TRI')">UP TRI</button>
+<button class="filter-btn"
+        onclick="filterS('DOWN_TRI')">DOWN TRI</button>
+<button class="filter-btn"
+        onclick="filterS('BULL_PROXY')">Proxy</button>
+<button class="filter-btn"
+        onclick="filterS('age0')">Age 0</button>
+</div>
+<div id="signals">
+<div class="signal-card"
+     data-action="DEPLOY"
+     data-signal="UP_TRI"
+     data-age="0"
+     data-grade="B"
+     style="background:#0d1117;border:1px solid #21262d;
+     border-left:3px solid #00C851;border-radius:8px;
+     padding:12px 14px;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:flex-start;margin-bottom:6px;">
+    <div>
+      <span style="font-size:16px;font-weight:700;
+      color:#fff;">TVSMOTOR</span>
+      <span style="background:#3a1a00;color:#ff8800;border-radius:4px;padding:1px 5px;font-size:9px;font-weight:700;margin-left:4px;">BEAR BONUS</span>
+      <span style="color:#666;font-size:11px;
+      margin-left:6px;">Auto</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#00C851;color:#000;
+      border-radius:4px;padding:2px 7px;
+      font-size:10px;font-weight:700;">DEPLOY</span>
+      <span style="display:block;color:#00C851;
+      font-size:11px;margin-top:2px;">7/10</span>
+    </div>
+  </div>
+  <div style="color:#8b949e;font-size:11px;
+  margin-bottom:6px;">
+    UP_TRI ▲ | Age:0 | Bear |
+    Vol:High | RS:Neutral
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:4px;font-size:12px;margin-bottom:6px;">
+    <div>Entry: <span style="color:#58a6ff;">
+    ₹3,364.00</span></div>
+    <div>Stop: <span style="color:#f85149;">
+    ₹3,141.58</span></div>
+    <div><span style="color:#58a6ff;">Target: ₹3,808.84 | R:R 2.0x</span></div>
+    <div style="color:#666;">
+    22 sh | Risk ₹4,893</div>
+  </div>
+  <div style="color:#444;font-size:9px;">Age0+3 | BearBonus+3 | Vol+1</div>
+</div>
+<div class="signal-card"
+     data-action="DEPLOY"
+     data-signal="DOWN_TRI"
+     data-age="0"
+     data-grade="B"
+     style="background:#0d1117;border:1px solid #21262d;
+     border-left:3px solid #00C851;border-radius:8px;
+     padding:12px 14px;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:flex-start;margin-bottom:6px;">
+    <div>
+      <span style="font-size:16px;font-weight:700;
+      color:#fff;">TORNTPHARM</span>
+      
+      <span style="color:#666;font-size:11px;
+      margin-left:6px;">Pharma</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#00C851;color:#000;
+      border-radius:4px;padding:2px 7px;
+      font-size:10px;font-weight:700;">DEPLOY</span>
+      <span style="display:block;color:#FFD700;
+      font-size:11px;margin-top:2px;">6/10</span>
+    </div>
+  </div>
+  <div style="color:#8b949e;font-size:11px;
+  margin-bottom:6px;">
+    DOWN_TRI ▼ | Age:0 | Bear |
+    Vol:Average | RS:Neutral
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:4px;font-size:12px;margin-bottom:6px;">
+    <div>Entry: <span style="color:#58a6ff;">
+    ₹4,207.70</span></div>
+    <div>Stop: <span style="color:#f85149;">
+    ₹4,579.44</span></div>
+    <div><span style="color:#666;">Exit: 08 Apr open</span></div>
+    <div style="color:#666;">
+    13 sh | Risk ₹4,833</div>
+  </div>
+  <div style="color:#444;font-size:9px;">Age0+3 | DownAll+2 | Vol+1</div>
+</div>
+<div class="signal-card"
+     data-action="DEPLOY"
+     data-signal="DOWN_TRI"
+     data-age="0"
+     data-grade="B"
+     style="background:#0d1117;border:1px solid #21262d;
+     border-left:3px solid #00C851;border-radius:8px;
+     padding:12px 14px;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:flex-start;margin-bottom:6px;">
+    <div>
+      <span style="font-size:16px;font-weight:700;
+      color:#fff;">COALINDIA</span>
+      
+      <span style="color:#666;font-size:11px;
+      margin-left:6px;">Metal</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#00C851;color:#000;
+      border-radius:4px;padding:2px 7px;
+      font-size:10px;font-weight:700;">DEPLOY</span>
+      <span style="display:block;color:#FFD700;
+      font-size:11px;margin-top:2px;">6/10</span>
+    </div>
+  </div>
+  <div style="color:#8b949e;font-size:11px;
+  margin-bottom:6px;">
+    DOWN_TRI ▼ | Age:0 | Bear |
+    Vol:High | RS:Neutral
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:4px;font-size:12px;margin-bottom:6px;">
+    <div>Entry: <span style="color:#58a6ff;">
+    ₹451.25</span></div>
+    <div>Stop: <span style="color:#f85149;">
+    ₹490.17</span></div>
+    <div><span style="color:#666;">Exit: 08 Apr open</span></div>
+    <div style="color:#666;">
+    128 sh | Risk ₹4,982</div>
+  </div>
+  <div style="color:#444;font-size:9px;">Age0+3 | DownAll+2 | Vol+1</div>
+</div>
+<div class="signal-card"
+     data-action="DEPLOY"
+     data-signal="DOWN_TRI"
+     data-age="0"
+     data-grade="B"
+     style="background:#0d1117;border:1px solid #21262d;
+     border-left:3px solid #00C851;border-radius:8px;
+     padding:12px 14px;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:flex-start;margin-bottom:6px;">
+    <div>
+      <span style="font-size:16px;font-weight:700;
+      color:#fff;">NATIONALUM</span>
+      
+      <span style="color:#666;font-size:11px;
+      margin-left:6px;">Metal</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#00C851;color:#000;
+      border-radius:4px;padding:2px 7px;
+      font-size:10px;font-weight:700;">DEPLOY</span>
+      <span style="display:block;color:#FFD700;
+      font-size:11px;margin-top:2px;">6/10</span>
+    </div>
+  </div>
+  <div style="color:#8b949e;font-size:11px;
+  margin-bottom:6px;">
+    DOWN_TRI ▼ | Age:0 | Bear |
+    Vol:High | RS:Neutral
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:4px;font-size:12px;margin-bottom:6px;">
+    <div>Entry: <span style="color:#58a6ff;">
+    ₹386.65</span></div>
+    <div>Stop: <span style="color:#f85149;">
+    ₹430.34</span></div>
+    <div><span style="color:#666;">Exit: 08 Apr open</span></div>
+    <div style="color:#666;">
+    114 sh | Risk ₹4,981</div>
+  </div>
+  <div style="color:#444;font-size:9px;">Age0+3 | DownAll+2 | Vol+1</div>
+</div>
+<div class="signal-card"
+     data-action="DEPLOY"
+     data-signal="DOWN_TRI"
+     data-age="0"
+     data-grade="B"
+     style="background:#0d1117;border:1px solid #21262d;
+     border-left:3px solid #00C851;border-radius:8px;
+     padding:12px 14px;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:flex-start;margin-bottom:6px;">
+    <div>
+      <span style="font-size:16px;font-weight:700;
+      color:#fff;">POWERGRID</span>
+      
+      <span style="color:#666;font-size:11px;
+      margin-left:6px;">Energy</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#00C851;color:#000;
+      border-radius:4px;padding:2px 7px;
+      font-size:10px;font-weight:700;">DEPLOY</span>
+      <span style="display:block;color:#FFD700;
+      font-size:11px;margin-top:2px;">6/10</span>
+    </div>
+  </div>
+  <div style="color:#8b949e;font-size:11px;
+  margin-bottom:6px;">
+    DOWN_TRI ▼ | Age:0 | Bear |
+    Vol:High | RS:Neutral
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:4px;font-size:12px;margin-bottom:6px;">
+    <div>Entry: <span style="color:#58a6ff;">
+    ₹295.45</span></div>
+    <div>Stop: <span style="color:#f85149;">
+    ₹317.63</span></div>
+    <div><span style="color:#666;">Exit: 08 Apr open</span></div>
+    <div style="color:#666;">
+    225 sh | Risk ₹4,991</div>
+  </div>
+  <div style="color:#444;font-size:9px;">Age0+3 | DownAll+2 | Vol+1</div>
+</div>
+<div class="signal-card"
+     data-action="DEPLOY"
+     data-signal="DOWN_TRI"
+     data-age="0"
+     data-grade="B"
+     style="background:#0d1117;border:1px solid #21262d;
+     border-left:3px solid #00C851;border-radius:8px;
+     padding:12px 14px;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:flex-start;margin-bottom:6px;">
+    <div>
+      <span style="font-size:16px;font-weight:700;
+      color:#fff;">NTPC</span>
+      
+      <span style="color:#666;font-size:11px;
+      margin-left:6px;">Energy</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#00C851;color:#000;
+      border-radius:4px;padding:2px 7px;
+      font-size:10px;font-weight:700;">DEPLOY</span>
+      <span style="display:block;color:#FFD700;
+      font-size:11px;margin-top:2px;">6/10</span>
+    </div>
+  </div>
+  <div style="color:#8b949e;font-size:11px;
+  margin-bottom:6px;">
+    DOWN_TRI ▼ | Age:0 | Bear |
+    Vol:High | RS:Neutral
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:4px;font-size:12px;margin-bottom:6px;">
+    <div>Entry: <span style="color:#58a6ff;">
+    ₹374.85</span></div>
+    <div>Stop: <span style="color:#f85149;">
+    ₹405.11</span></div>
+    <div><span style="color:#666;">Exit: 08 Apr open</span></div>
+    <div style="color:#666;">
+    165 sh | Risk ₹4,993</div>
+  </div>
+  <div style="color:#444;font-size:9px;">Age0+3 | DownAll+2 | Vol+1</div>
+</div>
+<div class="signal-card"
+     data-action="DEPLOY"
+     data-signal="DOWN_TRI"
+     data-age="0"
+     data-grade="B"
+     style="background:#0d1117;border:1px solid #21262d;
+     border-left:3px solid #00C851;border-radius:8px;
+     padding:12px 14px;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:flex-start;margin-bottom:6px;">
+    <div>
+      <span style="font-size:16px;font-weight:700;
+      color:#fff;">CESC</span>
+      
+      <span style="color:#666;font-size:11px;
+      margin-left:6px;">Energy</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#00C851;color:#000;
+      border-radius:4px;padding:2px 7px;
+      font-size:10px;font-weight:700;">DEPLOY</span>
+      <span style="display:block;color:#FFD700;
+      font-size:11px;margin-top:2px;">6/10</span>
+    </div>
+  </div>
+  <div style="color:#8b949e;font-size:11px;
+  margin-bottom:6px;">
+    DOWN_TRI ▼ | Age:0 | Bear |
+    Vol:High | RS:Neutral
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:4px;font-size:12px;margin-bottom:6px;">
+    <div>Entry: <span style="color:#58a6ff;">
+    ₹149.80</span></div>
+    <div>Stop: <span style="color:#f85149;">
+    ₹171.85</span></div>
+    <div><span style="color:#666;">Exit: 08 Apr open</span></div>
+    <div style="color:#666;">
+    226 sh | Risk ₹4,983</div>
+  </div>
+  <div style="color:#444;font-size:9px;">Age0+3 | DownAll+2 | Vol+1</div>
+</div>
+<div class="signal-card"
+     data-action="DEPLOY"
+     data-signal="DOWN_TRI"
+     data-age="0"
+     data-grade="B"
+     style="background:#0d1117;border:1px solid #21262d;
+     border-left:3px solid #00C851;border-radius:8px;
+     padding:12px 14px;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:flex-start;margin-bottom:6px;">
+    <div>
+      <span style="font-size:16px;font-weight:700;
+      color:#fff;">DMART</span>
+      
+      <span style="color:#666;font-size:11px;
+      margin-left:6px;">FMCG</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#00C851;color:#000;
+      border-radius:4px;padding:2px 7px;
+      font-size:10px;font-weight:700;">DEPLOY</span>
+      <span style="display:block;color:#FFD700;
+      font-size:11px;margin-top:2px;">6/10</span>
+    </div>
+  </div>
+  <div style="color:#8b949e;font-size:11px;
+  margin-bottom:6px;">
+    DOWN_TRI ▼ | Age:0 | Bear |
+    Vol:High | RS:Neutral
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:4px;font-size:12px;margin-bottom:6px;">
+    <div>Entry: <span style="color:#58a6ff;">
+    ₹3,898.80</span></div>
+    <div>Stop: <span style="color:#f85149;">
+    ₹4,172.70</span></div>
+    <div><span style="color:#666;">Exit: 08 Apr open</span></div>
+    <div style="color:#666;">
+    18 sh | Risk ₹4,930</div>
+  </div>
+  <div style="color:#444;font-size:9px;">Age0+3 | DownAll+2 | Vol+1</div>
+</div>
+<div class="signal-card"
+     data-action="DEPLOY"
+     data-signal="DOWN_TRI"
+     data-age="0"
+     data-grade="B"
+     style="background:#0d1117;border:1px solid #21262d;
+     border-left:3px solid #00C851;border-radius:8px;
+     padding:12px 14px;margin-bottom:10px;">
+  <div style="display:flex;justify-content:space-between;
+  align-items:flex-start;margin-bottom:6px;">
+    <div>
+      <span style="font-size:16px;font-weight:700;
+      color:#fff;">ABB</span>
+      
+      <span style="color:#666;font-size:11px;
+      margin-left:6px;">CapGoods</span>
+    </div>
+    <div style="text-align:right;">
+      <span style="background:#00C851;color:#000;
+      border-radius:4px;padding:2px 7px;
+      font-size:10px;font-weight:700;">DEPLOY</span>
+      <span style="display:block;color:#FFD700;
+      font-size:11px;margin-top:2px;">6/10</span>
+    </div>
+  </div>
+  <div style="color:#8b949e;font-size:11px;
+  margin-bottom:6px;">
+    DOWN_TRI ▼ | Age:0 | Bear |
+    Vol:High | RS:Neutral
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:4px;font-size:12px;margin-bottom:6px;">
+    <div>Entry: <span style="color:#58a6ff;">
+    ₹5,982.00</span></div>
+    <div>Stop: <span style="color:#f85149;">
+    ₹6,763.38</span></div>
+    <div><span style="color:#666;">Exit: 08 Apr open</span></div>
+    <div style="color:#666;">
+    6 sh | Risk ₹4,688</div>
+  </div>
+  <div style="color:#444;font-size:9px;">Age0+3 | DownAll+2 | Vol+1</div>
+</div></div>
+<div style="color:#ffd700;font-size:11px;
+font-weight:700;border-left:3px solid #ffd700;
+padding-left:8px;margin:14px 0 8px;">
+JOURNAL</div>
+<div style="overflow-x:auto;">
+<table>
+<tr><th>Stock</th><th>Signal</th><th>Entry</th>
+<th>Stop</th><th>Exit</th><th>PnL</th>
+<th>Status</th></tr>
+<tr>
+<td style="color:#58a6ff;">TVSMOTOR</td>
+<td>UP_TRI</td>
+<td>₹</td>
+<td style="color:#f85149;">₹3141.58</td>
+<td>08 Apr</td>
+<td style="color:#f85149;">%</td>
+<td style="color:#FFD700;">PENDING</td>
+</tr><tr>
+<td style="color:#58a6ff;">TORNTPHARM</td>
+<td>DOWN_TRI</td>
+<td>₹</td>
+<td style="color:#f85149;">₹4579.44</td>
+<td>08 Apr</td>
+<td style="color:#f85149;">%</td>
+<td style="color:#FFD700;">PENDING</td>
+</tr><tr>
+<td style="color:#58a6ff;">COALINDIA</td>
+<td>DOWN_TRI</td>
+<td>₹</td>
+<td style="color:#f85149;">₹490.17</td>
+<td>08 Apr</td>
+<td style="color:#f85149;">%</td>
+<td style="color:#FFD700;">PENDING</td>
+</tr><tr>
+<td style="color:#58a6ff;">NATIONALUM</td>
+<td>DOWN_TRI</td>
+<td>₹</td>
+<td style="color:#f85149;">₹430.34</td>
+<td>08 Apr</td>
+<td style="color:#f85149;">%</td>
+<td style="color:#FFD700;">PENDING</td>
+</tr><tr>
+<td style="color:#58a6ff;">POWERGRID</td>
+<td>DOWN_TRI</td>
+<td>₹</td>
+<td style="color:#f85149;">₹317.63</td>
+<td>08 Apr</td>
+<td style="color:#f85149;">%</td>
+<td style="color:#FFD700;">PENDING</td>
+</tr><tr>
+<td style="color:#58a6ff;">NTPC</td>
+<td>DOWN_TRI</td>
+<td>₹</td>
+<td style="color:#f85149;">₹405.11</td>
+<td>08 Apr</td>
+<td style="color:#f85149;">%</td>
+<td style="color:#FFD700;">PENDING</td>
+</tr><tr>
+<td style="color:#58a6ff;">CESC</td>
+<td>DOWN_TRI</td>
+<td>₹</td>
+<td style="color:#f85149;">₹171.85</td>
+<td>08 Apr</td>
+<td style="color:#f85149;">%</td>
+<td style="color:#FFD700;">PENDING</td>
+</tr><tr>
+<td style="color:#58a6ff;">DMART</td>
+<td>DOWN_TRI</td>
+<td>₹</td>
+<td style="color:#f85149;">₹4172.7</td>
+<td>08 Apr</td>
+<td style="color:#f85149;">%</td>
+<td style="color:#FFD700;">PENDING</td>
+</tr><tr>
+<td style="color:#58a6ff;">ABB</td>
+<td>DOWN_TRI</td>
+<td>₹</td>
+<td style="color:#f85149;">₹6763.38</td>
+<td>08 Apr</td>
+<td style="color:#f85149;">%</td>
+<td style="color:#FFD700;">PENDING</td>
+</tr>
+</table></div>
+<div style="margin-top:12px;padding:8px 12px;
+background:#0d1117;border-radius:8px;
+font-size:11px;color:#8b949e;">
+🟡 System: NORMAL | WR last 5: 0% |
+Open: 9
+</div>
+<script>
+function filterS(f){
+  document.querySelectorAll('.filter-btn').forEach(
+    b=>b.classList.remove('active'));
+  event.target.classList.add('active');
+  document.querySelectorAll('.signal-card').forEach(
+    c=>{
+      if(f==='all') c.style.display='';
+      else if(f==='deploy')
+        c.style.display=
+          c.dataset.action==='DEPLOY'?'':'none';
+      else if(f==='watch')
+        c.style.display=
+          c.dataset.action==='WATCH'?'':'none';
+      else if(f==='UP_TRI'||f==='DOWN_TRI'
+              ||f==='BULL_PROXY')
+        c.style.display=
+          c.dataset.signal===f?'':'none';
+      else if(f==='age0')
+        c.style.display=
+          c.dataset.age==='0'?'':'none';
+    });
+}
+</script>
+</body></html>
