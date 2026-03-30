@@ -32,7 +32,7 @@ def prepare(symbol, period='1y'):
             df.index = df.index.tz_localize(None)
         df = df[df.index.notna()]
         df.dropna(subset=['Close'], inplace=True)
-        if len(df) < 100:
+        if len(df) < 60:
             return None
         return df
     except Exception as e:
@@ -54,10 +54,10 @@ def add_indicators(df):
         (df['High'] - pc).abs(),
         (df['Low']  - pc).abs(),
     ], axis=1).max(axis=1)
-    df['atr']   = tr.ewm(
+    df['atr']    = tr.ewm(
         span=ATR_PERIOD, adjust=False).mean()
-    df['atrS']  = df['atr'].clip(lower=1e-6)
-    df['vavg20']= df['Volume'].rolling(20).mean()
+    df['atrS']   = df['atr'].clip(lower=1e-6)
+    df['vavg20'] = df['Volume'].rolling(20).mean()
     rng = (df['High'] - df['Low']).clip(lower=1e-6)
     df['bar_range'] = rng
     df['close_pos'] = (df['Close'] - df['Low']) / rng
@@ -78,6 +78,7 @@ def detect_pivots(df, lookback=None):
     highs = df['High'].values
     pl    = np.zeros(n, dtype=bool)
     ph    = np.zeros(n, dtype=bool)
+    # pivot at bar i needs lookback bars on each side
     for i in range(lookback, n - lookback):
         if lows[i]  == lows[i-lookback:i+lookback+1].min():
             pl[i] = True
@@ -153,10 +154,12 @@ def detect_signals(df, symbol, sector,
                    regime, regime_score,
                    sector_momentum,
                    nifty_close=None):
+
     df       = add_indicators(df)
     df       = detect_pivots(df)
     df       = build_zones(df)
     df       = add_zone_proximity(df)
+
     n        = len(df)
     last_bar = n - 1
     closes   = df['Close'].values
@@ -170,6 +173,19 @@ def detect_signals(df, symbol, sector,
     szL_v    = df['szL'].values
     nSZ_v    = df['nearSZ'].values
     signals  = []
+
+    # ── CRITICAL FIX ─────────────────────────────
+    # Pivot at bar pb is CONFIRMED at bar pb+LOOKBACK
+    # Age = bars since confirmation
+    # age = last_bar - (pb + PIVOT_LOOKBACK)
+    # age = 0 → confirmed exactly LOOKBACK bars ago
+    # age = 3 → confirmed 3 bars after lookback
+    # Valid pivot range: bars where age 0-3 is possible
+    # pb + PIVOT_LOOKBACK = last_bar - age
+    # pb = last_bar - age - PIVOT_LOOKBACK
+    # For age 0-3: pb in [n-1-3-LB, n-1-0-LB]
+    #            = [n-4-LB, n-1-LB]
+    LB = PIVOT_LOOKBACK
 
     def get_vol_rs(pb):
         avg_vol = df['Volume'].iloc[
@@ -200,15 +216,17 @@ def detect_signals(df, symbol, sector,
                 pass
         return vol_q, vol_confirm, rs_q
 
-    # UP TRIANGLE — ages 0-3, no EMA50 filter
-    for pb in range(max(0, n-15), n-1):
+    # ── UP TRIANGLE — ages 0-3 ────────────────────
+    # pivot bar range for age 0-3:
+    # pb = last_bar - age - LB
+    for age in range(0, 4):
+        pb = last_bar - age - LB
+        if pb < LB or pb >= n:
+            continue
         if not pl_v[pb]:
             continue
         atr = atr_v[pb]
         if np.isnan(atr) or atr <= 0:
-            continue
-        age = last_bar - pb - 1
-        if age > 3:
             continue
         pivot_px  = lows[pb]
         entry_est = closes[last_bar]
@@ -238,50 +256,47 @@ def detect_signals(df, symbol, sector,
             'bear_bonus':   (regime == 'Bear'),
         })
 
-    # DOWN TRIANGLE — age 0 only, all regimes
-    for pb in range(max(0, n-15), n-1):
-        if not ph_v[pb]:
-            continue
+    # ── DOWN TRIANGLE — age 0 only ────────────────
+    pb = last_bar - 0 - LB  # age 0 only
+    if LB <= pb < n and ph_v[pb]:
         atr = atr_v[pb]
-        if np.isnan(atr) or atr <= 0:
-            continue
-        age = last_bar - pb - 1
-        if age != 0:
-            continue
-        pivot_px  = highs[pb]
-        entry_est = closes[last_bar]
-        stop      = round(pivot_px + STOP_MULT * atr, 2)
-        if stop <= entry_est:
-            continue
-        vq, vc, rq = get_vol_rs(pb)
-        signals.append({
-            'symbol':       symbol,
-            'sector':       sector,
-            'signal':       'DOWN_TRI',
-            'direction':    'SHORT',
-            'age':          0,
-            'pivot_date':   df.index[pb].strftime(
-                                '%Y-%m-%d'),
-            'pivot_price':  round(pivot_px, 2),
-            'entry_est':    round(entry_est, 2),
-            'stop':         stop,
-            'atr':          round(atr, 2),
-            'regime':       regime,
-            'regime_score': regime_score,
-            'vol_q':        vq,
-            'vol_confirm':  vc,
-            'rs_q':         rq,
-            'sec_mom':      sector_momentum.get(
-                                sector, 'Neutral'),
-            'bear_bonus':   False,
-        })
+        if not (np.isnan(atr) or atr <= 0):
+            pivot_px  = highs[pb]
+            entry_est = closes[last_bar]
+            stop      = round(
+                pivot_px + STOP_MULT * atr, 2)
+            if stop > entry_est:
+                vq, vc, rq = get_vol_rs(pb)
+                signals.append({
+                    'symbol':       symbol,
+                    'sector':       sector,
+                    'signal':       'DOWN_TRI',
+                    'direction':    'SHORT',
+                    'age':          0,
+                    'pivot_date':   df.index[pb].strftime(
+                                        '%Y-%m-%d'),
+                    'pivot_price':  round(pivot_px, 2),
+                    'entry_est':    round(entry_est, 2),
+                    'stop':         stop,
+                    'atr':          round(atr, 2),
+                    'regime':       regime,
+                    'regime_score': regime_score,
+                    'vol_q':        vq,
+                    'vol_confirm':  vc,
+                    'rs_q':         rq,
+                    'sec_mom':      sector_momentum.get(
+                                        sector, 'Neutral'),
+                    'bear_bonus':   False,
+                })
 
-    # BULL PROXY — ages 0-1, trend filter required
+    # ── BULL PROXY — ages 0-1, trend required ─────
     bp_last = -999
-    for i in range(max(0, n-15), n):
+    # scan last 20 bars for a valid proxy bar
+    for i in range(max(LB, n-20), n):
         atr = atr_v[i]
         if np.isnan(atr) or atr <= 0:
             continue
+        # trend filter required
         if closes[i] < ema50v[i]:
             continue
         if (i - bp_last) <= SMC_COOLDOWN:
