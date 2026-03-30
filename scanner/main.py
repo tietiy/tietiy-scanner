@@ -68,23 +68,28 @@ def get_nifty_info():
         s_ema     = 1 if last_above else -1
         reg_score = int(np.clip(s_ret + s_ema, -4, 4))
 
-        prev_close  = float(closes.iloc[-2])
-        last_close  = float(closes.iloc[-1])
-        nifty_chg   = (last_close - prev_close) / prev_close * 100
+        prev_close = float(closes.iloc[-2])
+        last_close = float(closes.iloc[-1])
+        nifty_chg  = ((last_close - prev_close) /
+                      prev_close * 100)
 
         return {
             'regime':       regime,
             'regime_score': reg_score,
             'nifty_price':  round(last_close, 2),
             'nifty_change': round(nifty_chg, 2),
-            'today':        date.today().strftime('%d %b %Y'),
+            'today':        date.today().strftime(
+                                '%d %b %Y'),
         }
     except Exception as e:
         print(f"Nifty fetch error: {e}")
         return {
-            'regime': 'Choppy', 'regime_score': 0,
-            'nifty_price': 0, 'nifty_change': 0,
-            'today': date.today().strftime('%d %b %Y'),
+            'regime':       'Choppy',
+            'regime_score': 0,
+            'nifty_price':  0,
+            'nifty_change': 0,
+            'today':        date.today().strftime(
+                                '%d %b %Y'),
         }
 
 
@@ -92,9 +97,9 @@ def get_sector_momentum():
     momentum = {}
     for sector, sym in SECTOR_INDICES.items():
         try:
-            df  = yf.download(sym, period='1mo',
-                               progress=False,
-                               auto_adjust=True)
+            df = yf.download(sym, period='1mo',
+                              progress=False,
+                              auto_adjust=True)
             if isinstance(df.columns, pd.MultiIndex):
                 df.columns = [c[0] for c in df.columns]
             ret = (float(df['Close'].iloc[-1]) /
@@ -113,28 +118,28 @@ def get_sector_leaders(momentum):
 
 
 def check_exits():
-    """Return trades that should exit today"""
     today  = date.today()
     trades = get_open_trades()
     exits  = []
     for t in trades:
         try:
             entry_d = datetime.strptime(
-                t.get('entry_date', ''), '%Y-%m-%d').date()
-            exit_d  = days_until_exit(entry_d, 6)
+                t.get('entry_date', ''),
+                '%Y-%m-%d').date()
+            exit_d = days_until_exit(entry_d, 6)
             if exit_d <= today:
                 exits.append(t)
-                close_trade(t['trade_id'],
-                            t.get('current_price',
-                                  t.get('entry_actual', 0)),
-                            'Day6')
+                close_trade(
+                    t['trade_id'],
+                    t.get('current_price',
+                          t.get('entry_actual', 0)),
+                    'Day6')
         except:
             pass
     return exits
 
 
 def check_stops():
-    """Check if any stops have been hit"""
     trades = get_open_trades()
     for t in trades:
         try:
@@ -157,10 +162,10 @@ def check_stops():
                 send_stop_alert(t, stop)
                 print(f"STOP HIT: {sym} @ {stop}")
         except Exception as e:
-            print(f"Stop check error {t.get('stock','')}: {e}")
+            print(f"Stop check error "
+                  f"{t.get('stock','')}: {e}")
 
 
-# ── MORNING SCAN ──────────────────────────────────
 def run_morning_scan():
     status = get_market_status()
     if not status['is_trading']:
@@ -172,8 +177,8 @@ def run_morning_scan():
         return
 
     print("Fetching market data...")
-    market_info      = get_nifty_info()
-    sector_momentum  = get_sector_momentum()
+    market_info     = get_nifty_info()
+    sector_momentum = get_sector_momentum()
     market_info['sector_leaders'] = get_sector_leaders(
         sector_momentum)
 
@@ -218,10 +223,22 @@ def run_morning_scan():
             print(f"Scan error {sym}: {e}")
             continue
 
-    # min_score=2 — ensures bear regime signals
-    # are not suppressed
-    signals = filter_signals(all_signals, min_score=2)
+    print(f"Raw signals before filter: {len(all_signals)}")
+
+    # min_score=1 — age2/3 in non-bear score 1 point
+    # (regime only). min_score=2 was dropping them.
+    # WATCH/DEPLOY labels still separate quality tiers.
+    signals = filter_signals(all_signals, min_score=1)
     print(f"Signals found: {len(signals)}")
+
+    # Print breakdown for monitoring
+    deploy = [s for s in signals
+              if s.get('action') == 'DEPLOY']
+    watch  = [s for s in signals
+              if s.get('action') == 'WATCH']
+    print(f"  DEPLOY: {len(deploy)}  "
+          f"WATCH: {len(watch)}  "
+          f"OTHER: {len(signals)-len(deploy)-len(watch)}")
 
     for sig in signals:
         try:
@@ -251,7 +268,6 @@ def run_morning_scan():
     print("Morning scan complete.")
 
 
-# ── STOP CHECK ────────────────────────────────────
 def run_stop_check():
     status = get_market_status()
     if not status['is_trading']:
@@ -261,7 +277,6 @@ def run_stop_check():
     check_stops()
 
 
-# ── EOD UPDATE ────────────────────────────────────
 def run_eod():
     status = get_market_status()
     if not status['is_trading']:
@@ -303,9 +318,9 @@ def run_eod():
     print("EOD complete.")
 
 
-# ── ENTRY POINT ───────────────────────────────────
 if __name__ == '__main__':
-    mode = sys.argv[1] if len(sys.argv) > 1 else 'morning'
+    mode = (sys.argv[1]
+            if len(sys.argv) > 1 else 'morning')
     if mode == 'morning':
         run_morning_scan()
     elif mode == 'stops':
