@@ -3,7 +3,7 @@ name: Deploy Scanner to GitHub Pages
 on:
   push:
     paths:
-      - 'output/**'
+      - 'scanner/output/**'
   workflow_dispatch:
 
 jobs:
@@ -27,7 +27,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: output/
+          path: scanner/output/
 
       - name: Deploy to GitHub Pages
         id: deployment
