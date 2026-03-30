@@ -1,8 +1,5 @@
-import os
-import sys
-sys.path.insert(0, os.path.dirname(__file__))
-
 FO_UNIVERSE = [
+    # ── Bank / Finance (26) ──────────────────────
     "HDFCBANK.NS","ICICIBANK.NS","AXISBANK.NS",
     "KOTAKBANK.NS","SBIN.NS","INDUSINDBK.NS",
     "BANDHANBNK.NS","FEDERALBNK.NS","IDFCFIRSTB.NS",
@@ -11,99 +8,171 @@ FO_UNIVERSE = [
     "HDFCLIFE.NS","SBILIFE.NS","ICICIPRULI.NS",
     "CHOLAFIN.NS","MUTHOOTFIN.NS","LICHSGFIN.NS",
     "RECLTD.NS","PFC.NS","MANAPPURAM.NS","ICICIGI.NS",
+    # ── Bank / Finance NEW (12) ──────────────────
+    "SHRIRAMFIN.NS","ABCAPITAL.NS","LTF.NS",
+    "JIOFIN.NS","SUNDARMFIN.NS","ANGELONE.NS",
+    "MFSL.NS","YESBANK.NS","BSE.NS",
+    "CDSL.NS","CAMS.NS","MCX.NS",
+    # ── IT (11) ──────────────────────────────────
     "TCS.NS","INFY.NS","HCLTECH.NS","WIPRO.NS",
     "TECHM.NS","MPHASIS.NS","LTIM.NS","PERSISTENT.NS",
     "COFORGE.NS","OFSS.NS","KPITTECH.NS",
+    # ── IT NEW (3) ───────────────────────────────
+    "LTTS.NS","TATAELXSI.NS","CYIENT.NS",
+    # ── Auto (12) ────────────────────────────────
     "MARUTI.NS","TATAMOTORS.NS","M&M.NS","BAJAJ-AUTO.NS",
     "HEROMOTOCO.NS","EICHERMOT.NS","ASHOKLEY.NS",
     "TVSMOTOR.NS","BALKRISIND.NS","MOTHERSON.NS",
     "BHARATFORG.NS","APOLLOTYRE.NS",
+    # ── Auto NEW (2) ─────────────────────────────
+    "ESCORTS.NS","ENDURANCE.NS",
+    # ── Pharma (12) ──────────────────────────────
     "SUNPHARMA.NS","DRREDDY.NS","CIPLA.NS",
     "AUROPHARMA.NS","DIVISLAB.NS","LUPIN.NS",
     "BIOCON.NS","ALKEM.NS","TORNTPHARM.NS",
     "IPCALAB.NS","GLENMARK.NS","LAURUSLABS.NS",
+    # ── Pharma NEW (3) ───────────────────────────
+    "ZYDUSLIFE.NS","AJANTPHARM.NS","ABBOTINDIA.NS",
+    # ── Metal (10) ───────────────────────────────
     "TATASTEEL.NS","JSWSTEEL.NS","HINDALCO.NS",
     "VEDL.NS","COALINDIA.NS","NMDC.NS","SAIL.NS",
     "JINDALSTEL.NS","NATIONALUM.NS","HINDCOPPER.NS",
+    # ── Metal NEW (3) ────────────────────────────
+    "HINDZINC.NS","APLAPOLLO.NS","WELCORP.NS",
+    # ── Energy / Power (10) ──────────────────────
     "RELIANCE.NS","ONGC.NS","BPCL.NS","IOC.NS",
     "GAIL.NS","POWERGRID.NS","NTPC.NS","TATAPOWER.NS",
     "ADANIGREEN.NS","CESC.NS",
+    # ── Energy NEW (6) ───────────────────────────
+    "JSWENERGY.NS","TORNTPOWER.NS","ADANIPOWER.NS",
+    "ADANIENTERP.NS","HINDPETRO.NS","OIL.NS",
+    # ── FMCG / Consumer (12) ─────────────────────
     "HINDUNILVR.NS","ITC.NS","BRITANNIA.NS",
     "DABUR.NS","MARICO.NS","GODREJCP.NS",
     "TATACONSUM.NS","TRENT.NS","TITAN.NS","DMART.NS",
     "ZOMATO.NS","PAGEIND.NS",
+    # ── FMCG NEW (5) ─────────────────────────────
+    "VBL.NS","COLPAL.NS","EMAMILTD.NS",
+    "JUBLFOOD.NS","NYKAA.NS",
+    # ── Cement / Infra (10) ──────────────────────
     "ULTRACEMCO.NS","AMBUJACEM.NS","ACC.NS",
     "SHREECEM.NS","LT.NS","ADANIPORTS.NS","DLF.NS",
     "GODREJPROP.NS","PHOENIXLTD.NS","PRESTIGE.NS",
+    # ── Cement NEW (2) ───────────────────────────
+    "JKCEMENT.NS","RAMCOCEM.NS",
+    # ── Capital Goods (8) ────────────────────────
     "BHEL.NS","SIEMENS.NS","ABB.NS","HAVELLS.NS",
     "VOLTAS.NS","CUMMINSIND.NS","HAL.NS","BEL.NS",
+    # ── Capital Goods NEW (5) ────────────────────
+    "COCHINSHIP.NS","RVNL.NS","KEC.NS",
+    "THERMAX.NS","KALPATPOWR.NS",
+    # ── Chemicals / Paint (9) ────────────────────
     "PIDILITIND.NS","DEEPAKNTR.NS","NAVINFLUOR.NS",
     "SRF.NS","ASIANPAINT.NS","BERGEPAINT.NS",
-    "TATACHEM.NS","ALKYLAMINE.NS",
+    "TATACHEM.NS","ALKYLAMINE.NS","ATUL.NS",
+    # ── Chemicals NEW (4) ────────────────────────
+    "PIIND.NS","SUMICHEM.NS","GNFC.NS","COROMANDEL.NS",
+    # ── Healthcare Services NEW (5) ──────────────
+    "APOLLOHOSP.NS","MAXHEALTH.NS","FORTIS.NS",
+    "METROPOLIS.NS","LALPATHLAB.NS",
+    # ── Others (9) ───────────────────────────────
     "DIXON.NS","BHARTIARTL.NS","IRCTC.NS",
     "CONCOR.NS","NAUKRI.NS","UBL.NS",
     "PVRINOX.NS","GMRAIRPORT.NS","IRFC.NS",
+    # ── Others NEW (6) ───────────────────────────
+    "INDIGO.NS","AMBER.NS","VGUARD.NS",
+    "CROMPTON.NS","WHIRLPOOL.NS","BATAINDIA.NS",
 ]
+
 FO_UNIVERSE = list(dict.fromkeys(FO_UNIVERSE))
 
+# ── SECTOR MAP ────────────────────────────────────
 SECTOR_MAP = {}
-for s in ["HDFCBANK.NS","ICICIBANK.NS","AXISBANK.NS",
-          "KOTAKBANK.NS","SBIN.NS","INDUSINDBK.NS",
-          "BANDHANBNK.NS","FEDERALBNK.NS","IDFCFIRSTB.NS",
-          "PNB.NS","CANBK.NS","BANKBARODA.NS","AUBANK.NS",
-          "RBLBANK.NS","BAJFINANCE.NS","BAJAJFINSV.NS",
-          "HDFCLIFE.NS","SBILIFE.NS","ICICIPRULI.NS",
-          "CHOLAFIN.NS","MUTHOOTFIN.NS","LICHSGFIN.NS",
-          "RECLTD.NS","PFC.NS","MANAPPURAM.NS","ICICIGI.NS"]:
+
+for s in [
+    "HDFCBANK.NS","ICICIBANK.NS","AXISBANK.NS","KOTAKBANK.NS","SBIN.NS",
+    "INDUSINDBK.NS","BANDHANBNK.NS","FEDERALBNK.NS","IDFCFIRSTB.NS","PNB.NS",
+    "CANBK.NS","BANKBARODA.NS","AUBANK.NS","RBLBANK.NS","BAJFINANCE.NS",
+    "BAJAJFINSV.NS","HDFCLIFE.NS","SBILIFE.NS","ICICIPRULI.NS","CHOLAFIN.NS",
+    "MUTHOOTFIN.NS","LICHSGFIN.NS","RECLTD.NS","PFC.NS","MANAPPURAM.NS",
+    "ICICIGI.NS","SHRIRAMFIN.NS","ABCAPITAL.NS","LTF.NS","JIOFIN.NS",
+    "SUNDARMFIN.NS","ANGELONE.NS","MFSL.NS","YESBANK.NS",
+    "BSE.NS","CDSL.NS","CAMS.NS","MCX.NS"]:
     SECTOR_MAP[s] = "Bank"
-for s in ["TCS.NS","INFY.NS","HCLTECH.NS","WIPRO.NS",
-          "TECHM.NS","MPHASIS.NS","LTIM.NS","PERSISTENT.NS",
-          "COFORGE.NS","OFSS.NS","KPITTECH.NS"]:
+
+for s in [
+    "TCS.NS","INFY.NS","HCLTECH.NS","WIPRO.NS","TECHM.NS","MPHASIS.NS",
+    "LTIM.NS","PERSISTENT.NS","COFORGE.NS","OFSS.NS","KPITTECH.NS",
+    "LTTS.NS","TATAELXSI.NS","CYIENT.NS"]:
     SECTOR_MAP[s] = "IT"
-for s in ["MARUTI.NS","TATAMOTORS.NS","M&M.NS",
-          "BAJAJ-AUTO.NS","HEROMOTOCO.NS","EICHERMOT.NS",
-          "ASHOKLEY.NS","TVSMOTOR.NS","BALKRISIND.NS",
-          "MOTHERSON.NS","BHARATFORG.NS","APOLLOTYRE.NS"]:
+
+for s in [
+    "MARUTI.NS","TATAMOTORS.NS","M&M.NS","BAJAJ-AUTO.NS","HEROMOTOCO.NS",
+    "EICHERMOT.NS","ASHOKLEY.NS","TVSMOTOR.NS","BALKRISIND.NS","MOTHERSON.NS",
+    "BHARATFORG.NS","APOLLOTYRE.NS","ESCORTS.NS","ENDURANCE.NS"]:
     SECTOR_MAP[s] = "Auto"
-for s in ["SUNPHARMA.NS","DRREDDY.NS","CIPLA.NS",
-          "AUROPHARMA.NS","DIVISLAB.NS","LUPIN.NS",
-          "BIOCON.NS","ALKEM.NS","TORNTPHARM.NS",
-          "IPCALAB.NS","GLENMARK.NS","LAURUSLABS.NS"]:
+
+for s in [
+    "SUNPHARMA.NS","DRREDDY.NS","CIPLA.NS","AUROPHARMA.NS","DIVISLAB.NS",
+    "LUPIN.NS","BIOCON.NS","ALKEM.NS","TORNTPHARM.NS","IPCALAB.NS",
+    "GLENMARK.NS","LAURUSLABS.NS","ZYDUSLIFE.NS","AJANTPHARM.NS","ABBOTINDIA.NS"]:
     SECTOR_MAP[s] = "Pharma"
-for s in ["TATASTEEL.NS","JSWSTEEL.NS","HINDALCO.NS",
-          "VEDL.NS","COALINDIA.NS","NMDC.NS","SAIL.NS",
-          "JINDALSTEL.NS","NATIONALUM.NS","HINDCOPPER.NS"]:
+
+for s in [
+    "TATASTEEL.NS","JSWSTEEL.NS","HINDALCO.NS","VEDL.NS","COALINDIA.NS",
+    "NMDC.NS","SAIL.NS","JINDALSTEL.NS","NATIONALUM.NS","HINDCOPPER.NS",
+    "HINDZINC.NS","APLAPOLLO.NS","WELCORP.NS"]:
     SECTOR_MAP[s] = "Metal"
-for s in ["RELIANCE.NS","ONGC.NS","BPCL.NS","IOC.NS",
-          "GAIL.NS","POWERGRID.NS","NTPC.NS",
-          "TATAPOWER.NS","ADANIGREEN.NS","CESC.NS"]:
+
+for s in [
+    "RELIANCE.NS","ONGC.NS","BPCL.NS","IOC.NS","GAIL.NS","POWERGRID.NS",
+    "NTPC.NS","TATAPOWER.NS","ADANIGREEN.NS","CESC.NS","JSWENERGY.NS",
+    "TORNTPOWER.NS","ADANIPOWER.NS","ADANIENTERP.NS","HINDPETRO.NS","OIL.NS"]:
     SECTOR_MAP[s] = "Energy"
-for s in ["HINDUNILVR.NS","ITC.NS","BRITANNIA.NS",
-          "DABUR.NS","MARICO.NS","GODREJCP.NS",
-          "TATACONSUM.NS","TRENT.NS","TITAN.NS",
-          "DMART.NS","ZOMATO.NS","PAGEIND.NS"]:
+
+for s in [
+    "HINDUNILVR.NS","ITC.NS","BRITANNIA.NS","DABUR.NS","MARICO.NS",
+    "GODREJCP.NS","TATACONSUM.NS","TRENT.NS","TITAN.NS","DMART.NS",
+    "ZOMATO.NS","PAGEIND.NS","VBL.NS","COLPAL.NS","EMAMILTD.NS",
+    "JUBLFOOD.NS","NYKAA.NS"]:
     SECTOR_MAP[s] = "FMCG"
-for s in ["ULTRACEMCO.NS","AMBUJACEM.NS","ACC.NS",
-          "SHREECEM.NS","LT.NS","ADANIPORTS.NS","DLF.NS",
-          "GODREJPROP.NS","PHOENIXLTD.NS","PRESTIGE.NS"]:
+
+for s in [
+    "ULTRACEMCO.NS","AMBUJACEM.NS","ACC.NS","SHREECEM.NS","LT.NS",
+    "ADANIPORTS.NS","DLF.NS","GODREJPROP.NS","PHOENIXLTD.NS","PRESTIGE.NS",
+    "JKCEMENT.NS","RAMCOCEM.NS"]:
     SECTOR_MAP[s] = "Infra"
-for s in ["BHEL.NS","SIEMENS.NS","ABB.NS","HAVELLS.NS",
-          "VOLTAS.NS","CUMMINSIND.NS","HAL.NS","BEL.NS"]:
+
+for s in [
+    "BHEL.NS","SIEMENS.NS","ABB.NS","HAVELLS.NS","VOLTAS.NS",
+    "CUMMINSIND.NS","HAL.NS","BEL.NS","COCHINSHIP.NS","RVNL.NS",
+    "KEC.NS","THERMAX.NS","KALPATPOWR.NS"]:
     SECTOR_MAP[s] = "CapGoods"
-for s in ["PIDILITIND.NS","DEEPAKNTR.NS","NAVINFLUOR.NS",
-          "SRF.NS","ASIANPAINT.NS","BERGEPAINT.NS",
-          "TATACHEM.NS","ALKYLAMINE.NS"]:
+
+for s in [
+    "PIDILITIND.NS","DEEPAKNTR.NS","NAVINFLUOR.NS","SRF.NS",
+    "ASIANPAINT.NS","BERGEPAINT.NS","TATACHEM.NS","ALKYLAMINE.NS",
+    "ATUL.NS","PIIND.NS","SUMICHEM.NS","GNFC.NS","COROMANDEL.NS"]:
     SECTOR_MAP[s] = "Chem"
-for s in ["DIXON.NS","BHARTIARTL.NS","IRCTC.NS",
-          "CONCOR.NS","NAUKRI.NS","UBL.NS",
-          "PVRINOX.NS","GMRAIRPORT.NS","IRFC.NS"]:
+
+for s in [
+    "APOLLOHOSP.NS","MAXHEALTH.NS","FORTIS.NS",
+    "METROPOLIS.NS","LALPATHLAB.NS"]:
+    SECTOR_MAP[s] = "Health"
+
+for s in [
+    "DIXON.NS","BHARTIARTL.NS","IRCTC.NS","CONCOR.NS","NAUKRI.NS",
+    "UBL.NS","PVRINOX.NS","GMRAIRPORT.NS","IRFC.NS","INDIGO.NS",
+    "AMBER.NS","VGUARD.NS","CROMPTON.NS","WHIRLPOOL.NS","BATAINDIA.NS"]:
     SECTOR_MAP[s] = "Other"
 
+# ── GRADE A STOCKS ────────────────────────────────
 GRADE_A = {
     "PRESTIGE.NS","JINDALSTEL.NS","KPITTECH.NS",
     "DLF.NS","HINDALCO.NS","DIXON.NS",
     "CANBK.NS","TITAN.NS","TATASTEEL.NS",
     "JSWSTEEL.NS","SBIN.NS","AXISBANK.NS",
+    "COCHINSHIP.NS","MARUTI.NS","BAJFINANCE.NS",
 }
 
 def load_universe():
@@ -113,5 +182,5 @@ def get_sector_map():
     return SECTOR_MAP
 
 def get_grade_map():
-    return {s: ('A' if s in GRADE_A else 'B')
-            for s in FO_UNIVERSE}
+    return {sym: ('A' if sym in GRADE_A else 'B')
+            for sym in FO_UNIVERSE}
