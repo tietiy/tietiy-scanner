@@ -76,6 +76,8 @@ BEAR BONUS ACTIVE — UP TRI signals highest conviction
 <td style="color:#555;font-size:10px;">{reason}</td>
 </tr>'''
         rej_html = f'''
+        {rej_html}
+
 <div class="section-hdr" style="color:#444;border-color:#333;">
   <span onclick="toggleRej()" style="cursor:pointer;">
   ▶ REJECTED SIGNALS ({len(rejected_signals)})
