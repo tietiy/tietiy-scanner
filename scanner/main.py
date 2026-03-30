@@ -129,7 +129,7 @@ def write_scan_log(signals, scan_date):
     import json
     log_path = os.path.abspath(os.path.join(
         os.path.dirname(__file__),
-        '..', 'docs', 'scan_log.json'
+        '..', 'output', 'scan_log.json'
     ))
 
     if os.path.exists(log_path):
