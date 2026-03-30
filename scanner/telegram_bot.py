@@ -12,6 +12,7 @@ def send_message(text, parse_mode='HTML'):
         print("Telegram not configured — skipping")
         return False
     try:
+        print(f"Sending Telegram to chat {TELEGRAM_CHAT_ID[:6]}...")
         r = requests.post(
             f"{BASE_URL}/sendMessage",
             data={
@@ -21,6 +22,8 @@ def send_message(text, parse_mode='HTML'):
             },
             timeout=15
         )
+        print(f"Telegram status: {r.status_code}")
+        print(f"Telegram response: {r.text[:300]}")
         return r.status_code == 200
     except Exception as e:
         print(f"Telegram error: {e}")
@@ -79,21 +82,28 @@ def send_morning_alert(signals, market_info,
     n_arrow   = 'UP' if nifty_chg >= 0 else 'DOWN'
     n_sign    = '+' if nifty_chg >= 0 else ''
     h_icon    = ('GREEN' if health == 'HOT' else
-                 'RED'   if health == 'COLD' else 'YELLOW')
+                 'RED'   if health == 'COLD' else
+                 'YELLOW')
 
     bear_banner = ''
     if regime == 'Bear':
-        bear_banner = ('\nBEAR BONUS ACTIVE '
-                       '— UP_TRI highest conviction\n')
+        bear_banner = (
+            '\nBEAR BONUS ACTIVE '
+            '-- UP_TRI highest conviction\n'
+        )
 
-    msg  = (f"TIE TIY MORNING SCAN — {today}\n\n"
-            f"MARKET\n"
-            f"Nifty: {nifty_px:,.0f} {n_arrow} "
-            f"{n_sign}{nifty_chg:.1f}%\n"
-            f"Regime: {regime} Score:{reg_score}"
-            f"{bear_banner}\n")
+    msg  = (
+        f"TIE TIY MORNING SCAN -- {today}\n\n"
+        f"MARKET\n"
+        f"Nifty: {nifty_px:,.0f} {n_arrow} "
+        f"{n_sign}{nifty_chg:.1f}%\n"
+        f"Regime: {regime} Score:{reg_score}"
+        f"{bear_banner}\n"
+    )
+
     if leaders:
         msg += f"Leaders: {' | '.join(leaders)}\n"
+
     msg += "\n---\n"
 
     deploy = [s for s in signals
@@ -104,7 +114,7 @@ def send_morning_alert(signals, market_info,
     if not signals:
         msg += "No signals today\n"
     else:
-        msg += f"SIGNALS TODAY — {len(signals)}\n\n"
+        msg += f"SIGNALS TODAY -- {len(signals)}\n\n"
         for i, sig in enumerate(deploy, 1):
             msg += f"{i}. {fmt_signal_block(sig)}\n\n"
         if watch:
@@ -116,6 +126,7 @@ def send_morning_alert(signals, market_info,
                 age  = sig.get('age', 0)
                 msg += (f"- {sym} {sgnl} "
                         f"Age:{age} Score:{sc}\n")
+
     msg += "\n---\n"
 
     if exits_today:
@@ -135,13 +146,16 @@ def send_morning_alert(signals, market_info,
             msg += f"- {stk} Stop:{stp} Day{day}\n"
 
     msg += f"\nSystem: {h_icon}"
+
+    print(f"Telegram message length: {len(msg)}")
     send_message(msg)
 
 
 def send_eod_summary(open_trades, exits_done,
                      market_info):
     today = market_info.get('today', '')
-    msg   = f"TIE TIY EOD — {today}\n\n"
+    msg   = f"TIE TIY EOD -- {today}\n\n"
+
     if exits_done:
         msg += "EXITS TODAY\n"
         for t in exits_done:
@@ -150,6 +164,7 @@ def send_eod_summary(open_trades, exits_done,
             msg += (f"- {stk}"
                     f"{' '+str(pnl)+'%' if pnl else ''}\n")
         msg += "\n"
+
     if open_trades:
         msg += "OPEN POSITIONS\n"
         for t in open_trades:
@@ -160,6 +175,7 @@ def send_eod_summary(open_trades, exits_done,
                     f"{' '+str(pnl)+'%' if pnl else ''}\n")
     else:
         msg += "No open positions\n"
+
     send_message(msg)
 
 
@@ -168,22 +184,24 @@ def send_stop_alert(trade, stop_price):
     stype = trade.get('signal_type', '')
     entry = trade.get('entry_actual',
                       trade.get('entry_estimate', 0))
-    msg   = (f"STOP HIT — {stk}\n"
-             f"Signal: {stype}\n"
-             f"Entry: Rs{entry}\n"
-             f"Stop: Rs{stop_price}\n"
-             f"Exit at stop price NOW")
+    msg   = (
+        f"STOP HIT -- {stk}\n"
+        f"Signal: {stype}\n"
+        f"Entry: Rs{entry}\n"
+        f"Stop: Rs{stop_price}\n"
+        f"Exit at stop price NOW"
+    )
     send_message(msg)
 
 
 def send_holiday_notice(reason):
     send_message(
-        f"TIE TIY — Market Closed\n"
+        f"TIE TIY -- Market Closed\n"
         f"Reason: {reason}\nNo scan today.")
 
 
 def send_large_move_alert(symbol, move_pct, atr):
     send_message(
-        f"LARGE MOVE — {symbol}\n"
+        f"LARGE MOVE -- {symbol}\n"
         f"Move: {move_pct:.1f}%  ATR: {atr:.2f}\n"
         f"Check open positions.")
