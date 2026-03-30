@@ -70,14 +70,19 @@ def get_nifty_info():
             'regime':        regime,
             'regime_score':  regime_score,
             'nifty_close':   round(float(closes.iloc[-1]), 2),
+            'nifty_price':   round(float(closes.iloc[-1]), 2),
+            'nifty_change':  round(float(ret20), 2),
             'ret20':         round(float(ret20), 2),
+            'today':         date.today().strftime('%d %b %Y'),
             'sector_leaders': []
         }
     except Exception as e:
         print(f"Nifty info error: {e}")
         return {
             'regime': 'Choppy', 'regime_score': 0,
-            'nifty_close': 0, 'ret20': 0,
+            'nifty_close': 0, 'nifty_price': 0,
+            'nifty_change': 0, 'ret20': 0,
+            'today': date.today().strftime('%d %b %Y'),
             'sector_leaders': []
         }
 
@@ -92,9 +97,13 @@ def get_sector_momentum():
                 df.columns = [c[0] for c in df.columns]
             closes = df['Close']
             ret    = (closes.iloc[-1] / closes.iloc[0] - 1) * 100
-            momentum[sector] = round(float(ret), 2)
+            momentum[sector] = (
+                'Leading' if ret > 2 else
+                'Lagging' if ret < -2 else
+                'Neutral'
+            )
         except:
-            momentum[sector] = 0.0
+            momentum[sector] = 'Neutral'
     return momentum
 
 
@@ -161,12 +170,12 @@ def write_scan_log(signals, scan_date):
         "date": scan_date,
         "signals": [
             {
-                "stock":  s.get('stock', ''),
+                "stock":  s.get('symbol', ''),
                 "signal": s.get('signal', ''),
                 "score":  s.get('score', 0),
-                "entry":  round(float(s.get('entry')  or 0), 2),
-                "stop":   round(float(s.get('stop')   or 0), 2),
-                "target": round(float(s.get('target') or 0), 2),
+                "entry":  round(float(s.get('entry_est') or 0), 2),
+                "stop":   round(float(s.get('stop')     or 0), 2),
+                "target": round(float(s.get('target')   or 0), 2),
                 "age":    s.get('age', 0),
                 "sector": s.get('sector', ''),
                 "grade":  s.get('grade', 'B'),
@@ -193,19 +202,17 @@ def run_morning_scan():
     if not status['is_trading']:
         print(f"Not a trading day: {status['reason']}")
         send_holiday_notice(status['reason'])
-        # Still rebuild HTML so new template deploys
-        market_info = get_nifty_info()
+        market_info     = get_nifty_info()
         sector_momentum = get_sector_momentum()
-        open_trades = get_open_trades()
-        recent = get_recent_trades(10)
-        health_s, hw = get_system_health()
+        open_trades     = get_open_trades()
+        recent          = get_recent_trades(10)
+        health_s, hw    = get_system_health()
         build_html(
             [], market_info, sector_momentum,
             open_trades, recent,
             {'health': health_s, 'health_wr': hw}
         )
         return
-
 
     print("Fetching market data...")
     market_info     = get_nifty_info()
@@ -248,6 +255,7 @@ def run_morning_scan():
             )
             grade = grade_map.get(sym, 'B')
             for sig in sigs:
+                sig['grade'] = grade
                 sig = enrich_signal(sig, grade)
                 all_signals.append(sig)
         except Exception as e:
