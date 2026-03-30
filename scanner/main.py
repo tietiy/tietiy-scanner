@@ -193,7 +193,19 @@ def run_morning_scan():
     if not status['is_trading']:
         print(f"Not a trading day: {status['reason']}")
         send_holiday_notice(status['reason'])
+        # Still rebuild HTML so new template deploys
+        market_info = get_nifty_info()
+        sector_momentum = get_sector_momentum()
+        open_trades = get_open_trades()
+        recent = get_recent_trades(10)
+        health_s, hw = get_system_health()
+        build_html(
+            [], market_info, sector_momentum,
+            open_trades, recent,
+            {'health': health_s, 'health_wr': hw}
+        )
         return
+
 
     print("Fetching market data...")
     market_info     = get_nifty_info()
