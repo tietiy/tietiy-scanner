@@ -210,7 +210,8 @@ def run_morning_scan():
         build_html(
             [], market_info, sector_momentum,
             open_trades, recent,
-            {'health': health_s, 'health_wr': hw}
+            {'health': health_s, 'health_wr': hw},
+            rejected_signals=[]
         )
         return
 
@@ -263,9 +264,9 @@ def run_morning_scan():
             continue
 
     signals  = filter_signals(all_signals, min_score=2)
-rejected = [s for s in all_signals if s not in signals]
-
-    print(f"Signals found: {len(signals)}")
+    rejected = [s for s in all_signals if s not in signals]
+    print(f"Signals found: {len(signals)} | "
+          f"Rejected: {len(rejected)}")
 
     for sig in signals:
         try:
@@ -289,7 +290,8 @@ rejected = [s for s in all_signals if s not in signals]
 
     build_html(
         signals, market_info, sector_momentum,
-        open_trades, recent, system_health
+        open_trades, recent, system_health,
+        rejected_signals=rejected
     )
 
     write_scan_log(signals, date.today().isoformat())
@@ -342,7 +344,8 @@ def run_eod():
 
     build_html(
         [], market_info, sector_momentum,
-        get_open_trades(), recent, system_health
+        get_open_trades(), recent, system_health,
+        rejected_signals=[]
     )
     send_eod_summary(open_trades, exits_done, market_info)
     print("EOD complete.")
