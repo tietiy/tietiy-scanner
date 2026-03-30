@@ -262,7 +262,9 @@ def run_morning_scan():
             print(f"Scan error {sym}: {e}")
             continue
 
-    signals = filter_signals(all_signals, min_score=2)
+    signals  = filter_signals(all_signals, min_score=2)
+rejected = [s for s in all_signals if s not in signals]
+
     print(f"Signals found: {len(signals)}")
 
     for sig in signals:
