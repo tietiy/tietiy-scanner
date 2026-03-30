@@ -35,8 +35,7 @@ color:#ff6666;font-size:12px;font-weight:700;">
 BEAR BONUS ACTIVE — UP TRI signals highest conviction
 </div>'''
 
-    # Sector heatmap
-    icons   = {'Leading':'🟢','Neutral':'🟡','Lagging':'🔴'}
+    icons   = {'Leading': '🟢', 'Neutral': '🟡', 'Lagging': '🔴'}
     hm_html = '<div style="display:flex;flex-wrap:wrap;gap:6px;margin:8px 0;">'
     for sec, mom in sector_momentum.items():
         ic = icons.get(mom, '🟡')
@@ -46,21 +45,19 @@ BEAR BONUS ACTIVE — UP TRI signals highest conviction
             f'{ic} {sec}</span>')
     hm_html += '</div>'
 
-    # Signal cards
     signal_cards = ''
     if not signals:
         signal_cards = '''
 <div style="text-align:center;color:#666;
 padding:40px 20px;font-size:14px;">
-No signals today
+No signals today. Market closed or no setups found.
 </div>'''
     else:
         for sig in signals:
             action   = sig.get('action', '')
             score    = sig.get('score', 0)
             signal   = sig.get('signal', '')
-            symbol   = sig.get('symbol','').replace(
-                '.NS','')
+            symbol   = sig.get('symbol', '').replace('.NS', '')
             sector   = sig.get('sector', '')
             age      = sig.get('age', 0)
             regime_s = sig.get('regime', '')
@@ -82,23 +79,20 @@ No signals today
                   '#FF8800')
             sc = ('#00C851' if score >= 7 else
                   '#FFD700' if score >= 4 else '#FF4444')
-            arrow = '▲' if signal in (
-                'UP_TRI','BULL_PROXY') else '▼'
+            arrow = '▲' if signal in ('UP_TRI', 'BULL_PROXY') else '▼'
             bb_badge = (
-                '<span style="background:#3a1a00;'
-                'color:#ff8800;border-radius:4px;'
-                'padding:1px 5px;font-size:9px;'
-                'font-weight:700;margin-left:4px;">'
-                'BEAR BONUS</span>'
+                '<span style="background:#3a1a00;color:#ff8800;'
+                'border-radius:4px;padding:1px 5px;font-size:9px;'
+                'font-weight:700;margin-left:4px;">BEAR BONUS</span>'
                 if bear_b else '')
 
             tgt_line = (
                 f'<span style="color:#58a6ff;">'
-                f'Target: ₹{target:,.2f} | R:R {rr}x'
-                f'</span>'
+                f'Target: ₹{target:,.2f} | R:R {rr}x</span>'
                 if target else
-                f'<span style="color:#666;">'
-                f'Exit: {ex_date} open</span>')
+                f'<span style="color:#666;">Exit: {ex_date} open</span>')
+
+            t_val = f'{target:.2f}' if target else '0'
 
             signal_cards += f'''
 <div class="signal-card"
@@ -106,180 +100,437 @@ No signals today
      data-signal="{signal}"
      data-age="{age}"
      data-grade="{grade}"
+     data-symbol="{symbol}"
+     data-entry="{entry:.2f}"
+     data-stop="{stop:.2f}"
+     data-target="{t_val}"
+     data-shares="{shares}"
+     data-sector="{sector}"
+     data-score="{score}"
+     onclick="openPanel(this)"
      style="background:#0d1117;border:1px solid #21262d;
      border-left:3px solid {ac};border-radius:8px;
-     padding:12px 14px;margin-bottom:10px;">
+     padding:12px 14px;margin-bottom:10px;cursor:pointer;">
   <div style="display:flex;justify-content:space-between;
   align-items:flex-start;margin-bottom:6px;">
     <div>
-      <span style="font-size:16px;font-weight:700;
-      color:#fff;">{symbol}</span>
+      <span style="font-size:16px;font-weight:700;color:#fff;">{symbol}</span>
       {bb_badge}
-      <span style="color:#666;font-size:11px;
-      margin-left:6px;">{sector}</span>
+      <span style="color:#666;font-size:11px;margin-left:6px;">{sector}</span>
     </div>
     <div style="text-align:right;">
-      <span style="background:{ac};color:#000;
-      border-radius:4px;padding:2px 7px;
-      font-size:10px;font-weight:700;">{action}</span>
-      <span style="display:block;color:{sc};
-      font-size:11px;margin-top:2px;">{score}/10</span>
+      <span style="background:{ac};color:#000;border-radius:4px;
+      padding:2px 7px;font-size:10px;font-weight:700;">{action}</span>
+      <span style="display:block;color:{sc};font-size:11px;margin-top:2px;">{score}/10</span>
     </div>
   </div>
-  <div style="color:#8b949e;font-size:11px;
-  margin-bottom:6px;">
-    {signal} {arrow} | Age:{age} | {regime_s} |
-    Vol:{vol_q} | RS:{rs_q}
+  <div style="color:#8b949e;font-size:11px;margin-bottom:6px;">
+    {signal} {arrow} | Age:{age} | {regime_s} | Vol:{vol_q} | RS:{rs_q}
   </div>
   <div style="display:grid;grid-template-columns:1fr 1fr;
   gap:4px;font-size:12px;margin-bottom:6px;">
-    <div>Entry: <span style="color:#58a6ff;">
-    ₹{entry:,.2f}</span></div>
-    <div>Stop: <span style="color:#f85149;">
-    ₹{stop:,.2f}</span></div>
+    <div>Entry: <span style="color:#58a6ff;">₹{entry:,.2f}</span></div>
+    <div>Stop: <span style="color:#f85149;">₹{stop:,.2f}</span></div>
     <div>{tgt_line}</div>
-    <div style="color:#666;">
-    {shares} sh | Risk ₹{risk:,.0f}</div>
+    <div style="color:#666;">{shares} sh | Risk ₹{risk:,.0f}</div>
   </div>
   <div style="color:#444;font-size:9px;">{bdown}</div>
 </div>'''
 
-    # Journal rows
-    all_journal = (list(open_trades or []) +
-                   list(recent_trades or []))
+    all_journal = (list(open_trades or []) + list(recent_trades or []))
     jrows = ''
     for t in all_journal[:15]:
-        stk    = t.get('stock','').replace('.NS','')
-        stype  = t.get('signal_type','')
-        entry  = t.get('entry_actual',
-                        t.get('entry_estimate',''))
-        stp    = t.get('stop_price','')
-        exd    = t.get('exit_date_plan','')
-        pnl    = t.get('pnl_pct','')
-        status = t.get('status','')
-        sc     = ('#00C851' if status == 'WON' else
-                  '#f85149' if status in (
-                      'STOPPED','CLOSED') else
-                  '#FFD700')
-        pnl_c  = ('#00C851' if str(pnl).startswith(
-                      '-') is False and pnl else
-                  '#f85149')
+        stk    = t.get('stock', '').replace('.NS', '')
+        stype  = t.get('signal_type', '')
+        entry  = t.get('entry_actual', t.get('entry_estimate', ''))
+        stp    = t.get('stop_price', '')
+        exd    = t.get('exit_date_plan', '')
+        pnl    = t.get('pnl_pct', '')
+        status = t.get('status', '')
+        sc2    = ('#00C851' if status == 'WON' else
+                  '#f85149' if status in ('STOPPED', 'CLOSED') else '#FFD700')
+        pnl_c  = '#f85149' if str(pnl).startswith('-') else '#00C851'
         jrows += f'''<tr>
 <td style="color:#58a6ff;">{stk}</td>
-<td>{stype}</td>
-<td>₹{entry}</td>
+<td>{stype}</td><td>₹{entry}</td>
 <td style="color:#f85149;">₹{stp}</td>
 <td>{exd}</td>
 <td style="color:{pnl_c};">{pnl}%</td>
-<td style="color:{sc};">{status}</td>
+<td style="color:{sc2};">{status}</td>
 </tr>'''
 
     html = f'''<!DOCTYPE html>
 <html><head>
 <meta charset="UTF-8">
-<meta name="viewport"
-      content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <title>TIE TIY Scanner</title>
 <style>
 *{{box-sizing:border-box;margin:0;padding:0}}
-body{{font-family:Arial,sans-serif;
-     background:#07070f;color:#c9d1d9;
-     padding:12px;max-width:600px;margin:0 auto}}
-.filter-btn{{background:#161b22;color:#8b949e;
-             border:1px solid #30363d;border-radius:6px;
-             padding:5px 10px;font-size:10px;
-             cursor:pointer;margin:2px}}
-.filter-btn.active{{background:#58a6ff;color:#000}}
-table{{width:100%;border-collapse:collapse;
-       font-size:11px}}
-th{{background:#161b22;color:#8b949e;
-    padding:6px 8px;text-align:left;
-    border-bottom:1px solid #21262d}}
-td{{padding:5px 8px;border-bottom:1px solid #0c0c1a}}
+body{{font-family:Arial,sans-serif;background:#07070f;
+     color:#c9d1d9;padding:12px;max-width:600px;margin:0 auto;
+     padding-bottom:80px;}}
+.filter-btn{{background:#161b22;color:#8b949e;border:1px solid #30363d;
+             border-radius:6px;padding:5px 10px;font-size:10px;
+             cursor:pointer;margin:2px;}}
+.filter-btn.active{{background:#58a6ff;color:#000;}}
+table{{width:100%;border-collapse:collapse;font-size:11px;}}
+th{{background:#161b22;color:#8b949e;padding:6px 8px;
+    text-align:left;border-bottom:1px solid #21262d;}}
+td{{padding:5px 8px;border-bottom:1px solid #0c0c1a;}}
+.section-hdr{{color:#ffd700;font-size:11px;font-weight:700;
+              border-left:3px solid #ffd700;padding-left:8px;
+              margin:16px 0 8px;}}
+#tap-overlay{{display:none;position:fixed;top:0;left:0;
+              right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:100;}}
+#tap-panel{{position:fixed;bottom:0;left:50%;
+            transform:translateX(-50%) translateY(100%);
+            width:100%;max-width:600px;background:#0d1117;
+            border-top:2px solid #30363d;border-radius:16px 16px 0 0;
+            padding:16px 16px 32px;z-index:101;
+            transition:transform 0.3s ease;}}
+#tap-panel.open{{transform:translateX(-50%) translateY(0);}}
+.panel-handle{{width:40px;height:4px;background:#30363d;
+               border-radius:2px;margin:0 auto 14px;}}
+.stat-box{{background:#161b22;border-radius:6px;padding:8px;}}
+.stat-label{{color:#666;font-size:10px;margin-bottom:2px;}}
+.stat-val{{font-size:14px;font-weight:700;}}
+.pos-card{{background:#0d1117;border:1px solid #21262d;
+           border-radius:8px;padding:10px 12px;margin-bottom:8px;}}
 </style>
 </head><body>
+
 <div style="background:#0d1117;border:1px solid #21262d;
 border-radius:10px;padding:12px 14px;margin-bottom:12px;">
   <div style="display:flex;justify-content:space-between;
   align-items:center;margin-bottom:4px;">
-    <span style="color:#ffd700;font-size:18px;
-    font-weight:700;">TIE TIY</span>
+    <span style="color:#ffd700;font-size:18px;font-weight:700;">
+    🎯 TIE TIY Scanner</span>
     <span style="color:{n_color};font-size:13px;">
-    Nifty {nifty_px:,.0f} {n_arrow}
-    {nifty_chg:+.1f}%</span>
+    Nifty {nifty_px:,.0f} {n_arrow} {nifty_chg:+.1f}%</span>
   </div>
   <div style="display:flex;justify-content:space-between;
   font-size:11px;color:#8b949e;">
     <span>{today} | Updated {updated_at}</span>
-    <span style="background:{rc};color:#000;
-    border-radius:4px;padding:1px 7px;font-weight:700;">
-    {regime} {reg_score:+d}</span>
+    <span style="background:{rc};color:#000;border-radius:4px;
+    padding:1px 7px;font-weight:700;">{regime} {reg_score:+d}</span>
   </div>
 </div>
+
 {bear_banner}
 {hm_html}
-<div style="display:flex;flex-wrap:wrap;
-gap:4px;margin:10px 0;">
-<button class="filter-btn active"
-        onclick="filterS('all')">
-All ({len(signals)})</button>
-<button class="filter-btn"
-        onclick="filterS('deploy')">Deploy</button>
-<button class="filter-btn"
-        onclick="filterS('watch')">Watch</button>
-<button class="filter-btn"
-        onclick="filterS('UP_TRI')">UP TRI</button>
-<button class="filter-btn"
-        onclick="filterS('DOWN_TRI')">DOWN TRI</button>
-<button class="filter-btn"
-        onclick="filterS('BULL_PROXY')">Proxy</button>
-<button class="filter-btn"
-        onclick="filterS('age0')">Age 0</button>
+
+<div style="display:flex;flex-wrap:wrap;gap:4px;margin:10px 0;">
+<button class="filter-btn active" onclick="filterS('all',event)">All ({len(signals)})</button>
+<button class="filter-btn" onclick="filterS('deploy',event)">Deploy</button>
+<button class="filter-btn" onclick="filterS('watch',event)">Watch</button>
+<button class="filter-btn" onclick="filterS('UP_TRI',event)">UP TRI</button>
+<button class="filter-btn" onclick="filterS('DOWN_TRI',event)">DOWN TRI</button>
+<button class="filter-btn" onclick="filterS('BULL_PROXY',event)">Proxy</button>
+<button class="filter-btn" onclick="filterS('age0',event)">Age 0</button>
 </div>
+
 <div id="signals">{signal_cards}</div>
-<div style="color:#ffd700;font-size:11px;
-font-weight:700;border-left:3px solid #ffd700;
-padding-left:8px;margin:14px 0 8px;">
-JOURNAL</div>
-<div style="overflow-x:auto;">
-<table>
-<tr><th>Stock</th><th>Signal</th><th>Entry</th>
-<th>Stop</th><th>Exit</th><th>PnL</th>
-<th>Status</th></tr>
-{jrows if jrows else
- '<tr><td colspan="7" style="color:#666;'
- 'text-align:center;padding:12px;">No trades</td>'
- '</tr>'}
-</table></div>
-<div style="margin-top:12px;padding:8px 12px;
-background:#0d1117;border-radius:8px;
-font-size:11px;color:#8b949e;">
-{h_emoji} System: {health} | WR last 5: {health_wr}% |
-Open: {len(open_trades)}
+
+<div class="section-hdr">OPEN POSITIONS
+  <span id="pos-count-badge"
+  style="background:#161b22;color:#8b949e;border-radius:10px;
+  padding:1px 7px;font-size:10px;margin-left:4px;">0</span>
 </div>
+<div id="positions-list">
+  <div style="color:#444;font-size:11px;text-align:center;padding:14px;">
+  No open positions — tap any signal card to add</div>
+</div>
+
+<div class="section-hdr">10-DAY SIGNAL LOG</div>
+<div style="overflow-x:auto;">
+<table id="journal-table">
+<tr><th>Date</th><th>Stock</th><th>Signal</th>
+    <th>Score</th><th>Entry</th><th>Stop</th><th>Age</th></tr>
+<tr><td colspan="7" style="color:#666;text-align:center;
+padding:12px;">Loading...</td></tr>
+</table></div>
+
+<div class="section-hdr">TRADE JOURNAL</div>
+<div style="overflow-x:auto;"><table>
+<tr><th>Stock</th><th>Signal</th><th>Entry</th>
+    <th>Stop</th><th>Exit</th><th>PnL</th><th>Status</th></tr>
+{jrows if jrows else
+ '<tr><td colspan="7" style="color:#666;text-align:center;'
+ 'padding:12px;">No trades logged yet</td></tr>'}
+</table></div>
+
+<div style="margin-top:14px;padding:8px 12px;background:#0d1117;
+border-radius:8px;font-size:11px;color:#8b949e;">
+{h_emoji} System: {health} | WR last 5: {health_wr}% |
+Open positions: <span id="pos-count-footer">0</span>
+</div>
+
+<div id="tap-overlay" onclick="closePanel()"></div>
+
+<div id="tap-panel">
+  <div class="panel-handle"></div>
+  <div style="display:flex;justify-content:space-between;
+  align-items:center;margin-bottom:14px;">
+    <div>
+      <span id="panel-symbol"
+      style="font-size:22px;font-weight:700;color:#fff;"></span>
+      <span id="panel-signal-badge"
+      style="background:#161b22;color:#8b949e;border-radius:4px;
+      padding:2px 7px;font-size:10px;margin-left:8px;"></span>
+    </div>
+    <button onclick="closePanel()"
+    style="background:none;border:none;color:#666;
+    font-size:22px;cursor:pointer;">✕</button>
+  </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;
+  gap:8px;margin-bottom:10px;">
+    <div class="stat-box">
+      <div class="stat-label">LIVE PRICE</div>
+      <div id="panel-live" class="stat-val" style="color:#58a6ff;">...</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">ENTRY EST</div>
+      <div id="panel-entry" class="stat-val" style="color:#c9d1d9;">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">STOP LOSS</div>
+      <div id="panel-stop" class="stat-val" style="color:#f85149;">—</div>
+    </div>
+    <div class="stat-box">
+      <div class="stat-label">TARGET</div>
+      <div id="panel-target" class="stat-val" style="color:#00C851;">—</div>
+    </div>
+  </div>
+  <div id="panel-pnl-row" style="display:none;
+  background:#161b22;border-radius:6px;padding:8px 10px;
+  margin-bottom:10px;font-size:12px;">
+    <span style="color:#666;">Unrealized P&L: </span>
+    <span id="panel-pnl-val" style="font-weight:700;font-size:14px;"></span>
+    <span id="panel-pnl-pct" style="color:#666;font-size:11px;margin-left:6px;"></span>
+  </div>
+  <button id="panel-add-btn" onclick="addPosition()"
+  style="width:100%;background:#238636;color:#fff;border:none;
+  border-radius:6px;padding:11px;font-size:13px;font-weight:700;
+  cursor:pointer;margin-bottom:6px;">+ Add to Positions</button>
+  <button id="panel-remove-btn" onclick="removeCurrentPosition()"
+  style="width:100%;background:#3a0a0a;color:#f85149;
+  border:1px solid #f85149;border-radius:6px;padding:9px;
+  font-size:12px;font-weight:700;cursor:pointer;
+  display:none;margin-bottom:6px;">✕ Remove from Positions</button>
+  <div id="panel-status"
+  style="font-size:10px;color:#666;text-align:center;min-height:16px;"></div>
+</div>
+
 <script>
-function filterS(f){{
-  document.querySelectorAll('.filter-btn').forEach(
-    b=>b.classList.remove('active'));
-  event.target.classList.add('active');
-  document.querySelectorAll('.signal-card').forEach(
-    c=>{{
-      if(f==='all') c.style.display='';
-      else if(f==='deploy')
-        c.style.display=
-          c.dataset.action==='DEPLOY'?'':'none';
-      else if(f==='watch')
-        c.style.display=
-          c.dataset.action==='WATCH'?'':'none';
-      else if(f==='UP_TRI'||f==='DOWN_TRI'
-              ||f==='BULL_PROXY')
-        c.style.display=
-          c.dataset.signal===f?'':'none';
-      else if(f==='age0')
-        c.style.display=
-          c.dataset.age==='0'?'':'none';
-    }});
+let currentCard = {{}};
+
+function openPanel(el) {{
+  const sym    = el.dataset.symbol;
+  const entry  = parseFloat(el.dataset.entry)  || 0;
+  const stop   = parseFloat(el.dataset.stop)   || 0;
+  const target = parseFloat(el.dataset.target) || 0;
+  const shares = parseInt(el.dataset.shares)   || 0;
+  const signal = el.dataset.signal;
+  const score  = el.dataset.score;
+  currentCard  = {{ sym, entry, stop, target, shares, signal }};
+
+  document.getElementById('panel-symbol').textContent       = sym || '?';
+  document.getElementById('panel-signal-badge').textContent = signal + ' | Score ' + score;
+  document.getElementById('panel-entry').textContent  = entry  ? '₹' + fmt(entry)  : '—';
+  document.getElementById('panel-stop').textContent   = stop   ? '₹' + fmt(stop)   : '—';
+  document.getElementById('panel-target').textContent = target ? '₹' + fmt(target) : 'Day 6 open';
+  document.getElementById('panel-live').textContent   = '...';
+  document.getElementById('panel-pnl-row').style.display = 'none';
+  document.getElementById('panel-status').textContent    = '';
+
+  const inPos = getPositions().find(p => p.sym === sym);
+  document.getElementById('panel-add-btn').style.display    = inPos ? 'none'  : 'block';
+  document.getElementById('panel-remove-btn').style.display = inPos ? 'block' : 'none';
+
+  document.getElementById('tap-overlay').style.display = 'block';
+  document.getElementById('tap-panel').classList.add('open');
+
+  if (sym) fetchLivePrice(sym);
 }}
+
+function closePanel() {{
+  document.getElementById('tap-overlay').style.display = 'none';
+  document.getElementById('tap-panel').classList.remove('open');
+}}
+
+async function fetchLivePrice(sym) {{
+  const liveEl   = document.getElementById('panel-live');
+  const statusEl = document.getElementById('panel-status');
+  try {{
+    const url  = 'https://query2.finance.yahoo.com/v8/finance/chart/'
+                 + sym + '.NS?interval=1d&range=1d&t=' + Date.now();
+    const res  = await fetch(url);
+    const data = await res.json();
+    const price = data?.chart?.result?.[0]?.meta?.regularMarketPrice;
+    if (!price) throw new Error('no price');
+    liveEl.textContent = '₹' + fmt(price);
+    const pos = getPositions().find(p => p.sym === sym);
+    if (pos && pos.entry) {{
+      const diff   = price - pos.entry;
+      const pct    = ((diff / pos.entry) * 100).toFixed(2);
+      const pnlAmt = (diff * (pos.shares || 1)).toFixed(0);
+      const color  = diff >= 0 ? '#00C851' : '#f85149';
+      const sign   = diff >= 0 ? '+' : '';
+      document.getElementById('panel-pnl-row').style.display = 'block';
+      document.getElementById('panel-pnl-val').style.color   = color;
+      document.getElementById('panel-pnl-val').textContent   = sign + '₹' + pnlAmt;
+      document.getElementById('panel-pnl-pct').textContent   = '(' + sign + pct + '%)';
+    }}
+  }} catch(e) {{
+    liveEl.textContent = '—';
+    statusEl.textContent = 'Live price unavailable';
+  }}
+}}
+
+function getPositions() {{
+  try {{ return JSON.parse(localStorage.getItem('tietiy_pos') || '[]'); }}
+  catch(e) {{ return []; }}
+}}
+
+function savePositions(arr) {{
+  localStorage.setItem('tietiy_pos', JSON.stringify(arr));
+  renderPositions();
+}}
+
+function addPosition() {{
+  const {{ sym, entry, stop, shares, signal }} = currentCard;
+  if (!sym) return;
+  const arr = getPositions();
+  if (arr.find(p => p.sym === sym)) {{
+    document.getElementById('panel-status').textContent = 'Already in positions';
+    return;
+  }}
+  arr.push({{ sym, entry, stop, shares, signal,
+              added: new Date().toISOString().slice(0,10) }});
+  savePositions(arr);
+  document.getElementById('panel-add-btn').style.display    = 'none';
+  document.getElementById('panel-remove-btn').style.display = 'block';
+  document.getElementById('panel-status').textContent       = '✓ Added';
+}}
+
+function removeCurrentPosition() {{
+  removePosition(currentCard.sym);
+  document.getElementById('panel-add-btn').style.display    = 'block';
+  document.getElementById('panel-remove-btn').style.display = 'none';
+  document.getElementById('panel-pnl-row').style.display    = 'none';
+  document.getElementById('panel-status').textContent       = 'Removed';
+}}
+
+function removePosition(sym) {{
+  savePositions(getPositions().filter(p => p.sym !== sym));
+}}
+
+function renderPositions() {{
+  const arr = getPositions();
+  const cnt = arr.length;
+  document.getElementById('pos-count-badge').textContent  = cnt;
+  document.getElementById('pos-count-footer').textContent = cnt;
+  const el = document.getElementById('positions-list');
+  if (!cnt) {{
+    el.innerHTML = '<div style="color:#444;font-size:11px;text-align:center;'
+      + 'padding:14px;">No open positions — tap any signal card to add</div>';
+    return;
+  }}
+  el.innerHTML = arr.map(p => `
+    <div class="pos-card">
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <div>
+          <span style="font-weight:700;color:#fff;font-size:15px;">${{p.sym}}</span>
+          <span style="color:#666;font-size:10px;margin-left:8px;">
+            ${{p.signal}} | Added ${{p.added}}</span>
+        </div>
+        <button onclick="removePosition('${{p.sym}}')"
+          style="background:none;border:1px solid #f85149;color:#f85149;
+          border-radius:4px;padding:3px 8px;font-size:10px;cursor:pointer;">
+          Exit</button>
+      </div>
+      <div style="display:grid;grid-template-columns:repeat(3,1fr);
+      gap:4px;margin-top:8px;font-size:11px;">
+        <div style="color:#666;">Entry<br>
+          <span style="color:#58a6ff;">
+          ${{p.entry ? '₹'+fmt(p.entry) : '—'}}</span></div>
+        <div style="color:#666;">Stop<br>
+          <span style="color:#f85149;">
+          ${{p.stop ? '₹'+fmt(p.stop) : '—'}}</span></div>
+        <div style="color:#666;">Shares<br>
+          <span style="color:#c9d1d9;">${{p.shares || '—'}}</span></div>
+      </div>
+    </div>`).join('');
+}}
+
+async function loadJournal() {{
+  const tbl    = document.getElementById('journal-table');
+  const header = `<tr><th>Date</th><th>Stock</th><th>Signal</th>
+    <th>Score</th><th>Entry</th><th>Stop</th><th>Age</th></tr>`;
+  try {{
+    const res  = await fetch('output/scan_log.json?t=' + Date.now());
+    const data = await res.json();
+    if (!Array.isArray(data) || !data.length) throw new Error('empty');
+    const rows = [];
+    data.slice(-10).reverse().forEach(day => {{
+      (day.signals || []).forEach(s => {{
+        rows.push({{
+          date:   day.date || '',
+          stock:  (s.stock || s.symbol || '').replace('.NS',''),
+          signal: s.signal || '',
+          score:  s.score  || 0,
+          entry:  s.entry  || 0,
+          stop:   s.stop   || 0,
+          age:    s.age    || 0
+        }});
+      }});
+    }});
+    if (!rows.length) throw new Error('no rows');
+    const tbody = rows.slice(0,40).map(r => {{
+      const sc  = r.score >= 7 ? '#00C851' : r.score >= 4 ? '#FFD700' : '#f85149';
+      const arr = r.signal.includes('DOWN') ? '▼' : '▲';
+      return `<tr>
+        <td style="color:#555;white-space:nowrap;">${{r.date}}</td>
+        <td style="color:#58a6ff;">${{r.stock || '?'}}</td>
+        <td>${{r.signal}} ${{arr}}</td>
+        <td style="color:${{sc}};">${{r.score}}</td>
+        <td>${{r.entry ? '₹'+fmt(r.entry) : '—'}}</td>
+        <td style="color:#f85149;">${{r.stop ? '₹'+fmt(r.stop) : '—'}}</td>
+        <td style="color:#666;">${{r.age}}</td>
+      </tr>`;
+    }}).join('');
+    tbl.innerHTML = header + tbody;
+  }} catch(e) {{
+    tbl.innerHTML = header +
+      '<tr><td colspan="7" style="color:#666;text-align:center;'
+      + 'padding:12px;">Could not load signal log</td></tr>';
+  }}
+}}
+
+function filterS(f, ev) {{
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  ev.target.classList.add('active');
+  document.querySelectorAll('.signal-card').forEach(c => {{
+    const show = (
+      f === 'all' ||
+      (f === 'deploy'     && c.dataset.action === 'DEPLOY')     ||
+      (f === 'watch'      && c.dataset.action === 'WATCH')      ||
+      (f === 'UP_TRI'     && c.dataset.signal === 'UP_TRI')     ||
+      (f === 'DOWN_TRI'   && c.dataset.signal === 'DOWN_TRI')   ||
+      (f === 'BULL_PROXY' && c.dataset.signal === 'BULL_PROXY') ||
+      (f === 'age0'       && c.dataset.age === '0')
+    );
+    c.style.display = show ? '' : 'none';
+  }});
+}}
+
+function fmt(n) {{
+  return parseFloat(n).toLocaleString('en-IN',
+    {{minimumFractionDigits:2,maximumFractionDigits:2}});
+}}
+
+renderPositions();
+loadJournal();
 </script>
 </body></html>'''
 
