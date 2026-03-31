@@ -1,0 +1,54 @@
+name: Open Price Validation 9:25 AM IST
+
+on:
+  schedule:
+    - cron: '55 3 * * 1-5'   # 9:25 AM IST Mon-Fri
+  workflow_dispatch:           # manual trigger
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install \
+            yfinance \
+            pandas \
+            numpy \
+            requests
+
+      - name: Run open validation
+        env:
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
+          cd $GITHUB_WORKSPACE/scanner && python open_validator.py
+
+      - name: Commit outputs
+        run: |
+          git config user.name  "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+          git add output/open_prices.json \
+                  output/signal_history.json \
+                  output/signal_history.backup.json \
+                  || true
+          git diff --staged --quiet || \
+            git commit -m \
+            "Open validation $(date '+%Y-%m-%d %H:%M') IST"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
