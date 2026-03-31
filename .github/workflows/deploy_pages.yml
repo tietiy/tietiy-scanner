@@ -10,16 +10,20 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     permissions:
-      pages: write
-      id-token: write
-      contents: read
+      pages:     write
+      id-token:  write
+      contents:  write    # ── CHANGED: need write to update meta.json
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url:  ${{ steps.deployment.outputs.page_url }}
 
     steps:
-      - uses: actions/checkout@v4
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -32,3 +36,44 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      # ── CHANGED: write deployed_at to meta.json ──
+      # Runs AFTER deployment confirms
+      # Timestamp is accurate — reflects when Pages
+      # actually updated, not when scan ran
+      # Page status bar reads this to show
+      # "Deployed at 8:54 AM IST" not "Scanned at 8:48 AM"
+      - name: Write deployed_at timestamp
+        run: |
+          sudo apt-get install -y jq
+
+          META_FILE="output/meta.json"
+
+          # Only update if meta.json exists
+          if [ -f "$META_FILE" ]; then
+            # Get current UTC time
+            DEPLOYED_AT=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+
+            # Write deployed_at field into meta.json
+            jq --arg dt "$DEPLOYED_AT" \
+               '.deployed_at = $dt' \
+               "$META_FILE" > "$META_FILE.tmp" && \
+               mv "$META_FILE.tmp" "$META_FILE"
+
+            echo "deployed_at set to $DEPLOYED_AT"
+          else
+            echo "meta.json not found — skipping"
+          fi
+
+      # ── CHANGED: commit updated meta.json back ───
+      - name: Commit deployed_at
+        run: |
+          git config user.name  "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+          git add output/meta.json || true
+          git diff --staged --quiet || \
+            git commit -m \
+            "deployed_at $(date '+%Y-%m-%d %H:%M') IST"
+          git push
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
