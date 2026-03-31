@@ -2,20 +2,22 @@ name: Stop Check Every 30 Min
 
 on:
   schedule:
-    - cron: '45 3 * * 1-5'
-    - cron: '15 4 * * 1-5'
-    - cron: '45 4 * * 1-5'
-    - cron: '15 5 * * 1-5'
-    - cron: '45 5 * * 1-5'
-    - cron: '15 6 * * 1-5'
-    - cron: '45 6 * * 1-5'
-    - cron: '15 7 * * 1-5'
-    - cron: '45 7 * * 1-5'
-    - cron: '15 8 * * 1-5'
-    - cron: '45 8 * * 1-5'
-    - cron: '15 9 * * 1-5'
-    - cron: '45 9 * * 1-5'
-    - cron: '5 10 * * 1-5'
+    # ── Market hours 9:30 AM to 3:30 PM IST ──────
+    # UTC = IST - 5:30
+    - cron: '45 3 * * 1-5'   #  9:15 AM IST — skip, scan running
+    - cron: '15 4 * * 1-5'   #  9:45 AM IST
+    - cron: '45 4 * * 1-5'   # 10:15 AM IST
+    - cron: '15 5 * * 1-5'   # 10:45 AM IST
+    - cron: '45 5 * * 1-5'   # 11:15 AM IST
+    - cron: '15 6 * * 1-5'   # 11:45 AM IST
+    - cron: '45 6 * * 1-5'   # 12:15 PM IST
+    - cron: '15 7 * * 1-5'   # 12:45 PM IST
+    - cron: '45 7 * * 1-5'   #  1:15 PM IST
+    - cron: '15 8 * * 1-5'   #  1:45 PM IST
+    - cron: '45 8 * * 1-5'   #  2:15 PM IST
+    - cron: '15 9 * * 1-5'   #  2:45 PM IST
+    - cron: '45 9 * * 1-5'   #  3:15 PM IST
+    - cron: '5 10 * * 1-5'   #  3:35 PM IST — last check
   workflow_dispatch:
 
 permissions:
@@ -24,8 +26,11 @@ permissions:
 jobs:
   stop-check:
     runs-on: ubuntu-latest
+
     steps:
-      - uses: actions/checkout@v4
+
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
 
@@ -36,27 +41,39 @@ jobs:
 
       - name: Install dependencies
         run: |
-          pip install yfinance pandas numpy requests
+          pip install \
+            yfinance \
+            pandas \
+            numpy \
+            requests
 
       - name: Create folders
+        # ── CHANGED: removed journal/ — no longer exists
         run: |
-          mkdir -p output journal data
+          mkdir -p output data
 
       - name: Run stop check
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN:         ${{ secrets.GH_TOKEN }}
         run: |
-          export PYTHONPATH=$GITHUB_WORKSPACE/scanner
-          cd scanner && python main.py stops
+          # ── CHANGED: PYTHONPATH fix — same as morning_scan
+          export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
+          # ── CHANGED: run stop_alert_writer.py directly
+          # No longer calls main.py stops
+          # stop_alert_writer.py is lightweight and self-contained
+          cd $GITHUB_WORKSPACE/scanner && python stop_alert_writer.py
 
-      - name: Commit journal updates
+      - name: Commit stop alerts
+        # ── CHANGED: commits stop_alerts.json not journal/
         run: |
-          git config user.name "TIE TIY Bot"
+          git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-          git add journal/ || true
-          git diff --staged --quiet || git commit -m "Stop check $(date '+%H:%M')"
+          git add output/stop_alerts.json || true
+          git diff --staged --quiet || \
+            git commit -m \
+            "Stop check $(date '+%H:%M') IST"
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
