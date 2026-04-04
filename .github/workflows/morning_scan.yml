@@ -5,14 +5,9 @@ on:
     - cron: '15 3 * * 1-5'   # 8:45 AM IST Mon-Fri
   workflow_dispatch:           # manual trigger
 
-# ── STEP 23 CHANGE ───────────────────────────────────
-# Prevents race condition if workflow_dispatch
-# is triggered while scheduled run is still active
-# cancel-in-progress: false = queue, never kill
 concurrency:
   group: tietiy-scan
   cancel-in-progress: false
-# ── END CHANGE ────────────────────────────────────────
 
 jobs:
   scan:
@@ -63,7 +58,9 @@ jobs:
           git diff --staged --quiet || \
             git commit -m \
             "Scan $(date '+%Y-%m-%d %H:%M') IST"
-          git pull --rebase origin main || true
-          git push
+          git pull --rebase origin main || \
+            git rebase --abort
+          git push origin HEAD:main || \
+            git push --force-with-lease origin HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
