@@ -63,6 +63,7 @@ jobs:
           git diff --staged --quiet || \
             git commit -m \
             "Scan $(date '+%Y-%m-%d %H:%M') IST"
+          git pull --rebase origin main || true
           git push
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
