@@ -36,9 +36,18 @@ SCORE_GRADE_A     = 1
 EXIT_UPTRI_BEAR  = 'Target2x'
 EXIT_DEFAULT     = 'Day6'
 
-DATA_DIR         = 'data'
-OUTPUT_DIR       = 'output'
-JOURNAL_DIR      = 'journal'
+# ── ABSOLUTE PATHS ────────────────────────────────────
+# config.py lives in scanner/
+# _BASE resolves to repo root (one level up)
+# Works correctly regardless of run directory
+# DO NOT change to relative paths
+_BASE      = os.path.dirname(
+                 os.path.dirname(
+                     os.path.abspath(__file__)))
+
+DATA_DIR    = os.path.join(_BASE, 'data')
+OUTPUT_DIR  = os.path.join(_BASE, 'output')
+JOURNAL_DIR = os.path.join(_BASE, 'journal')
 
 # kept for compatibility — not actively used
-FO_UNIVERSE_URL  = ''
+FO_UNIVERSE_URL = ''
