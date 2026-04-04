@@ -3,22 +3,11 @@
 // Called by ui.js switchTab('journal')
 // Entry point: renderJournal(window.TIETIY)
 //
-// Reads from:
-//   window.TIETIY.history  → signal_history.json
-//   window.TIETIY.meta     → meta.json
-//
-// Responsibilities:
-// 1. Render trade history — all PENDING + closed
-// 2. Group first + second attempt signals together
-// 3. WR vs backtest comparison with confidence note
-// 4. Result badges WIN / STOP / PENDING / EXITED
-// 5. CSV download with summary row
-// 6. Empty state for zero history
+// FIX 5 — Journal cards are now tappable
+// Tap any card → opens same tap panel as signals tab
+// Uses openTapPanel() from app.js via data-sig attribute
 // ─────────────────────────────────────────────────────
 
-// ── BACKTEST BASELINE ─────────────────────────────────
-// From V3 backtest — used for live vs backtest compare
-// Defined in ui.js as BACKTEST_WR — referenced here
 const _BT = {
   UP_TRI:      87,
   DOWN_TRI:    87,
@@ -27,8 +16,6 @@ const _BT = {
   BULL_PROXY:  67,
   OVERALL:     87,
 };
-
-// ── HELPERS ───────────────────────────────────────────
 
 function _resultBadge(result) {
   switch(result) {
@@ -84,19 +71,15 @@ function _fmtPnl(pnl) {
 }
 
 function _fmtR(record) {
-  // Calculate R multiple from entry, stop, exit
   try {
     const entry = parseFloat(record.entry || 0);
     const stop  = parseFloat(record.stop  || 0);
-    const exit  = parseFloat(
-      record.exit_price || 0);
+    const exit  = parseFloat(record.exit_price || 0);
     if (!entry || !stop || !exit) return null;
     const risk = Math.abs(entry - stop);
     if (risk <= 0) return null;
-    const direction = record.direction === 'LONG'
-      ? 1 : -1;
-    const rMult = direction *
-      (exit - entry) / risk;
+    const direction = record.direction === 'LONG' ? 1 : -1;
+    const rMult = direction * (exit - entry) / risk;
     return rMult.toFixed(2);
   } catch(e) { return null; }
 }
@@ -104,7 +87,6 @@ function _fmtR(record) {
 // ── STATISTICS ENGINE ─────────────────────────────────
 
 function _calcStats(records) {
-  // Filter to action=TOOK only — exclude REJECTED
   const took = records.filter(
     r => r.action === 'TOOK' &&
     r.result !== 'REJECTED');
@@ -120,13 +102,12 @@ function _calcStats(records) {
     ? Math.round(wins.length / closed.length * 100)
     : null;
 
-  // WR by signal type
   const byType = {};
   ['UP_TRI','DOWN_TRI','BULL_PROXY',
    'UP_TRI_SA','DOWN_TRI_SA'].forEach(sig => {
     const sigClosed = closed.filter(
       r => r.signal === sig);
-    const sigWins   = sigClosed.filter(
+    const sigWins = sigClosed.filter(
       r => r.result === 'WON');
     if (sigClosed.length > 0) {
       byType[sig] = {
@@ -138,37 +119,17 @@ function _calcStats(records) {
     }
   });
 
-  // WR by grade
-  const byGrade = {};
-  ['A','B','C'].forEach(grade => {
-    const grClosed = closed.filter(
-      r => r.grade === grade);
-    const grWins   = grClosed.filter(
-      r => r.result === 'WON');
-    if (grClosed.length > 0) {
-      byGrade[grade] = {
-        total: grClosed.length,
-        wins:  grWins.length,
-        wr:    Math.round(
-          grWins.length / grClosed.length * 100),
-      };
-    }
-  });
-
-  // Confidence interval (Wilson)
   let ciLow = null, ciHigh = null;
   if (closed.length >= 5 && wr !== null) {
     const n = closed.length;
     const p = wins.length / n;
-    const z = 1.96; // 95%
-    const denom = 1 + z*z/n;
+    const z = 1.96;
+    const denom  = 1 + z*z/n;
     const centre = p + z*z/(2*n);
     const spread = z * Math.sqrt(
       p*(1-p)/n + z*z/(4*n*n));
-    ciLow  = Math.round((centre - spread) /
-               denom * 100);
-    ciHigh = Math.round((centre + spread) /
-               denom * 100);
+    ciLow  = Math.round((centre - spread) / denom * 100);
+    ciHigh = Math.round((centre + spread) / denom * 100);
   }
 
   return {
@@ -180,7 +141,6 @@ function _calcStats(records) {
     ciLow,
     ciHigh,
     byType,
-    byGrade,
   };
 }
 
@@ -215,7 +175,8 @@ function _buildWRBanner(stats) {
         <div style="font-size:11px;color:#444;
           margin-top:8px;line-height:1.5;">
           What you will see at 20 trades:<br>
-          • Live WR vs backtest ${_BT.OVERALL}% comparison<br>
+          • Live WR vs backtest ${_BT.OVERALL}%
+            comparison<br>
           • Performance by signal type<br>
           • Score tier accuracy<br>
           • Grade A vs B vs C breakdown
@@ -257,8 +218,7 @@ function _buildWRBanner(stats) {
           gapColor)}
       </div>
 
-      <div style="font-size:11px;
-        color:${gapColor};">
+      <div style="font-size:11px;color:${gapColor};">
         ${gapIcon} ${
           gap >= -5
             ? 'Tracking backtest expectations'
@@ -276,7 +236,6 @@ function _buildWRBanner(stats) {
            </div>`
         : ''}
 
-      <!-- By signal type -->
       ${Object.keys(stats.byType).length > 0
         ? `<div style="margin-top:10px;
              border-top:1px solid #21262d;
@@ -326,11 +285,10 @@ function _statBox(label, value, color) {
 }
 
 // ── GROUP SIGNALS ─────────────────────────────────────
-// Group second attempts with their parent signals
 
 function _groupSignals(records) {
   const groups  = [];
-  const saMap   = {}; // parent_id → SA record
+  const saMap   = {};
   const parents = [];
 
   records.forEach(r => {
@@ -349,8 +307,6 @@ function _groupSignals(records) {
     });
   });
 
-  // SA records with no matching parent
-  // (parent may be archived)
   records.forEach(r => {
     if (r.attempt_number === 2 &&
         r.parent_signal_id) {
@@ -369,6 +325,9 @@ function _groupSignals(records) {
 }
 
 // ── SINGLE TRADE ROW ──────────────────────────────────
+// FIX 5 — cards are now tappable
+// onclick calls openTapPanel() from app.js
+// data-sig contains full signal record
 
 function _buildTradeRow(record, isChild) {
   const sym    = (record.symbol || '')
@@ -390,17 +349,16 @@ function _buildTradeRow(record, isChild) {
   const grade  = record.grade || '—';
   const sigColor = _signalColor(signal);
   const indent   = isChild
-    ? 'border-left:2px solid #21262d;' +
+    ? 'border-left:3px solid #21262d;' +
       'margin-left:16px;' : '';
 
   // Day counter for PENDING
   let dayInfo = '';
   if (result === 'PENDING' && date) {
     try {
-      const dayNum = getDayNumber(date);
+      const dayNum   = getDayNumber(date);
       const dayColor = dayNum >= 5 ? '#f85149' :
-                       dayNum >= 4 ? '#FFD700' :
-                       '#555';
+                       dayNum >= 4 ? '#FFD700' : '#555';
       dayInfo = `<span style="color:${dayColor};
         font-size:10px;margin-left:6px;">
         Day ${dayNum}/6
@@ -428,13 +386,32 @@ function _buildTradeRow(record, isChild) {
     </div>`;
   }
 
+  // FIX 5 — encode full record for tap panel
+  const sigData = encodeURIComponent(
+    JSON.stringify(record));
+
+  // Signal border color
+  const borderColor = signal.startsWith('UP')
+    ? '#00C851'
+    : signal.startsWith('DOWN')
+    ? '#f85149'
+    : '#58a6ff';
+
   return `
-    <div style="background:#0d1117;
-      border:1px solid #21262d;
-      border-radius:8px;
-      padding:10px 12px;
-      margin-bottom:8px;
-      ${indent}">
+    <div
+      onclick="openTapPanel(this)"
+      data-sig="${sigData}"
+      style="background:#0d1117;
+        border:1px solid #21262d;
+        border-left:4px solid ${borderColor};
+        border-radius:8px;
+        padding:10px 12px;
+        margin-bottom:8px;
+        cursor:pointer;
+        transition:opacity 0.2s;
+        ${indent}"
+      ontouchstart="this.style.opacity='0.7'"
+      ontouchend="this.style.opacity='1'">
 
       <!-- Row 1: Symbol + result -->
       <div style="display:flex;
@@ -518,6 +495,12 @@ function _buildTradeRow(record, isChild) {
 
       ${openNote}
 
+      <!-- Tap hint -->
+      <div style="font-size:9px;color:#333;
+        margin-top:6px;text-align:right;">
+        Tap for details →
+      </div>
+
     </div>`;
 }
 
@@ -537,44 +520,33 @@ function downloadCSV(records) {
     r.result !== 'REJECTED');
 
   const rows = took.map(r => [
-    r.date           || '',
+    r.date             || '',
     (r.symbol || '').replace('.NS',''),
-    r.signal         || '',
-    r.grade          || '',
-    r.score          || '',
-    r.regime         || '',
-    r.age            || '',
-    r.entry          || '',
-    r.stop           || '',
-    r.exit_date      || '',
-    r.exit_price     || '',
-    r.result         || '',
-    r.pnl_pct        || '',
-    _fmtR(r)         || '',
-    r.attempt_number || 1,
+    r.signal           || '',
+    r.grade            || '',
+    r.score            || '',
+    r.regime           || '',
+    r.age              || '',
+    r.entry            || '',
+    r.stop             || '',
+    r.exit_date        || '',
+    r.exit_price       || '',
+    r.result           || '',
+    r.pnl_pct          || '',
+    _fmtR(r)           || '',
+    r.attempt_number   || 1,
     r.parent_signal_id || '',
   ]);
 
-  // Summary row
   const stats  = _calcStats(records);
   const sumRow = [
     '--- SUMMARY ---',
     `Total: ${stats.total}`,
     `Closed: ${stats.closed}`,
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
-    '',
+    '', '', '', '', '', '', '', '',
     `WR: ${stats.wr !== null
       ? stats.wr + '%' : 'N/A'}`,
-    '',
-    '',
-    '',
-    '',
+    '', '', '', '',
   ];
 
   const csvContent = [
@@ -585,10 +557,10 @@ function downloadCSV(records) {
     sumRow.join(','),
   ].join('\n');
 
-  const blob = new Blob([csvContent],
+  const blob  = new Blob([csvContent],
     { type: 'text/csv;charset=utf-8;' });
-  const url  = URL.createObjectURL(blob);
-  const link = document.createElement('a');
+  const url   = URL.createObjectURL(blob);
+  const link  = document.createElement('a');
   const today = new Date()
     .toISOString().slice(0,10)
     .replace(/-/g,'');
@@ -612,19 +584,15 @@ function renderJournal(data) {
   const records  = (histData && histData.history)
     ? histData.history : [];
 
-  // Filter: exclude REJECTED from main view
   const journalRecords = records.filter(
     r => r.result !== 'REJECTED');
 
-  // Sort newest first
   const sorted = [...journalRecords].sort(
     (a, b) => (b.date || '')
               .localeCompare(a.date || ''));
 
-  // Stats across all took records
   const stats = _calcStats(records);
 
-  // ── EMPTY STATE ───────────────────────────────
   if (!sorted.length) {
     content.innerHTML = `
       <div style="padding:14px;">
@@ -651,25 +619,19 @@ function renderJournal(data) {
     return;
   }
 
-  // ── GROUP SIGNALS ─────────────────────────────
-  // Show last 30 records — grouped
-  const recent = sorted.slice(0, 30);
-  const groups = _groupSignals(recent);
+  const recent  = sorted.slice(0, 30);
+  const groups  = _groupSignals(recent);
 
-  // Separate PENDING from closed
   const pendingGroups = groups.filter(
     g => g.primary.result === 'PENDING');
   const closedGroups  = groups.filter(
     g => g.primary.result !== 'PENDING');
 
-  // ── RENDER ────────────────────────────────────
   content.innerHTML = `
     <div style="padding:14px;">
 
-      <!-- WR BANNER -->
       ${_buildWRBanner(stats)}
 
-      <!-- DOWNLOAD BUTTON -->
       <div style="text-align:right;
         margin-bottom:12px;">
         <button onclick="downloadCSV(
@@ -683,19 +645,16 @@ function renderJournal(data) {
         </button>
       </div>
 
-      <!-- OPEN POSITIONS -->
       ${pendingGroups.length > 0 ? `
         <div style="color:#8b949e;font-size:11px;
           font-weight:700;letter-spacing:1px;
           border-left:3px solid #58a6ff;
           padding-left:8px;margin-bottom:10px;">
           OPEN POSITIONS
-          <span style="color:#555;
-            font-weight:400;">
+          <span style="color:#555;font-weight:400;">
             (${pendingGroups.length})
           </span>
         </div>
-
         ${pendingGroups.map(g => `
           ${_buildTradeRow(g.primary, false)}
           ${g.attempt2
@@ -704,7 +663,6 @@ function renderJournal(data) {
         `).join('')}
       ` : ''}
 
-      <!-- CLOSED TRADES -->
       ${closedGroups.length > 0 ? `
         <div style="color:#8b949e;font-size:11px;
           font-weight:700;letter-spacing:1px;
@@ -712,12 +670,10 @@ function renderJournal(data) {
           padding-left:8px;
           margin:16px 0 10px;">
           CLOSED TRADES
-          <span style="color:#555;
-            font-weight:400;">
+          <span style="color:#555;font-weight:400;">
             (${closedGroups.length})
           </span>
         </div>
-
         ${closedGroups.map(g => `
           ${_buildTradeRow(g.primary, false)}
           ${g.attempt2
@@ -726,14 +682,13 @@ function renderJournal(data) {
         `).join('')}
       ` : ''}
 
-      <!-- TRADE COUNT NOTE -->
       <div style="text-align:center;
         font-size:11px;color:#333;
         padding:12px 0;">
         Showing last ${Math.min(
           sorted.length, 30)} of
         ${sorted.length} total records ·
-        All data from signal_history.json
+        Tap any card for full details
       </div>
 
     </div>`;
