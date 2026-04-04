@@ -435,8 +435,12 @@ function openTapPanel(el) {
   const panel = document.getElementById('tap-panel');
   if (!panel) return;
 
-  panel.style.display   = 'block';
+    panel.style.display   = 'block';
+  panel.style.maxWidth  = window.innerWidth >= 1024
+    ? '960px' : window.innerWidth >= 768
+    ? '860px' : '600px';
   panel.style.transform = 'translateX(-50%) translateY(100%)';
+
 
   panel.innerHTML = `
     <div style="width:40px;height:4px;
