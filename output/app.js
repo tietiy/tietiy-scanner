@@ -2,22 +2,12 @@
 // Renders signal cards, tap panel, and all signal UI
 // Depends on window.TIETIY being populated by ui.js
 //
-// Responsibilities:
-// 1. Render Mini / Alpha / Rejected signal sections
-// 2. Signal cards sorted by score descending
-// 3. Day X of 6 counter + NEW badge
-// 4. Colour coded left borders by signal type
-// 5. Open price update after 9:25 AM
-// 6. Gap skip banner on affected cards
-// 7. Stop alert badge on affected cards
-// 8. Entry window closed label after 9:30 AM
-// 9. Tap panel with full trade detail
-// 10. TradingView deep link button
-// 11. Second attempt parent context
-// 12. Empty state for zero signals
+// Fixes applied:
+// FIX 2 — Scan price shows date + time
+// FIX 3 — Open Chart uses location.href (iOS safe)
+// FIX 4 — Copy uses execCommand fallback (iOS safe)
 // ─────────────────────────────────────────────────────
 
-// ── SIGNAL TYPE CONFIG ────────────────────────────────
 const SIGNAL_CONFIG = {
   UP_TRI:      { color: '#00C851', arrow: '▲',
                  label: 'UP TRI' },
@@ -36,18 +26,6 @@ function _sigCfg(signal) {
     color: '#8b949e', arrow: '?', label: signal };
 }
 
-// ── ENTRY WINDOW CHECK ────────────────────────────────
-// After 9:30 AM IST new signals cannot be entered
-function _entryWindowOpen() {
-  const now = new Date();
-  const ist = new Date(now.toLocaleString(
-    'en-US', { timeZone: 'Asia/Kolkata' }));
-  const h = ist.getHours();
-  const m = ist.getMinutes();
-  // Window open 9:15–9:30 AM IST
-  return (h === 9 && m >= 15) || false;
-}
-
 function _entryWindowClosed() {
   const now = new Date();
   const ist = new Date(now.toLocaleString(
@@ -57,7 +35,6 @@ function _entryWindowClosed() {
   return h > 9 || (h === 9 && m > 30);
 }
 
-// ── GET OPEN PRICE DATA FOR SYMBOL ───────────────────
 function _getOpenPrice(symbol) {
   const op = window.TIETIY.openPrices;
   if (!op || !op.results) return null;
@@ -65,7 +42,6 @@ function _getOpenPrice(symbol) {
     r => r.symbol === symbol) || null;
 }
 
-// ── GET STOP ALERT FOR SYMBOL ─────────────────────────
 function _getStopAlert(symbol) {
   const sa = window.TIETIY.stopAlerts;
   if (!sa || !sa.alerts) return null;
@@ -75,7 +51,6 @@ function _getStopAlert(symbol) {
       a.alert_level)) || null;
 }
 
-// ── GET EOD DATA FOR SYMBOL ───────────────────────────
 function _getEodData(symbol) {
   const ed = window.TIETIY.eodPrices;
   if (!ed || !ed.results) return null;
@@ -83,7 +58,6 @@ function _getEodData(symbol) {
     r => r.symbol === symbol) || null;
 }
 
-// ── CALCULATE R:R ─────────────────────────────────────
 function _calcRR(entry, stop, direction) {
   try {
     entry = parseFloat(entry);
@@ -120,7 +94,6 @@ function _buildCard(sig, isNew, dayNum) {
   const attempt   = sig.attempt_number || 1;
   const direction = sig.direction || 'LONG';
 
-  // Use actual open if available, else scan price
   const openData  = _getOpenPrice(sig.symbol || sym);
   const entry     = openData && openData.actual_open
     ? openData.actual_open
@@ -130,11 +103,9 @@ function _buildCard(sig, isNew, dayNum) {
   const rr        = rrData ? rrData.rr : null;
   const scanTime  = sig.scan_time || '';
 
-  // Score colour
   const sc = score >= 7 ? '#00C851' :
              score >= 4 ? '#FFD700' : '#f85149';
 
-  // Day counter badge
   let dayBadge = '';
   if (isNew) {
     dayBadge = `<span style="background:#1a3a1a;
@@ -151,11 +122,8 @@ function _buildCard(sig, isNew, dayNum) {
     </span>`;
   }
 
-  // Bear bonus flame
-  const flameIcon = bearBonus
-    ? ' 🔥' : '';
+  const flameIcon = bearBonus ? ' 🔥' : '';
 
-  // Entry window closed
   const windowClosed = isNew && _entryWindowClosed()
     ? `<div style="background:#1a0a0a;
          border-radius:4px;padding:3px 8px;
@@ -164,7 +132,6 @@ function _buildCard(sig, isNew, dayNum) {
          Entry window closed — monitor only
        </div>` : '';
 
-  // Gap skip banner
   let gapBanner = '';
   if (openData) {
     if (openData.gap_status === 'SKIP') {
@@ -184,7 +151,6 @@ function _buildCard(sig, isNew, dayNum) {
     }
   }
 
-  // Stop alert badge
   const stopAlert = _getStopAlert(sig.symbol || sym);
   let stopBadge   = '';
   if (stopAlert) {
@@ -199,7 +165,6 @@ function _buildCard(sig, isNew, dayNum) {
     </span>`;
   }
 
-  // EOD stop hit flag
   const eodData = _getEodData(sig.symbol || sym);
   let eodBanner = '';
   if (eodData && eodData.stop_hit) {
@@ -218,7 +183,6 @@ function _buildCard(sig, isNew, dayNum) {
     </div>`;
   }
 
-  // Second attempt parent context
   let parentContext = '';
   if (attempt === 2 && sig.parent_date) {
     parentContext = `
@@ -230,11 +194,9 @@ function _buildCard(sig, isNew, dayNum) {
       </div>`;
   }
 
-  // Border glow for day 6
   const borderGlow = dayNum >= 6
     ? `box-shadow:0 0 8px ${cfg.color}44;` : '';
 
-  // Encode signal data for tap panel
   const sigData = encodeURIComponent(
     JSON.stringify(sig));
 
@@ -256,7 +218,6 @@ function _buildCard(sig, isNew, dayNum) {
         ${borderGlow}
         transition:opacity 0.2s;">
 
-      <!-- ROW 1: Symbol + badges -->
       <div style="display:flex;
         justify-content:space-between;
         align-items:flex-start;
@@ -280,7 +241,6 @@ function _buildCard(sig, isNew, dayNum) {
         </div>
       </div>
 
-      <!-- ROW 2: Signal type + context -->
       <div style="color:#8b949e;font-size:11px;
         margin-bottom:8px;">
         <span style="color:${cfg.color};
@@ -296,7 +256,6 @@ function _buildCard(sig, isNew, dayNum) {
         </span>
       </div>
 
-      <!-- ROW 3: Price grid -->
       <div style="display:grid;
         grid-template-columns:1fr 1fr 1fr;
         gap:4px;font-size:12px;
@@ -329,12 +288,12 @@ function _buildCard(sig, isNew, dayNum) {
         </div>
       </div>
 
-      <!-- ROW 4: Price note -->
+      <!-- FIX 2 — Scan price with date + time -->
       <div style="font-size:10px;color:#444;
         margin-bottom:2px;">
         ${openData && openData.actual_open
           ? `Actual open · ${openData.fetch_time || scanTime}`
-          : `Scan price · ${scanTime}`}
+          : `Scan price · ${fmtDate(sig.date)} · ${scanTime}`}
       </div>
 
       ${windowClosed}
@@ -383,7 +342,6 @@ function _buildFilterBar(signals) {
 }
 
 function applyFilter(filterId, btn) {
-  // Update button styles
   document.querySelectorAll('.filter-btn')
     .forEach(b => {
       b.style.background = '#161b22';
@@ -393,24 +351,17 @@ function applyFilter(filterId, btn) {
     btn.style.background = '#58a6ff';
     btn.style.color      = '#000';
   }
-
-  // Show/hide cards
   document.querySelectorAll('.signal-card')
     .forEach(card => {
-      const sig   = card.dataset.signal || '';
-      const age   = card.dataset.age    || '0';
-      const show  = (
+      const sig  = card.dataset.signal || '';
+      const age  = card.dataset.age    || '0';
+      const show = (
         filterId === 'all' ||
-        (filterId === 'UP_TRI'
-          && sig === 'UP_TRI') ||
-        (filterId === 'DOWN_TRI'
-          && sig === 'DOWN_TRI') ||
-        (filterId === 'BULL_PROXY'
-          && sig === 'BULL_PROXY') ||
-        (filterId === 'SA'
-          && sig.endsWith('_SA')) ||
-        (filterId === 'age0'
-          && age === '0')
+        (filterId === 'UP_TRI'     && sig === 'UP_TRI') ||
+        (filterId === 'DOWN_TRI'   && sig === 'DOWN_TRI') ||
+        (filterId === 'BULL_PROXY' && sig === 'BULL_PROXY') ||
+        (filterId === 'SA'         && sig.endsWith('_SA')) ||
+        (filterId === 'age0'       && age === '0')
       );
       card.style.display = show ? '' : 'none';
     });
@@ -434,31 +385,25 @@ function openTapPanel(el) {
   const direction = sig.direction || 'LONG';
   const attempt   = sig.attempt_number || 1;
 
-  // Use actual open if available
   const openData  = _getOpenPrice(sig.symbol || sym);
   const entry     = openData && openData.actual_open
     ? openData.actual_open
     : (sig.entry_est || sig.entry || 0);
   const stop      = sig.stop || 0;
   const rrData    = _calcRR(entry, stop, direction);
-  const rr        = rrData ? rrData.rr  : null;
+  const rr        = rrData ? rrData.rr    : null;
   const target    = rrData ? rrData.target : null;
   const atr       = sig.atr || 0;
   const scanTime  = sig.scan_time || '—';
 
-  // Day info
   const today    = new Date().toISOString().slice(0,10);
   const sigDate  = sig.date || today;
   const dayNum   = getDayNumber(sigDate);
-  const exitDate = sig.exit_date
-    || getExitDate(sigDate);
+  const exitDate = sig.exit_date || getExitDate(sigDate);
   const isNew    = sigDate === today;
 
-  // Stop alert
   const stopAlert = _getStopAlert(sig.symbol || sym);
-  const eodData   = _getEodData(sig.symbol || sym);
 
-  // WHY THIS TRADE text
   const whyParts = [];
   if (signal === 'UP_TRI' || signal === 'UP_TRI_SA')
     whyParts.push('Triangle breakout above pivot low');
@@ -471,7 +416,7 @@ function openTapPanel(el) {
   if (sig.bear_bonus)
     whyParts.push('Bear regime = highest UP_TRI conviction');
   if (sig.vol_confirm)
-    whyParts.push(`High volume confirmation`);
+    whyParts.push('High volume confirmation');
   if (sig.rs_q === 'Strong')
     whyParts.push('Stock outperforming Nifty');
   if (sig.sec_mom === 'Leading')
@@ -479,29 +424,25 @@ function openTapPanel(el) {
 
   const whyText = whyParts.join(' · ') || 'Signal criteria met';
 
-  // Risk calc
   const riskPerShare = entry && stop
     ? Math.abs(entry - stop).toFixed(2) : '—';
 
-  // TradingView URL
+  // FIX 3 — TradingView URL stored in data attribute
+  // Use location.href instead of window.open (iOS safe)
   const tvSym = sym.replace('.NS','');
-  const tvUrl = `https://www.tradingview.com/chart/` +
-    `?symbol=NSE%3A${tvSym}`;
+  const tvUrl = `https://www.tradingview.com/chart/?symbol=NSE%3A${tvSym}`;
 
-  // Build panel HTML
   const panel = document.getElementById('tap-panel');
   if (!panel) return;
 
   panel.style.display   = 'block';
-  panel.style.transform =
-    'translateX(-50%) translateY(100%)';
+  panel.style.transform = 'translateX(-50%) translateY(100%)';
 
   panel.innerHTML = `
     <div style="width:40px;height:4px;
       background:#30363d;border-radius:2px;
       margin:0 auto 14px;"></div>
 
-    <!-- Header -->
     <div style="display:flex;
       justify-content:space-between;
       align-items:center;margin-bottom:14px;">
@@ -524,7 +465,6 @@ function openTapPanel(el) {
           cursor:pointer;">✕</button>
     </div>
 
-    <!-- Stop alert if active -->
     ${stopAlert ? `
       <div style="background:#2a0a0a;
         border:1px solid #f8514966;
@@ -534,16 +474,13 @@ function openTapPanel(el) {
         ⚠️ ${stopAlert.note}
       </div>` : ''}
 
-    <!-- Price grid -->
     <div style="display:grid;
       grid-template-columns:1fr 1fr;
       gap:8px;margin-bottom:10px;">
       ${_panelStat('ENTRY',
-        entry ? '₹' + fmt(entry) : '—',
-        '#58a6ff')}
+        entry ? '₹' + fmt(entry) : '—', '#58a6ff')}
       ${_panelStat('STOP',
-        stop  ? '₹' + fmt(stop)  : '—',
-        '#f85149')}
+        stop  ? '₹' + fmt(stop)  : '—', '#f85149')}
       ${_panelStat('TARGET',
         target ? '₹' + fmt(target) : 'Day 6 open',
         '#00C851')}
@@ -553,42 +490,32 @@ function openTapPanel(el) {
         rr >= 1.5 ? '#FFD700' : '#f85149')}
     </div>
 
-    <!-- Trade detail -->
     <div style="background:#161b22;
       border-radius:8px;padding:10px 12px;
       margin-bottom:10px;font-size:11px;
       line-height:1.8;">
-      ${_detailRow('Risk/share',
-        '₹' + riskPerShare)}
-      ${_detailRow('ATR',
-        atr ? '₹' + fmt(atr) : '—')}
-      ${_detailRow('Signal age',
-        sig.age + ' days')}
-      ${_detailRow('Score',
-        score + '/10')}
-      ${_detailRow('Regime',
-        sig.regime || '—')}
-      ${_detailRow('Volume',
-        sig.vol_q || '—')}
-      ${_detailRow('RS vs Nifty',
-        sig.rs_q  || '—')}
-      ${_detailRow('Sector mom',
-        sig.sec_mom || '—')}
-      ${_detailRow('Grade',
-        sig.grade || '—')}
+      ${_detailRow('Risk/share', '₹' + riskPerShare)}
+      ${_detailRow('ATR', atr ? '₹' + fmt(atr) : '—')}
+      ${_detailRow('Signal age', sig.age + ' days')}
+      ${_detailRow('Score', score + '/10')}
+      ${_detailRow('Regime', sig.regime || '—')}
+      ${_detailRow('Volume', sig.vol_q  || '—')}
+      ${_detailRow('RS vs Nifty', sig.rs_q   || '—')}
+      ${_detailRow('Sector mom', sig.sec_mom || '—')}
+      ${_detailRow('Grade', sig.grade || '—')}
       ${_detailRow('Scan price',
-        (sig.entry_est
-          ? '₹' + fmt(sig.entry_est) : '—') +
-        ' at ' + scanTime)}
+        (sig.entry_est ? '₹' + fmt(sig.entry_est) : '—') +
+        ' · ' + fmtDate(sig.date) +
+        ' · ' + scanTime)}
     </div>
 
-    <!-- Day counter -->
     <div style="background:#0d1117;
       border:1px solid #21262d;
       border-radius:8px;padding:10px 12px;
       margin-bottom:10px;font-size:11px;">
-      <div style="color:#555;
-        margin-bottom:4px;">TRADE WINDOW</div>
+      <div style="color:#555;margin-bottom:4px;">
+        TRADE WINDOW
+      </div>
       <div style="color:#c9d1d9;font-weight:700;">
         ${isNew
           ? '🟢 New signal — enter at 9:15 AM open'
@@ -597,67 +524,57 @@ function openTapPanel(el) {
       <div style="color:#555;margin-top:2px;">
         Exit at open on ${fmtDate(exitDate)}
         ${dayNum >= 5
-          ? ' <span style="color:#f85149;">' +
-            '— Exit tomorrow!</span>'
+          ? '<span style="color:#f85149;">— Exit tomorrow!</span>'
           : ''}
         ${dayNum >= 6
-          ? ' <span style="color:#f85149;">' +
-            '— EXIT TODAY</span>'
+          ? '<span style="color:#f85149;">— EXIT TODAY</span>'
           : ''}
       </div>
-      <div style="color:#444;font-size:10px;
-        margin-top:4px;">
-        Exit rule: Sell at open of Day 6
-        regardless of P&L
+      <div style="color:#444;font-size:10px;margin-top:4px;">
+        Exit rule: Sell at open of Day 6 regardless of P&L
       </div>
     </div>
 
-    <!-- Second attempt context -->
     ${attempt === 2 ? `
       <div style="background:#0d1a0d;
         border:1px solid #00C85133;
         border-radius:8px;padding:10px 12px;
         margin-bottom:10px;font-size:11px;">
         <div style="color:#00C851;font-weight:700;
-          margin-bottom:4px;">
-          2nd Attempt Signal
-        </div>
+          margin-bottom:4px;">2nd Attempt Signal</div>
         <div style="color:#8b949e;">
           First attempt: ${sig.parent_signal || ''} on
           ${fmtDate(sig.parent_date)} —
-          ${sig.parent_result || 'prior'}
-          <br>Same level proven twice.
+          ${sig.parent_result || 'prior'}<br>
+          Same level proven twice.
           Lower score threshold applied.
         </div>
       </div>` : ''}
 
-    <!-- WHY THIS TRADE -->
     <div style="background:#0a0d1a;
       border:1px solid #21262d;
       border-radius:8px;padding:10px 12px;
       margin-bottom:14px;font-size:11px;">
-      <div style="color:#8b949e;
-        margin-bottom:4px;font-size:10px;
-        letter-spacing:1px;">
+      <div style="color:#8b949e;margin-bottom:4px;
+        font-size:10px;letter-spacing:1px;">
         WHY THIS TRADE
       </div>
-      <div style="color:#c9d1d9;
-        line-height:1.6;">
+      <div style="color:#c9d1d9;line-height:1.6;">
         ${whyText}
       </div>
     </div>
 
-    <!-- Action buttons -->
-    <div style="display:flex;gap:8px;
-      margin-bottom:8px;">
-      <button onclick="openChart('${tvUrl}')"
+    <!-- FIX 3 — Open Chart as anchor tag (iOS safe) -->
+    <div style="display:flex;gap:8px;margin-bottom:8px;">
+      <a href="${tvUrl}" target="_blank"
         style="flex:1;background:#161b22;
           border:1px solid #30363d;
           color:#8b949e;border-radius:6px;
           padding:10px;font-size:12px;
-          cursor:pointer;">
+          cursor:pointer;text-align:center;
+          text-decoration:none;display:block;">
         📈 Open Chart
-      </button>
+      </a>
       <button onclick="copySignal()"
         style="flex:1;background:#161b22;
           border:1px solid #30363d;
@@ -668,7 +585,6 @@ function openTapPanel(el) {
       </button>
     </div>
 
-    <!-- Close button -->
     <button onclick="closeTapPanel()"
       style="width:100%;background:#21262d;
         border:1px solid #30363d;
@@ -678,25 +594,20 @@ function openTapPanel(el) {
       Close
     </button>`;
 
-  // Show overlay and slide up panel
-  const overlay = document.getElementById(
-    'tap-overlay');
+  const overlay = document.getElementById('tap-overlay');
   if (overlay) {
     overlay.style.display = 'block';
     overlay.onclick       = closeTapPanel;
   }
 
   requestAnimationFrame(function() {
-    panel.style.transform =
-      'translateX(-50%) translateY(0)';
+    panel.style.transform  = 'translateX(-50%) translateY(0)';
     panel.style.transition = 'transform 0.3s ease';
   });
 
-  // Save to session for restore
   try {
     sessionStorage.setItem(
-      'tietiy_last_sig',
-      JSON.stringify(sig));
+      'tietiy_last_sig', JSON.stringify(sig));
   } catch(e) {}
 }
 
@@ -704,8 +615,7 @@ function closeTapPanel() {
   const panel   = document.getElementById('tap-panel');
   const overlay = document.getElementById('tap-overlay');
   if (panel) {
-    panel.style.transform =
-      'translateX(-50%) translateY(100%)';
+    panel.style.transform = 'translateX(-50%) translateY(100%)';
     setTimeout(function() {
       panel.style.display = 'none';
     }, 300);
@@ -713,31 +623,79 @@ function closeTapPanel() {
   if (overlay) overlay.style.display = 'none';
 }
 
-function openChart(url) {
-  window.open(url, '_blank');
-}
-
+// FIX 4 — Copy with execCommand fallback (iOS safe)
 function copySignal() {
   if (!_currentSig) return;
-  const s   = _currentSig;
-  const sym = (s.symbol || '').replace('.NS','');
+  const s        = _currentSig;
+  const sym      = (s.symbol || '').replace('.NS','');
   const openData = _getOpenPrice(s.symbol || sym);
   const entry    = openData && openData.actual_open
-    ? openData.actual_open : (s.entry_est || s.entry || 0);
-  const rrData = _calcRR(entry, s.stop,
+    ? openData.actual_open
+    : (s.entry_est || s.entry || 0);
+  const rrData   = _calcRR(entry, s.stop,
     s.direction || 'LONG');
+
   const text = [
     `TIE TIY Signal`,
     `${sym} — ${s.signal}`,
+    `Date: ${s.date || '—'}`,
     `Entry: ₹${fmt(entry)}`,
     `Stop: ₹${fmt(s.stop)}`,
     `R:R: ${rrData ? rrData.rr + 'x' : '—'}`,
     `Score: ${s.score}/10`,
     `Regime: ${s.regime}`,
+    `Grade: ${s.grade}`,
   ].join('\n');
+
+  // Try modern clipboard API first
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text)
+      .then(function() {
+        _showCopyFeedback();
+      })
+      .catch(function() {
+        _fallbackCopy(text);
+      });
+  } else {
+    _fallbackCopy(text);
+  }
+}
+
+// iOS Safari fallback copy method
+function _fallbackCopy(text) {
+  const ta = document.createElement('textarea');
+  ta.value          = text;
+  ta.style.position = 'fixed';
+  ta.style.top      = '0';
+  ta.style.left     = '0';
+  ta.style.opacity  = '0';
+  document.body.appendChild(ta);
+  ta.focus();
+  ta.select();
   try {
-    navigator.clipboard.writeText(text);
-  } catch(e) {}
+    document.execCommand('copy');
+    _showCopyFeedback();
+  } catch(e) {
+    console.log('Copy failed:', e);
+  }
+  document.body.removeChild(ta);
+}
+
+function _showCopyFeedback() {
+  // Find copy button and flash it
+  const btns = document.querySelectorAll(
+    '#tap-panel button');
+  btns.forEach(function(btn) {
+    if (btn.textContent.includes('Copy')) {
+      const orig = btn.innerHTML;
+      btn.innerHTML = '✅ Copied';
+      btn.style.color = '#00C851';
+      setTimeout(function() {
+        btn.innerHTML   = orig;
+        btn.style.color = '#8b949e';
+      }, 1500);
+    }
+  });
 }
 
 function _panelStat(label, value, color) {
@@ -762,15 +720,12 @@ function _detailRow(label, value) {
 
 // ── MAIN RENDER ───────────────────────────────────────
 function renderSignals(data) {
-  const content = document.getElementById(
-    'tab-content');
+  const content = document.getElementById('tab-content');
   if (!content) return;
 
   const scanLog = data.scanLog;
   const today   = new Date().toISOString().slice(0,10);
 
-  // Get all active signals from history
-  // PENDING + exit_date >= today
   let activeSignals = [];
   if (data.history && data.history.history) {
     activeSignals = data.history.history.filter(s => {
@@ -780,25 +735,22 @@ function renderSignals(data) {
     });
   }
 
-  // Mark new signals
   const todaySignals = activeSignals.filter(
     s => s.date === today);
   const olderSignals = activeSignals.filter(
     s => s.date !== today);
 
-  // Sort by score descending
   const sortByScore = arr => [...arr].sort(
     (a, b) => (b.score || 0) - (a.score || 0));
 
-  const newSorted   = sortByScore(todaySignals);
-  const olderSorted = sortByScore(olderSignals);
-  const allSignals  = [...newSorted, ...olderSorted];
+  const allSignals = [
+    ...sortByScore(todaySignals),
+    ...sortByScore(olderSignals),
+  ];
 
-  // Rejected signals from today's scan
   const rejected = scanLog
     ? (scanLog.rejected || []) : [];
 
-  // ── EMPTY STATE ───────────────────────────────
   if (!allSignals.length) {
     const meta    = data.meta || {};
     const scanned = meta.universe_size || 0;
@@ -813,9 +765,8 @@ function renderSignals(data) {
           color:#555;font-size:13px;">
           <div style="font-size:32px;
             margin-bottom:12px;">📊</div>
-          <div style="color:#8b949e;
-            font-size:15px;font-weight:700;
-            margin-bottom:8px;">
+          <div style="color:#8b949e;font-size:15px;
+            font-weight:700;margin-bottom:8px;">
             No active signals
           </div>
           <div style="margin-bottom:4px;">
@@ -825,28 +776,24 @@ function renderSignals(data) {
           </div>
           <div style="font-size:11px;color:#444;">
             ${meta.is_trading_day
-              ? `${scanned} stocks checked · ` +
-                `0 signals met criteria · ` +
-                `${regime} regime`
+              ? `${scanned} stocks checked · 0 signals met criteria · ${regime} regime`
               : `Next scan: next trading day at 8:45 AM IST`}
           </div>
         </div>
-        ${rejected.length ? _buildRejectedSection(
-          rejected) : ''}
+        ${rejected.length
+          ? _buildRejectedSection(rejected) : ''}
       </div>
       ${_buildStyles()}`;
     _renderNav('signals');
     return;
   }
 
-  // ── RENDER SIGNALS ────────────────────────────
   content.innerHTML = `
     ${_buildStyles()}
     <div style="padding:0 0 14px;">
 
       ${_buildFilterBar(allSignals)}
 
-      <!-- ACTIVE SIGNALS -->
       <div style="padding:0 14px;">
         <div style="color:#8b949e;font-size:11px;
           font-weight:700;letter-spacing:1px;
@@ -866,25 +813,17 @@ function renderSignals(data) {
         }).join('')}
       </div>
 
-      <!-- REJECTED SECTION -->
       ${rejected.length
         ? `<div style="padding:0 14px;">
              ${_buildRejectedSection(rejected)}
            </div>`
         : ''}
-
     </div>`;
 
   _renderNav('signals');
 
-  // Restore last tapped signal if session saved
   try {
-    const lastSig = sessionStorage.getItem(
-      'tietiy_last_sig');
-    if (lastSig) {
-      // Don't auto-open — just clear the saved state
-      sessionStorage.removeItem('tietiy_last_sig');
-    }
+    sessionStorage.removeItem('tietiy_last_sig');
   } catch(e) {}
 }
 
@@ -936,8 +875,7 @@ function _buildRejectedSection(rejected) {
           cursor:pointer;margin-bottom:6px;">
         ▶ REJECTED TODAY (${rejected.length})
       </div>
-      <div id="rej-section"
-        style="display:none;">
+      <div id="rej-section" style="display:none;">
         ${rows}
         <div style="font-size:10px;color:#333;
           padding:6px 0;">
@@ -960,7 +898,6 @@ function toggleRejected() {
              open ? '▶' : '▼');
 }
 
-// ── INLINE STYLES ─────────────────────────────────────
 function _buildStyles() {
   return `
     <style>
@@ -969,8 +906,6 @@ function _buildStyles() {
         50%  { opacity: 0.5; }
         100% { opacity: 1; }
       }
-      .signal-card:active {
-        opacity: 0.8;
-      }
+      .signal-card:active { opacity: 0.8; }
     </style>`;
 }
