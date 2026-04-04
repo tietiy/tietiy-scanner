@@ -16,7 +16,7 @@ jobs:
     permissions:
       pages:    write
       id-token: write
-      contents: write
+      contents: read
 
     environment:
       name: github-pages
@@ -26,8 +26,6 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GH_TOKEN }}
 
       - name: Setup Pages
         uses: actions/configure-pages@v4
@@ -40,33 +38,3 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
-
-      - name: Write deployed_at timestamp
-        run: |
-          sudo apt-get install -y jq
-          META_FILE="output/meta.json"
-          if [ -f "$META_FILE" ]; then
-            DEPLOYED_AT=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
-            jq --arg dt "$DEPLOYED_AT" \
-               '.deployed_at = $dt' \
-               "$META_FILE" > "$META_FILE.tmp" && \
-               mv "$META_FILE.tmp" "$META_FILE"
-            echo "deployed_at set to $DEPLOYED_AT"
-          else
-            echo "meta.json not found — skipping"
-          fi
-
-      - name: Commit deployed_at
-        run: |
-          git config user.name  "TIE TIY Bot"
-          git config user.email "bot@tietiy.com"
-          git add output/meta.json || true
-          git diff --staged --quiet || \
-            git commit -m \
-            "deployed_at $(date '+%Y-%m-%d %H:%M') IST"
-          git pull --rebase origin main || \
-            git rebase --abort
-          git push origin HEAD:main || \
-            git push --force-with-lease origin HEAD:main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
