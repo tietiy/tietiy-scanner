@@ -4,8 +4,9 @@
 //
 // Fixes applied:
 // FIX 2 — Scan price shows date + time
-// FIX 3 — Open Chart uses location.href (iOS safe)
+// FIX 3 — Open Chart uses anchor tag (iOS safe)
 // FIX 4 — Copy uses execCommand fallback (iOS safe)
+// FIX 2b — Filter bar remembers last selection
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
@@ -288,12 +289,13 @@ function _buildCard(sig, isNew, dayNum) {
         </div>
       </div>
 
-      <!-- FIX 2 — Scan price with date + time -->
       <div style="font-size:10px;color:#444;
         margin-bottom:2px;">
         ${openData && openData.actual_open
-          ? `Actual open · ${openData.fetch_time || scanTime}`
-          : `Scan price · ${fmtDate(sig.date)} · ${scanTime}`}
+          ? `Actual open · ${openData.fetch_time
+              || scanTime}`
+          : `Scan price · ${fmtDate(sig.date)}
+              · ${scanTime}`}
       </div>
 
       ${windowClosed}
@@ -313,34 +315,53 @@ function _buildFilterBar(signals) {
   });
 
   const filters = [
-    { id: 'all',        label: `All (${counts.all})` },
-    { id: 'UP_TRI',     label: `UP TRI (${counts.UP_TRI||0})` },
-    { id: 'DOWN_TRI',   label: `DOWN (${counts.DOWN_TRI||0})` },
-    { id: 'BULL_PROXY', label: `Proxy (${counts.BULL_PROXY||0})` },
-    { id: 'SA',         label: `2nd Att` },
-    { id: 'age0',       label: `Age 0` },
+    { id: 'all',
+      label: `All (${counts.all})` },
+    { id: 'UP_TRI',
+      label: `UP TRI (${counts.UP_TRI||0})` },
+    { id: 'DOWN_TRI',
+      label: `DOWN (${counts.DOWN_TRI||0})` },
+    { id: 'BULL_PROXY',
+      label: `Proxy (${counts.BULL_PROXY||0})` },
+    { id: 'SA',
+      label: `2nd Att` },
+    { id: 'age0',
+      label: `Age 0` },
   ];
+
+  // FIX 2b — read saved filter from sessionStorage
+  let savedFilter = 'all';
+  try {
+    savedFilter = sessionStorage.getItem(
+      'tietiy_filter') || 'all';
+  } catch(e) {}
 
   return `
     <div id="filter-bar"
       style="display:flex;flex-wrap:wrap;
         gap:4px;padding:8px 14px;">
-      ${filters.map((f, i) => `
-        <button
-          class="filter-btn ${i===0?'active':''}"
-          data-filter="${f.id}"
-          onclick="applyFilter('${f.id}', this)"
-          style="background:${i===0?'#58a6ff':'#161b22'};
-            color:${i===0?'#000':'#8b949e'};
-            border:1px solid #30363d;
-            border-radius:6px;
-            padding:4px 10px;font-size:10px;
-            cursor:pointer;">
-          ${f.label}
-        </button>`).join('')}
+      ${filters.map(f => {
+        const isActive = f.id === savedFilter;
+        return `
+          <button
+            class="filter-btn ${isActive
+              ? 'active' : ''}"
+            data-filter="${f.id}"
+            onclick="applyFilter('${f.id}', this)"
+            style="background:${isActive
+              ? '#58a6ff' : '#161b22'};
+              color:${isActive ? '#000' : '#8b949e'};
+              border:1px solid #30363d;
+              border-radius:6px;
+              padding:4px 10px;font-size:10px;
+              cursor:pointer;">
+            ${f.label}
+          </button>`;
+      }).join('')}
     </div>`;
 }
 
+// FIX 2b — save filter to sessionStorage
 function applyFilter(filterId, btn) {
   document.querySelectorAll('.filter-btn')
     .forEach(b => {
@@ -351,20 +372,45 @@ function applyFilter(filterId, btn) {
     btn.style.background = '#58a6ff';
     btn.style.color      = '#000';
   }
+
+  // Save to sessionStorage
+  try {
+    sessionStorage.setItem('tietiy_filter', filterId);
+  } catch(e) {}
+
   document.querySelectorAll('.signal-card')
     .forEach(card => {
       const sig  = card.dataset.signal || '';
       const age  = card.dataset.age    || '0';
       const show = (
         filterId === 'all' ||
-        (filterId === 'UP_TRI'     && sig === 'UP_TRI') ||
-        (filterId === 'DOWN_TRI'   && sig === 'DOWN_TRI') ||
-        (filterId === 'BULL_PROXY' && sig === 'BULL_PROXY') ||
-        (filterId === 'SA'         && sig.endsWith('_SA')) ||
-        (filterId === 'age0'       && age === '0')
+        (filterId === 'UP_TRI'
+          && sig === 'UP_TRI') ||
+        (filterId === 'DOWN_TRI'
+          && sig === 'DOWN_TRI') ||
+        (filterId === 'BULL_PROXY'
+          && sig === 'BULL_PROXY') ||
+        (filterId === 'SA'
+          && sig.endsWith('_SA')) ||
+        (filterId === 'age0'
+          && age === '0')
       );
       card.style.display = show ? '' : 'none';
     });
+}
+
+// FIX 2b — apply saved filter after cards render
+function _applySavedFilter() {
+  try {
+    const saved = sessionStorage.getItem(
+      'tietiy_filter');
+    if (saved && saved !== 'all') {
+      // Find the button and trigger filter
+      const btn = document.querySelector(
+        `[data-filter="${saved}"]`);
+      if (btn) applyFilter(saved, btn);
+    }
+  } catch(e) {}
 }
 
 // ── TAP PANEL ─────────────────────────────────────────
@@ -399,22 +445,29 @@ function openTapPanel(el) {
   const today    = new Date().toISOString().slice(0,10);
   const sigDate  = sig.date || today;
   const dayNum   = getDayNumber(sigDate);
-  const exitDate = sig.exit_date || getExitDate(sigDate);
+  const exitDate = sig.exit_date
+    || getExitDate(sigDate);
   const isNew    = sigDate === today;
 
   const stopAlert = _getStopAlert(sig.symbol || sym);
 
   const whyParts = [];
   if (signal === 'UP_TRI' || signal === 'UP_TRI_SA')
-    whyParts.push('Triangle breakout above pivot low');
-  if (signal === 'DOWN_TRI' || signal === 'DOWN_TRI_SA')
-    whyParts.push('Triangle breakdown below pivot high');
+    whyParts.push(
+      'Triangle breakout above pivot low');
+  if (signal === 'DOWN_TRI' ||
+      signal === 'DOWN_TRI_SA')
+    whyParts.push(
+      'Triangle breakdown below pivot high');
   if (signal === 'BULL_PROXY')
-    whyParts.push('Support zone rejection with momentum');
+    whyParts.push(
+      'Support zone rejection with momentum');
   if (attempt === 2)
-    whyParts.push('Second attempt — level proven twice');
+    whyParts.push(
+      'Second attempt — level proven twice');
   if (sig.bear_bonus)
-    whyParts.push('Bear regime = highest UP_TRI conviction');
+    whyParts.push(
+      'Bear regime = highest UP_TRI conviction');
   if (sig.vol_confirm)
     whyParts.push('High volume confirmation');
   if (sig.rs_q === 'Strong')
@@ -422,25 +475,25 @@ function openTapPanel(el) {
   if (sig.sec_mom === 'Leading')
     whyParts.push('Sector showing leadership');
 
-  const whyText = whyParts.join(' · ') || 'Signal criteria met';
+  const whyText = whyParts.join(' · ')
+    || 'Signal criteria met';
 
   const riskPerShare = entry && stop
     ? Math.abs(entry - stop).toFixed(2) : '—';
 
-  // FIX 3 — TradingView URL stored in data attribute
-  // Use location.href instead of window.open (iOS safe)
   const tvSym = sym.replace('.NS','');
-  const tvUrl = `https://www.tradingview.com/chart/?symbol=NSE%3A${tvSym}`;
+  const tvUrl = `https://www.tradingview.com/chart/` +
+    `?symbol=NSE%3A${tvSym}`;
 
   const panel = document.getElementById('tap-panel');
   if (!panel) return;
 
-    panel.style.display   = 'block';
-  panel.style.maxWidth  = window.innerWidth >= 1024
+  panel.style.display  = 'block';
+  panel.style.maxWidth = window.innerWidth >= 1024
     ? '960px' : window.innerWidth >= 768
     ? '860px' : '600px';
-  panel.style.transform = 'translateX(-50%) translateY(100%)';
-
+  panel.style.transform =
+    'translateX(-50%) translateY(100%)';
 
   panel.innerHTML = `
     <div style="width:40px;height:4px;
@@ -490,25 +543,27 @@ function openTapPanel(el) {
         '#00C851')}
       ${_panelStat('R:R',
         rr ? rr + 'x' : '—',
-        rr >= 2 ? '#00C851' :
-        rr >= 1.5 ? '#FFD700' : '#f85149')}
+        rr >= 2    ? '#00C851' :
+        rr >= 1.5  ? '#FFD700' : '#f85149')}
     </div>
 
     <div style="background:#161b22;
       border-radius:8px;padding:10px 12px;
       margin-bottom:10px;font-size:11px;
       line-height:1.8;">
-      ${_detailRow('Risk/share', '₹' + riskPerShare)}
-      ${_detailRow('ATR', atr ? '₹' + fmt(atr) : '—')}
+      ${_detailRow('Risk/share','₹' + riskPerShare)}
+      ${_detailRow('ATR',
+        atr ? '₹' + fmt(atr) : '—')}
       ${_detailRow('Signal age', sig.age + ' days')}
       ${_detailRow('Score', score + '/10')}
       ${_detailRow('Regime', sig.regime || '—')}
       ${_detailRow('Volume', sig.vol_q  || '—')}
-      ${_detailRow('RS vs Nifty', sig.rs_q   || '—')}
+      ${_detailRow('RS vs Nifty', sig.rs_q || '—')}
       ${_detailRow('Sector mom', sig.sec_mom || '—')}
       ${_detailRow('Grade', sig.grade || '—')}
       ${_detailRow('Scan price',
-        (sig.entry_est ? '₹' + fmt(sig.entry_est) : '—') +
+        (sig.entry_est
+          ? '₹' + fmt(sig.entry_est) : '—') +
         ' · ' + fmtDate(sig.date) +
         ' · ' + scanTime)}
     </div>
@@ -528,14 +583,16 @@ function openTapPanel(el) {
       <div style="color:#555;margin-top:2px;">
         Exit at open on ${fmtDate(exitDate)}
         ${dayNum >= 5
-          ? '<span style="color:#f85149;">— Exit tomorrow!</span>'
-          : ''}
+          ? '<span style="color:#f85149;">' +
+            '— Exit tomorrow!</span>' : ''}
         ${dayNum >= 6
-          ? '<span style="color:#f85149;">— EXIT TODAY</span>'
-          : ''}
+          ? '<span style="color:#f85149;">' +
+            '— EXIT TODAY</span>' : ''}
       </div>
-      <div style="color:#444;font-size:10px;margin-top:4px;">
-        Exit rule: Sell at open of Day 6 regardless of P&L
+      <div style="color:#444;font-size:10px;
+        margin-top:4px;">
+        Exit rule: Sell at open of Day 6
+        regardless of P&L
       </div>
     </div>
 
@@ -545,10 +602,12 @@ function openTapPanel(el) {
         border-radius:8px;padding:10px 12px;
         margin-bottom:10px;font-size:11px;">
         <div style="color:#00C851;font-weight:700;
-          margin-bottom:4px;">2nd Attempt Signal</div>
+          margin-bottom:4px;">
+          2nd Attempt Signal
+        </div>
         <div style="color:#8b949e;">
-          First attempt: ${sig.parent_signal || ''} on
-          ${fmtDate(sig.parent_date)} —
+          First attempt: ${sig.parent_signal || ''}
+          on ${fmtDate(sig.parent_date)} —
           ${sig.parent_result || 'prior'}<br>
           Same level proven twice.
           Lower score threshold applied.
@@ -568,8 +627,8 @@ function openTapPanel(el) {
       </div>
     </div>
 
-    <!-- FIX 3 — Open Chart as anchor tag (iOS safe) -->
-    <div style="display:flex;gap:8px;margin-bottom:8px;">
+    <div style="display:flex;gap:8px;
+      margin-bottom:8px;">
       <a href="${tvUrl}" target="_blank"
         style="flex:1;background:#161b22;
           border:1px solid #30363d;
@@ -598,14 +657,16 @@ function openTapPanel(el) {
       Close
     </button>`;
 
-  const overlay = document.getElementById('tap-overlay');
+  const overlay = document.getElementById(
+    'tap-overlay');
   if (overlay) {
     overlay.style.display = 'block';
     overlay.onclick       = closeTapPanel;
   }
 
   requestAnimationFrame(function() {
-    panel.style.transform  = 'translateX(-50%) translateY(0)';
+    panel.style.transform =
+      'translateX(-50%) translateY(0)';
     panel.style.transition = 'transform 0.3s ease';
   });
 
@@ -617,9 +678,11 @@ function openTapPanel(el) {
 
 function closeTapPanel() {
   const panel   = document.getElementById('tap-panel');
-  const overlay = document.getElementById('tap-overlay');
+  const overlay = document.getElementById(
+    'tap-overlay');
   if (panel) {
-    panel.style.transform = 'translateX(-50%) translateY(100%)';
+    panel.style.transform =
+      'translateX(-50%) translateY(100%)';
     setTimeout(function() {
       panel.style.display = 'none';
     }, 300);
@@ -627,7 +690,6 @@ function closeTapPanel() {
   if (overlay) overlay.style.display = 'none';
 }
 
-// FIX 4 — Copy with execCommand fallback (iOS safe)
 function copySignal() {
   if (!_currentSig) return;
   const s        = _currentSig;
@@ -651,23 +713,19 @@ function copySignal() {
     `Grade: ${s.grade}`,
   ].join('\n');
 
-  // Try modern clipboard API first
-  if (navigator.clipboard && navigator.clipboard.writeText) {
+  if (navigator.clipboard &&
+      navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text)
-      .then(function() {
-        _showCopyFeedback();
-      })
-      .catch(function() {
-        _fallbackCopy(text);
-      });
+      .then(function() { _showCopyFeedback(); })
+      .catch(function() { _fallbackCopy(text); });
   } else {
     _fallbackCopy(text);
   }
 }
 
-// iOS Safari fallback copy method
 function _fallbackCopy(text) {
-  const ta = document.createElement('textarea');
+  const ta          = document.createElement(
+    'textarea');
   ta.value          = text;
   ta.style.position = 'fixed';
   ta.style.top      = '0';
@@ -686,13 +744,12 @@ function _fallbackCopy(text) {
 }
 
 function _showCopyFeedback() {
-  // Find copy button and flash it
   const btns = document.querySelectorAll(
     '#tap-panel button');
   btns.forEach(function(btn) {
     if (btn.textContent.includes('Copy')) {
-      const orig = btn.innerHTML;
-      btn.innerHTML = '✅ Copied';
+      const orig      = btn.innerHTML;
+      btn.innerHTML   = '✅ Copied';
       btn.style.color = '#00C851';
       setTimeout(function() {
         btn.innerHTML   = orig;
@@ -724,11 +781,13 @@ function _detailRow(label, value) {
 
 // ── MAIN RENDER ───────────────────────────────────────
 function renderSignals(data) {
-  const content = document.getElementById('tab-content');
+  const content = document.getElementById(
+    'tab-content');
   if (!content) return;
 
   const scanLog = data.scanLog;
-  const today   = new Date().toISOString().slice(0,10);
+  const today   = new Date()
+                  .toISOString().slice(0,10);
 
   let activeSignals = [];
   if (data.history && data.history.history) {
@@ -780,8 +839,11 @@ function renderSignals(data) {
           </div>
           <div style="font-size:11px;color:#444;">
             ${meta.is_trading_day
-              ? `${scanned} stocks checked · 0 signals met criteria · ${regime} regime`
-              : `Next scan: next trading day at 8:45 AM IST`}
+              ? `${scanned} stocks checked · ` +
+                `0 signals met criteria · ` +
+                `${regime} regime`
+              : `Next scan: next trading day ` +
+                `at 8:45 AM IST`}
           </div>
         </div>
         ${rejected.length
@@ -812,7 +874,8 @@ function renderSignals(data) {
 
         ${allSignals.map(sig => {
           const isNew  = sig.date === today;
-          const dayNum = getDayNumber(sig.date || today);
+          const dayNum = getDayNumber(
+            sig.date || today);
           return _buildCard(sig, isNew, dayNum);
         }).join('')}
       </div>
@@ -825,6 +888,9 @@ function renderSignals(data) {
     </div>`;
 
   _renderNav('signals');
+
+  // FIX 2b — apply saved filter after render
+  _applySavedFilter();
 
   try {
     sessionStorage.removeItem('tietiy_last_sig');
@@ -879,7 +945,8 @@ function _buildRejectedSection(rejected) {
           cursor:pointer;margin-bottom:6px;">
         ▶ REJECTED TODAY (${rejected.length})
       </div>
-      <div id="rej-section" style="display:none;">
+      <div id="rej-section"
+        style="display:none;">
         ${rows}
         <div style="font-size:10px;color:#333;
           padding:6px 0;">
