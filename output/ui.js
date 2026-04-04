@@ -852,6 +852,8 @@ function _restoreSession() {
 // ── TRADING DAY COUNTER ───────────────────────────────
 // Used by app.js to show Day X of 6
 // Counts trading days excluding NSE holidays
+// Entry date = next trading day after signal detection
+// Day counter starts from entry, not detection
 
 function tradingDaysBetween(startDateStr, endDateStr) {
   const holidays = window.TIETIY.holidays || [];
@@ -873,21 +875,37 @@ function tradingDaysBetween(startDateStr, endDateStr) {
   return count;
 }
 
+function getEntryDate(signalDateStr) {
+  const holidays = window.TIETIY.holidays || [];
+  const cur      = new Date(signalDateStr);
+  cur.setDate(cur.getDate() + 1);
+  while (true) {
+    const dayOfWeek = cur.getDay();
+    const dateStr   = cur.toISOString().slice(0, 10);
+    if (dayOfWeek !== 0 &&
+        dayOfWeek !== 6 &&
+        !holidays.includes(dateStr)) {
+      return dateStr;
+    }
+    cur.setDate(cur.getDate() + 1);
+  }
+}
+
 function getDayNumber(signalDateStr) {
-  const today = new Date().toISOString().slice(0, 10);
-  if (signalDateStr > today) return 1;
-  const days = tradingDaysBetween(signalDateStr, today);
+  const entryDate = getEntryDate(signalDateStr);
+  const today     = new Date()
+                    .toISOString().slice(0, 10);
+  if (today < entryDate) return 1;
+  const days = tradingDaysBetween(entryDate, today);
   return Math.min(Math.max(days, 1), 6);
 }
 
 function getExitDate(signalDateStr) {
-  const holidays = window.TIETIY.holidays || [];
-  let   count    = 0;
-  const start    = new Date(signalDateStr);
-  const cur      = new Date(start);
-
-  // Find 6th trading day
-  while (count < 6) {
+  const holidays  = window.TIETIY.holidays || [];
+  const entryDate = getEntryDate(signalDateStr);
+  let   count     = 0;
+  const cur       = new Date(entryDate);
+  while (count < 5) {
     cur.setDate(cur.getDate() + 1);
     const dayOfWeek = cur.getDay();
     const dateStr   = cur.toISOString().slice(0, 10);
@@ -899,6 +917,8 @@ function getExitDate(signalDateStr) {
   }
   return cur.toISOString().slice(0, 10);
 }
+
+   
 
 
 // ── MAIN INIT ─────────────────────────────────────────
