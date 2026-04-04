@@ -1,71 +1,251 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+
+  <!-- ── META ─────────────────────────────────── -->
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-  <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="TIE TIY">
-  <meta name="mobile-web-app-capable" content="yes">
-  <meta name="theme-color" content="#07070f">
-  <link rel="manifest" href="manifest.json">
-  <link rel="apple-touch-icon" href="icon-192.png">
+  <meta name="viewport"
+        content="width=device-width,
+                 initial-scale=1,
+                 viewport-fit=cover">
+  <meta name="description"
+        content="TIE TIY — NSE Equity Scanner">
+
+  <!-- ── PWA — iOS HOME SCREEN ─────────────────── -->
+  <meta name="apple-mobile-web-app-capable"
+        content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent">
+  <meta name="apple-mobile-web-app-title"
+        content="TIE TIY">
+  <meta name="mobile-web-app-capable"
+        content="yes">
+  <meta name="theme-color"
+        content="#07070f">
+
+  <!-- ── PWA MANIFEST ──────────────────────────── -->
+  <link rel="manifest"
+        href="manifest.json">
+
+  <!-- ── APPLE TOUCH ICONS ─────────────────────── -->
+  <link rel="apple-touch-icon"
+        href="icon-192.png">
+  <link rel="apple-touch-icon"
+        sizes="192x192"
+        href="icon-192.png">
+  <link rel="apple-touch-icon"
+        sizes="512x512"
+        href="icon-512.png">
+
   <title>TIE TIY Scanner</title>
+
+  <!-- ── BASE STYLES ───────────────────────────── -->
+  <!-- Minimal styles only — component styles      -->
+  <!-- live in each JS file via innerHTML           -->
   <style>
-    *{box-sizing:border-box;margin:0;padding:0}
-    html,body{height:100%;background:#07070f;color:#c9d1d9;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Arial,sans-serif;font-size:14px}
-    body{max-width:600px;margin:0 auto;padding:0 0 80px 0;overflow-x:hidden}
-    #app-loader{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100vh;gap:16px;color:#8b949e;font-size:13px}
-    #app-loader .logo{color:#ffd700;font-size:24px;font-weight:700}
-    #app-loader .spinner{width:28px;height:28px;border:3px solid #21262d;border-top:3px solid #ffd700;border-radius:50%;animation:spin 0.8s linear infinite}
-    @keyframes spin{to{transform:rotate(360deg)}}
-    #app-error{display:none;padding:40px 20px;text-align:center;color:#8b949e;font-size:13px}
-    #app-error .err-title{color:#f85149;font-size:16px;font-weight:700;margin-bottom:8px}
-    #app-root{display:none}
-    ::-webkit-scrollbar{width:4px;height:4px}
-    ::-webkit-scrollbar-track{background:#07070f}
-    ::-webkit-scrollbar-thumb{background:#21262d;border-radius:2px}
+    * {
+      box-sizing: border-box;
+      margin:     0;
+      padding:    0;
+    }
+
+    html, body {
+      height:     100%;
+      background: #07070f;
+      color:      #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont,
+                   'Segoe UI', Arial, sans-serif;
+      font-size:  14px;
+      -webkit-text-size-adjust: 100%;
+    }
+
+    body {
+      max-width:      600px;
+      margin:         0 auto;
+      padding:        0 0 80px 0;
+      overflow-x:     hidden;
+    }
+
+    /* ── LOADING SCREEN ─────────────────────── */
+    #app-loader {
+      display:         flex;
+      flex-direction:  column;
+      align-items:     center;
+      justify-content: center;
+      height:          100vh;
+      gap:             16px;
+      color:           #8b949e;
+      font-size:       13px;
+    }
+
+    #app-loader .logo {
+      color:       #ffd700;
+      font-size:   24px;
+      font-weight: 700;
+    }
+
+    #app-loader .spinner {
+      width:        28px;
+      height:       28px;
+      border:       3px solid #21262d;
+      border-top:   3px solid #ffd700;
+      border-radius: 50%;
+      animation:    spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* ── ERROR SCREEN ───────────────────────── */
+    #app-error {
+      display:    none;
+      padding:    40px 20px;
+      text-align: center;
+      color:      #8b949e;
+      font-size:  13px;
+    }
+
+    #app-error .err-title {
+      color:       #f85149;
+      font-size:   16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    /* ── MAIN APP ───────────────────────────── */
+    #app-root {
+      display: none;
+    }
+
+    /* ── SCROLLBAR ──────────────────────────── */
+    ::-webkit-scrollbar {
+      width:  4px;
+      height: 4px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #07070f;
+    }
+    ::-webkit-scrollbar-thumb {
+      background:    #21262d;
+      border-radius: 2px;
+    }
+
+    /* ── SAFE AREA — iPhone notch ───────────── */
+    .safe-bottom {
+      padding-bottom: env(safe-area-inset-bottom);
+    }
   </style>
+
 </head>
 <body>
 
+  <!-- ── LOADING SCREEN ──────────────────────────── -->
+  <!-- Shown while JS fetches all JSON files          -->
+  <!-- Replaced by app-root once data loads           -->
   <div id="app-loader">
     <div class="logo">🎯 TIE TIY</div>
     <div class="spinner"></div>
     <div id="loader-msg">Loading scanner data...</div>
   </div>
 
+  <!-- ── ERROR SCREEN ────────────────────────────── -->
+  <!-- Shown if JSON fetch fails completely           -->
   <div id="app-error">
     <div class="err-title">Scanner data unavailable</div>
     <div id="error-detail">Could not load scan data.</div>
-    <div style="margin-top:12px;font-size:12px;">Last known scan: <span id="error-last-scan">—</span></div>
-    <button onclick="window.location.reload()" style="margin-top:16px;background:#21262d;color:#c9d1d9;border:1px solid #30363d;border-radius:6px;padding:8px 20px;font-size:13px;cursor:pointer;">Try Again</button>
+    <div style="margin-top:12px;font-size:12px;">
+      Last known scan: <span id="error-last-scan">—</span>
+    </div>
+    <button onclick="window.location.reload()"
+      style="margin-top:16px;background:#21262d;
+             color:#c9d1d9;border:1px solid #30363d;
+             border-radius:6px;padding:8px 20px;
+             font-size:13px;cursor:pointer;">
+      Try Again
+    </button>
   </div>
 
+  <!-- ── MAIN APP ROOT ───────────────────────────── -->
+  <!-- Hidden until all data loaded                   -->
+  <!-- ui.js renders all content inside here          -->
   <div id="app-root">
-    <div id="status-bar"></div>
-    <div id="alert-banner"></div>
-    <div id="tab-content"></div>
-    <div id="bottom-nav"></div>
-    <div id="tap-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,0.75);z-index:100;"></div>
-    <div id="tap-panel" style="display:none;position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(100%);width:100%;max-width:600px;background:#0d1117;border-top:2px solid #30363d;border-radius:16px 16px 0 0;padding:16px 16px 32px;z-index:101;transition:transform 0.3s ease;overflow-y:auto;max-height:85vh;"></div>
-    <div id="help-overlay" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#0d1117;z-index:200;overflow-y:auto;"></div>
-  </div>
 
+    <!-- STATUS BAR — rendered by ui.js -->
+    <div id="status-bar"></div>
+
+    <!-- STOP ALERT BANNER — rendered by ui.js -->
+    <div id="alert-banner"></div>
+
+    <!-- TAB CONTENT — rendered by active tab JS -->
+    <div id="tab-content"></div>
+
+    <!-- BOTTOM NAV — rendered by ui.js -->
+    <div id="bottom-nav"></div>
+
+    <!-- TAP PANEL OVERLAY — rendered by app.js -->
+    <div id="tap-overlay"
+         style="display:none;position:fixed;
+                top:0;left:0;right:0;bottom:0;
+                background:rgba(0,0,0,0.75);
+                z-index:100;">
+    </div>
+
+    <!-- TAP PANEL — rendered by app.js -->
+    <div id="tap-panel"
+         style="display:none;position:fixed;
+                bottom:0;left:50%;
+                transform:translateX(-50%)
+                          translateY(100%);
+                width:100%;max-width:600px;
+                background:#0d1117;
+                border-top:2px solid #30363d;
+                border-radius:16px 16px 0 0;
+                padding:16px 16px 32px;
+                z-index:101;
+                transition:transform 0.3s ease;">
+    </div>
+
+    <!-- HELP OVERLAY — rendered by ui.js -->
+    <div id="help-overlay"
+         style="display:none;position:fixed;
+                top:0;left:0;right:0;bottom:0;
+                background:#0d1117;
+                z-index:200;
+                overflow-y:auto;">
+    </div>
+
+  </div><!-- end app-root -->
+
+  <!-- ── SERVICE WORKER REGISTRATION ────────────── -->
+  <!-- Enables Web Push + offline cache              -->
   <script>
-    if('serviceWorker' in navigator){
-      window.addEventListener('load',function(){
-        navigator.serviceWorker.register('sw.js')
-          .then(function(r){console.log('[SW] Registered')})
-          .catch(function(e){console.log('[SW] Failed:',e)});
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker
+          .register('sw.js')
+          .then(function(reg) {
+            console.log('[SW] Registered:', reg.scope);
+          })
+          .catch(function(err) {
+            console.log('[SW] Registration failed:', err);
+          });
       });
     }
   </script>
 
-  <script src="ui.js?v=2"></script>
-  <script src="app.js?v=2"></script>
-  <script src="journal.js?v=2"></script>
-  <script src="stats.js?v=2"></script>
+  <!-- ── JS FILES ────────────────────────────────── -->
+  <!-- Load order is critical — do not change        -->
+  <!-- ui.js loads first — sets up fetch manager     -->
+  <!-- app.js, journal.js, stats.js depend on ui.js  -->
+  <!-- build_time appended for cache busting         -->
+  <!-- When app_version in meta.json changes,        -->
+  <!-- ui.js forces a full reload automatically      -->
+
+  <script src="ui.js?v=202604041837"></script>
+  <script src="app.js?v=202604041837"></script>
+  <script src="journal.js?v=202604041837"></script>
+  <script src="stats.js?v=202604041837"></script>
 
 </body>
 </html>
