@@ -169,12 +169,13 @@
                 z-index:100;">
     </div>
 
+    <!-- ── CHANGED: max-width updated for iPad/desktop -->
     <div id="tap-panel"
          style="display:none;position:fixed;
                 bottom:0;left:50%;
                 transform:translateX(-50%)
                           translateY(100%);
-                width:100%;max-width:600px;
+                width:100%;max-width:min(860px,100vw);
                 background:#0d1117;
                 border-top:2px solid #30363d;
                 border-radius:16px 16px 0 0;
@@ -210,10 +211,10 @@
     }
   </script>
 
-  <script src="ui.js?v=202604050100"></script>
-  <script src="app.js?v=202604050100"></script>
-  <script src="journal.js?v=202604050100"></script>
-  <script src="stats.js?v=202604050100"></script>
+  <script src="ui.js?v=202604050130"></script>
+  <script src="app.js?v=202604050130"></script>
+  <script src="journal.js?v=202604050130"></script>
+  <script src="stats.js?v=202604050130"></script>
 
 </body>
 </html>
