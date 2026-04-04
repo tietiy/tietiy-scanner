@@ -6,7 +6,6 @@ on:
       - 'output/**'
   workflow_dispatch:
 
-# ── PREVENTS SIMULTANEOUS DEPLOY CONFLICTS ────────────
 concurrency:
   group: pages-deploy
   cancel-in-progress: true
@@ -65,7 +64,9 @@ jobs:
           git diff --staged --quiet || \
             git commit -m \
             "deployed_at $(date '+%Y-%m-%d %H:%M') IST"
-          git pull --rebase origin main || true
-          git push
+          git pull --rebase origin main || \
+            git rebase --abort
+          git push origin HEAD:main || \
+            git push --force-with-lease origin HEAD:main
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
