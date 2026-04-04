@@ -5,6 +5,15 @@ on:
     - cron: '15 3 * * 1-5'   # 8:45 AM IST Mon-Fri
   workflow_dispatch:           # manual trigger
 
+# ── STEP 23 CHANGE ───────────────────────────────────
+# Prevents race condition if workflow_dispatch
+# is triggered while scheduled run is still active
+# cancel-in-progress: false = queue, never kill
+concurrency:
+  group: tietiy-scan
+  cancel-in-progress: false
+# ── END CHANGE ────────────────────────────────────────
+
 jobs:
   scan:
     runs-on: ubuntu-latest
@@ -24,8 +33,6 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        # ── CHANGED: added pywebpush for push notifications
-        # ── CHANGED: added cryptography for VAPID keys
         run: |
           pip install \
             yfinance \
@@ -40,14 +47,11 @@ jobs:
           TELEGRAM_TOKEN:    ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID:  ${{ secrets.TELEGRAM_CHAT_ID }}
           GH_TOKEN:          ${{ secrets.GH_TOKEN }}
-          # ── CHANGED: added VAPID secrets for push
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
           VAPID_PUBLIC_KEY:  ${{ secrets.VAPID_PUBLIC_KEY }}
           VAPID_CLAIM_EMAIL: ${{ secrets.VAPID_CLAIM_EMAIL }}
           PUSH_PIN:          ${{ secrets.PUSH_PIN }}
         run: |
-          # ── FIXED: PYTHONPATH must include repo root
-          # so scanner/ imports find each other correctly
           export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
           cd $GITHUB_WORKSPACE/scanner && python main.py morning
 
@@ -55,8 +59,6 @@ jobs:
         run: |
           git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-          # ── CHANGED: removed journal/ — no longer exists
-          # ── CHANGED: added data/ for mini_scanner_rules.json
           git add output/ data/ || true
           git diff --staged --quiet || \
             git commit -m \
