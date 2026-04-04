@@ -376,7 +376,7 @@ function _renderNav(activeTab) {
   el.innerHTML = `
     <div style="position:fixed;bottom:0;left:50%;
       transform:translateX(-50%);
-      width:100%;max-width:600px;
+      width:100%;max-width:min(960px,100vw);
       background:#0d1117;
       border-top:1px solid #21262d;
       display:flex;z-index:50;
