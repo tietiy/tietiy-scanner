@@ -3,7 +3,17 @@ name: Open Price Validation 9:25 AM IST
 on:
   schedule:
     - cron: '55 3 * * 1-5'   # 9:25 AM IST Mon-Fri
-  workflow_dispatch:           # manual trigger
+  workflow_dispatch:
+
+# ── STEP 23 CHANGE ───────────────────────────────────
+# Same group as morning_scan — they queue not race
+# If morning scan is somehow still running at 9:25 AM
+# open_validate waits rather than corrupting output
+# cancel-in-progress: false = always let scan finish
+concurrency:
+  group: tietiy-scan
+  cancel-in-progress: false
+# ── END CHANGE ────────────────────────────────────────
 
 jobs:
   validate:
