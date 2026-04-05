@@ -3,7 +3,7 @@
 // Loads first — all other JS files depend on this
 //
 // FIX 1 — Status bar shows next scan time
-//          when market is closed or weekend
+// ADDED — banned_stocks.json fetched and stored
 // ─────────────────────────────────────────────────────
 
 const VAPID_PUBLIC_KEY =
@@ -22,17 +22,18 @@ const BACKTEST_WR = {
 };
 
 window.TIETIY = {
-  meta:        null,
-  scanLog:     null,
-  miniLog:     null,
-  history:     null,
-  openPrices:  null,
-  eodPrices:   null,
-  stopAlerts:  null,
-  holidays:    [],
-  loaded:      false,
-  activeTab:   'signals',
-  lastFetch:   null,
+  meta:         null,
+  scanLog:      null,
+  miniLog:      null,
+  history:      null,
+  openPrices:   null,
+  eodPrices:    null,
+  stopAlerts:   null,
+  bannedStocks: [],   // ← NEW
+  holidays:     [],
+  loaded:       false,
+  activeTab:    'signals',
+  lastFetch:    null,
 };
 
 
@@ -88,7 +89,7 @@ async function _fetchAll() {
   const [
     meta, scanLog, miniLog,
     history, openPrices, eodPrices,
-    stopAlerts, holidays,
+    stopAlerts, holidays, bannedStocks,
   ] = await Promise.all([
     _safeGet('meta.json'),
     _safeGet('scan_log.json'),
@@ -98,20 +99,27 @@ async function _fetchAll() {
     _safeGet('eod_prices.json'),
     _safeGet('stop_alerts.json'),
     _safeGet('nse_holidays.json'),
+    _safeGet('banned_stocks.json'),   // ← NEW
   ]);
 
-  window.TIETIY.meta        = meta;
-  window.TIETIY.scanLog     = scanLog;
-  window.TIETIY.miniLog     = miniLog;
-  window.TIETIY.history     = history;
-  window.TIETIY.openPrices  = openPrices;
-  window.TIETIY.eodPrices   = eodPrices;
-  window.TIETIY.stopAlerts  = stopAlerts;
-  window.TIETIY.holidays    = holidays
+  window.TIETIY.meta         = meta;
+  window.TIETIY.scanLog      = scanLog;
+  window.TIETIY.miniLog      = miniLog;
+  window.TIETIY.history      = history;
+  window.TIETIY.openPrices   = openPrices;
+  window.TIETIY.eodPrices    = eodPrices;
+  window.TIETIY.stopAlerts   = stopAlerts;
+  window.TIETIY.holidays     = holidays
     ? holidays.holidays || []
     : [];
-  window.TIETIY.loaded      = true;
-  window.TIETIY.lastFetch   = Date.now();
+  // ── Store banned stocks list ──────────────────
+  // bannedStocks.json = { banned: ['SYMBOL',...] }
+  // Store as flat array for fast lookup in app.js
+  window.TIETIY.bannedStocks = bannedStocks
+    ? bannedStocks.banned || []
+    : [];
+  window.TIETIY.loaded       = true;
+  window.TIETIY.lastFetch    = Date.now();
 
   return !!meta;
 }
@@ -133,19 +141,13 @@ function _checkAppVersion(meta) {
 }
 
 
-// ── FIX 1 — NEXT TRADING DAY ──────────────────────────
-// Returns next trading day after today
-// Skips weekends and NSE holidays
-// Used by status bar to show next scan time
+// ── NEXT TRADING DAY ──────────────────────────────────
 
 function _getNextTradingDay() {
   const holidays = window.TIETIY.holidays || [];
   const cur      = new Date();
-
-  // Start from tomorrow
   cur.setDate(cur.getDate() + 1);
 
-  // Walk forward until trading day found
   for (let i = 0; i < 30; i++) {
     const dayOfWeek = cur.getDay();
     const dateStr   = cur.toISOString().slice(0, 10);
@@ -153,12 +155,10 @@ function _getNextTradingDay() {
     if (dayOfWeek !== 0 &&
         dayOfWeek !== 6 &&
         !holidays.includes(dateStr)) {
-
-      // Format: "Mon 7 Apr"
       const label = cur.toLocaleDateString('en-IN', {
-        weekday: 'short',
-        day:     'numeric',
-        month:   'short',
+        weekday:  'short',
+        day:      'numeric',
+        month:    'short',
         timeZone: 'Asia/Kolkata',
       });
       return label;
@@ -167,7 +167,6 @@ function _getNextTradingDay() {
   }
   return 'next trading day';
 }
-// ── END FIX 1 HELPER ──────────────────────────────────
 
 
 // ── STATUS BAR ────────────────────────────────────────
@@ -178,7 +177,8 @@ function _renderStatusBar(meta) {
 
   if (!meta) {
     el.innerHTML = `
-      <div style="background:#1a0a0a;padding:10px 14px;
+      <div style="background:#1a0a0a;
+        padding:10px 14px;
         border-bottom:1px solid #f85149;">
         <span style="color:#f85149;font-size:12px;">
           ⚠️ Scanner data unavailable
@@ -208,18 +208,17 @@ function _renderStatusBar(meta) {
 
   if (!isToday) {
     statusDot   = '🔴';
-    statusText  = "Yesterday's data · Scanner not run today";
+    statusText  = "Yesterday's data · " +
+                  "Scanner not run today";
     statusColor = '#f85149';
     bgColor     = '#1a0a0a';
     borderColor = '#f85149';
   } else if (!isTrading) {
-    // ── FIX 1 — append next scan time ────────────────
-    const nextDay  = _getNextTradingDay();
-    statusDot      = '🟡';
-    statusText     = `Market closed today · ` +
-                     `Next scan: ${nextDay} 8:45 AM IST`;
-    statusColor    = '#FFD700';
-    // ── END FIX 1 ─────────────────────────────────────
+    const nextDay = _getNextTradingDay();
+    statusDot     = '🟡';
+    statusText    = `Market closed today · ` +
+                    `Next scan: ${nextDay} 8:45 AM IST`;
+    statusColor   = '#FFD700';
   } else if (deployedAt) {
     statusDot   = '🟢';
     statusText  = `Deployed ${deployedAt}`;
@@ -248,6 +247,13 @@ function _renderStatusBar(meta) {
       `skipped (corporate action)`);
   }
 
+  // Ban list warning
+  const banned = window.TIETIY.bannedStocks || [];
+  if (banned.length > 0) {
+    warnings.push(
+      `${banned.length} stocks in F&O ban`);
+  }
+
   const warningHtml = warnings.length > 0
     ? `<div style="font-size:10px;color:#FFD700;
          margin-top:4px;">
@@ -266,8 +272,10 @@ function _renderStatusBar(meta) {
 
         <div style="display:flex;
           align-items:center;gap:8px;">
-          <span style="color:#ffd700;font-size:17px;
-            font-weight:700;">🎯 TIE TIY</span>
+          <span style="color:#ffd700;
+            font-size:17px;font-weight:700;">
+            🎯 TIE TIY
+          </span>
           <span style="background:${rc};color:#000;
             border-radius:4px;padding:1px 7px;
             font-size:11px;font-weight:700;">
@@ -290,8 +298,9 @@ function _renderStatusBar(meta) {
             style="background:none;
               border:1px solid #30363d;
               border-radius:50%;color:#8b949e;
-              font-size:13px;width:26px;height:26px;
-              cursor:pointer;line-height:1;">
+              font-size:13px;width:26px;
+              height:26px;cursor:pointer;
+              line-height:1;">
             ?
           </button>
         </div>
@@ -399,7 +408,8 @@ function _renderNav(activeTab) {
         const active = t.id === activeTab;
         return `
           <button onclick="switchTab('${t.id}')"
-            style="flex:1;background:none;border:none;
+            style="flex:1;background:none;
+              border:none;
               padding:10px 0 8px;cursor:pointer;
               display:flex;flex-direction:column;
               align-items:center;gap:2px;">
@@ -408,8 +418,10 @@ function _renderNav(activeTab) {
               ${t.icon}
             </span>
             <span style="font-size:10px;
-              color:${active ? '#ffd700' : '#555'};
-              font-weight:${active ? '700' : '400'};">
+              color:${active
+                ? '#ffd700' : '#555'};
+              font-weight:${active
+                ? '700' : '400'};">
               ${t.label}
             </span>
           </button>`;
@@ -519,9 +531,9 @@ function showHelp() {
           'Decide in 30 seconds.')}
         ${_helpStep('4','Enter at 9:15 AM open',
           'Do not enter early. ' +
-          'If you miss open by 15+ mins, skip.')}
+          'Miss by 15+ mins = skip.')}
         ${_helpStep('5','Set stop immediately',
-          'Place stop order on broker right after entry. ' +
+          'Place stop order right after entry. ' +
           'Never skip this step.')}
         ${_helpStep('6','Exit at Day 6 open',
           'No exceptions. Exit at open of Day 6 ' +
@@ -566,8 +578,11 @@ function showHelp() {
         ${_helpTerm('Age',
           'Trading days since signal fired. ' +
           'Age 0 = fired today.')}
-        ${_helpTerm('Regime',
-          'Overall Nifty50 direction. ' +
+        ${_helpTerm('Regime (Mkt)',
+          'Nifty50 market direction. ' +
+          'Bull / Bear / Choppy.')}
+        ${_helpTerm('Regime (Stock)',
+          'Individual stock trend direction. ' +
           'Bull / Bear / Choppy.')}
         ${_helpTerm('Score',
           'Signal quality 0–10. ' +
@@ -584,12 +599,8 @@ function showHelp() {
           'Exit at open of Day 6 from entry.')}
         ${_helpTerm('Day X of 6',
           'Day 6 = exit at open today.')}
-        ${_helpTerm('DEPLOY',
-          'High quality — act on it.')}
-        ${_helpTerm('WATCH',
-          'Lower quality — monitor only.')}
         ${_helpTerm('Bear Bonus 🔥',
-          'UP_TRI in Bear = highest conviction.')}
+          'UP_TRI in Bear market = highest conviction.')}
         ${_helpTerm('Grade A/B/C',
           'A = backtest validated. ' +
           'B = limited history. ' +
@@ -598,6 +609,10 @@ function showHelp() {
           'Volume above 1.5× 20-day average.')}
         ${_helpTerm('RS:Strong',
           'Stock outperforming Nifty50 by 3%+.')}
+        ${_helpTerm('⛔ BAN',
+          'Stock in F&O ban period. ' +
+          'New F&O positions not allowed. ' +
+          'Signal valid — trade with caution.')}
         ${_helpTerm('2nd Attempt',
           'Second try at same level. ' +
           'Level proven = higher conviction.')}
@@ -617,6 +632,7 @@ function showHelp() {
         ${_helpRule('R:R below 1.5 = reduce size or skip')}
         ${_helpRule('Miss 9:15 AM by 15+ mins = skip')}
         ${_helpRule('Gap > 3% at open = skip signal')}
+        ${_helpRule('⛔ BAN stock = no new F&O position')}
       </div>
 
       <div style="margin-bottom:20px;">
@@ -631,7 +647,9 @@ function showHelp() {
           line-height:1.6;">
           Get notified at 8:50 AM every trading day.
           <br><br>
-          <strong style="color:#c9d1d9;">iOS users:</strong>
+          <strong style="color:#c9d1d9;">
+            iOS users:
+          </strong>
           Add to Home Screen first, then open from
           home screen icon to enable notifications.
           <br><br>
@@ -673,14 +691,17 @@ function _helpStep(num, title, desc) {
       margin-bottom:10px;">
       <div style="background:#ffd700;color:#000;
         border-radius:50%;width:20px;height:20px;
-        min-width:20px;font-size:11px;font-weight:700;
-        display:flex;align-items:center;
+        min-width:20px;font-size:11px;
+        font-weight:700;display:flex;
+        align-items:center;
         justify-content:center;">${num}</div>
       <div>
         <div style="color:#c9d1d9;font-size:12px;
           font-weight:700;">${title}</div>
         <div style="color:#666;font-size:11px;
-          margin-top:2px;line-height:1.5;">${desc}</div>
+          margin-top:2px;line-height:1.5;">
+          ${desc}
+        </div>
       </div>
     </div>`;
 }
@@ -780,11 +801,12 @@ async function requestNotifications() {
     };
 
     localStorage.setItem(
-      'tietiy_push_sub', JSON.stringify(payload));
+      'tietiy_push_sub',
+      JSON.stringify(payload));
 
     if (statusEl) statusEl.innerHTML =
-      '<span style="color:#00C851;">✓ Subscribed!</span>' +
-      ' Alerts at 8:50 AM IST.';
+      '<span style="color:#00C851;">' +
+      '✓ Subscribed!</span> Alerts at 8:50 AM IST.';
 
     if (btn) btn.textContent = '✓ Subscribed';
 
