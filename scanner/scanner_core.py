@@ -1,3 +1,11 @@
+# ── scanner_core.py ──────────────────────────────────
+# Signal detection engine
+# Detects UP_TRI, DOWN_TRI, BULL_PROXY, SA signals
+#
+# ADDED: _get_stock_regime() for individual stock regime
+#        stock_regime field on every signal dict
+# ─────────────────────────────────────────────────────
+
 import numpy as np
 import pandas as pd
 import yfinance as yf
@@ -13,11 +21,8 @@ from config import (
 ZONE_PROXIMITY_ATR = ZONE_ATR
 
 
-# ── STEP 1 CHANGE 1 ──────────────────────────────────
-# auto_adjust=False — prevents retroactive price
-# adjustment from splits/bonuses corrupting pivot history
-# corporate action skip — detects recent splits/bonuses
-# and skips the stock for 60 days after the event
+# ── CORPORATE ACTION CHECK ────────────────────────────
+
 def has_recent_corporate_action(symbol, days=60):
     """
     Returns True if stock had a split or bonus issue
@@ -29,37 +34,36 @@ def has_recent_corporate_action(symbol, days=60):
         actions = ticker.actions
         if actions is None or actions.empty:
             return False
-        cutoff = pd.Timestamp.now() - pd.Timedelta(days=days)
+        cutoff = pd.Timestamp.now() - \
+                 pd.Timedelta(days=days)
         if actions.index.tzinfo:
-            actions.index = actions.index.tz_localize(None)
+            actions.index = \
+                actions.index.tz_localize(None)
         recent = actions[actions.index >= cutoff]
         if recent.empty:
             return False
-        # Stock Splits column — any non-zero value = split
         if 'Stock Splits' in recent.columns:
             if (recent['Stock Splits'] != 0).any():
                 return True
         return False
     except Exception:
         return False
-# ── END CHANGE 1 SECTION A ───────────────────────────
 
+
+# ── DATA FETCH ────────────────────────────────────────
 
 def prepare(symbol, period='1y'):
     try:
-        # ── STEP 1 CHANGE 1B ─────────────────────────
-        # auto_adjust=True  → OLD (adjusted prices)
-        # auto_adjust=False → NEW (raw unadjusted prices)
-        # Pivots now calculated on actual traded prices
-        df = yf.download(symbol, period=period,
-                         progress=False,
-                         auto_adjust=False)       # CHANGED
-        # ── END CHANGE 1B ────────────────────────────
+        df = yf.download(
+            symbol, period=period,
+            progress=False,
+            auto_adjust=False)
         if df is None or df.empty:
-            return None, 'empty_data'             # CHANGED: return reason
+            return None, 'empty_data'
         if isinstance(df.columns, pd.MultiIndex):
             df.columns = [c[0] for c in df.columns]
-        for col in ['Open','High','Low','Close','Volume']:
+        for col in ['Open','High','Low',
+                    'Close','Volume']:
             if col in df.columns:
                 df[col] = pd.to_numeric(
                     df[col], errors='coerce')
@@ -70,12 +74,14 @@ def prepare(symbol, period='1y'):
         df = df[df.index.notna()]
         df.dropna(subset=['Close'], inplace=True)
         if len(df) < 60:
-            return None, 'insufficient_bars'      # CHANGED: return reason
-        return df, None                           # CHANGED: return reason=None on success
+            return None, 'insufficient_bars'
+        return df, None
     except Exception as e:
         print(f"Download failed {symbol}: {e}")
-        return None, 'download_failed'            # CHANGED: return reason
+        return None, 'download_failed'
 
+
+# ── INDICATORS ────────────────────────────────────────
 
 def add_indicators(df):
     df = df.copy()
@@ -97,7 +103,8 @@ def add_indicators(df):
     df['vavg20'] = df['Volume'].rolling(20).mean()
     rng = (df['High'] - df['Low']).clip(lower=1e-6)
     df['bar_range'] = rng
-    df['close_pos'] = (df['Close'] - df['Low']) / rng
+    df['close_pos'] = (
+        df['Close'] - df['Low']) / rng
     e50  = df['ema50']
     e200 = df['ema200']
     df['bull']   = e50 > e200
@@ -106,6 +113,45 @@ def add_indicators(df):
     df['isBear'] = df['bear']
     return df
 
+
+# ── INDIVIDUAL STOCK REGIME ───────────────────────────
+# Uses same EMA50 slope + price position logic
+# as Nifty regime in main.py
+# Applied to stock's own price series
+# Stored as stock_regime on every signal dict
+# NOT used in scoring yet — Phase 1 collects data
+# Scoring change only after data proves it matters
+
+def _get_stock_regime(df):
+    """
+    Returns individual stock regime.
+    Bull  = EMA50 sloping up + price above EMA50
+    Bear  = EMA50 sloping down + price below EMA50
+    Choppy = neither condition met
+
+    Requires df with Close column.
+    Returns 'Choppy' on any error.
+    """
+    try:
+        closes     = df['Close']
+        ema50      = closes.ewm(span=50).mean()
+        slope      = ema50.diff(10) / ema50.shift(10)
+        above      = closes > ema50
+        last_slope = float(slope.iloc[-1])
+        last_above = bool(above.iloc[-1])
+
+        if last_slope > 0.005 and last_above:
+            return 'Bull'
+        elif last_slope < -0.005 and not last_above:
+            return 'Bear'
+        else:
+            return 'Choppy'
+    except Exception:
+        return 'Choppy'
+# ── END INDIVIDUAL STOCK REGIME ───────────────────────
+
+
+# ── PIVOT DETECTION ───────────────────────────────────
 
 def detect_pivots(df, lookback=None):
     if lookback is None:
@@ -116,15 +162,19 @@ def detect_pivots(df, lookback=None):
     pl    = np.zeros(n, dtype=bool)
     ph    = np.zeros(n, dtype=bool)
     for i in range(lookback, n - lookback):
-        if lows[i]  == lows[i-lookback:i+lookback+1].min():
+        if lows[i] == \
+                lows[i-lookback:i+lookback+1].min():
             pl[i] = True
-        if highs[i] == highs[i-lookback:i+lookback+1].max():
+        if highs[i] == \
+                highs[i-lookback:i+lookback+1].max():
             ph[i] = True
     df = df.copy()
     df['pivot_low']  = pl
     df['pivot_high'] = ph
     return df
 
+
+# ── ZONE BUILDER ──────────────────────────────────────
 
 def build_zones(df):
     n      = len(df)
@@ -173,6 +223,8 @@ def build_zones(df):
     return df
 
 
+# ── ZONE PROXIMITY ────────────────────────────────────
+
 def add_zone_proximity(df):
     atr = df['atrS']
     df['nearSZ'] = (
@@ -186,20 +238,22 @@ def add_zone_proximity(df):
     return df
 
 
+# ── SIGNAL DETECTION ──────────────────────────────────
+
 def detect_signals(df, symbol, sector,
                    regime, regime_score,
                    sector_momentum,
                    nifty_close=None):
-    # ── THIS FUNCTION UNCHANGED ───────────────────
-    # All existing detection logic preserved exactly
-    # Second attempt detection is a separate function
-    # called from main.py after this function
-    # ─────────────────────────────────────────────
 
-    df       = add_indicators(df)
-    df       = detect_pivots(df)
-    df       = build_zones(df)
-    df       = add_zone_proximity(df)
+    df           = add_indicators(df)
+    df           = detect_pivots(df)
+    df           = build_zones(df)
+    df           = add_zone_proximity(df)
+
+    # ── Individual stock regime ───────────────────
+    # Calculated once per stock per scan
+    # Stored on every signal — not used in scoring yet
+    stock_regime = _get_stock_regime(df)
 
     n        = len(df)
     last_bar = n - 1
@@ -235,14 +289,15 @@ def detect_signals(df, symbol, sector,
                 if nidx >= 20:
                     s_r = (closes[pb] /
                            closes[max(0, pb-20)] - 1)
-                    n_r = (float(nifty_close.iloc[nidx]) /
-                           float(nifty_close.iloc[nidx-20])
-                           - 1)
+                    n_r = (
+                        float(nifty_close.iloc[nidx]) /
+                        float(nifty_close.iloc[nidx-20])
+                        - 1)
                     d   = (s_r - n_r) * 100
                     rs_q = ('Strong' if d > 3 else
                             'Weak'   if d < -3 else
                             'Neutral')
-            except:
+            except Exception:
                 pass
         return vol_q, vol_confirm, rs_q
 
@@ -258,30 +313,32 @@ def detect_signals(df, symbol, sector,
             continue
         pivot_px  = lows[pb]
         entry_est = closes[last_bar]
-        stop      = round(pivot_px - STOP_MULT * atr, 2)
+        stop      = round(
+            pivot_px - STOP_MULT * atr, 2)
         if stop >= entry_est:
             continue
         vq, vc, rq = get_vol_rs(pb)
         signals.append({
-            'symbol':       symbol,
-            'sector':       sector,
-            'signal':       'UP_TRI',
-            'direction':    'LONG',
-            'age':          age,
-            'pivot_date':   df.index[pb].strftime(
-                                '%Y-%m-%d'),
-            'pivot_price':  round(pivot_px, 2),
-            'entry_est':    round(entry_est, 2),
-            'stop':         stop,
-            'atr':          round(atr, 2),
-            'regime':       regime,
-            'regime_score': regime_score,
-            'vol_q':        vq,
-            'vol_confirm':  vc,
-            'rs_q':         rq,
-            'sec_mom':      sector_momentum.get(
-                                sector, 'Neutral'),
-            'bear_bonus':   (regime == 'Bear'),
+            'symbol':        symbol,
+            'sector':        sector,
+            'signal':        'UP_TRI',
+            'direction':     'LONG',
+            'age':           age,
+            'pivot_date':    df.index[pb].strftime(
+                                 '%Y-%m-%d'),
+            'pivot_price':   round(pivot_px, 2),
+            'entry_est':     round(entry_est, 2),
+            'stop':          stop,
+            'atr':           round(atr, 2),
+            'regime':        regime,
+            'regime_score':  regime_score,
+            'vol_q':         vq,
+            'vol_confirm':   vc,
+            'rs_q':          rq,
+            'sec_mom':       sector_momentum.get(
+                                 sector, 'Neutral'),
+            'bear_bonus':    (regime == 'Bear'),
+            'stock_regime':  stock_regime,
         })
 
     # ── DOWN TRIANGLE — age 0 only ────────────────
@@ -296,25 +353,30 @@ def detect_signals(df, symbol, sector,
             if stop > entry_est:
                 vq, vc, rq = get_vol_rs(pb)
                 signals.append({
-                    'symbol':       symbol,
-                    'sector':       sector,
-                    'signal':       'DOWN_TRI',
-                    'direction':    'SHORT',
-                    'age':          0,
-                    'pivot_date':   df.index[pb].strftime(
-                                        '%Y-%m-%d'),
-                    'pivot_price':  round(pivot_px, 2),
-                    'entry_est':    round(entry_est, 2),
-                    'stop':         stop,
-                    'atr':          round(atr, 2),
-                    'regime':       regime,
-                    'regime_score': regime_score,
-                    'vol_q':        vq,
-                    'vol_confirm':  vc,
-                    'rs_q':         rq,
-                    'sec_mom':      sector_momentum.get(
-                                        sector, 'Neutral'),
-                    'bear_bonus':   False,
+                    'symbol':        symbol,
+                    'sector':        sector,
+                    'signal':        'DOWN_TRI',
+                    'direction':     'SHORT',
+                    'age':           0,
+                    'pivot_date':    df.index[pb]
+                                     .strftime(
+                                         '%Y-%m-%d'),
+                    'pivot_price':   round(
+                                         pivot_px, 2),
+                    'entry_est':     round(
+                                         entry_est, 2),
+                    'stop':          stop,
+                    'atr':           round(atr, 2),
+                    'regime':        regime,
+                    'regime_score':  regime_score,
+                    'vol_q':         vq,
+                    'vol_confirm':   vc,
+                    'rs_q':          rq,
+                    'sec_mom':       sector_momentum
+                                     .get(sector,
+                                          'Neutral'),
+                    'bear_bonus':    False,
+                    'stock_regime':  stock_regime,
                 })
 
     # ── BULL PROXY — ages 0-1, trend required ─────
@@ -351,68 +413,52 @@ def detect_signals(df, symbol, sector,
             continue
         vq, vc, rq = get_vol_rs(i)
         signals.append({
-            'symbol':       symbol,
-            'sector':       sector,
-            'signal':       'BULL_PROXY',
-            'direction':    'LONG',
-            'age':          age,
-            'pivot_date':   df.index[i].strftime(
-                                '%Y-%m-%d'),
-            'pivot_price':  round(lows[i], 2),
-            'entry_est':    round(closes[last_bar], 2),
-            'stop':         stop_z,
-            'atr':          round(atr, 2),
-            'regime':       regime,
-            'regime_score': regime_score,
-            'vol_q':        vq,
-            'vol_confirm':  vc,
-            'rs_q':         rq,
-            'sec_mom':      sector_momentum.get(
-                                sector, 'Neutral'),
-            'bear_bonus':   False,
+            'symbol':        symbol,
+            'sector':        sector,
+            'signal':        'BULL_PROXY',
+            'direction':     'LONG',
+            'age':           age,
+            'pivot_date':    df.index[i].strftime(
+                                 '%Y-%m-%d'),
+            'pivot_price':   round(lows[i], 2),
+            'entry_est':     round(
+                                 closes[last_bar], 2),
+            'stop':          stop_z,
+            'atr':           round(atr, 2),
+            'regime':        regime,
+            'regime_score':  regime_score,
+            'vol_q':         vq,
+            'vol_confirm':   vc,
+            'rs_q':          rq,
+            'sec_mom':       sector_momentum.get(
+                                 sector, 'Neutral'),
+            'bear_bonus':    False,
+            'stock_regime':  stock_regime,
         })
 
     return signals
 
 
-# ── STEP 1 CHANGE 2 ──────────────────────────────────
-# detect_second_attempt() — NEW FUNCTION
-# Called from main.py after detect_signals()
-# Requires history_signals — list of recent signal
-# dicts from signal_history.json passed in by main.py
-#
-# Rules:
-# 1. Parent signal exists in last 10 trading days
-# 2. Parent is UP_TRI or DOWN_TRI (not BULL_PROXY)
-# 3. Parent result is PENDING or STOPPED
-# 4. For UP_TRI_SA: pivot low not violated since parent
-# 5. For DOWN_TRI_SA: pivot high not violated since parent
-# 6. Pullback did not exceed original stop distance
-# 7. Price now back near original breakout level
-# 8. No existing PENDING second attempt for same symbol
-# 9. No existing PENDING first attempt still open (block)
-# ─────────────────────────────────────────────────────
+# ── SECOND ATTEMPT DETECTION ──────────────────────────
+
 def detect_second_attempt(df, symbol, sector,
                            regime, regime_score,
                            sector_momentum,
                            history_signals,
                            nifty_close=None):
     """
-    Scans history_signals for eligible parent signals
-    for this symbol and detects if price is making
-    a second attempt at the same level.
+    Detects second attempt signals for this symbol.
+    Called from main.py after detect_signals().
 
-    history_signals: list of dicts from signal_history.json
-                     filtered to recent 15 trading days
-    Returns: list of second attempt signal dicts
-             (empty list if none found)
+    history_signals: list of dicts from
+                     signal_history.json
+    Returns: list of SA signal dicts
     """
     sa_signals = []
 
     if not history_signals:
         return sa_signals
 
-    # Prepare df with indicators if not already done
     if 'atrS' not in df.columns:
         df = add_indicators(df)
         df = detect_pivots(df)
@@ -425,9 +471,12 @@ def detect_second_attempt(df, symbol, sector,
     atr_v    = df['atrS'].values
     LB       = PIVOT_LOOKBACK
 
-    today_str = df.index[last_bar].strftime('%Y-%m-%d')
+    # Individual stock regime for SA signals
+    stock_regime = _get_stock_regime(df)
 
-    # Filter history to this symbol only
+    today_str = df.index[last_bar].strftime(
+        '%Y-%m-%d')
+
     symbol_history = [
         h for h in history_signals
         if h.get('symbol') == symbol
@@ -436,18 +485,18 @@ def detect_second_attempt(df, symbol, sector,
     if not symbol_history:
         return sa_signals
 
-    # Block: if any PENDING first attempt still open
-    # for this symbol, no second attempt allowed
+    # Block if any PENDING first attempt open
     pending_first = [
         h for h in symbol_history
         if h.get('result') == 'PENDING'
         and h.get('attempt_number', 1) == 1
-        and h.get('signal') in ('UP_TRI', 'DOWN_TRI')
+        and h.get('signal') in (
+            'UP_TRI', 'DOWN_TRI')
     ]
     if pending_first:
         return sa_signals
 
-    # Block: if any PENDING second attempt already exists
+    # Block if any PENDING second attempt exists
     pending_sa = [
         h for h in symbol_history
         if h.get('result') == 'PENDING'
@@ -456,51 +505,54 @@ def detect_second_attempt(df, symbol, sector,
     if pending_sa:
         return sa_signals
 
-    # Find eligible parent signals
-    # Parent must be STOPPED (first attempt failed)
-    # Parent must be within last 10 trading days
+    # Find eligible parents
     eligible_parents = [
         h for h in symbol_history
-        if h.get('signal') in ('UP_TRI', 'DOWN_TRI')
-        and h.get('result') in ('STOPPED', 'PENDING')
+        if h.get('signal') in (
+            'UP_TRI', 'DOWN_TRI')
+        and h.get('result') in (
+            'STOPPED', 'PENDING')
         and h.get('attempt_number', 1) == 1
     ]
 
     if not eligible_parents:
         return sa_signals
 
-    # Sort by date descending — use most recent parent
     eligible_parents.sort(
-        key=lambda x: x.get('date', ''), reverse=True)
+        key=lambda x: x.get('date', ''),
+        reverse=True)
     parent = eligible_parents[0]
 
-    parent_signal    = parent.get('signal')
-    parent_date      = parent.get('date', '')
-    parent_pivot     = float(parent.get('pivot_price', 0))
-    parent_stop      = float(parent.get('stop', 0))
-    parent_entry     = float(parent.get('entry', 0))
-    parent_id        = parent.get('id', '')
-    parent_result    = parent.get('result', '')
+    parent_signal = parent.get('signal')
+    parent_date   = parent.get('date', '')
+    parent_pivot  = float(
+        parent.get('pivot_price', 0))
+    parent_stop   = float(
+        parent.get('stop', 0))
+    parent_entry  = float(
+        parent.get('entry', 0))
+    parent_id     = parent.get('id', '')
+    parent_result = parent.get('result', '')
 
-    # Check parent is within 10 trading days
+    # Check parent within 10-15 trading days
     try:
-        parent_dt = pd.Timestamp(parent_date)
-        today_dt  = df.index[last_bar]
-        # Count trading bars since parent date
+        parent_dt      = pd.Timestamp(parent_date)
         parent_bar_idx = None
+
         for i in range(n-1, max(n-25, 0), -1):
-            if df.index[i].strftime('%Y-%m-%d') == parent_date:
+            if df.index[i].strftime(
+                    '%Y-%m-%d') == parent_date:
                 parent_bar_idx = i
                 break
+
         if parent_bar_idx is None:
-            # Try nearest date
-            date_diffs = abs(df.index - parent_dt)
+            date_diffs     = abs(df.index - parent_dt)
             parent_bar_idx = date_diffs.argmin()
 
         bars_since_parent = last_bar - parent_bar_idx
         if bars_since_parent > 15:
-            # Too old — more than ~10-15 trading days
             return sa_signals
+
     except Exception:
         return sa_signals
 
@@ -512,46 +564,43 @@ def detect_second_attempt(df, symbol, sector,
 
     # ── UP_TRI SECOND ATTEMPT ─────────────────────
     if parent_signal == 'UP_TRI':
-        # Condition 1: Pivot low must not have been
-        # violated since parent signal fired
-        # (structure still intact)
-        bars_since = slice(parent_bar_idx, last_bar+1)
-        min_since  = lows[parent_bar_idx:last_bar+1].min()
+
+        # Structure intact — pivot low not violated
+        min_since = lows[
+            parent_bar_idx:last_bar+1].min()
         if min_since < parent_pivot - current_atr:
-            # Structure broken — pivot low violated
             return sa_signals
 
-        # Condition 2: Pullback occurred
-        # Price must have pulled back toward pivot level
-        max_since = highs[parent_bar_idx:last_bar+1].max()
+        # Pullback occurred
+        max_since = highs[
+            parent_bar_idx:last_bar+1].max()
         pullback  = max_since - current_price
         if pullback < 0.5 * current_atr:
-            # No meaningful pullback happened
             return sa_signals
 
-        # Condition 3: Price now back near breakout level
-        # Within 1.5 ATR of parent pivot price
-        dist_from_pivot = abs(current_price - parent_pivot)
+        # Price near breakout level
+        dist_from_pivot = abs(
+            current_price - parent_pivot)
         if dist_from_pivot > 1.5 * current_atr:
             return sa_signals
 
-        # Condition 4: Stop calculation
-        stop = round(parent_pivot - STOP_MULT * current_atr, 2)
+        # Stop and R:R
+        stop = round(
+            parent_pivot - STOP_MULT * current_atr,
+            2)
         if stop >= current_price:
             return sa_signals
 
-        # Condition 5: R:R check (minimum 1.5)
-        risk   = current_price - stop
-        target = current_price + 2.0 * risk
+        risk = current_price - stop
         if risk <= 0:
             return sa_signals
 
-        # Volume and RS
         try:
             avg_vol = df['Volume'].iloc[
                 max(0, last_bar-20):last_bar].mean()
             sig_vol = df['Volume'].iloc[last_bar]
-            vr      = sig_vol / avg_vol if avg_vol > 0 else 1
+            vr      = sig_vol / avg_vol \
+                      if avg_vol > 0 else 1
             vol_q   = ('High'    if vr > 1.5 else
                        'Thin'    if vr < 0.7 else
                        'Average')
@@ -572,10 +621,13 @@ def detect_second_attempt(df, symbol, sector,
             'parent_date':      parent_date,
             'parent_result':    parent_result,
             'pivot_date':       parent_date,
-            'pivot_price':      round(parent_pivot, 2),
-            'entry_est':        round(current_price, 2),
+            'pivot_price':      round(
+                                    parent_pivot, 2),
+            'entry_est':        round(
+                                    current_price, 2),
             'stop':             stop,
-            'atr':              round(current_atr, 2),
+            'atr':              round(
+                                    current_atr, 2),
             'regime':           regime,
             'regime_score':     regime_score,
             'vol_q':            vol_q,
@@ -584,34 +636,38 @@ def detect_second_attempt(df, symbol, sector,
             'sec_mom':          sector_momentum.get(
                                     sector, 'Neutral'),
             'bear_bonus':       (regime == 'Bear'),
+            'stock_regime':     stock_regime,
         })
 
     # ── DOWN_TRI SECOND ATTEMPT ───────────────────
     elif parent_signal == 'DOWN_TRI':
-        # Condition 1: Pivot high must not have been
-        # exceeded since parent signal fired
-        max_since = highs[parent_bar_idx:last_bar+1].max()
+
+        # Structure intact — pivot high not exceeded
+        max_since = highs[
+            parent_bar_idx:last_bar+1].max()
         if max_since > parent_pivot + current_atr:
-            # Structure broken — pivot high exceeded
             return sa_signals
 
-        # Condition 2: Pullback occurred
-        min_since = lows[parent_bar_idx:last_bar+1].min()
+        # Pullback occurred
+        min_since = lows[
+            parent_bar_idx:last_bar+1].min()
         pullback  = current_price - min_since
         if pullback < 0.5 * current_atr:
             return sa_signals
 
-        # Condition 3: Price now back near breakdown level
-        dist_from_pivot = abs(current_price - parent_pivot)
+        # Price near breakdown level
+        dist_from_pivot = abs(
+            current_price - parent_pivot)
         if dist_from_pivot > 1.5 * current_atr:
             return sa_signals
 
-        # Condition 4: Stop calculation
-        stop = round(parent_pivot + STOP_MULT * current_atr, 2)
+        # Stop and R:R
+        stop = round(
+            parent_pivot + STOP_MULT * current_atr,
+            2)
         if stop <= current_price:
             return sa_signals
 
-        # Condition 5: R:R check
         risk = stop - current_price
         if risk <= 0:
             return sa_signals
@@ -620,7 +676,8 @@ def detect_second_attempt(df, symbol, sector,
             avg_vol = df['Volume'].iloc[
                 max(0, last_bar-20):last_bar].mean()
             sig_vol = df['Volume'].iloc[last_bar]
-            vr      = sig_vol / avg_vol if avg_vol > 0 else 1
+            vr      = sig_vol / avg_vol \
+                      if avg_vol > 0 else 1
             vol_q   = ('High'    if vr > 1.5 else
                        'Thin'    if vr < 0.7 else
                        'Average')
@@ -641,10 +698,13 @@ def detect_second_attempt(df, symbol, sector,
             'parent_date':      parent_date,
             'parent_result':    parent_result,
             'pivot_date':       parent_date,
-            'pivot_price':      round(parent_pivot, 2),
-            'entry_est':        round(current_price, 2),
+            'pivot_price':      round(
+                                    parent_pivot, 2),
+            'entry_est':        round(
+                                    current_price, 2),
             'stop':             stop,
-            'atr':              round(current_atr, 2),
+            'atr':              round(
+                                    current_atr, 2),
             'regime':           regime,
             'regime_score':     regime_score,
             'vol_q':            vol_q,
@@ -653,7 +713,7 @@ def detect_second_attempt(df, symbol, sector,
             'sec_mom':          sector_momentum.get(
                                     sector, 'Neutral'),
             'bear_bonus':       False,
+            'stock_regime':     stock_regime,
         })
 
     return sa_signals
-# ── END STEP 1 CHANGE 2 ──────────────────────────────
