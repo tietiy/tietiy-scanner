@@ -28,7 +28,8 @@
 #
 # EOD:
 #  1. check trading day
-#  2. run_eod_update() — eod_prices_writer
+#  2. run_outcome_evaluation() — outcome_evaluator
+#  3. run_eod_update() — eod_prices_writer
 # ─────────────────────────────────────────────────────
 
 import sys
@@ -50,10 +51,6 @@ from config import (
 )
 
 # ── SCANNER VERSION ───────────────────────────────────
-# Increment when detection or scoring logic changes
-# v2.0 = first fully dynamic build
-# v2.x = scoring changes
-# v3.x = detection changes
 SCANNER_VERSION = 'v2.0'
 APP_VERSION     = '2.0'
 
@@ -92,8 +89,10 @@ from html_builder import build_html
 from push_sender import (
     send_notifications, check_dependencies
 )
-from eod_prices_writer import run_eod_update
+from eod_prices_writer  import run_eod_update
 from stop_alert_writer  import run_stop_check
+# ── OUTCOME EVALUATOR — after path setup ─────────────
+from outcome_evaluator import run_outcome_evaluation
 
 # ── CONSTANTS ─────────────────────────────────────────
 NIFTY_SYMBOL   = "^NSEI"
@@ -112,10 +111,6 @@ SECTOR_INDICES = {
 # ── MARKET DATA ───────────────────────────────────────
 
 def get_nifty_info():
-    """
-    Fetch Nifty regime, price, change.
-    Returns safe defaults on failure.
-    """
     try:
         df = yf.download(
             NIFTY_SYMBOL, period='3mo',
@@ -172,10 +167,6 @@ def get_nifty_info():
 
 
 def get_sector_momentum():
-    """
-    Fetch 1-month momentum for each sector index.
-    Returns Neutral on failure for any sector.
-    """
     momentum = {}
     for sector, sym in SECTOR_INDICES.items():
         try:
@@ -210,42 +201,39 @@ def get_sector_leaders(momentum):
 
 def write_scan_log(signals, rejected, scan_date,
                    regime):
-    """
-    Writes scan_log.json — today's signals only.
-    Overwrites every scan.
-    Contains full signal detail for frontend.
-    """
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    log_path = os.path.join(OUTPUT_DIR, 'scan_log.json')
+    log_path = os.path.join(
+        OUTPUT_DIR, 'scan_log.json')
 
-    # Build full signal records for frontend
     def _fmt(s):
+        entry = float(s.get('entry_est') or 0)
+        stop  = float(s.get('stop')      or 0)
+        risk  = abs(entry - stop)
+        dirn  = s.get('direction', 'LONG')
+
+        # Calculate target at scan time
+        if dirn == 'LONG':
+            target = round(entry + 2 * risk, 2)
+        else:
+            target = round(entry - 2 * risk, 2)
+
         return {
-            # Identity
             'symbol':          s.get('symbol', ''),
             'sector':          s.get('sector', ''),
             'grade':           s.get('grade', 'C'),
             'signal':          s.get('signal', ''),
-            'direction':       s.get('direction', ''),
+            'direction':       dirn,
             'age':             s.get('age', 0),
             'score':           s.get('score', 0),
-
-            # Price
-            'entry_est':       round(float(
-                                   s.get('entry_est')
-                                   or 0), 2),
-            'stop':            round(float(
-                                   s.get('stop')
-                                   or 0), 2),
+            'entry_est':       round(entry, 2),
+            'stop':            round(stop, 2),
+            'target_price':    target,
             'atr':             round(float(
-                                   s.get('atr')
-                                   or 0), 2),
+                                   s.get('atr') or 0), 2),
             'pivot_price':     round(float(
                                    s.get('pivot_price')
                                    or 0), 2),
             'pivot_date':      s.get('pivot_date', ''),
-
-            # Context
             'regime':          s.get('regime', ''),
             'regime_score':    s.get('regime_score', 0),
             'vol_q':           s.get('vol_q', ''),
@@ -255,16 +243,12 @@ def write_scan_log(signals, rejected, scan_date,
             'sec_mom':         s.get('sec_mom', ''),
             'bear_bonus':      s.get('bear_bonus',
                                      False),
-
-            # Second attempt
             'attempt_number':  s.get('attempt_number',
                                      1),
             'parent_signal':   s.get('parent_signal',
                                      None),
             'parent_date':     s.get('parent_date',
                                      None),
-
-            # Scan metadata
             'scan_time':       datetime.utcnow().strftime(
                                    '%H:%M IST'),
             'date':            scan_date,
@@ -290,19 +274,11 @@ def write_scan_log(signals, rejected, scan_date,
 # ── MORNING SCAN ──────────────────────────────────────
 
 def run_morning_scan():
-    """
-    Full morning scan — runs at 8:45 AM IST.
-    Follows exact call order documented at top of file.
-    """
 
-    # ── STEP 1: Trading day check ─────────────────
     status = get_market_status()
     if not status['is_trading']:
         print(f"[main] Not a trading day: "
               f"{status['reason']}")
-
-        # Still write meta and HTML on holidays
-        # Page shows "Market closed today" banner
         market_info = get_nifty_info()
         write_holidays(OUTPUT_DIR)
         write_meta(
@@ -326,7 +302,6 @@ def run_morning_scan():
     print("[main] Trading day confirmed — "
           "starting morning scan")
 
-    # ── STEP 2: Nifty info ────────────────────────
     print("[main] Fetching market data...")
     market_info = get_nifty_info()
     regime      = market_info['regime']
@@ -334,18 +309,15 @@ def run_morning_scan():
     print(f"[main] Regime: {regime} "
           f"Score: {reg_score}")
 
-    # ── STEP 3: Sector momentum ───────────────────
     sector_momentum = get_sector_momentum()
     market_info['sector_leaders'] = \
         get_sector_leaders(sector_momentum)
 
-    # ── STEP 4: Load universe ─────────────────────
     universe    = load_universe()
     sector_map  = get_sector_map()
     grade_map   = get_grade_map()
     print(f"[main] Universe: {len(universe)} stocks")
 
-    # ── Fetch Nifty close series for RS calc ──────
     try:
         nifty_df = yf.download(
             NIFTY_SYMBOL, period='3mo',
@@ -358,28 +330,21 @@ def run_morning_scan():
     except Exception:
         nifty_close = None
 
-    # ── Load history for second attempt detection ─
-    history_signals = load_history()
-
-    # ── Tracking lists for meta.json ─────────────
+    history_signals      = load_history()
     fetch_failed         = []
     insufficient_data    = []
     corporate_action_skip = []
+    all_raw_signals      = []
 
-    # ── STEP 5+6+7: Scan each stock ───────────────
-    all_raw_signals = []
     print(f"[main] Scanning {len(universe)} stocks...")
 
     for sym in universe:
         try:
-            # Corporate action check
             if has_recent_corporate_action(sym):
                 print(f"[main] CA skip: {sym}")
                 corporate_action_skip.append(sym)
                 continue
 
-            # Fetch data — auto_adjust=False
-            # prepare() now returns (df, reason)
             df, skip_reason = prepare(sym, period='1y')
 
             if df is None:
@@ -392,7 +357,6 @@ def run_morning_scan():
             sector = sector_map.get(sym, 'Other')
             grade  = grade_map.get(sym, 'C')
 
-            # ── STEP 6: detect_signals ────────────
             sigs = detect_signals(
                 df, sym, sector,
                 regime, reg_score,
@@ -400,7 +364,6 @@ def run_morning_scan():
                 nifty_close
             )
 
-            # ── STEP 7: detect_second_attempt ─────
             sa_sigs = detect_second_attempt(
                 df, sym, sector,
                 regime, reg_score,
@@ -409,12 +372,10 @@ def run_morning_scan():
                 nifty_close
             )
 
-            # Combine first + second attempt signals
             combined = sigs + sa_sigs
 
-            # Enrich with grade + scanner version
             for sig in combined:
-                sig['grade']          = grade
+                sig['grade']           = grade
                 sig['scanner_version'] = SCANNER_VERSION
                 sig = enrich_signal(sig, grade)
                 all_raw_signals.append(sig)
@@ -427,9 +388,6 @@ def run_morning_scan():
     print(f"[main] Raw signals: "
           f"{len(all_raw_signals)}")
 
-    # ── STEP 8: Mini scanner filter ───────────────
-    # Shadow mode — everything passes for now
-    # Rejection reasons logged for future analysis
     mini_signals, alpha_signals, rejection_log = \
         mini_filter(all_raw_signals)
 
@@ -437,25 +395,18 @@ def run_morning_scan():
           f"Alpha: {len(alpha_signals)} | "
           f"Shadow hits: {len(rejection_log)}")
 
-    # ── STEP 9: Write scan_log.json ───────────────
-    # Rejected = alpha signals not in mini
-    # In shadow mode these are same — keep for future
-    mini_ids  = {id(s) for s in mini_signals}
-    rejected  = [s for s in alpha_signals
-                 if id(s) not in mini_ids]
+    mini_ids = {id(s) for s in mini_signals}
+    rejected = [s for s in alpha_signals
+                if id(s) not in mini_ids]
 
     scan_date = date.today().isoformat()
     write_scan_log(
         mini_signals, rejected,
         scan_date, regime)
 
-    # ── STEP 10: Write mini_log.json ─────────────
     write_mini_log(mini_signals)
-
-    # ── STEP 11: Write rejected_log.json ─────────
     write_rejected_log(rejection_log)
 
-    # ── STEP 12: Append to signal_history.json ───
     logged_count = 0
     for sig in mini_signals:
         try:
@@ -465,11 +416,9 @@ def run_morning_scan():
             print(f"[main] Log error "
                   f"{sig.get('symbol','')}: {e}")
 
-    # Log shadow rejections for stats analysis
     for rej in rejection_log:
         if rej.get('shadow_only', False):
             try:
-                # Find original signal dict
                 orig = next(
                     (s for s in all_raw_signals
                      if s.get('symbol') ==
@@ -486,47 +435,41 @@ def run_morning_scan():
             except Exception:
                 pass
 
-    print(f"[main] Logged {logged_count} signals "
-          f"to history")
+    print(f"[main] Logged {logged_count} signals")
 
-    # ── STEP 13: Archive old records ─────────────
     try:
         archive_old_records()
     except Exception as e:
         print(f"[main] Archive error: {e}")
 
-    # ── STEP 14: Write nse_holidays.json ─────────
     try:
         write_holidays(OUTPUT_DIR)
     except Exception as e:
         print(f"[main] Holidays write error: {e}")
 
-    # ── STEP 15: Write meta.json — MUST BE LAST ──
     try:
         write_meta(
-            output_dir           = OUTPUT_DIR,
-            market_date          = scan_date,
-            regime               = regime,
-            universe_size        = len(universe),
-            signals_found        = len(mini_signals),
-            is_trading_day       = True,
-            scanner_version      = SCANNER_VERSION,
-            app_version          = APP_VERSION,
-            fetch_failed         = fetch_failed,
-            insufficient_data    = insufficient_data,
+            output_dir            = OUTPUT_DIR,
+            market_date           = scan_date,
+            regime                = regime,
+            universe_size         = len(universe),
+            signals_found         = len(mini_signals),
+            is_trading_day        = True,
+            scanner_version       = SCANNER_VERSION,
+            app_version           = APP_VERSION,
+            fetch_failed          = fetch_failed,
+            insufficient_data     = insufficient_data,
             corporate_action_skip = corporate_action_skip,
-            history_record_count = get_history_count(),
+            history_record_count  = get_history_count(),
         )
     except Exception as e:
         print(f"[main] Meta write error: {e}")
 
-    # ── STEP 16: Build HTML shell ─────────────────
     try:
         build_html()
     except Exception as e:
         print(f"[main] HTML build error: {e}")
 
-    # ── STEP 17: Send push notifications ──────────
     try:
         if check_dependencies():
             send_notifications(
@@ -537,11 +480,9 @@ def run_morning_scan():
     except Exception as e:
         print(f"[main] Push error: {e}")
 
-    # ── Telegram (existing — unchanged) ───────────
     try:
-        summary        = get_summary()
-        health_s, hw   = get_system_health()
-        system_health  = {
+        health_s, hw  = get_system_health()
+        system_health = {
             'health':    health_s,
             'health_wr': hw,
         }
@@ -562,10 +503,6 @@ def run_morning_scan():
 # ── STOP CHECK ────────────────────────────────────────
 
 def run_morning_stop_check():
-    """
-    Intraday stop check — runs every 30 mins.
-    Delegates entirely to stop_alert_writer.py.
-    """
     status = get_market_status()
     if not status['is_trading']:
         return
@@ -581,21 +518,28 @@ def run_morning_stop_check():
 # ── EOD UPDATE ────────────────────────────────────────
 
 def run_eod():
-    """
-    EOD update — runs at 3:35 PM IST.
-    Delegates entirely to eod_prices_writer.py.
-    """
     status = get_market_status()
     if not status['is_trading']:
         return
 
     print("[main] EOD update starting...")
+
+    # ── STEP 1: Evaluate signal outcomes ──────────
+    # Checks 6-day OHLC window for each open signal
+    # Updates outcome: TARGET_HIT / STOP_HIT /
+    # DAY6_WIN / DAY6_LOSS / DAY6_FLAT
+    try:
+        run_outcome_evaluation()
+    except Exception as e:
+        print(f"[main] Outcome eval error: {e}")
+
+    # ── STEP 2: EOD prices + stop flags ───────────
     try:
         run_eod_update()
     except Exception as e:
         print(f"[main] EOD error: {e}")
 
-    # Telegram EOD summary (existing — unchanged)
+    # ── STEP 3: Telegram EOD summary ──────────────
     try:
         market_info  = get_nifty_info()
         open_trades  = get_open_trades()
