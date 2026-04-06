@@ -3,7 +3,9 @@
 // Loads first — all other JS files depend on this
 //
 // FIX 1 — Status bar shows next scan time
-// ADDED — banned_stocks.json fetched and stored
+// FIX 2 — ltp_prices.json added to fetchAll
+// FIXED  — duplicate _renderStatusBar removed
+// ADDED  — banned_stocks.json fetched and stored
 // ─────────────────────────────────────────────────────
 
 const VAPID_PUBLIC_KEY =
@@ -29,7 +31,8 @@ window.TIETIY = {
   openPrices:   null,
   eodPrices:    null,
   stopAlerts:   null,
-  bannedStocks: [],   // ← NEW
+  ltpPrices:    null,
+  bannedStocks: [],
   holidays:     [],
   loaded:       false,
   activeTab:    'signals',
@@ -90,6 +93,7 @@ async function _fetchAll() {
     meta, scanLog, miniLog,
     history, openPrices, eodPrices,
     stopAlerts, holidays, bannedStocks,
+    ltpPrices,
   ] = await Promise.all([
     _safeGet('meta.json'),
     _safeGet('scan_log.json'),
@@ -99,7 +103,8 @@ async function _fetchAll() {
     _safeGet('eod_prices.json'),
     _safeGet('stop_alerts.json'),
     _safeGet('nse_holidays.json'),
-    _safeGet('banned_stocks.json'),   // ← NEW
+    _safeGet('banned_stocks.json'),
+    _safeGet('ltp_prices.json'),
   ]);
 
   window.TIETIY.meta         = meta;
@@ -109,15 +114,11 @@ async function _fetchAll() {
   window.TIETIY.openPrices   = openPrices;
   window.TIETIY.eodPrices    = eodPrices;
   window.TIETIY.stopAlerts   = stopAlerts;
+  window.TIETIY.ltpPrices    = ltpPrices;
   window.TIETIY.holidays     = holidays
-    ? holidays.holidays || []
-    : [];
-  // ── Store banned stocks list ──────────────────
-  // bannedStocks.json = { banned: ['SYMBOL',...] }
-  // Store as flat array for fast lookup in app.js
+    ? holidays.holidays || [] : [];
   window.TIETIY.bannedStocks = bannedStocks
-    ? bannedStocks.banned || []
-    : [];
+    ? bannedStocks.banned || [] : [];
   window.TIETIY.loaded       = true;
   window.TIETIY.lastFetch    = Date.now();
 
@@ -151,17 +152,15 @@ function _getNextTradingDay() {
   for (let i = 0; i < 30; i++) {
     const dayOfWeek = cur.getDay();
     const dateStr   = cur.toISOString().slice(0, 10);
-
     if (dayOfWeek !== 0 &&
         dayOfWeek !== 6 &&
         !holidays.includes(dateStr)) {
-      const label = cur.toLocaleDateString('en-IN', {
+      return cur.toLocaleDateString('en-IN', {
         weekday:  'short',
         day:      'numeric',
         month:    'short',
         timeZone: 'Asia/Kolkata',
       });
-      return label;
     }
     cur.setDate(cur.getDate() + 1);
   }
@@ -187,14 +186,12 @@ function _renderStatusBar(meta) {
     return;
   }
 
-  const regime     = meta.regime || 'Unknown';
-  const isToday    = meta.market_date ===
+  const regime    = meta.regime || 'Unknown';
+  const isToday   = meta.market_date ===
     new Date().toISOString().slice(0, 10);
-  const isTrading  = meta.is_trading_day;
-  const deployedAt = meta.deployed_at
-    ? fmtTime(meta.deployed_at) : null;
-  const scanTime   = meta.last_scan
-    ? fmtTime(meta.last_scan)   : null;
+  const isTrading = meta.is_trading_day;
+  const scanTime  = meta.last_scan
+    ? fmtTime(meta.last_scan) : null;
 
   const rc = regime === 'Bear'  ? '#ff4444' :
              regime === 'Bull'  ? '#00C851' :
@@ -215,18 +212,14 @@ function _renderStatusBar(meta) {
     borderColor = '#f85149';
   } else if (!isTrading) {
     const nextDay = _getNextTradingDay();
-    statusDot     = '🟡';
-    statusText    = `Market closed today · ` +
-                    `Next scan: ${nextDay} 8:45 AM IST`;
-    statusColor   = '#FFD700';
+    statusDot   = '🟡';
+    statusText  = `Market closed today · ` +
+                  `Next scan: ${nextDay} 8:45 AM IST`;
+    statusColor = '#FFD700';
   } else {
-    // isToday && isTrading → GREEN unconditionally
-    // deployed_at not required — scan running is enough
     statusDot   = '🟢';
-    const timeStr = scanTime || deployedAt || '';
-    statusText  = timeStr
-      ? `Scanned ${timeStr}`
-      : 'Scanned today';
+    statusText  = scanTime
+      ? `Scanned ${scanTime}` : 'Scanned today';
     statusColor = '#00C851';
   }
 
@@ -234,17 +227,13 @@ function _renderStatusBar(meta) {
   if (meta.fetch_failed &&
       meta.fetch_failed.length > 0) {
     warnings.push(
-      `${meta.fetch_failed.length} stocks ` +
-      `failed to fetch`);
+      `${meta.fetch_failed.length} stocks failed`);
   }
   if (meta.corporate_action_skip &&
       meta.corporate_action_skip.length > 0) {
     warnings.push(
-      `${meta.corporate_action_skip.length} ` +
-      `skipped (corporate action)`);
+      `${meta.corporate_action_skip.length} CA skip`);
   }
-
-  // Ban list warning
   const banned = window.TIETIY.bannedStocks || [];
   if (banned.length > 0) {
     warnings.push(
@@ -266,7 +255,6 @@ function _renderStatusBar(meta) {
       <div style="display:flex;
         justify-content:space-between;
         align-items:center;margin-bottom:4px;">
-
         <div style="display:flex;
           align-items:center;gap:8px;">
           <span style="color:#ffd700;
@@ -279,83 +267,6 @@ function _renderStatusBar(meta) {
             ${regime}
           </span>
         </div>
-
-        <div style="display:flex;
-          align-items:center;gap:8px;">
-          <button onclick="refreshData()"
-            id="refresh-btn"
-            style="background:none;
-              border:1px solid #30363d;
-              border-radius:6px;color:#8b949e;
-              font-size:11px;padding:3px 8px;
-              cursor:pointer;">
-            🔄 Refresh
-          </button>
-          <button onclick="showHelp()"
-            style="background:none;
-              border:1px solid #30363d;
-              border-radius:50%;color:#8b949e;
-              font-size:13px;width:26px;
-              height:26px;cursor:pointer;
-              line-height:1;">
-            ?
-          </button>
-        </div>
-      </div>
-
-      <div style="display:flex;
-        justify-content:space-between;
-        align-items:center;font-size:11px;">
-        <span style="color:${statusColor};">
-          ${statusDot} ${statusText}
-        </span>
-        <span style="color:#555;font-size:10px;">
-          ${meta.universe_size || 0} stocks ·
-          ${meta.signals_found || 0} signals
-        </span>
-      </div>
-
-      ${warningHtml}
-    </div>`;
-}
-
-
-  // Ban list warning
-  const banned = window.TIETIY.bannedStocks || [];
-  if (banned.length > 0) {
-    warnings.push(
-      `${banned.length} stocks in F&O ban`);
-  }
-
-  const warningHtml = warnings.length > 0
-    ? `<div style="font-size:10px;color:#FFD700;
-         margin-top:4px;">
-         ⚠️ ${warnings.join(' · ')}
-       </div>`
-    : '';
-
-  el.innerHTML = `
-    <div style="background:${bgColor};
-      border-bottom:1px solid ${borderColor};
-      padding:10px 14px;">
-
-      <div style="display:flex;
-        justify-content:space-between;
-        align-items:center;margin-bottom:4px;">
-
-        <div style="display:flex;
-          align-items:center;gap:8px;">
-          <span style="color:#ffd700;
-            font-size:17px;font-weight:700;">
-            🎯 TIE TIY
-          </span>
-          <span style="background:${rc};color:#000;
-            border-radius:4px;padding:1px 7px;
-            font-size:11px;font-weight:700;">
-            ${regime}
-          </span>
-        </div>
-
         <div style="display:flex;
           align-items:center;gap:8px;">
           <button onclick="refreshData()"
@@ -435,8 +346,7 @@ function _renderAlertBanner(stopAlerts) {
     icon     = '🔴';
   }
 
-  const names = alerts
-    .slice(0, 3)
+  const names = alerts.slice(0, 3)
     .map(a => a.symbol.replace('.NS',''))
     .join(', ');
   const more = alerts.length > 3
@@ -491,10 +401,8 @@ function _renderNav(activeTab) {
               ${t.icon}
             </span>
             <span style="font-size:10px;
-              color:${active
-                ? '#ffd700' : '#555'};
-              font-weight:${active
-                ? '700' : '400'};">
+              color:${active ? '#ffd700' : '#555'};
+              font-weight:${active ? '700' : '400'};">
               ${t.label}
             </span>
           </button>`;
@@ -749,7 +657,6 @@ function showHelp() {
           cursor:pointer;">
         Close
       </button>
-
     </div>`;
 }
 
