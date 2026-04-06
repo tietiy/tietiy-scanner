@@ -219,18 +219,15 @@ function _renderStatusBar(meta) {
     statusText    = `Market closed today · ` +
                     `Next scan: ${nextDay} 8:45 AM IST`;
     statusColor   = '#FFD700';
-  } else if (deployedAt) {
-    statusDot   = '🟢';
-    statusText  = `Deployed ${deployedAt}`;
-    statusColor = '#00C851';
-  } else if (scanTime) {
-    statusDot   = '🟡';
-    statusText  = `Scanned ${scanTime} · Deploying...`;
-    statusColor = '#FFD700';
   } else {
-    statusDot   = '🟡';
-    statusText  = 'Status unknown';
-    statusColor = '#FFD700';
+    // isToday && isTrading → GREEN unconditionally
+    // deployed_at not required — scan running is enough
+    statusDot   = '🟢';
+    const timeStr = scanTime || deployedAt || '';
+    statusText  = timeStr
+      ? `Scanned ${timeStr}`
+      : 'Scanned today';
+    statusColor = '#00C851';
   }
 
   const warnings = [];
@@ -246,6 +243,82 @@ function _renderStatusBar(meta) {
       `${meta.corporate_action_skip.length} ` +
       `skipped (corporate action)`);
   }
+
+  // Ban list warning
+  const banned = window.TIETIY.bannedStocks || [];
+  if (banned.length > 0) {
+    warnings.push(
+      `${banned.length} stocks in F&O ban`);
+  }
+
+  const warningHtml = warnings.length > 0
+    ? `<div style="font-size:10px;color:#FFD700;
+         margin-top:4px;">
+         ⚠️ ${warnings.join(' · ')}
+       </div>`
+    : '';
+
+  el.innerHTML = `
+    <div style="background:${bgColor};
+      border-bottom:1px solid ${borderColor};
+      padding:10px 14px;">
+
+      <div style="display:flex;
+        justify-content:space-between;
+        align-items:center;margin-bottom:4px;">
+
+        <div style="display:flex;
+          align-items:center;gap:8px;">
+          <span style="color:#ffd700;
+            font-size:17px;font-weight:700;">
+            🎯 TIE TIY
+          </span>
+          <span style="background:${rc};color:#000;
+            border-radius:4px;padding:1px 7px;
+            font-size:11px;font-weight:700;">
+            ${regime}
+          </span>
+        </div>
+
+        <div style="display:flex;
+          align-items:center;gap:8px;">
+          <button onclick="refreshData()"
+            id="refresh-btn"
+            style="background:none;
+              border:1px solid #30363d;
+              border-radius:6px;color:#8b949e;
+              font-size:11px;padding:3px 8px;
+              cursor:pointer;">
+            🔄 Refresh
+          </button>
+          <button onclick="showHelp()"
+            style="background:none;
+              border:1px solid #30363d;
+              border-radius:50%;color:#8b949e;
+              font-size:13px;width:26px;
+              height:26px;cursor:pointer;
+              line-height:1;">
+            ?
+          </button>
+        </div>
+      </div>
+
+      <div style="display:flex;
+        justify-content:space-between;
+        align-items:center;font-size:11px;">
+        <span style="color:${statusColor};">
+          ${statusDot} ${statusText}
+        </span>
+        <span style="color:#555;font-size:10px;">
+          ${meta.universe_size || 0} stocks ·
+          ${meta.signals_found || 0} signals
+        </span>
+      </div>
+
+      ${warningHtml}
+    </div>`;
+}
+
 
   // Ban list warning
   const banned = window.TIETIY.bannedStocks || [];
