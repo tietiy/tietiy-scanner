@@ -1,0 +1,151 @@
+# ── register_push.yml ────────────────────────────────
+# Receives push notification subscriptions
+# from the frontend and saves them to
+# subscriptions.json in the repo
+#
+# F16 — Push notification bridge
+# Solves: localStorage → subscriptions.json gap
+#
+# Flow:
+#   1. User taps "Enable Notifications" in app
+#   2. Browser creates push subscription
+#   3. Frontend POSTs to GitHub API
+#      workflow_dispatch with subscription data
+#   4. This workflow writes subscriptions.json
+#   5. push_sender.py reads subscriptions.json
+#   6. Push notifications fire at 8:50 AM IST
+#
+# Trigger: workflow_dispatch with input payload
+# ─────────────────────────────────────────────────────
+
+name: Register Push Subscription
+
+on:
+  workflow_dispatch:
+    inputs:
+      endpoint:
+        description: 'Push subscription endpoint'
+        required: true
+        type: string
+      p256dh:
+        description: 'Push subscription p256dh key'
+        required: true
+        type: string
+      auth:
+        description: 'Push subscription auth key'
+        required: true
+        type: string
+      pin_hash:
+        description: 'SHA256 hash of user PIN'
+        required: true
+        type: string
+
+jobs:
+  register:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 1
+
+      - name: Write subscription
+        env:
+          ENDPOINT:  ${{ inputs.endpoint }}
+          P256DH:    ${{ inputs.p256dh }}
+          AUTH:      ${{ inputs.auth }}
+          PIN_HASH:  ${{ inputs.pin_hash }}
+          PUSH_PIN:  ${{ secrets.PUSH_PIN }}
+        run: |
+          python3 << 'EOF'
+          import json
+          import os
+          import hashlib
+          from datetime import date
+
+          endpoint = os.environ['ENDPOINT']
+          p256dh   = os.environ['P256DH']
+          auth     = os.environ['AUTH']
+          pin_hash = os.environ['PIN_HASH']
+          push_pin = os.environ.get('PUSH_PIN','')
+
+          # Verify PIN hash
+          expected = hashlib.sha256(
+              push_pin.encode()).hexdigest()
+
+          if pin_hash != expected:
+              print("❌ PIN verification failed")
+              exit(1)
+
+          print("✅ PIN verified")
+
+          # Load existing subscriptions
+          sub_file = 'output/subscriptions.json'
+          try:
+              with open(sub_file) as f:
+                  data = json.load(f)
+              subs = data.get('subscriptions', [])
+          except Exception:
+              subs = []
+
+          # Check for duplicate endpoint
+          existing = [
+              s for s in subs
+              if s.get('endpoint') != endpoint
+          ]
+
+          # Add new subscription
+          new_sub = {
+              'endpoint':      endpoint,
+              'keys': {
+                  'p256dh': p256dh,
+                  'auth':   auth,
+              },
+              'subscribed_at': date.today()
+                               .isoformat(),
+              'active':        True,
+          }
+          existing.append(new_sub)
+
+          # Write back
+          os.makedirs('output', exist_ok=True)
+          with open(sub_file, 'w') as f:
+              json.dump(
+                  {'subscriptions': existing},
+                  f, indent=2)
+
+          print(f"✅ Subscription saved "
+                f"({len(existing)} total)")
+          EOF
+
+      - name: Commit subscriptions.json
+        run: |
+          git config user.name  "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+
+          git add output/subscriptions.json
+
+          if git diff --staged --quiet; then
+            echo "No changes"
+            exit 0
+          fi
+
+          git commit -m \
+            "Push subscription registered"
+
+          git pull --rebase origin main
+          git push origin HEAD:main \
+            --force-with-lease
+
+      - name: Send confirmation via Telegram
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          curl -s -X POST \
+            "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+            -d "chat_id=${TELEGRAM_CHAT_ID}" \
+            -d "text=🔔 TIE TIY%0ANew push notification device registered.%0AAlerts active from next scan."
