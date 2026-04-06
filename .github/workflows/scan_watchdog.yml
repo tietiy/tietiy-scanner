@@ -1,0 +1,81 @@
+# ── scan_watchdog.yml ────────────────────────────────
+# Watchdog that checks if morning scan ran today
+# Runs at 9:00 AM IST = 3:30 AM UTC every weekday
+#
+# Why needed:
+#   GitHub Actions free tier scheduled jobs
+#   are not guaranteed to fire on time
+#   Today's scan ran at 9:19 AM — entry window missed
+#
+# What it does:
+#   Fetches meta.json from GitHub Pages
+#   Checks if market_date = today
+#   If scan missed → sends Telegram alert
+#   "⚠️ Scan missed — run manually now"
+#   So you can trigger manually before 9:15 AM
+# ─────────────────────────────────────────────────────
+
+name: Scan Watchdog 9:00 AM IST
+
+on:
+  schedule:
+    - cron: '30 3 * * 1-5'   # 9:00 AM IST Mon-Fri
+  workflow_dispatch:
+
+jobs:
+  watchdog:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Check if scan ran today
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          TODAY=$(date -u '+%Y-%m-%d')
+          echo "Today is: $TODAY"
+
+          # Fetch meta.json from GitHub Pages
+          META_URL="https://tietiy.github.io/tietiy-scanner/meta.json"
+          echo "Fetching: $META_URL"
+
+          # Try to get meta.json
+          HTTP_CODE=$(curl -s -o /tmp/meta.json \
+            -w "%{http_code}" \
+            "$META_URL" || echo "000")
+
+          echo "HTTP code: $HTTP_CODE"
+
+          if [ "$HTTP_CODE" != "200" ]; then
+            echo "Could not fetch meta.json — sending alert"
+            curl -s -X POST \
+              "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+              -d "chat_id=${TELEGRAM_CHAT_ID}" \
+              -d "text=⚠️ TIE TIY WATCHDOG%0A%0ACannot fetch scanner data.%0ARun morning scan manually NOW%0A%0AGitHub → Actions → Morning Scan → Run workflow"
+            exit 0
+          fi
+
+          # Parse market_date from meta.json
+          SCAN_DATE=$(python3 -c "
+          import json, sys
+          try:
+              data = json.load(open('/tmp/meta.json'))
+              print(data.get('market_date', 'unknown'))
+          except Exception as e:
+              print('error')
+          ")
+
+          echo "Last scan date: $SCAN_DATE"
+          echo "Today: $TODAY"
+
+          if [ "$SCAN_DATE" = "$TODAY" ]; then
+            echo "✅ Scan already ran today — no alert needed"
+          else
+            echo "⚠️ Scan has NOT run today — sending Telegram alert"
+            curl -s -X POST \
+              "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+              -d "chat_id=${TELEGRAM_CHAT_ID}" \
+              -d "text=⚠️ TIE TIY WATCHDOG%0A%0AMorning scan did NOT run today.%0ALast scan: ${SCAN_DATE}%0A%0ARun manually NOW before 9:15 AM:%0AGitHub → Actions → Morning Scan → Run workflow"
+            echo "Alert sent"
+          fi
