@@ -1,0 +1,64 @@
+# ── ltp_updater.yml ──────────────────────────────────
+# Fetches live prices for open positions
+# Runs 3 times during market hours
+# Writes ltp_prices.json → cards show live price
+# ─────────────────────────────────────────────────────
+
+name: LTP Price Updater
+
+on:
+  schedule:
+    - cron: '30 5 * * 1-5'   # 11:00 AM IST
+    - cron: '30 7 * * 1-5'   # 1:00 PM IST
+    - cron: '30 9 * * 1-5'   # 3:00 PM IST
+  workflow_dispatch:
+
+concurrency:
+  group: ltp-update
+  cancel-in-progress: true
+
+jobs:
+  update_ltp:
+    runs-on: ubuntu-latest
+
+    steps:
+
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 1
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pandas \
+            --break-system-packages -q
+
+      - name: Run LTP updater
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          cd $GITHUB_WORKSPACE
+          python scanner/ltp_writer.py
+
+      - name: Commit ltp_prices.json
+        run: |
+          git config user.name  "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+
+          git add output/ltp_prices.json
+
+          if git diff --staged --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          IST=$(date -u -d '+5 hours 30 minutes' \
+            '+%H:%M IST' 2>/dev/null || \
+            date -u '+%H:%M IST')
+
+          git commit -m "LTP update ${IST}"
+
+          git pull --rebase origin main
+          git push origin HEAD:main \
+            --force-with-lease
