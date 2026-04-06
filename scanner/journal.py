@@ -9,10 +9,11 @@
 # 4. Active window = 90 trading days in main file
 # 5. Older records move to signal_archive.json
 # 6. Lifelong data preserved in archive — never deleted
-# 7. auto-TOOK default — every DEPLOY signal recorded
+# 7. auto-TOOK default — every signal recorded
 # 8. schema_version = 4 on all records
 #
-# ADDED: target_price + outcome fields for Phase 1
+# FIX 3 — stock_regime field added to log_signal()
+# FIX 4 — scan_price fallback fixed (was showing "—")
 # ─────────────────────────────────────────────────────
 
 import json
@@ -119,9 +120,6 @@ def _trading_day_cutoff(days_back):
 
 
 # ── TARGET PRICE HELPER ───────────────────────────────
-# Added for Phase 1 signal validation
-# Calculates 2R target at signal detection time
-# Stored once — never changes during tracking window
 
 def _calculate_target(entry, stop, direction):
     """
@@ -144,6 +142,28 @@ def _calculate_target(entry, stop, direction):
         return None
 
 
+# ── SCAN PRICE HELPER — FIX 4 ─────────────────────────
+# Was showing "—" because entry_est was None
+# Now tries multiple fallback fields
+
+def _resolve_scan_price(sig):
+    """
+    Resolves the best available scan price
+    from signal dict.
+    Tries entry_est → entry → scan_price → None
+    """
+    for field in ['entry_est', 'entry', 'scan_price']:
+        val = sig.get(field)
+        if val is not None:
+            try:
+                f = float(val)
+                if f > 0:
+                    return f
+            except Exception:
+                continue
+    return None
+
+
 # ── CORE PUBLIC FUNCTIONS ─────────────────────────────
 
 def load_history():
@@ -164,15 +184,10 @@ def get_history_count():
 def log_signal(sig, layer='MINI'):
     """
     Appends a signal to signal_history.json.
-    Called from main.py for every signal.
 
-    Rules:
-        - Dedup by id — skip if already exists
-        - Backup before write
-        - Validate after write
-        - auto-TOOK default
-        - target_price calculated at log time
-        - outcome fields initialised as OPEN
+    FIX 3: stock_regime field now stored
+    FIX 4: scan_price uses _resolve_scan_price()
+           no longer shows "—" in tap panel
     """
     _ensure_output_dir()
 
@@ -198,11 +213,12 @@ def log_signal(sig, layer='MINI'):
     exit_dt    = entry_date + timedelta(days=8)
     exit_date  = exit_dt.strftime('%Y-%m-%d')
 
-    # Calculate target at log time — 2R
+    # FIX 4 — resolve scan price with fallbacks
+    scan_price   = _resolve_scan_price(sig)
     entry_est    = sig.get('entry_est', None)
     stop         = sig.get('stop', None)
     target_price = _calculate_target(
-        entry_est, stop, direction)
+        scan_price or entry_est, stop, direction)
 
     record = {
         # Identity
@@ -228,21 +244,22 @@ def log_signal(sig, layer='MINI'):
         "bear_bonus":       sig.get('bear_bonus',
                                     False),
 
-        # Price
-        "scan_price":       entry_est,
+        # FIX 3 — individual stock regime
+        "stock_regime":     sig.get('stock_regime', ''),
+
+        # Price — FIX 4 applied
+        "scan_price":       scan_price,
         "scan_time":        datetime.utcnow().strftime(
                                 '%H:%M IST'),
         "pivot_price":      sig.get('pivot_price',
                                     None),
         "pivot_date":       sig.get('pivot_date', ''),
-        "entry":            entry_est,
+        "entry":            scan_price or entry_est,
         "stop":             stop,
         "atr":              sig.get('atr', None),
         "exit_date":        exit_date,
 
-        # ── PHASE 1 — Target price (2R) ───────────
-        # Calculated once at detection time
-        # Used by outcome_evaluator.py for TARGET_HIT
+        # Phase 1 — target price
         "target_price":     target_price,
 
         # Open validation
@@ -251,10 +268,7 @@ def log_signal(sig, layer='MINI'):
         "entry_valid":      None,
         "gap_pct":          None,
 
-        # ── PHASE 1 — Outcome tracking ────────────
-        # Filled by outcome_evaluator.py at EOD
-        # outcome:    OPEN → TARGET_HIT / STOP_HIT /
-        #             DAY6_WIN / DAY6_LOSS / DAY6_FLAT
+        # Phase 1 — outcome tracking
         "outcome":          "OPEN",
         "outcome_date":     None,
         "outcome_price":    None,
@@ -264,7 +278,7 @@ def log_signal(sig, layer='MINI'):
         "mae_pct":          None,
         "days_to_outcome":  None,
 
-        # Legacy outcome fields — kept for compatibility
+        # Legacy outcome fields
         "exit_price":       None,
         "exit_type":        None,
         "exit_date_actual": None,
@@ -272,7 +286,7 @@ def log_signal(sig, layer='MINI'):
         "pnl_rs":           None,
         "result":           "PENDING",
 
-        # Action — auto-TOOK default
+        # Action
         "action":           "TOOK",
 
         # Second attempt
@@ -302,7 +316,8 @@ def log_signal(sig, layer='MINI'):
     try:
         _save_json(HISTORY_FILE, data)
         print(f"[journal] Logged: {record_id} "
-              f"target={target_price}")
+              f"target={target_price} "
+              f"scan_price={scan_price}")
     except RuntimeError as e:
         print(f"[journal] CRITICAL write failed: {e}")
 
@@ -310,7 +325,7 @@ def log_signal(sig, layer='MINI'):
 def log_rejected(sig, rejection_reason,
                  rejection_filter, threshold):
     """
-    Logs a rejected signal to signal_history.json.
+    Logs a rejected signal.
     result = REJECTED. Used for shadow mode analysis.
     """
     _ensure_output_dir()
@@ -329,12 +344,11 @@ def log_rejected(sig, rejection_reason,
     if record_id in existing_ids:
         return
 
-    # Calculate target for rejected signals too
-    # Needed for shadow mode outcome comparison
-    entry_est    = sig.get('entry_est', None)
+    # FIX 4 applied to rejected signals too
+    scan_price   = _resolve_scan_price(sig)
     stop         = sig.get('stop', None)
     target_price = _calculate_target(
-        entry_est, stop, direction)
+        scan_price, stop, direction)
 
     record = {
         "id":                  record_id,
@@ -357,15 +371,19 @@ def log_rejected(sig, rejection_reason,
         "sec_mom":             sig.get('sec_mom', ''),
         "bear_bonus":          sig.get('bear_bonus',
                                        False),
-        "scan_price":          entry_est,
+
+        # FIX 3 — stock regime on rejected too
+        "stock_regime":        sig.get(
+                                   'stock_regime', ''),
+
+        # FIX 4 — resolved scan price
+        "scan_price":          scan_price,
         "scan_time":           datetime.utcnow()
                                .strftime('%H:%M IST'),
-        "entry":               entry_est,
+        "entry":               scan_price,
         "stop":                stop,
         "atr":                 sig.get('atr', None),
         "exit_date":           None,
-
-        # Target for shadow mode comparison
         "target_price":        target_price,
 
         # Open validation
@@ -374,8 +392,7 @@ def log_rejected(sig, rejection_reason,
         "entry_valid":         None,
         "gap_pct":             None,
 
-        # Outcome fields — tracked even for rejected
-        # so shadow mode can compare outcomes
+        # Outcome fields
         "outcome":             "OPEN",
         "outcome_date":        None,
         "outcome_price":       None,
@@ -504,7 +521,7 @@ def close_trade(symbol, signal_date, exit_price,
                     else 'WON' if pnl_pct > 0
                     else 'EXITED')
             else:
-                record['result']   = 'EXITED'
+                record['result']    = 'EXITED'
                 record['exit_type'] = exit_type
 
             updated = True
@@ -564,7 +581,8 @@ def archive_old_records():
             print(f"[journal] Archived "
                   f"{len(new_to_archive)} records")
         except RuntimeError as e:
-            print(f"[journal] Archive write failed: {e}")
+            print(f"[journal] Archive write "
+                  f"failed: {e}")
             return
 
     hist_data['history'] = keep
