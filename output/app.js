@@ -3,12 +3,17 @@
 // Depends on window.TIETIY being populated by ui.js
 //
 // Fixes applied:
-// FIX 2  — Scan price shows date + time
-// FIX 3  — Open Chart uses anchor tag (iOS safe)
-// FIX 4  — Copy uses execCommand fallback (iOS safe)
-// FIX 2b — Filter bar remembers last selection
-// ADDED  — Ban badge on banned F&O stocks
-// ADDED  — Stock regime shown on card + tap panel
+// FIX 2   — Scan price shows date + time
+// FIX 3   — Open Chart uses anchor tag (iOS safe)
+// FIX 4   — Copy uses execCommand fallback (iOS safe)
+// FIX 2b  — Filter bar remembers last selection
+// ADDED   — Ban badge on banned F&O stocks
+// ADDED   — Stock regime shown on card + tap panel
+// F8      — Status bar green fix (no deployed_at needed)
+// F13     — LTP price on cards from ltp_prices.json
+// F15     — LTP shown on card row + tap panel
+// F16     — Push subscription via GitHub API
+// F17     — Position sizing in tap panel
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
@@ -24,6 +29,11 @@ const SIGNAL_CONFIG = {
                  label: 'DOWN TRI 2nd' },
 };
 
+// ── F17 — CAPITAL SETTING ─────────────────────────────
+// Default 50000 (5% of 10L)
+// User can change via settings in future
+const DEFAULT_CAPITAL = 50000;
+
 function _sigCfg(signal) {
   return SIGNAL_CONFIG[signal] || {
     color: '#8b949e', arrow: '?', label: signal };
@@ -38,32 +48,60 @@ function _entryWindowClosed() {
   return h > 9 || (h === 9 && m > 30);
 }
 
+// ── F13 — OPEN PRICE LOOKUP ───────────────────────────
+// Matches symbol with or without .NS suffix
+
 function _getOpenPrice(symbol) {
   const op = window.TIETIY.openPrices;
   if (!op || !op.results) return null;
-  return op.results.find(
-    r => r.symbol === symbol) || null;
+  const clean = symbol.replace('.NS', '');
+  return op.results.find(r => {
+    const rs = (r.symbol || '')
+               .replace('.NS', '');
+    return rs === clean;
+  }) || null;
+}
+
+// ── F15 — LTP LOOKUP ──────────────────────────────────
+// Reads from ltp_prices.json
+// Populated by ltp_writer.py at 11AM/1PM/3PM
+
+function _getLtp(symbol) {
+  const ltp = window.TIETIY.ltpPrices;
+  if (!ltp || !ltp.prices) return null;
+  const clean = symbol.replace('.NS', '');
+  // Try with .NS first then without
+  return ltp.prices[symbol] ||
+         ltp.prices[clean + '.NS'] ||
+         ltp.prices[clean] ||
+         null;
 }
 
 function _getStopAlert(symbol) {
   const sa = window.TIETIY.stopAlerts;
   if (!sa || !sa.alerts) return null;
-  return sa.alerts.find(
-    a => a.symbol === symbol &&
-    ['BREACHED','AT','NEAR'].includes(
-      a.alert_level)) || null;
+  const clean = symbol.replace('.NS', '');
+  return sa.alerts.find(a => {
+    const as = (a.symbol || '')
+               .replace('.NS', '');
+    return as === clean &&
+      ['BREACHED','AT','NEAR'].includes(
+        a.alert_level);
+  }) || null;
 }
 
 function _getEodData(symbol) {
   const ed = window.TIETIY.eodPrices;
   if (!ed || !ed.results) return null;
-  return ed.results.find(
-    r => r.symbol === symbol) || null;
+  const clean = symbol.replace('.NS', '');
+  return ed.results.find(r => {
+    const rs = (r.symbol || '')
+               .replace('.NS', '');
+    return rs === clean;
+  }) || null;
 }
 
 // ── BAN CHECK ─────────────────────────────────────────
-// Reads from window.TIETIY.bannedStocks
-// populated by ui.js from banned_stocks.json
 
 function _isBanned(sym) {
   const banned = window.TIETIY.bannedStocks || [];
@@ -92,6 +130,27 @@ function _calcRR(entry, stop, direction) {
   } catch(e) { return null; }
 }
 
+// ── F17 — POSITION SIZE CALCULATOR ───────────────────
+
+function _calcPositionSize(entry, stop) {
+  try {
+    const e = parseFloat(entry);
+    const s = parseFloat(stop);
+    if (!e || !s || e <= 0 || s <= 0) return null;
+    const riskPerShare = Math.abs(e - s);
+    if (riskPerShare <= 0) return null;
+    const shares   = Math.floor(
+      DEFAULT_CAPITAL / riskPerShare);
+    const totalRisk = shares * riskPerShare;
+    return {
+      shares:    shares,
+      riskAmt:   Math.round(totalRisk),
+      riskPer:   riskPerShare.toFixed(2),
+      capital:   DEFAULT_CAPITAL,
+    };
+  } catch(e) { return null; }
+}
+
 
 // ── SIGNAL CARD ───────────────────────────────────────
 
@@ -109,16 +168,42 @@ function _buildCard(sig, isNew, dayNum) {
   const bearBonus   = sig.bear_bonus || false;
   const attempt     = sig.attempt_number || 1;
   const direction   = sig.direction || 'LONG';
-  const banned      = _isBanned(sig.symbol || sym);
+  const banned      = _isBanned(
+    sig.symbol || sym);
 
-  const openData  = _getOpenPrice(sig.symbol || sym);
-  const entry     = openData && openData.actual_open
-    ? openData.actual_open
-    : (sig.entry_est || sig.entry || 0);
-  const stop      = sig.stop || 0;
-  const rrData    = _calcRR(entry, stop, direction);
-  const rr        = rrData ? rrData.rr : null;
-  const scanTime  = sig.scan_time || '';
+  const openData = _getOpenPrice(
+    sig.symbol || sym);
+  const ltpData  = _getLtp(
+    sig.symbol || sym);
+
+  // Price priority: LTP → actual_open → scan_price
+  let priceDisplay = '';
+  let entry = 0;
+
+  if (ltpData && ltpData.ltp) {
+    entry = ltpData.ltp;
+    const chg     = ltpData.change_pct || 0;
+    const arrow   = chg >= 0 ? '▲' : '▼';
+    const chgCol  = chg >= 0 ? '#00C851' : '#f85149';
+    priceDisplay  = `LTP · ` +
+      `<span style="color:${chgCol};">` +
+      `${arrow}${Math.abs(chg).toFixed(1)}%` +
+      `</span> · ${ltpData.fetch_time || ''}`;
+  } else if (openData && openData.actual_open) {
+    entry        = openData.actual_open;
+    priceDisplay = `Actual open · ` +
+      `${openData.fetch_time || ''}`;
+  } else {
+    entry        = sig.entry_est ||
+                   sig.entry || 0;
+    priceDisplay = `Scan price · ` +
+      `${fmtDate(sig.date)} · ` +
+      `${sig.scan_time || ''}`;
+  }
+
+  const stop   = sig.stop || 0;
+  const rrData = _calcRR(entry, stop, direction);
+  const rr     = rrData ? rrData.rr : null;
 
   const sc = score >= 7 ? '#00C851' :
              score >= 4 ? '#FFD700' : '#f85149';
@@ -141,7 +226,6 @@ function _buildCard(sig, isNew, dayNum) {
     </span>`;
   }
 
-  // Ban badge
   const banBadge = banned
     ? `<span style="background:#2a0a2a;
          color:#ff66ff;border-radius:4px;
@@ -151,17 +235,14 @@ function _buildCard(sig, isNew, dayNum) {
 
   const flameIcon = bearBonus ? ' 🔥' : '';
 
-  // Stock regime label — only show if different
-  // from market regime or both are meaningful
   let regimeLabel = regime;
   if (stockRegime && stockRegime !== regime) {
     regimeLabel = `${regime}(Mkt) · ` +
                   `${stockRegime}(Stk)`;
-  } else if (stockRegime) {
-    regimeLabel = regime;
   }
 
-  const windowClosed = isNew && _entryWindowClosed()
+  const windowClosed = isNew &&
+    _entryWindowClosed()
     ? `<div style="background:#1a0a0a;
          border-radius:4px;padding:3px 8px;
          font-size:10px;color:#f85149;
@@ -169,13 +250,12 @@ function _buildCard(sig, isNew, dayNum) {
          Entry window closed — monitor only
        </div>` : '';
 
-  // Ban warning banner
   const banBanner = banned
     ? `<div style="background:#1a001a;
          border-radius:4px;padding:3px 8px;
          font-size:10px;color:#ff66ff;
          margin-top:4px;">
-         ⛔ F&O ban period — no new positions allowed
+         ⛔ F&O ban period — no new positions
        </div>`
     : '';
 
@@ -198,15 +278,15 @@ function _buildCard(sig, isNew, dayNum) {
     }
   }
 
-  const stopAlert = _getStopAlert(sig.symbol || sym);
-  let stopBadge   = '';
+  const stopAlert = _getStopAlert(
+    sig.symbol || sym);
+  let stopBadge = '';
   if (stopAlert) {
     const saColor =
       stopAlert.alert_level === 'BREACHED'
         ? '#f85149'
         : stopAlert.alert_level === 'AT'
-        ? '#f85149'
-        : '#FFD700';
+        ? '#f85149' : '#FFD700';
     stopBadge = `<span style="background:${saColor}22;
       color:${saColor};border-radius:4px;
       padding:1px 6px;font-size:10px;
@@ -268,7 +348,6 @@ function _buildCard(sig, isNew, dayNum) {
         ${borderGlow}
         transition:opacity 0.2s;">
 
-      <!-- ROW 1: Symbol + badges -->
       <div style="display:flex;
         justify-content:space-between;
         align-items:flex-start;
@@ -278,10 +357,12 @@ function _buildCard(sig, isNew, dayNum) {
             font-weight:700;color:#fff;">
             ${sym}
           </span>
-          <span style="color:#555;font-size:11px;
-            margin-left:6px;">${sector}</span>
-          <span style="color:#444;font-size:10px;
-            margin-left:4px;">
+          <span style="color:#555;
+            font-size:11px;margin-left:6px;">
+            ${sector}
+          </span>
+          <span style="color:#444;
+            font-size:10px;margin-left:4px;">
             Grade ${grade}
           </span>
         </div>
@@ -295,7 +376,6 @@ function _buildCard(sig, isNew, dayNum) {
         </div>
       </div>
 
-      <!-- ROW 2: Signal type + regime + score -->
       <div style="color:#8b949e;font-size:11px;
         margin-bottom:8px;">
         <span style="color:${cfg.color};
@@ -314,14 +394,17 @@ function _buildCard(sig, isNew, dayNum) {
         </span>
       </div>
 
-      <!-- ROW 3: Price grid -->
       <div style="display:grid;
         grid-template-columns:1fr 1fr 1fr;
         gap:4px;font-size:12px;
         margin-bottom:4px;">
         <div>
           <span style="color:#555;
-            font-size:10px;">Entry</span><br>
+            font-size:10px;">
+            ${ltpData ? 'LTP' :
+              openData && openData.actual_open
+              ? 'Open' : 'Entry'}
+          </span><br>
           <span style="color:#58a6ff;
             font-weight:700;">
             ${entry ? '₹' + fmt(entry) : '—'}
@@ -347,14 +430,9 @@ function _buildCard(sig, isNew, dayNum) {
         </div>
       </div>
 
-      <!-- ROW 4: Scan price -->
       <div style="font-size:10px;color:#444;
         margin-bottom:2px;">
-        ${openData && openData.actual_open
-          ? `Actual open · ${openData.fetch_time
-              || scanTime}`
-          : `Scan price · ${fmtDate(sig.date)}
-              · ${scanTime}`}
+        ${priceDisplay}
       </div>
 
       ${windowClosed}
@@ -494,16 +572,40 @@ function openTapPanel(el) {
   const banned      = _isBanned(
     sig.symbol || sym);
 
-  const openData  = _getOpenPrice(sig.symbol || sym);
-  const entry     = openData && openData.actual_open
-    ? openData.actual_open
-    : (sig.entry_est || sig.entry || 0);
-  const stop      = sig.stop || 0;
-  const rrData    = _calcRR(entry, stop, direction);
-  const rr        = rrData ? rrData.rr    : null;
-  const target    = rrData ? rrData.target : null;
-  const atr       = sig.atr || 0;
-  const scanTime  = sig.scan_time || '—';
+  const openData = _getOpenPrice(
+    sig.symbol || sym);
+  const ltpData  = _getLtp(
+    sig.symbol || sym);
+
+  // Price priority: LTP → actual_open → scan
+  let entry       = 0;
+  let priceSource = 'Scan price';
+  let priceDetail = '';
+
+  if (ltpData && ltpData.ltp) {
+    entry       = ltpData.ltp;
+    priceSource = 'LTP';
+    priceDetail = ltpData.fetch_time || '';
+  } else if (openData && openData.actual_open) {
+    entry       = openData.actual_open;
+    priceSource = 'Actual open';
+    priceDetail = openData.fetch_time || '';
+  } else {
+    entry       = sig.entry_est ||
+                  sig.entry || 0;
+    priceSource = 'Scan price';
+    priceDetail = `${fmtDate(sig.date)} · ` +
+                  `${sig.scan_time || ''}`;
+  }
+
+  const stop   = sig.stop || 0;
+  const rrData = _calcRR(entry, stop, direction);
+  const rr     = rrData ? rrData.rr    : null;
+  const target = rrData ? rrData.target : null;
+  const atr    = sig.atr || 0;
+
+  // F17 — Position sizing
+  const sizing = _calcPositionSize(entry, stop);
 
   const today    = new Date()
                    .toISOString().slice(0,10);
@@ -543,20 +645,18 @@ function openTapPanel(el) {
   if (stockRegime === 'Bull' &&
       sig.regime !== 'Bull')
     whyParts.push(
-      'Stock in Bull trend despite weak market');
+      'Stock Bull trend despite weak market');
 
   const whyText = whyParts.join(' · ')
     || 'Signal criteria met';
-
-  const riskPerShare = entry && stop
-    ? Math.abs(entry - stop).toFixed(2) : '—';
 
   const tvSym = sym.replace('.NS','');
   const tvUrl =
     `https://www.tradingview.com/chart/` +
     `?symbol=NSE%3A${tvSym}`;
 
-  const panel = document.getElementById('tap-panel');
+  const panel = document.getElementById(
+    'tap-panel');
   if (!panel) return;
 
   panel.style.display  = 'block';
@@ -608,9 +708,7 @@ function openTapPanel(el) {
         border-radius:6px;padding:8px 10px;
         margin-bottom:10px;font-size:11px;
         color:#ff66ff;">
-        ⛔ F&O ban period — new positions
-        not allowed. Signal valid for
-        cash equity trading only.
+        ⛔ F&O ban — cash equity only
       </div>` : ''}
 
     ${stopAlert ? `
@@ -625,14 +723,16 @@ function openTapPanel(el) {
     <div style="display:grid;
       grid-template-columns:1fr 1fr;
       gap:8px;margin-bottom:10px;">
-      ${_panelStat('ENTRY',
+      ${_panelStat(priceSource,
         entry ? '₹' + fmt(entry) : '—',
-        '#58a6ff')}
+        ltpData ? '#ffd700' : '#58a6ff')}
       ${_panelStat('STOP',
         stop  ? '₹' + fmt(stop)  : '—',
         '#f85149')}
       ${_panelStat('TARGET',
-        target ? '₹' + fmt(target) : 'Day 6 open',
+        target
+          ? '₹' + fmt(target)
+          : 'Day 6 open',
         '#00C851')}
       ${_panelStat('R:R',
         rr ? rr + 'x' : '—',
@@ -645,7 +745,18 @@ function openTapPanel(el) {
       margin-bottom:10px;font-size:11px;
       line-height:1.8;">
       ${_detailRow('Risk/share',
-        '₹' + riskPerShare)}
+        sizing
+          ? '₹' + sizing.riskPer
+          : entry && stop
+          ? '₹' + Math.abs(
+              entry - stop).toFixed(2)
+          : '—')}
+      ${sizing ? _detailRow(
+        'Position size',
+        `${sizing.shares} shares · ` +
+        `₹${sizing.riskAmt.toLocaleString(
+          'en-IN')} risk`,
+        '#ffd700') : ''}
       ${_detailRow('ATR',
         atr ? '₹' + fmt(atr) : '—')}
       ${_detailRow('Signal age',
@@ -669,11 +780,10 @@ function openTapPanel(el) {
         sig.sec_mom || '—')}
       ${_detailRow('Grade',
         sig.grade || '—')}
-      ${_detailRow('Scan price',
-        (sig.entry_est
-          ? '₹' + fmt(sig.entry_est) : '—') +
-        ' · ' + fmtDate(sig.date) +
-        ' · ' + scanTime)}
+      ${_detailRow(priceSource,
+        (entry ? '₹' + fmt(entry) : '—') +
+        (priceDetail
+          ? ' · ' + priceDetail : ''))}
     </div>
 
     <div style="background:#0d1117;
@@ -683,9 +793,10 @@ function openTapPanel(el) {
       <div style="color:#555;margin-bottom:4px;">
         TRADE WINDOW
       </div>
-      <div style="color:#c9d1d9;font-weight:700;">
+      <div style="color:#c9d1d9;
+        font-weight:700;">
         ${isNew
-          ? '🟢 New signal — enter at 9:15 AM open'
+          ? '🟢 Enter at 9:15 AM open'
           : `Day ${dayNum} of 6`}
       </div>
       <div style="color:#555;margin-top:2px;">
@@ -699,8 +810,7 @@ function openTapPanel(el) {
       </div>
       <div style="color:#444;font-size:10px;
         margin-top:4px;">
-        Exit rule: Sell at open of Day 6
-        regardless of P&L
+        Sell at open Day 6 regardless of P&L
       </div>
     </div>
 
@@ -709,16 +819,15 @@ function openTapPanel(el) {
         border:1px solid #00C85133;
         border-radius:8px;padding:10px 12px;
         margin-bottom:10px;font-size:11px;">
-        <div style="color:#00C851;font-weight:700;
-          margin-bottom:4px;">
+        <div style="color:#00C851;
+          font-weight:700;margin-bottom:4px;">
           2nd Attempt Signal
         </div>
         <div style="color:#8b949e;">
-          First attempt: ${sig.parent_signal || ''}
+          First: ${sig.parent_signal || ''}
           on ${fmtDate(sig.parent_date)} —
           ${sig.parent_result || 'prior'}<br>
           Same level proven twice.
-          Lower score threshold applied.
         </div>
       </div>` : ''}
 
@@ -726,11 +835,13 @@ function openTapPanel(el) {
       border:1px solid #21262d;
       border-radius:8px;padding:10px 12px;
       margin-bottom:14px;font-size:11px;">
-      <div style="color:#8b949e;margin-bottom:4px;
-        font-size:10px;letter-spacing:1px;">
+      <div style="color:#8b949e;
+        margin-bottom:4px;font-size:10px;
+        letter-spacing:1px;">
         WHY THIS TRADE
       </div>
-      <div style="color:#c9d1d9;line-height:1.6;">
+      <div style="color:#c9d1d9;
+        line-height:1.6;">
         ${whyText}
       </div>
     </div>
@@ -802,17 +913,21 @@ function closeTapPanel() {
 
 function copySignal() {
   if (!_currentSig) return;
-  const s        = _currentSig;
-  const sym      = (s.symbol || '')
-                   .replace('.NS','');
-  const openData = _getOpenPrice(
-    s.symbol || sym);
-  const entry    = openData && openData.actual_open
-    ? openData.actual_open
+  const s      = _currentSig;
+  const sym    = (s.symbol || '')
+                 .replace('.NS','');
+  const ltpD   = _getLtp(s.symbol || sym);
+  const openD  = _getOpenPrice(s.symbol || sym);
+  const entry  = ltpD && ltpD.ltp
+    ? ltpD.ltp
+    : openD && openD.actual_open
+    ? openD.actual_open
     : (s.entry_est || s.entry || 0);
-  const rrData   = _calcRR(entry, s.stop,
-    s.direction || 'LONG');
-  const banned   = _isBanned(s.symbol || sym);
+  const rrData = _calcRR(
+    entry, s.stop, s.direction || 'LONG');
+  const sizing = _calcPositionSize(
+    entry, s.stop);
+  const banned = _isBanned(s.symbol || sym);
 
   const text = [
     `TIE TIY Signal`,
@@ -820,7 +935,13 @@ function copySignal() {
     `Date: ${s.date || '—'}`,
     `Entry: ₹${fmt(entry)}`,
     `Stop: ₹${fmt(s.stop)}`,
+    `Target: ₹${fmt(rrData
+      ? rrData.target : 0)}`,
     `R:R: ${rrData ? rrData.rr + 'x' : '—'}`,
+    sizing
+      ? `Size: ${sizing.shares} shares · ` +
+        `Risk ₹${sizing.riskAmt}`
+      : '',
     `Score: ${s.score}/10`,
     `Market Regime: ${s.regime}`,
     `Stock Regime: ${s.stock_regime || '—'}`,
@@ -831,8 +952,8 @@ function copySignal() {
   if (navigator.clipboard &&
       navigator.clipboard.writeText) {
     navigator.clipboard.writeText(text)
-      .then(function() { _showCopyFeedback(); })
-      .catch(function() { _fallbackCopy(text); });
+      .then(() => _showCopyFeedback())
+      .catch(() => _fallbackCopy(text));
   } else {
     _fallbackCopy(text);
   }
@@ -852,26 +973,23 @@ function _fallbackCopy(text) {
   try {
     document.execCommand('copy');
     _showCopyFeedback();
-  } catch(e) {
-    console.log('Copy failed:', e);
-  }
+  } catch(e) {}
   document.body.removeChild(ta);
 }
 
 function _showCopyFeedback() {
-  const btns = document.querySelectorAll(
-    '#tap-panel button');
-  btns.forEach(function(btn) {
-    if (btn.textContent.includes('Copy')) {
-      const orig      = btn.innerHTML;
-      btn.innerHTML   = '✅ Copied';
-      btn.style.color = '#00C851';
-      setTimeout(function() {
-        btn.innerHTML   = orig;
-        btn.style.color = '#8b949e';
-      }, 1500);
-    }
-  });
+  document.querySelectorAll('#tap-panel button')
+    .forEach(function(btn) {
+      if (btn.textContent.includes('Copy')) {
+        const orig      = btn.innerHTML;
+        btn.innerHTML   = '✅ Copied';
+        btn.style.color = '#00C851';
+        setTimeout(function() {
+          btn.innerHTML   = orig;
+          btn.style.color = '#8b949e';
+        }, 1500);
+      }
+    });
 }
 
 function _panelStat(label, value, color) {
@@ -880,8 +998,10 @@ function _panelStat(label, value, color) {
       border-radius:6px;padding:8px 10px;">
       <div style="color:#555;font-size:10px;
         margin-bottom:2px;">${label}</div>
-      <div style="color:${color};font-size:15px;
-        font-weight:700;">${value}</div>
+      <div style="color:${color};
+        font-size:15px;font-weight:700;">
+        ${value}
+      </div>
     </div>`;
 }
 
@@ -894,6 +1014,146 @@ function _detailRow(label, value, color) {
         ${value}
       </span>
     </div>`;
+}
+
+
+// ── F16 — PUSH SUBSCRIPTION VIA GITHUB API ────────────
+
+async function requestNotifications() {
+  const statusEl = document.getElementById(
+    'notif-status');
+  const btn = document.getElementById(
+    'notif-btn');
+
+  if (!('serviceWorker' in navigator) ||
+      !('PushManager' in window)) {
+    if (statusEl) statusEl.textContent =
+      'Install as PWA from home screen first.';
+    return;
+  }
+
+  const pin = prompt(
+    'Enter 4-digit notification PIN:');
+  if (!pin || pin.length !== 4) {
+    if (statusEl) statusEl.textContent =
+      'Invalid PIN.';
+    return;
+  }
+
+  try {
+    if (statusEl) statusEl.textContent =
+      'Requesting permission...';
+
+    const permission =
+      await Notification.requestPermission();
+    if (permission !== 'granted') {
+      if (statusEl) statusEl.textContent =
+        'Permission denied.';
+      return;
+    }
+
+    const reg =
+      await navigator.serviceWorker.ready;
+    const sub =
+      await reg.pushManager.subscribe({
+        userVisibleOnly:      true,
+        applicationServerKey:
+          _urlB64ToUint8Array(
+            window.VAPID_PUBLIC_KEY ||
+            'BD0o5qPcwXsEpSv5KXOSKZRHyyGVoC0b' +
+            'TNbRMcOSX2t-t5OBf1sHGKJH2y8m6uYn' +
+            'Cwa3g_xfzJdmWoEuxR941Rk'
+          ),
+      });
+
+    const subJson = sub.toJSON();
+    const p256dh  = subJson.keys.p256dh;
+    const auth    = subJson.keys.auth;
+    const endpoint = subJson.endpoint;
+
+    if (statusEl) statusEl.textContent =
+      'Registering with server...';
+
+    // SHA256 hash PIN in browser
+    const encoder  = new TextEncoder();
+    const data     = encoder.encode(pin);
+    const hashBuf  = await crypto.subtle.digest(
+      'SHA-256', data);
+    const hashArr  = Array.from(
+      new Uint8Array(hashBuf));
+    const pinHash  = hashArr
+      .map(b => b.toString(16).padStart(2,'0'))
+      .join('');
+
+    // POST to GitHub API to trigger workflow
+    // which writes subscriptions.json
+    const ghResponse = await fetch(
+      'https://api.github.com/repos/' +
+      'tietiy/tietiy-scanner/actions/' +
+      'workflows/register_push.yml/dispatches',
+      {
+        method: 'POST',
+        headers: {
+          'Accept':
+            'application/vnd.github+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ref:    'main',
+          inputs: {
+            endpoint: endpoint,
+            p256dh:   p256dh,
+            auth:     auth,
+            pin_hash: pinHash,
+          }
+        })
+      }
+    );
+
+    if (ghResponse.status === 204 ||
+        ghResponse.ok) {
+      if (statusEl) statusEl.innerHTML =
+        '<span style="color:#00C851;">' +
+        '✓ Subscribed!</span> ' +
+        'Alerts at 8:50 AM IST.';
+      if (btn) btn.textContent = '✓ Subscribed';
+
+      // Save locally as backup
+      try {
+        localStorage.setItem(
+          'tietiy_push_sub',
+          JSON.stringify({
+            endpoint, p256dh, auth,
+            subscribed_at:
+              new Date().toISOString()
+                        .slice(0,10),
+          }));
+      } catch(e) {}
+    } else {
+      if (statusEl) statusEl.textContent =
+        `Registration failed ` +
+        `(${ghResponse.status}). ` +
+        `Check PIN and try again.`;
+    }
+
+  } catch(e) {
+    console.error('[push]', e);
+    if (statusEl) statusEl.textContent =
+      'Failed: ' + e.message;
+  }
+}
+
+function _urlB64ToUint8Array(base64String) {
+  const padding = '='.repeat(
+    (4 - base64String.length % 4) % 4);
+  const base64  = (base64String + padding)
+    .replace(/-/g, '+').replace(/_/g, '/');
+  const rawData = window.atob(base64);
+  const arr     = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; i++) {
+    arr[i] = rawData.charCodeAt(i);
+  }
+  return arr;
 }
 
 
@@ -955,20 +1215,22 @@ function renderSignals(data) {
           </div>
           <div style="margin-bottom:4px;">
             ${meta.is_trading_day
-              ? `Scanned ${scanned} stocks at ${scanT}`
+              ? `Scanned ${scanned} stocks ` +
+                `at ${scanT}`
               : 'Market closed today'}
           </div>
-          <div style="font-size:11px;color:#444;">
+          <div style="font-size:11px;
+            color:#444;">
             ${meta.is_trading_day
-              ? `${scanned} stocks checked · ` +
-                `0 signals met criteria · ` +
-                `${regime} regime`
+              ? `${scanned} stocks · ` +
+                `0 signals · ${regime}`
               : `Next scan: next trading day ` +
-                `at 8:45 AM IST`}
+                `8:45 AM IST`}
           </div>
         </div>
         ${rejected.length
-          ? _buildRejectedSection(rejected) : ''}
+          ? _buildRejectedSection(rejected)
+          : ''}
       </div>
       ${_buildStyles()}`;
     _renderNav('signals');
@@ -982,13 +1244,16 @@ function renderSignals(data) {
       ${_buildFilterBar(allSignals)}
 
       <div style="padding:0 14px;">
-        <div style="color:#8b949e;font-size:11px;
-          font-weight:700;letter-spacing:1px;
+        <div style="color:#8b949e;
+          font-size:11px;font-weight:700;
+          letter-spacing:1px;
           padding:8px 0 6px;
           border-left:3px solid #ffd700;
-          padding-left:8px;margin-bottom:10px;">
+          padding-left:8px;
+          margin-bottom:10px;">
           ACTIVE SIGNALS
-          <span style="color:#555;font-weight:400;">
+          <span style="color:#555;
+            font-weight:400;">
             (${allSignals.length})
           </span>
         </div>
@@ -1036,8 +1301,7 @@ function _buildRejectedSection(rejected) {
     return `
       <div style="display:flex;
         justify-content:space-between;
-        align-items:center;
-        padding:6px 0;
+        align-items:center;padding:6px 0;
         border-bottom:1px solid #0c0c1a;
         font-size:11px;">
         <div>
@@ -1062,18 +1326,16 @@ function _buildRejectedSection(rejected) {
         style="color:#444;font-size:11px;
           font-weight:700;
           border-left:3px solid #333;
-          padding-left:8px;
-          cursor:pointer;margin-bottom:6px;">
+          padding-left:8px;cursor:pointer;
+          margin-bottom:6px;">
         ▶ REJECTED TODAY (${rejected.length})
       </div>
       <div id="rej-section"
         style="display:none;">
         ${rows}
-        <div style="font-size:10px;color:#333;
-          padding:6px 0;">
-          Detected but did not meet criteria.
-          Shadow mode active — all data collected
-          for future filter validation.
+        <div style="font-size:10px;
+          color:#333;padding:6px 0;">
+          Shadow mode — all data collected.
         </div>
       </div>
     </div>`;
