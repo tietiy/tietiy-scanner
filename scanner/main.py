@@ -13,15 +13,16 @@
 #  7.  detect_signals() — scanner_core
 #  8.  detect_second_attempt() — scanner_core
 #  9.  enrich_signal() + scorer filter — scorer
-#  10. filter_signals() — mini_scanner
-#  11. write_scan_log() — today only
-#  12. write_mini_log() — mini_scanner
-#  13. write_rejected_log() — mini_scanner
-#  14. append_history() — journal, dedup first
-#  15. archive_old_records() — journal
-#  16. write_meta() — meta_writer, MUST be last
-#  17. build_html() — html_builder, shell only
-#  18. send_notifications() — push_sender
+#  10. filter_duplicate_pending() — NEW
+#  11. filter_signals() — mini_scanner
+#  12. write_scan_log() — today only
+#  13. write_mini_log() — mini_scanner
+#  14. write_rejected_log() — mini_scanner
+#  15. append_history() — journal, dedup first
+#  16. archive_old_records() — journal
+#  17. write_meta() — meta_writer, MUST be last
+#  18. build_html() — html_builder, shell only
+#  19. send_notifications() — push_sender
 #
 # STOP CHECK:
 #  1. check trading day
@@ -200,6 +201,74 @@ def get_sector_leaders(momentum):
     return [s[0] for s in sorted_s[:3]]
 
 
+# ── DUPLICATE PENDING FILTER ──────────────────────────
+# Prevents scanner from re-firing a signal that is
+# already PENDING in signal_history.json
+#
+# Rules:
+#   Same symbol + same signal type + PENDING = skip
+#   Different signal type = allow
+#     (TATASTEEL UP_TRI pending → TATASTEEL BULL_PROXY ok)
+#   Second attempts have their own dedup logic
+#     in detect_second_attempt() — not filtered here
+#
+# This runs AFTER enrich_signal() and BEFORE
+# mini_scanner filter so shadow mode still sees
+# all fresh signals but duplicates are suppressed
+
+def _filter_duplicate_pending(signals,
+                               history_signals):
+    """
+    Returns filtered list with duplicate pending
+    signals removed.
+
+    A signal is a duplicate if:
+      history has a record with same symbol + signal
+      AND result == PENDING
+      AND attempt_number == 1 (not SA)
+    """
+    # Build set of pending symbol+signal combos
+    pending_set = set()
+    for h in history_signals:
+        if h.get('result') != 'PENDING':
+            continue
+        if h.get('attempt_number', 1) != 1:
+            continue
+        sym = h.get('symbol', '')
+        sig = h.get('signal', '')
+        if sym and sig:
+            pending_set.add(f"{sym}_{sig}")
+
+    if not pending_set:
+        return signals  # nothing to filter
+
+    filtered  = []
+    skipped   = []
+
+    for sig in signals:
+        # Never filter second attempts here
+        if sig.get('attempt_number', 1) == 2:
+            filtered.append(sig)
+            continue
+
+        key = (f"{sig.get('symbol', '')}_"
+               f"{sig.get('signal', '')}")
+
+        if key in pending_set:
+            skipped.append(key)
+        else:
+            filtered.append(sig)
+
+    if skipped:
+        print(f"[main] Duplicate pending filtered: "
+              f"{len(skipped)} signals")
+        for k in skipped:
+            print(f"[main]   Skip: {k}")
+
+    return filtered
+# ── END DUPLICATE FILTER ──────────────────────────────
+
+
 # ── SCAN LOG ──────────────────────────────────────────
 
 def write_scan_log(signals, rejected,
@@ -220,44 +289,43 @@ def write_scan_log(signals, rejected,
             target = round(entry - 2 * risk, 2)
 
         return {
-            'symbol':          s.get('symbol', ''),
-            'sector':          s.get('sector', ''),
-            'grade':           s.get('grade', 'C'),
-            'signal':          s.get('signal', ''),
-            'direction':       dirn,
-            'age':             s.get('age', 0),
-            'score':           s.get('score', 0),
-            'entry_est':       round(entry, 2),
-            'stop':            round(stop, 2),
-            'target_price':    target,
-            'atr':             round(float(
+            'symbol':         s.get('symbol', ''),
+            'sector':         s.get('sector', ''),
+            'grade':          s.get('grade', 'C'),
+            'signal':         s.get('signal', ''),
+            'direction':      dirn,
+            'age':            s.get('age', 0),
+            'score':          s.get('score', 0),
+            'entry_est':      round(entry, 2),
+            'stop':           round(stop, 2),
+            'target_price':   target,
+            'atr':            round(float(
                 s.get('atr') or 0), 2),
-            'pivot_price':     round(float(
+            'pivot_price':    round(float(
                 s.get('pivot_price') or 0), 2),
-            'pivot_date':      s.get(
+            'pivot_date':     s.get(
                 'pivot_date', ''),
-            'regime':          s.get('regime', ''),
-            'regime_score':    s.get(
+            'regime':         s.get('regime', ''),
+            'regime_score':   s.get(
                 'regime_score', 0),
-            # ── Individual stock regime ───────────
-            'stock_regime':    s.get(
+            'stock_regime':   s.get(
                 'stock_regime', 'Choppy'),
-            'vol_q':           s.get('vol_q', ''),
-            'vol_confirm':     s.get(
+            'vol_q':          s.get('vol_q', ''),
+            'vol_confirm':    s.get(
                 'vol_confirm', False),
-            'rs_q':            s.get('rs_q', ''),
-            'sec_mom':         s.get('sec_mom', ''),
-            'bear_bonus':      s.get(
+            'rs_q':           s.get('rs_q', ''),
+            'sec_mom':        s.get('sec_mom', ''),
+            'bear_bonus':     s.get(
                 'bear_bonus', False),
-            'attempt_number':  s.get(
+            'attempt_number': s.get(
                 'attempt_number', 1),
-            'parent_signal':   s.get(
+            'parent_signal':  s.get(
                 'parent_signal', None),
-            'parent_date':     s.get(
+            'parent_date':    s.get(
                 'parent_date', None),
-            'scan_time':       datetime.utcnow()
-                               .strftime('%H:%M IST'),
-            'date':            scan_date,
+            'scan_time':      datetime.utcnow()
+                              .strftime('%H:%M IST'),
+            'date':           scan_date,
             'scanner_version': SCANNER_VERSION,
         }
 
@@ -310,8 +378,6 @@ def run_morning_scan():
           "starting morning scan")
 
     # ── STEP 2: F&O ban list ──────────────────────
-    # Fetch before scan so cards show ban warning
-    # Never crashes scan — silently returns [] on fail
     try:
         banned_stocks = write_ban_list()
         print(f"[main] Ban list: "
@@ -404,7 +470,6 @@ def run_morning_scan():
                 sig['grade']           = grade
                 sig['scanner_version'] = \
                     SCANNER_VERSION
-                # Add ban flag to signal
                 sym_clean = sym.replace('.NS','')
                 sig['is_banned'] = \
                     sym_clean in banned_stocks
@@ -419,7 +484,17 @@ def run_morning_scan():
     print(f"[main] Raw signals: "
           f"{len(all_raw_signals)}")
 
-    # ── STEP 9: Mini scanner filter ───────────────
+    # ── STEP 9: Filter duplicate pending ──────────
+    # Remove signals already PENDING in history
+    # Same symbol + same signal type = skip
+    # Prevents re-firing of ongoing signals
+    all_raw_signals = _filter_duplicate_pending(
+        all_raw_signals, history_signals)
+
+    print(f"[main] After dedup filter: "
+          f"{len(all_raw_signals)} signals")
+
+    # ── STEP 10: Mini scanner filter ──────────────
     mini_signals, alpha_signals, rejection_log = \
         mini_filter(all_raw_signals)
 
@@ -431,17 +506,17 @@ def run_morning_scan():
     rejected = [s for s in alpha_signals
                 if id(s) not in mini_ids]
 
-    # ── STEP 10: Write scan_log.json ──────────────
+    # ── STEP 11: Write scan_log.json ──────────────
     scan_date = date.today().isoformat()
     write_scan_log(
         mini_signals, rejected,
         scan_date, regime)
 
-    # ── STEP 11-12: Write mini + rejected logs ────
+    # ── STEP 12-13: Write mini + rejected logs ────
     write_mini_log(mini_signals)
     write_rejected_log(rejection_log)
 
-    # ── STEP 13: Append to signal_history ─────────
+    # ── STEP 14: Append to signal_history ─────────
     logged_count = 0
     for sig in mini_signals:
         try:
@@ -472,19 +547,19 @@ def run_morning_scan():
 
     print(f"[main] Logged {logged_count} signals")
 
-    # ── STEP 14: Archive old records ──────────────
+    # ── STEP 15: Archive old records ──────────────
     try:
         archive_old_records()
     except Exception as e:
         print(f"[main] Archive error: {e}")
 
-    # ── STEP 15: Write holidays ───────────────────
+    # ── STEP 16: Write holidays ───────────────────
     try:
         write_holidays(OUTPUT_DIR)
     except Exception as e:
         print(f"[main] Holidays write error: {e}")
 
-    # ── STEP 16: Write meta.json — MUST BE LAST ───
+    # ── STEP 17: Write meta.json — MUST BE LAST ───
     try:
         write_meta(
             output_dir            = OUTPUT_DIR,
@@ -503,13 +578,13 @@ def run_morning_scan():
     except Exception as e:
         print(f"[main] Meta write error: {e}")
 
-    # ── STEP 17: Build HTML shell ─────────────────
+    # ── STEP 18: Build HTML shell ─────────────────
     try:
         build_html()
     except Exception as e:
         print(f"[main] HTML build error: {e}")
 
-    # ── STEP 18: Push notifications ───────────────
+    # ── STEP 19: Push notifications ───────────────
     try:
         if check_dependencies():
             send_notifications(
