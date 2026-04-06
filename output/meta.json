@@ -1,24 +1,26 @@
 {
-  "last_scan": "2026-04-06T08:27:44Z",
+  "last_scan": "2026-04-06T20:07:18Z",
   "deployed_at": null,
   "market_date": "2026-04-06",
   "regime": "Bear",
-  "universe_size": 187,
-  "signals_found": 0,
+  "universe_size": 189,
+  "signals_found": 1,
   "is_trading_day": true,
   "scanner_version": "v2.0",
   "app_version": "2.0",
   "schema_version": 4,
   "holidays_valid_until": "2026-12-31",
   "fetch_failed": [
-    "TATAMOTORS.NS",
-    "MCDOWELL-N.NS",
-    "KALPATPOWR.NS"
+    "TML",
+    "UBL",
+    "UNITDSPR",
+    "TML",
+    "KPIL"
   ],
   "insufficient_data": [],
   "corporate_action_skip": [
     "ANGELONE.NS",
     "METROPOLIS.NS"
   ],
-  "history_record_count": 87
+  "history_record_count": 89
 }

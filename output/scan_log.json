@@ -1,7 +1,37 @@
 {
   "date": "2026-04-06",
   "regime": "Bear",
-  "count": 0,
-  "signals": [],
+  "count": 1,
+  "signals": [
+    {
+      "symbol": "IPCALAB.NS",
+      "sector": "Pharma",
+      "grade": "B",
+      "signal": "DOWN_TRI",
+      "direction": "SHORT",
+      "age": 0,
+      "score": 6,
+      "entry_est": 1488.3,
+      "stop": 1674.55,
+      "target_price": 1115.8,
+      "atr": 50.55,
+      "pivot_price": 1624.0,
+      "pivot_date": "2026-03-17",
+      "regime": "Bear",
+      "regime_score": -1,
+      "stock_regime": "Choppy",
+      "vol_q": "High",
+      "vol_confirm": "True",
+      "rs_q": "Neutral",
+      "sec_mom": "Lagging",
+      "bear_bonus": false,
+      "attempt_number": 1,
+      "parent_signal": null,
+      "parent_date": null,
+      "scan_time": "20:07 IST",
+      "date": "2026-04-06",
+      "scanner_version": "v2.0"
+    }
+  ],
   "rejected": []
 }
