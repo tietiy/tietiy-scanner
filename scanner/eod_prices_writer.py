@@ -21,6 +21,7 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(__file__))
 from journal import get_open_trades
+from telegram_bot import send_exit_tomorrow          # ← F9 ADDED
 
 # ── PATHS ─────────────────────────────────────────────
 _HERE    = os.path.dirname(os.path.abspath(__file__))
@@ -255,6 +256,7 @@ def run_eod_update():
     3. Assess stop hit status
     4. Check if exit due tomorrow (Day 6)
     5. Write eod_prices.json
+    6. Fire exit-tomorrow Telegram alert (F9)
     """
 
     os.makedirs(_OUTPUT, exist_ok=True)
@@ -276,11 +278,12 @@ def run_eod_update():
     print(f"[eod_writer] Checking "
           f"{len(open_trades)} open positions")
 
-    results      = []
-    fetch_failed = []
-    hit_count    = 0
-    probable_count = 0
-    exit_due_count = 0
+    results          = []
+    fetch_failed     = []
+    hit_count        = 0
+    probable_count   = 0
+    exit_due_count   = 0
+    exit_tomorrow_list = []                              # ← F9 ADDED
 
     for trade in open_trades:
         symbol    = trade.get('symbol', '')
@@ -339,6 +342,18 @@ def run_eod_update():
 
         if exit_due:
             exit_due_count += 1
+            # ── F9: build payload for Telegram alert ──
+            exit_tomorrow_list.append({
+                'symbol':       symbol,
+                'signal_type':  trade.get('signal_type',
+                                signal),
+                'entry_price':  entry or 0,
+                'stop_price':   stop or 0,
+                'target_price': trade.get(
+                                'target_price', 0),
+                'score':        trade.get('score', 0),
+                'ltp':          round(close, 2),
+            })
 
         results.append({
             'symbol':        symbol,
@@ -392,6 +407,14 @@ def run_eod_update():
           f"PROBABLE:{probable_count} "
           f"EXIT_DUE:{exit_due_count} "
           f"FAILED:{len(fetch_failed)}")
+
+    # ── F9: fire exit-tomorrow Telegram alert ─────────
+    # Fires after JSON is written — non-blocking
+    if exit_tomorrow_list:
+        print(f"[eod_writer] Sending exit-tomorrow "
+              f"alert for {len(exit_tomorrow_list)} "
+              f"signal(s)")
+        send_exit_tomorrow(exit_tomorrow_list)
 
 
 def _write_empty(today, fetch_time):
