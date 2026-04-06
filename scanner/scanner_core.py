@@ -4,6 +4,8 @@
 #
 # ADDED: _get_stock_regime() for individual stock regime
 #        stock_regime field on every signal dict
+# S3 FIX: vol_confirm cast to bool() — prevents numpy
+#         bool_ being serialised as string "True"/"False"
 # ─────────────────────────────────────────────────────
 
 import numpy as np
@@ -24,11 +26,6 @@ ZONE_PROXIMITY_ATR = ZONE_ATR
 # ── CORPORATE ACTION CHECK ────────────────────────────
 
 def has_recent_corporate_action(symbol, days=60):
-    """
-    Returns True if stock had a split or bonus issue
-    in the last `days` calendar days.
-    Skips the stock to prevent adjusted-price pivot errors.
-    """
     try:
         ticker  = yf.Ticker(symbol)
         actions = ticker.actions
@@ -115,23 +112,8 @@ def add_indicators(df):
 
 
 # ── INDIVIDUAL STOCK REGIME ───────────────────────────
-# Uses same EMA50 slope + price position logic
-# as Nifty regime in main.py
-# Applied to stock's own price series
-# Stored as stock_regime on every signal dict
-# NOT used in scoring yet — Phase 1 collects data
-# Scoring change only after data proves it matters
 
 def _get_stock_regime(df):
-    """
-    Returns individual stock regime.
-    Bull  = EMA50 sloping up + price above EMA50
-    Bear  = EMA50 sloping down + price below EMA50
-    Choppy = neither condition met
-
-    Requires df with Close column.
-    Returns 'Choppy' on any error.
-    """
     try:
         closes     = df['Close']
         ema50      = closes.ewm(span=50).mean()
@@ -148,7 +130,6 @@ def _get_stock_regime(df):
             return 'Choppy'
     except Exception:
         return 'Choppy'
-# ── END INDIVIDUAL STOCK REGIME ───────────────────────
 
 
 # ── PIVOT DETECTION ───────────────────────────────────
@@ -249,10 +230,6 @@ def detect_signals(df, symbol, sector,
     df           = detect_pivots(df)
     df           = build_zones(df)
     df           = add_zone_proximity(df)
-
-    # ── Individual stock regime ───────────────────
-    # Calculated once per stock per scan
-    # Stored on every signal — not used in scoring yet
     stock_regime = _get_stock_regime(df)
 
     n        = len(df)
@@ -280,7 +257,8 @@ def detect_signals(df, symbol, sector,
         vol_q   = ('High'    if vr > 1.5 else
                    'Thin'    if vr < 0.7 else
                    'Average')
-        vol_confirm = vr >= 1.2
+        # ── S3 FIX: cast to bool() ────────────────
+        vol_confirm = bool(vr >= 1.2)
         rs_q = 'Neutral'
         if pb >= 20 and nifty_close is not None:
             try:
@@ -337,7 +315,7 @@ def detect_signals(df, symbol, sector,
             'rs_q':          rq,
             'sec_mom':       sector_momentum.get(
                                  sector, 'Neutral'),
-            'bear_bonus':    (regime == 'Bear'),
+            'bear_bonus':    bool(regime == 'Bear'),
             'stock_regime':  stock_regime,
         })
 
@@ -446,14 +424,6 @@ def detect_second_attempt(df, symbol, sector,
                            sector_momentum,
                            history_signals,
                            nifty_close=None):
-    """
-    Detects second attempt signals for this symbol.
-    Called from main.py after detect_signals().
-
-    history_signals: list of dicts from
-                     signal_history.json
-    Returns: list of SA signal dicts
-    """
     sa_signals = []
 
     if not history_signals:
@@ -471,10 +441,8 @@ def detect_second_attempt(df, symbol, sector,
     atr_v    = df['atrS'].values
     LB       = PIVOT_LOOKBACK
 
-    # Individual stock regime for SA signals
     stock_regime = _get_stock_regime(df)
-
-    today_str = df.index[last_bar].strftime(
+    today_str    = df.index[last_bar].strftime(
         '%Y-%m-%d')
 
     symbol_history = [
@@ -485,7 +453,6 @@ def detect_second_attempt(df, symbol, sector,
     if not symbol_history:
         return sa_signals
 
-    # Block if any PENDING first attempt open
     pending_first = [
         h for h in symbol_history
         if h.get('result') == 'PENDING'
@@ -496,7 +463,6 @@ def detect_second_attempt(df, symbol, sector,
     if pending_first:
         return sa_signals
 
-    # Block if any PENDING second attempt exists
     pending_sa = [
         h for h in symbol_history
         if h.get('result') == 'PENDING'
@@ -505,7 +471,6 @@ def detect_second_attempt(df, symbol, sector,
     if pending_sa:
         return sa_signals
 
-    # Find eligible parents
     eligible_parents = [
         h for h in symbol_history
         if h.get('signal') in (
@@ -534,7 +499,6 @@ def detect_second_attempt(df, symbol, sector,
     parent_id     = parent.get('id', '')
     parent_result = parent.get('result', '')
 
-    # Check parent within 10-15 trading days
     try:
         parent_dt      = pd.Timestamp(parent_date)
         parent_bar_idx = None
@@ -565,26 +529,22 @@ def detect_second_attempt(df, symbol, sector,
     # ── UP_TRI SECOND ATTEMPT ─────────────────────
     if parent_signal == 'UP_TRI':
 
-        # Structure intact — pivot low not violated
         min_since = lows[
             parent_bar_idx:last_bar+1].min()
         if min_since < parent_pivot - current_atr:
             return sa_signals
 
-        # Pullback occurred
         max_since = highs[
             parent_bar_idx:last_bar+1].max()
         pullback  = max_since - current_price
         if pullback < 0.5 * current_atr:
             return sa_signals
 
-        # Price near breakout level
         dist_from_pivot = abs(
             current_price - parent_pivot)
         if dist_from_pivot > 1.5 * current_atr:
             return sa_signals
 
-        # Stop and R:R
         stop = round(
             parent_pivot - STOP_MULT * current_atr,
             2)
@@ -604,7 +564,8 @@ def detect_second_attempt(df, symbol, sector,
             vol_q   = ('High'    if vr > 1.5 else
                        'Thin'    if vr < 0.7 else
                        'Average')
-            vol_confirm = vr >= 1.2
+            # ── S3 FIX: cast to bool() ────────────
+            vol_confirm = bool(vr >= 1.2)
         except Exception:
             vol_q       = 'Average'
             vol_confirm = False
@@ -635,33 +596,29 @@ def detect_second_attempt(df, symbol, sector,
             'rs_q':             'Neutral',
             'sec_mom':          sector_momentum.get(
                                     sector, 'Neutral'),
-            'bear_bonus':       (regime == 'Bear'),
+            'bear_bonus':       bool(regime == 'Bear'),
             'stock_regime':     stock_regime,
         })
 
     # ── DOWN_TRI SECOND ATTEMPT ───────────────────
     elif parent_signal == 'DOWN_TRI':
 
-        # Structure intact — pivot high not exceeded
         max_since = highs[
             parent_bar_idx:last_bar+1].max()
         if max_since > parent_pivot + current_atr:
             return sa_signals
 
-        # Pullback occurred
         min_since = lows[
             parent_bar_idx:last_bar+1].min()
         pullback  = current_price - min_since
         if pullback < 0.5 * current_atr:
             return sa_signals
 
-        # Price near breakdown level
         dist_from_pivot = abs(
             current_price - parent_pivot)
         if dist_from_pivot > 1.5 * current_atr:
             return sa_signals
 
-        # Stop and R:R
         stop = round(
             parent_pivot + STOP_MULT * current_atr,
             2)
@@ -681,7 +638,8 @@ def detect_second_attempt(df, symbol, sector,
             vol_q   = ('High'    if vr > 1.5 else
                        'Thin'    if vr < 0.7 else
                        'Average')
-            vol_confirm = vr >= 1.2
+            # ── S3 FIX: cast to bool() ────────────
+            vol_confirm = bool(vr >= 1.2)
         except Exception:
             vol_q       = 'Average'
             vol_confirm = False
