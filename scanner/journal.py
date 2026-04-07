@@ -594,6 +594,53 @@ def archive_old_records():
     except RuntimeError as e:
         print(f"[journal] History trim failed: {e}")
 
+# ── BACKFILL TARGET PRICE — S5 ────────────────────────
+# Fixes Apr 1 signals written before target_price
+# was added to log_signal().
+# Safe to run multiple times — skips if already set.
+# Called once from main.py on startup.
+
+def backfill_target_prices():
+    """
+    Iterates all PENDING signals in signal_history.json.
+    For any record where target_price is None,
+    calculates and writes 2R target.
+    """
+    data    = _load_json(HISTORY_FILE, _empty_history)
+    history = data.get('history', [])
+    fixed   = 0
+
+    for record in history:
+        if record.get('target_price') is not None:
+            continue
+        if record.get('result') != 'PENDING':
+            continue
+
+        entry     = record.get('entry') or \
+                    record.get('scan_price')
+        stop      = record.get('stop')
+        direction = record.get('direction', 'LONG')
+
+        target = _calculate_target(
+            entry, stop, direction)
+
+        if target is not None:
+            record['target_price'] = target
+            fixed += 1
+
+    if fixed > 0:
+        _backup_history()
+        data['history'] = history
+        try:
+            _save_json(HISTORY_FILE, data)
+            print(f"[journal] Backfilled target_price "
+                  f"on {fixed} signals")
+        except RuntimeError as e:
+            print(f"[journal] Backfill failed: {e}")
+    else:
+        print("[journal] Backfill — nothing to fix")
+
+
 
 # ── QUERY FUNCTIONS ───────────────────────────────────
 
