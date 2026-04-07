@@ -50,7 +50,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 3.66,
-      "mae_pct": 0.09
+      "mae_pct": 0.09,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-M&M-UP_TRI",
@@ -101,7 +103,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 0.0,
-      "mae_pct": 3.44
+      "mae_pct": 3.44,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-BAJAJ-AUTO-UP_TRI",
@@ -152,7 +156,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 1.27,
-      "mae_pct": 2.14
+      "mae_pct": 2.14,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-TVSMOTOR-UP_TRI",
@@ -203,7 +209,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 1.05,
-      "mae_pct": 1.66
+      "mae_pct": 1.66,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-APOLLOTYRE-UP_TRI",
@@ -254,7 +262,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 0.0,
-      "mae_pct": 3.69
+      "mae_pct": 3.69,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-TATASTEEL-UP_TRI",
@@ -305,7 +315,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 0.88,
-      "mae_pct": 2.68
+      "mae_pct": 2.68,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-ONGC-UP_TRI",
@@ -356,7 +368,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 0.59,
-      "mae_pct": 2.37
+      "mae_pct": 2.37,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-PAGEIND-UP_TRI",
@@ -407,7 +421,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 6.74,
-      "mae_pct": 0.0
+      "mae_pct": 0.0,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-BHARTIARTL-UP_TRI",
@@ -458,7 +474,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 1.49,
-      "mae_pct": 1.51
+      "mae_pct": 1.51,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-APLAPOLLO-UP_TRI",
@@ -509,7 +527,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 0.0,
-      "mae_pct": 4.3
+      "mae_pct": 4.3,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-OIL-UP_TRI",
@@ -560,7 +580,9 @@
       "tracking_start": "2026-04-03",
       "tracking_end": "2026-04-15",
       "mfe_pct": 2.48,
-      "mae_pct": 1.71
+      "mae_pct": 1.71,
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-LTTS-UP_TRI-REJ",
@@ -606,7 +628,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-M&M-UP_TRI-REJ",
@@ -652,7 +676,9 @@
       "rejection_reason": "regime_not_aligned",
       "rejection_filter": "regime_alignment",
       "rejection_threshold": "LONG",
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-BAJAJ-AUTO-UP_TRI-REJ",
@@ -698,7 +724,9 @@
       "rejection_reason": "regime_not_aligned",
       "rejection_filter": "regime_alignment",
       "rejection_threshold": "LONG",
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-TVSMOTOR-UP_TRI-REJ",
@@ -744,7 +772,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-APOLLOTYRE-UP_TRI-REJ",
@@ -790,7 +820,9 @@
       "rejection_reason": "regime_not_aligned",
       "rejection_filter": "regime_alignment",
       "rejection_threshold": "LONG",
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-TATASTEEL-UP_TRI-REJ",
@@ -836,7 +868,9 @@
       "rejection_reason": "regime_not_aligned",
       "rejection_filter": "regime_alignment",
       "rejection_threshold": "LONG",
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-ONGC-UP_TRI-REJ",
@@ -882,7 +916,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-PAGEIND-UP_TRI-REJ",
@@ -928,7 +964,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-BHARTIARTL-UP_TRI-REJ",
@@ -974,7 +1012,9 @@
       "rejection_reason": "regime_not_aligned",
       "rejection_filter": "regime_alignment",
       "rejection_threshold": "LONG",
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-APLAPOLLO-UP_TRI-REJ",
@@ -1020,7 +1060,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-01-OIL-UP_TRI-REJ",
@@ -1066,7 +1108,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 0,
+      "data_quality": "backfill"
     },
     {
       "id": "2026-04-06-MUTHOOTFIN-DOWN_TRI",
@@ -1121,7 +1165,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-PFC-DOWN_TRI",
@@ -1176,7 +1222,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-PFC-BULL_PROXY",
@@ -1231,7 +1279,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-INFY-UP_TRI",
@@ -1286,7 +1336,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-HCLTECH-UP_TRI",
@@ -1341,7 +1393,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-COFORGE-UP_TRI",
@@ -1396,7 +1450,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-OFSS-UP_TRI",
@@ -1451,7 +1507,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-LTTS-UP_TRI",
@@ -1506,7 +1564,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-KPITTECH-UP_TRI",
@@ -1561,7 +1621,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-M&M-UP_TRI",
@@ -1616,7 +1678,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-BAJAJ-AUTO-UP_TRI",
@@ -1671,7 +1735,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-TVSMOTOR-UP_TRI",
@@ -1726,7 +1792,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-APOLLOTYRE-UP_TRI",
@@ -1781,7 +1849,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-GLENMARK-BULL_PROXY",
@@ -1836,7 +1906,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-TATASTEEL-UP_TRI",
@@ -1891,7 +1963,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-TATASTEEL-BULL_PROXY",
@@ -1946,7 +2020,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-VEDL-BULL_PROXY",
@@ -2001,7 +2077,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-ONGC-UP_TRI",
@@ -2056,7 +2134,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-TATAPOWER-BULL_PROXY",
@@ -2111,7 +2191,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-ADANIGREEN-DOWN_TRI",
@@ -2166,7 +2248,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-PAGEIND-UP_TRI",
@@ -2221,7 +2305,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-ALKYLAMINE-UP_TRI",
@@ -2276,7 +2362,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-VINATIORGA-DOWN_TRI",
@@ -2331,7 +2419,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-VGUARD-DOWN_TRI",
@@ -2386,7 +2476,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-BHARTIARTL-UP_TRI",
@@ -2441,7 +2533,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-NAUKRI-UP_TRI",
@@ -2496,7 +2590,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-JIOFIN-DOWN_TRI",
@@ -2551,7 +2647,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-BSE-DOWN_TRI",
@@ -2606,7 +2704,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-MCX-DOWN_TRI",
@@ -2661,7 +2761,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-APLAPOLLO-UP_TRI",
@@ -2716,7 +2818,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-OIL-UP_TRI",
@@ -2771,7 +2875,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-OIL-BULL_PROXY",
@@ -2826,7 +2932,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-MUTHOOTFIN-DOWN_TRI-REJ",
@@ -2881,7 +2989,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-PFC-DOWN_TRI-REJ",
@@ -2936,7 +3046,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-INFY-UP_TRI-REJ",
@@ -2991,7 +3103,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-HCLTECH-UP_TRI-REJ",
@@ -3046,7 +3160,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-COFORGE-UP_TRI-REJ",
@@ -3101,7 +3217,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-OFSS-UP_TRI-REJ",
@@ -3156,7 +3274,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-LTTS-UP_TRI-REJ",
@@ -3211,7 +3331,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-KPITTECH-UP_TRI-REJ",
@@ -3266,7 +3388,9 @@
       "rejection_reason": "regime_not_aligned",
       "rejection_filter": "regime_alignment",
       "rejection_threshold": "LONG",
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-M&M-UP_TRI-REJ",
@@ -3321,7 +3445,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-BAJAJ-AUTO-UP_TRI-REJ",
@@ -3376,7 +3502,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-TVSMOTOR-UP_TRI-REJ",
@@ -3431,7 +3559,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-APOLLOTYRE-UP_TRI-REJ",
@@ -3486,7 +3616,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-GLENMARK-BULL_PROXY-REJ",
@@ -3541,7 +3673,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-TATASTEEL-UP_TRI-REJ",
@@ -3596,7 +3730,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-VEDL-BULL_PROXY-REJ",
@@ -3651,7 +3787,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-ONGC-UP_TRI-REJ",
@@ -3706,7 +3844,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-TATAPOWER-BULL_PROXY-REJ",
@@ -3761,7 +3901,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-ADANIGREEN-DOWN_TRI-REJ",
@@ -3816,7 +3958,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-PAGEIND-UP_TRI-REJ",
@@ -3871,7 +4015,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-ALKYLAMINE-UP_TRI-REJ",
@@ -3926,7 +4072,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-VINATIORGA-DOWN_TRI-REJ",
@@ -3981,7 +4129,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-VGUARD-DOWN_TRI-REJ",
@@ -4036,7 +4186,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-BHARTIARTL-UP_TRI-REJ",
@@ -4091,7 +4243,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-NAUKRI-UP_TRI-REJ",
@@ -4146,7 +4300,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-JIOFIN-DOWN_TRI-REJ",
@@ -4201,7 +4357,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-BSE-DOWN_TRI-REJ",
@@ -4256,7 +4414,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-MCX-DOWN_TRI-REJ",
@@ -4311,7 +4471,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-APLAPOLLO-UP_TRI-REJ",
@@ -4366,7 +4528,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-OIL-UP_TRI-REJ",
@@ -4421,7 +4585,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-ETERNAL-UP_TRI",
@@ -4477,7 +4643,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-BERGEPAINT-UP_TRI",
@@ -4533,7 +4701,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-ETERNAL-UP_TRI-REJ",
@@ -4589,7 +4759,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-BERGEPAINT-UP_TRI-REJ",
@@ -4645,7 +4817,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-IPCALAB-DOWN_TRI",
@@ -4701,7 +4875,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-06-IPCALAB-DOWN_TRI-REJ",
@@ -4757,7 +4933,9 @@
       "rejection_reason": "score_below_threshold",
       "rejection_filter": "min_score",
       "rejection_threshold": 7,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-07-MANAPPURAM-DOWN_TRI",
@@ -4813,7 +4991,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-07-LAURUSLABS-UP_TRI",
@@ -4869,7 +5049,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     },
     {
       "id": "2026-04-07-POWERGRID-BULL_PROXY",
@@ -4925,7 +5107,9 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "generation": 1,
+      "data_quality": "live"
     }
   ]
 }
