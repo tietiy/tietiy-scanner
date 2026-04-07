@@ -28,12 +28,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install \
-            yfinance \
-            pandas \
-            numpy \
-            requests
+        run: pip install yfinance pandas numpy requests
 
       - name: Run open validation
         env:
@@ -46,18 +41,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git config user.name  "TIE TIY Bot"
+          git config user.name "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-          git add output/open_prices.json \
-                  output/signal_history.json \
-                  output/signal_history.backup.json
+          git add output/open_prices.json output/signal_history.json output/signal_history.backup.json
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "Open validation $(date '+%Y-%m-%d %H:%M') IST"
           for i in 1 2 3; do
-            git pull --rebase origin main \
-              && git push origin HEAD:main \
-              && echo "Push succeeded on attempt $i" \
-              && break
+            git pull --rebase origin main && git push origin HEAD:main && echo "Push succeeded on attempt $i" && break
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
