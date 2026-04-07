@@ -15,6 +15,12 @@
 // F16     — Push subscription via GitHub API
 // F17     — Position sizing in tap panel
 // S9      — UTC→IST date fix (_todayIST helper)
+// S11     — Card sort: score→age→signal type
+// D28     — Tap panel entry window check fixed
+// D29     — Entry window banner text improved
+// D32     — Filter "Age 0" → "New Today"
+// D34     — Score ≤ 2 reduced opacity on card
+// D35     — generation=0 signals no NEW badge
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
@@ -39,10 +45,6 @@ function _sigCfg(signal) {
 }
 
 // ── S9 — IST DATE HELPER ──────────────────────────────
-// Always returns YYYY-MM-DD in Asia/Kolkata timezone
-// en-CA locale natively formats as YYYY-MM-DD
-// Fixes UTC bleed after 6:30 PM IST
-
 function _todayIST() {
   return new Date().toLocaleDateString(
     'en-CA', { timeZone: 'Asia/Kolkata' });
@@ -176,6 +178,12 @@ function _buildCard(sig, isNew, dayNum) {
   const banned      = _isBanned(
     sig.symbol || sym);
 
+  // D35 — generation=0 signals never show NEW badge
+  // They are backfill data, not live detections.
+  // generation undefined = treat as live (new signals)
+  const isBackfill  = sig.generation === 0;
+  const showAsNew   = isNew && !isBackfill;
+
   const openData = _getOpenPrice(
     sig.symbol || sym);
   const ltpData  = _getLtp(
@@ -189,7 +197,8 @@ function _buildCard(sig, isNew, dayNum) {
     entry = ltpData.ltp;
     const chg    = ltpData.change_pct || 0;
     const arrow  = chg >= 0 ? '▲' : '▼';
-    const chgCol = chg >= 0 ? '#00C851' : '#f85149';
+    const chgCol = chg >= 0
+      ? '#00C851' : '#f85149';
     priceDisplay = `LTP · ` +
       `<span style="color:${chgCol};">` +
       `${arrow}${Math.abs(chg).toFixed(1)}%` +
@@ -215,7 +224,7 @@ function _buildCard(sig, isNew, dayNum) {
 
   // Day badge
   let dayBadge = '';
-  if (isNew) {
+  if (showAsNew) {
     dayBadge = `<span style="background:#1a3a1a;
       color:#00C851;border-radius:4px;
       padding:1px 6px;font-size:10px;
@@ -246,13 +255,16 @@ function _buildCard(sig, isNew, dayNum) {
                   `${stockRegime}(Stk)`;
   }
 
-  const windowClosed = isNew &&
+  // D29 — improved entry window banner text
+  // "monitor only" was ambiguous — now clearly says
+  // entry was this morning, currently monitoring.
+  const windowClosed = showAsNew &&
     _entryWindowClosed()
     ? `<div style="background:#1a0a0a;
          border-radius:4px;padding:3px 8px;
          font-size:10px;color:#f85149;
          margin-top:4px;">
-         Entry window closed — monitor only
+         Entry was 9:15 AM today — monitor position
        </div>` : '';
 
   const banBanner = banned
@@ -332,6 +344,12 @@ function _buildCard(sig, isNew, dayNum) {
   const borderGlow = dayNum >= 6
     ? `box-shadow:0 0 8px ${cfg.color}44;` : '';
 
+  // D34 — score ≤ 2 = low conviction visual
+  // Reduce opacity and add CAUTION label
+  const lowConviction = score <= 2;
+  const cardOpacity   = lowConviction
+    ? 'opacity:0.65;' : '';
+
   const sigData = encodeURIComponent(
     JSON.stringify(sig));
 
@@ -351,6 +369,7 @@ function _buildCard(sig, isNew, dayNum) {
         margin-bottom:10px;
         cursor:pointer;
         ${borderGlow}
+        ${cardOpacity}
         transition:opacity 0.2s;">
 
       <div style="display:flex;
@@ -370,6 +389,15 @@ function _buildCard(sig, isNew, dayNum) {
             font-size:10px;margin-left:4px;">
             Grade ${grade}
           </span>
+          ${lowConviction
+            ? `<span style="color:#555;
+                 font-size:9px;margin-left:4px;
+                 background:#1c2128;
+                 border-radius:3px;
+                 padding:1px 4px;">
+                 LOW CONVICTION
+               </span>`
+            : ''}
         </div>
         <div style="display:flex;
           align-items:center;
@@ -459,6 +487,8 @@ function _buildFilterBar(signals) {
     counts[sig]++;
   });
 
+  // D32 — "Age 0" renamed to "New Today"
+  // Age 0 means fired today — "New Today" is clearer
   const filters = [
     { id: 'all',
       label: `All (${counts.all})` },
@@ -471,7 +501,7 @@ function _buildFilterBar(signals) {
     { id: 'SA',
       label: `2nd Att` },
     { id: 'age0',
-      label: `Age 0` },
+      label: `New Today` },
   ];
 
   let savedFilter = 'all';
@@ -609,16 +639,19 @@ function openTapPanel(el) {
   const target = rrData ? rrData.target : null;
   const atr    = sig.atr || 0;
 
-  // F17 — Position sizing
   const sizing = _calcPositionSize(entry, stop);
 
-  // S9 — Use IST date, not UTC
+  // S9 — IST date
   const today    = _todayIST();
   const sigDate  = sig.date || today;
   const dayNum   = getDayNumber(sigDate);
   const exitDate = sig.exit_date
     || getExitDate(sigDate);
   const isNew    = sigDate === today;
+
+  // D35 — generation=0 = backfill, no NEW treatment
+  const isBackfill = sig.generation === 0;
+  const showAsNew  = isNew && !isBackfill;
 
   const stopAlert = _getStopAlert(
     sig.symbol || sym);
@@ -671,6 +704,17 @@ function openTapPanel(el) {
   panel.style.transform =
     'translateX(-50%) translateY(100%)';
 
+  // D28 — trade window logic:
+  // showAsNew + entry window open  → Enter now
+  // showAsNew + entry window closed → Day 1, note entry was this morning
+  // not new → Day X of 6
+  const tradeWindowStatus =
+    showAsNew && !_entryWindowClosed()
+      ? '🟢 Enter at 9:15 AM open'
+      : showAsNew && _entryWindowClosed()
+      ? `Day 1 of 6 · Entry was 9:15 AM today`
+      : `Day ${dayNum} of 6`;
+
   panel.innerHTML = `
     <div style="width:40px;height:4px;
       background:#30363d;border-radius:2px;
@@ -691,14 +735,15 @@ function openTapPanel(el) {
           ${cfg.label} ${cfg.arrow}
         </span>
         ${sig.bear_bonus
-          ? '<span style="font-size:14px;"> 🔥</span>'
+          ? '<span style="font-size:14px;">'
+            + ' 🔥</span>'
           : ''}
         ${banned
-          ? '<span style="background:#2a0a2a;' +
-            'color:#ff66ff;border-radius:4px;' +
-            'padding:2px 7px;font-size:10px;' +
-            'margin-left:6px;font-weight:700;">' +
-            '⛔ BAN</span>'
+          ? '<span style="background:#2a0a2a;'
+            + 'color:#ff66ff;border-radius:4px;'
+            + 'padding:2px 7px;font-size:10px;'
+            + 'margin-left:6px;font-weight:700;">'
+            + '⛔ BAN</span>'
           : ''}
       </div>
       <button onclick="closeTapPanel()"
@@ -785,6 +830,11 @@ function openTapPanel(el) {
         sig.sec_mom || '—')}
       ${_detailRow('Grade',
         sig.grade || '—')}
+      ${isBackfill
+        ? _detailRow('Data quality',
+            'Backfill (gen=0)',
+            '#555')
+        : ''}
       ${_detailRow(priceSource,
         (entry ? '₹' + fmt(entry) : '—') +
         (priceDetail
@@ -800,18 +850,16 @@ function openTapPanel(el) {
       </div>
       <div style="color:#c9d1d9;
         font-weight:700;">
-        ${isNew
-          ? '🟢 Enter at 9:15 AM open'
-          : `Day ${dayNum} of 6`}
+        ${tradeWindowStatus}
       </div>
       <div style="color:#555;margin-top:2px;">
         Exit at open on ${fmtDate(exitDate)}
         ${dayNum >= 5
-          ? '<span style="color:#f85149;">' +
-            '— Exit tomorrow!</span>' : ''}
+          ? '<span style="color:#f85149;">'
+            + '— Exit tomorrow!</span>' : ''}
         ${dayNum >= 6
-          ? '<span style="color:#f85149;">' +
-            '— EXIT TODAY</span>' : ''}
+          ? '<span style="color:#f85149;">'
+            + '— EXIT TODAY</span>' : ''}
       </div>
       <div style="color:#444;font-size:10px;
         margin-top:4px;">
@@ -1166,9 +1214,7 @@ function renderSignals(data) {
   if (!content) return;
 
   const scanLog = data.scanLog;
-
-  // S9 — IST date for all today comparisons
-  const today = _todayIST();
+  const today   = _todayIST();
 
   let activeSignals = [];
   if (data.history && data.history.history) {
@@ -1186,26 +1232,27 @@ function renderSignals(data) {
     s => s.date !== today);
 
   const SIG_PRIORITY = {
-  UP_TRI:      0,
-  DOWN_TRI:    1,
-  BULL_PROXY:  2,
-  UP_TRI_SA:   3,
-  DOWN_TRI_SA: 4,
-};
+    UP_TRI:      0,
+    DOWN_TRI:    1,
+    BULL_PROXY:  2,
+    UP_TRI_SA:   3,
+    DOWN_TRI_SA: 4,
+  };
 
-const sortByScore = arr => [...arr].sort((a, b) => {
-  // 1. Score descending
-  const scoreDiff = (b.score || 0) - (a.score || 0);
-  if (scoreDiff !== 0) return scoreDiff;
-  // 2. Age ascending — fresher wins
-  const ageDiff = (a.age || 0) - (b.age || 0);
-  if (ageDiff !== 0) return ageDiff;
-  // 3. Signal type priority
-  const aPri = SIG_PRIORITY[a.signal] ?? 99;
-  const bPri = SIG_PRIORITY[b.signal] ?? 99;
-  return aPri - bPri;
-});
-
+  const sortByScore = arr => [...arr].sort(
+    (a, b) => {
+      const scoreDiff =
+        (b.score || 0) - (a.score || 0);
+      if (scoreDiff !== 0) return scoreDiff;
+      const ageDiff =
+        (a.age || 0) - (b.age || 0);
+      if (ageDiff !== 0) return ageDiff;
+      const aPri =
+        SIG_PRIORITY[a.signal] ?? 99;
+      const bPri =
+        SIG_PRIORITY[b.signal] ?? 99;
+      return aPri - bPri;
+    });
 
   const allSignals = [
     ...sortByScore(todaySignals),
@@ -1283,7 +1330,8 @@ const sortByScore = arr => [...arr].sort((a, b) => {
           const isNew  = sig.date === today;
           const dayNum = getDayNumber(
             sig.date || today);
-          return _buildCard(sig, isNew, dayNum);
+          return _buildCard(
+            sig, isNew, dayNum);
         }).join('')}
       </div>
 
