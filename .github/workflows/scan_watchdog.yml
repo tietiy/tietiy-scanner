@@ -30,7 +30,7 @@ jobs:
           GH_TOKEN:         ${{ secrets.GH_TOKEN }}
           REPO:             tietiy/tietiy-scanner
         run: |
-          TODAY=$(date -u '+%Y-%m-%d')
+          TODAY=$(TZ='Asia/Kolkata' date '+%Y-%m-%d')
           echo "Watchdog running — today: $TODAY"
 
           # ── STEP 1: Fetch meta.json ───────────
