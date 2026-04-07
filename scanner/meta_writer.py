@@ -1,14 +1,17 @@
 # ── meta_writer.py ───────────────────────────────────
 # Writes meta.json and nse_holidays.json to output/
 # MUST be called last in main.py after all other writes
-# Owns these two files exclusively — nothing else writes them
+# Owns these two files exclusively
+#
+# ADDED: active_signals_count — total PENDING signals
+#        separate from signals_found (new today only)
+#        Frontend status bar reads this for display.
 # ─────────────────────────────────────────────────────
 
 import json
 import os
 from datetime import datetime, timezone
 
-# ── STEP 1 CHANGE 1 ──────────────────────────────────
 # NSE holidays 2026
 # ⚠️ UPDATE EVERY DECEMBER FOR NEXT YEAR
 # Source: nseindia.com/regulations/holiday-master
@@ -37,6 +40,7 @@ def write_meta(
     regime,
     universe_size,
     signals_found,
+    active_signals_count,
     is_trading_day,
     scanner_version,
     app_version,
@@ -50,18 +54,19 @@ def write_meta(
     Called last in main.py after all other writes.
 
     Parameters:
-        output_dir          : str  path to output/
-        market_date         : str  'YYYY-MM-DD'
-        regime              : str  'Bull'/'Bear'/'Neutral'
-        universe_size       : int  total stocks scanned
-        signals_found       : int  deploy signals count
-        is_trading_day      : bool
-        scanner_version     : str  e.g. 'v2.0'
-        app_version         : str  e.g. '2.0'
-        fetch_failed        : list symbols that failed fetch
-        insufficient_data   : list symbols with <60 bars
-        corporate_action_skip: list symbols skipped for CA
-        history_record_count: int  total records in history
+        output_dir            : str  path to output/
+        market_date           : str  'YYYY-MM-DD'
+        regime                : str  'Bull'/'Bear'/'Neutral'
+        universe_size         : int  total stocks scanned
+        signals_found         : int  NEW signals today
+        active_signals_count  : int  total PENDING signals
+        is_trading_day        : bool
+        scanner_version       : str  e.g. 'v2.0'
+        app_version           : str  e.g. '2.0'
+        fetch_failed          : list symbols that failed
+        insufficient_data     : list symbols with <60 bars
+        corporate_action_skip : list symbols skipped for CA
+        history_record_count  : int  total records in history
     """
 
     fetch_failed          = fetch_failed or []
@@ -71,25 +76,32 @@ def write_meta(
     now_utc = datetime.now(timezone.utc)
 
     meta = {
-        "last_scan":              now_utc.strftime(
-                                      '%Y-%m-%dT%H:%M:%SZ'),
-        "deployed_at":            None,
-        "market_date":            market_date,
-        "regime":                 regime,
-        "universe_size":          universe_size,
-        "signals_found":          signals_found,
-        "is_trading_day":         is_trading_day,
-        "scanner_version":        scanner_version,
-        "app_version":            app_version,
-        "schema_version":         4,
-        "holidays_valid_until":   "2026-12-31",
-        "fetch_failed":           fetch_failed,
-        "insufficient_data":      insufficient_data,
-        "corporate_action_skip":  corporate_action_skip,
-        "history_record_count":   history_record_count,
+        "last_scan":             now_utc.strftime(
+                                     '%Y-%m-%dT%H:%M:%SZ'),
+        "deployed_at":           None,
+        "market_date":           market_date,
+        "regime":                regime,
+        "universe_size":         universe_size,
+
+        # signals_found = new signals detected today
+        # active_signals_count = total PENDING signals
+        # Status bar should show active_signals_count
+        "signals_found":         signals_found,
+        "active_signals_count":  active_signals_count,
+
+        "is_trading_day":        is_trading_day,
+        "scanner_version":       scanner_version,
+        "app_version":           app_version,
+        "schema_version":        4,
+        "holidays_valid_until":  "2026-12-31",
+        "fetch_failed":          fetch_failed,
+        "insufficient_data":     insufficient_data,
+        "corporate_action_skip": corporate_action_skip,
+        "history_record_count":  history_record_count,
     }
 
-    meta_path = os.path.join(output_dir, 'meta.json')
+    meta_path = os.path.join(
+        output_dir, 'meta.json')
     with open(meta_path, 'w') as f:
         json.dump(meta, f, indent=2)
 
@@ -104,11 +116,12 @@ def write_holidays(output_dir):
     """
 
     holidays = {
-        "valid_until":  "2026-12-31",
-        "holidays":     NSE_HOLIDAYS_2026,
+        "valid_until": "2026-12-31",
+        "holidays":    NSE_HOLIDAYS_2026,
     }
 
-    path = os.path.join(output_dir, 'nse_holidays.json')
+    path = os.path.join(
+        output_dir, 'nse_holidays.json')
     with open(path, 'w') as f:
         json.dump(holidays, f, indent=2)
 
