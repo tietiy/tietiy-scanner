@@ -12,12 +12,22 @@ RISK_PCT_LOW    = 0.01
 EXIT_UPTRI_BEAR = 'Target2x'
 EXIT_DEFAULT    = 'Day6'
 
-SCORE_AGE_0       = 3
-SCORE_AGE_1       = 2
-SCORE_BEAR_BONUS  = 3
-SCORE_DOWN_ALL    = 2
-SCORE_BULL_CHOPPY = 1
-SCORE_BEAR_BASE   = 1
+# Age scoring
+SCORE_AGE_0 = 3
+SCORE_AGE_1 = 2
+
+# Regime scoring — UP_TRI (bear is highest conviction per backtest)
+SCORE_UPTRI_BEAR   = 3   # Bear regime: avg trade 4.85%, highest WR
+SCORE_UPTRI_BULL   = 2   # Bull regime: good but not bear-premium
+SCORE_UPTRI_CHOPPY = 1   # Choppy: acceptable, lowest UP_TRI regime score
+
+# Regime scoring — DOWN_TRI (no regime filter per backtest, flat bonus)
+SCORE_DOWN_ALL = 2
+
+# Regime scoring — BULL_PROXY (trend filter active; only Bull/Choppy valid)
+SCORE_BULLPROXY_VALID = 1   # Bull or Choppy only
+
+# Quality bonuses
 SCORE_VOL_CONFIRM = 1
 SCORE_SEC_LEADING = 1
 SCORE_RS_STRONG   = 1
@@ -28,6 +38,10 @@ def score_signal(sig, grade='B'):
     score     = 0
     breakdown = []
     age       = sig.get('age', 3)
+    signal    = sig.get('signal', '')
+    regime    = sig.get('regime', 'Choppy')
+
+    # --- Age layer ---
     if age == 0:
         score += SCORE_AGE_0
         breakdown.append(f"Age0+{SCORE_AGE_0}")
@@ -35,21 +49,32 @@ def score_signal(sig, grade='B'):
         score += SCORE_AGE_1
         breakdown.append(f"Age1+{SCORE_AGE_1}")
 
-    regime = sig.get('regime', 'Choppy')
-    signal = sig.get('signal', '')
-    if signal == 'UP_TRI' and regime == 'Bear':
-        score += SCORE_BEAR_BONUS
-        breakdown.append(f"BearBonus+{SCORE_BEAR_BONUS}")
+    # --- Regime layer (one block per signal type, no overlap) ---
+    if signal == 'UP_TRI':
+        if regime == 'Bear':
+            score += SCORE_UPTRI_BEAR
+            breakdown.append(f"Bear+{SCORE_UPTRI_BEAR}")
+        elif regime == 'Bull':
+            score += SCORE_UPTRI_BULL
+            breakdown.append(f"Bull+{SCORE_UPTRI_BULL}")
+        else:  # Choppy or unknown
+            score += SCORE_UPTRI_CHOPPY
+            breakdown.append(f"Choppy+{SCORE_UPTRI_CHOPPY}")
+
     elif signal == 'DOWN_TRI':
+        # No regime filter per backtest — flat regime credit regardless
         score += SCORE_DOWN_ALL
         breakdown.append(f"DownAll+{SCORE_DOWN_ALL}")
-    elif regime in ('Bull', 'Choppy'):
-        score += SCORE_BULL_CHOPPY
-        breakdown.append(f"{regime}+{SCORE_BULL_CHOPPY}")
-    elif regime == 'Bear':
-        score += SCORE_BEAR_BASE
-        breakdown.append(f"Bear+{SCORE_BEAR_BASE}")
 
+    elif signal == 'BULL_PROXY':
+        # Trend filter active — Bear regime signals should not reach here
+        # Score only if Bull or Choppy (valid regimes for BULL_PROXY)
+        if regime in ('Bull', 'Choppy'):
+            score += SCORE_BULLPROXY_VALID
+            breakdown.append(f"{regime}+{SCORE_BULLPROXY_VALID}")
+        # Bear regime BULL_PROXY: no regime points (shouldn't exist but safe)
+
+    # --- Quality layer ---
     if sig.get('vol_confirm', False):
         score += SCORE_VOL_CONFIRM
         breakdown.append(f"Vol+{SCORE_VOL_CONFIRM}")
