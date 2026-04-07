@@ -1185,8 +1185,27 @@ function renderSignals(data) {
   const olderSignals = activeSignals.filter(
     s => s.date !== today);
 
-  const sortByScore = arr => [...arr].sort(
-    (a, b) => (b.score || 0) - (a.score || 0));
+  const SIG_PRIORITY = {
+  UP_TRI:      0,
+  DOWN_TRI:    1,
+  BULL_PROXY:  2,
+  UP_TRI_SA:   3,
+  DOWN_TRI_SA: 4,
+};
+
+const sortByScore = arr => [...arr].sort((a, b) => {
+  // 1. Score descending
+  const scoreDiff = (b.score || 0) - (a.score || 0);
+  if (scoreDiff !== 0) return scoreDiff;
+  // 2. Age ascending — fresher wins
+  const ageDiff = (a.age || 0) - (b.age || 0);
+  if (ageDiff !== 0) return ageDiff;
+  // 3. Signal type priority
+  const aPri = SIG_PRIORITY[a.signal] ?? 99;
+  const bPri = SIG_PRIORITY[b.signal] ?? 99;
+  return aPri - bPri;
+});
+
 
   const allSignals = [
     ...sortByScore(todaySignals),
