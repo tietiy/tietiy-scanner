@@ -14,6 +14,7 @@
 // F15     — LTP shown on card row + tap panel
 // F16     — Push subscription via GitHub API
 // F17     — Position sizing in tap panel
+// S9      — UTC→IST date fix (_todayIST helper)
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
@@ -30,13 +31,21 @@ const SIGNAL_CONFIG = {
 };
 
 // ── F17 — CAPITAL SETTING ─────────────────────────────
-// Default 50000 (5% of 10L)
-// User can change via settings in future
 const DEFAULT_CAPITAL = 50000;
 
 function _sigCfg(signal) {
   return SIGNAL_CONFIG[signal] || {
     color: '#8b949e', arrow: '?', label: signal };
+}
+
+// ── S9 — IST DATE HELPER ──────────────────────────────
+// Always returns YYYY-MM-DD in Asia/Kolkata timezone
+// en-CA locale natively formats as YYYY-MM-DD
+// Fixes UTC bleed after 6:30 PM IST
+
+function _todayIST() {
+  return new Date().toLocaleDateString(
+    'en-CA', { timeZone: 'Asia/Kolkata' });
 }
 
 function _entryWindowClosed() {
@@ -49,7 +58,6 @@ function _entryWindowClosed() {
 }
 
 // ── F13 — OPEN PRICE LOOKUP ───────────────────────────
-// Matches symbol with or without .NS suffix
 
 function _getOpenPrice(symbol) {
   const op = window.TIETIY.openPrices;
@@ -63,14 +71,11 @@ function _getOpenPrice(symbol) {
 }
 
 // ── F15 — LTP LOOKUP ──────────────────────────────────
-// Reads from ltp_prices.json
-// Populated by ltp_writer.py at 11AM/1PM/3PM
 
 function _getLtp(symbol) {
   const ltp = window.TIETIY.ltpPrices;
   if (!ltp || !ltp.prices) return null;
   const clean = symbol.replace('.NS', '');
-  // Try with .NS first then without
   return ltp.prices[symbol] ||
          ltp.prices[clean + '.NS'] ||
          ltp.prices[clean] ||
@@ -139,14 +144,14 @@ function _calcPositionSize(entry, stop) {
     if (!e || !s || e <= 0 || s <= 0) return null;
     const riskPerShare = Math.abs(e - s);
     if (riskPerShare <= 0) return null;
-    const shares   = Math.floor(
+    const shares    = Math.floor(
       DEFAULT_CAPITAL / riskPerShare);
     const totalRisk = shares * riskPerShare;
     return {
-      shares:    shares,
-      riskAmt:   Math.round(totalRisk),
-      riskPer:   riskPerShare.toFixed(2),
-      capital:   DEFAULT_CAPITAL,
+      shares:  shares,
+      riskAmt: Math.round(totalRisk),
+      riskPer: riskPerShare.toFixed(2),
+      capital: DEFAULT_CAPITAL,
     };
   } catch(e) { return null; }
 }
@@ -182,10 +187,10 @@ function _buildCard(sig, isNew, dayNum) {
 
   if (ltpData && ltpData.ltp) {
     entry = ltpData.ltp;
-    const chg     = ltpData.change_pct || 0;
-    const arrow   = chg >= 0 ? '▲' : '▼';
-    const chgCol  = chg >= 0 ? '#00C851' : '#f85149';
-    priceDisplay  = `LTP · ` +
+    const chg    = ltpData.change_pct || 0;
+    const arrow  = chg >= 0 ? '▲' : '▼';
+    const chgCol = chg >= 0 ? '#00C851' : '#f85149';
+    priceDisplay = `LTP · ` +
       `<span style="color:${chgCol};">` +
       `${arrow}${Math.abs(chg).toFixed(1)}%` +
       `</span> · ${ltpData.fetch_time || ''}`;
@@ -607,8 +612,8 @@ function openTapPanel(el) {
   // F17 — Position sizing
   const sizing = _calcPositionSize(entry, stop);
 
-  const today    = new Date()
-                   .toISOString().slice(0,10);
+  // S9 — Use IST date, not UTC
+  const today    = _todayIST();
   const sigDate  = sig.date || today;
   const dayNum   = getDayNumber(sigDate);
   const exitDate = sig.exit_date
@@ -1074,7 +1079,6 @@ async function requestNotifications() {
     if (statusEl) statusEl.textContent =
       'Registering with server...';
 
-    // SHA256 hash PIN in browser
     const encoder  = new TextEncoder();
     const data     = encoder.encode(pin);
     const hashBuf  = await crypto.subtle.digest(
@@ -1085,8 +1089,6 @@ async function requestNotifications() {
       .map(b => b.toString(16).padStart(2,'0'))
       .join('');
 
-    // POST to GitHub API to trigger workflow
-    // which writes subscriptions.json
     const ghResponse = await fetch(
       'https://api.github.com/repos/' +
       'tietiy/tietiy-scanner/actions/' +
@@ -1118,7 +1120,6 @@ async function requestNotifications() {
         'Alerts at 8:50 AM IST.';
       if (btn) btn.textContent = '✓ Subscribed';
 
-      // Save locally as backup
       try {
         localStorage.setItem(
           'tietiy_push_sub',
@@ -1165,8 +1166,9 @@ function renderSignals(data) {
   if (!content) return;
 
   const scanLog = data.scanLog;
-  const today   = new Date()
-                  .toISOString().slice(0,10);
+
+  // S9 — IST date for all today comparisons
+  const today = _todayIST();
 
   let activeSignals = [];
   if (data.history && data.history.history) {
