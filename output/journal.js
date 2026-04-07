@@ -2,23 +2,21 @@
 // Step 21 — Trade Journal
 // Renders signal_history.json as a grouped, filterable log
 //
-// TOOK view  : layer=MINI + action=TOOK  (signals acted on)
-// REJECTED   : layer=ALPHA + action=REJECTED (filtered out)
+// TOOK view  : layer=MINI + action=TOOK
+// REJECTED   : layer=ALPHA + action=REJECTED
 // Groups by date — newest first
 // Within each date — sorted by score desc
 //
-// S9 review  : No UTC date bugs — all date parsing uses
-//              T00:00:00 suffix (local time safe)
+// S9  review — no UTC bugs (T00:00:00 safe)
+// J1  — ALPHA: prefix on rejection reasons
+// D41 — Day badge color by urgency
+// GEN — generation=0 badge on backfill cards
 // ─────────────────────────────────────────────────────
 
 (function () {
 
-  // ── MODULE STATE ─────────────────────────────────────
-  // Not localStorage — session only. Resets on reload.
-  let _filter = 'took'; // 'took' | 'rejected'
+  let _filter = 'took';
 
-  // Register filter toggle immediately so onclick is
-  // always available regardless of render timing
   window._jFilter = function (f) {
     _filter = f;
     if (window.TIETIY) {
@@ -35,7 +33,9 @@
 
   function _scoreStr(score) {
     const s = parseFloat(score);
-    return isNaN(s) ? '—/10' : s.toFixed(0) + '/10';
+    return isNaN(s)
+      ? '—/10'
+      : s.toFixed(0) + '/10';
   }
 
   function _rr(sig) {
@@ -71,6 +71,9 @@
          : '#555';
   }
 
+  // J1 — ALPHA prefix on rejection reasons
+  // Makes it clear which layer rejected the signal.
+  // Previously showed raw reason without context.
   function _rejLabel(reason) {
     const map = {
       score_below_threshold: 'Score too low',
@@ -79,10 +82,12 @@
       vol_too_low:           'Volume too low',
       rr_too_low:            'R:R too low',
     };
-    return map[reason] || (reason || 'Filtered');
+    const label = map[reason]
+      || (reason || 'Filtered');
+    return `ALPHA: ${label}`;
   }
 
-  // T00:00:00 suffix forces local time — no UTC bleed
+  // T00:00:00 forces local timezone — no UTC bleed
   function _fmtDateHeader(str) {
     if (!str) return '—';
     try {
@@ -103,7 +108,7 @@
     return null;
   }
 
-  // T00:00:00 suffix forces local time — no UTC bleed
+  // T00:00:00 forces local timezone — no UTC bleed
   function _exitDateStr(sig) {
     if (!sig.exit_date) return null;
     try {
@@ -161,9 +166,14 @@
 
     if (result === 'REJECTED') {
       return _badgeHtml(
-        '#2a0a0a', '#f85149', '✕ REJECTED');
+        '#2a0a0a', '#f85149',
+        '✕ REJECTED');
     }
 
+    // D41 — day badge color by urgency
+    // Day 5-6 = red (urgent exit soon/today)
+    // Day 3-4 = yellow (approaching)
+    // Day 1-2 = grey (plenty of time)
     const day = _dayNum(sig);
     if (day !== null) {
       if (day >= 6) {
@@ -171,12 +181,23 @@
           '#2a0a0a', '#f85149',
           '⚠️ EXIT TODAY');
       }
+      if (day >= 5) {
+        return _badgeHtml(
+          '#2a0a0a', '#f85149',
+          `⚠️ Day ${day}/6`);
+      }
+      if (day >= 3) {
+        return _badgeHtml(
+          '#1a1a0a', '#FFD700',
+          `Day ${day}/6`);
+      }
       return _badgeHtml(
-        '#1a1a0a', '#FFD700',
+        '#1a1a0a', '#8b949e',
         `Day ${day}/6`);
     }
 
-    return _badgeHtml('#1a1a0a', '#555', 'PENDING');
+    return _badgeHtml(
+      '#1a1a0a', '#555', 'PENDING');
   }
 
   function _badgeHtml(bg, color, label) {
@@ -193,44 +214,53 @@
   // ── SIGNAL CARD ──────────────────────────────────────
 
   function _card(sig, isRejView) {
-    const sym       = _sym(sig.symbol);
-    const stype     = sig.signal   || '?';
-    const color     = _color(stype);
-    const score     = _scoreStr(sig.score);
-    const age       = sig.age != null
-                      ? sig.age : '?';
-    const sector    = sig.sector   || '';
-    const grade     = sig.grade    || '';
-    const rr        = _rr(sig);
-    const dir       = sig.direction === 'SHORT'
-                      ? '↓' : '↑';
-    const isBear    = sig.bear_bonus === true
-                      || sig.bear_bonus === 'true';
-    const stkRegime = sig.stock_regime || null;
-    const entry     = sig.entry
+    const sym        = _sym(sig.symbol);
+    const stype      = sig.signal   || '?';
+    const color      = _color(stype);
+    const score      = _scoreStr(sig.score);
+    const age        = sig.age != null
+                       ? sig.age : '?';
+    const sector     = sig.sector   || '';
+    const grade      = sig.grade    || '';
+    const rr         = _rr(sig);
+    const dir        = sig.direction === 'SHORT'
+                       ? '↓' : '↑';
+    const isBear     = sig.bear_bonus === true
+                       || sig.bear_bonus === 'true';
+    const stkRegime  = sig.stock_regime || null;
+
+    // GEN — generation badge
+    // generation=0 = backfill data
+    // Show small badge so user knows data quality
+    const isBackfill = sig.generation === 0;
+
+    const entry  = sig.entry
       ? '₹' + parseFloat(
           sig.entry).toFixed(2) : '—';
-    const stop      = sig.stop
+    const stop   = sig.stop
       ? '₹' + parseFloat(
           sig.stop).toFixed(2) : '—';
-    const target    = sig.target_price
+    const target = sig.target_price
       ? '₹' + parseFloat(
           sig.target_price).toFixed(2) : '—';
     const exitStr   = _exitDateStr(sig);
     const rejReason = isRejView
                       && sig.rejection_reason
-      ? _rejLabel(sig.rejection_reason) : null;
+      ? _rejLabel(sig.rejection_reason)
+      : null;
     const rejThresh = isRejView
                       && sig.rejection_threshold
                          != null
-      ? `(min: ${sig.rejection_threshold})` : '';
+      ? `(min: ${sig.rejection_threshold})`
+      : '';
 
     return `
       <div style="background:#161b22;
         border:1px solid #21262d;
         border-left:3px solid ${color};
         border-radius:8px;padding:10px 12px;
-        margin-bottom:8px;">
+        margin-bottom:8px;
+        ${isBackfill ? 'opacity:0.75;' : ''}">
 
         <div style="display:flex;
           justify-content:space-between;
@@ -249,7 +279,8 @@
               font-size:11px;">
               ${sector}
             </span>
-            <span style="color:${_gradeColor(grade)};
+            <span style="color:${
+              _gradeColor(grade)};
               font-size:10px;font-weight:700;
               border:1px solid ${
                 _gradeColor(grade)}44;
@@ -268,6 +299,16 @@
                    border-radius:3px;
                    padding:1px 4px;">
                    stk:${stkRegime}
+                 </span>`
+              : ''}
+            ${isBackfill
+              ? `<span style="font-size:9px;
+                   color:#444;
+                   background:#1c2128;
+                   border-radius:3px;
+                   padding:1px 4px;
+                   border:1px solid #30363d;">
+                   gen:0
                  </span>`
               : ''}
           </div>
@@ -290,11 +331,14 @@
             font-size:11px;font-weight:700;">
             ${score}
           </span>
-          <span style="color:#555;font-size:11px;">
+          <span style="color:#555;
+            font-size:11px;">
             Age&nbsp;${age}
           </span>
-          <span style="color:#555;font-size:11px;">
-            ${dir}&nbsp;${sig.direction || 'LONG'}
+          <span style="color:#555;
+            font-size:11px;">
+            ${dir}&nbsp;${
+              sig.direction || 'LONG'}
           </span>
           ${rr
             ? `<span style="color:#58a6ff;
@@ -345,14 +389,17 @@
   // ── FILTER TABS ──────────────────────────────────────
 
   function _filterBar(tookN, rejN) {
-    const on  = 'background:#21262d;color:#c9d1d9;';
-    const off = 'background:none;color:#555;';
+    const on  =
+      'background:#21262d;color:#c9d1d9;';
+    const off =
+      'background:none;color:#555;';
 
     return `
       <div style="display:flex;gap:8px;
         padding:0 16px;margin-bottom:14px;">
 
-        <button onclick="window._jFilter('took')"
+        <button
+          onclick="window._jFilter('took')"
           style="flex:1;
             ${_filter === 'took' ? on : off}
             border:1px solid #30363d;
@@ -426,7 +473,8 @@
             color:#555;letter-spacing:1px;">
             📓 JOURNAL
           </span>
-          <span style="font-size:10px;color:#555;">
+          <span style="font-size:10px;
+            color:#555;">
             ${took.length} took ·
             ${rej.length} rejected
           </span>
