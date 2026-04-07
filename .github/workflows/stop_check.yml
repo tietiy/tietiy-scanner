@@ -48,7 +48,6 @@ jobs:
             requests
 
       - name: Create folders
-        # ── CHANGED: removed journal/ — no longer exists
         run: |
           mkdir -p output data
 
@@ -58,22 +57,23 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GH_TOKEN:         ${{ secrets.GH_TOKEN }}
         run: |
-          # ── CHANGED: PYTHONPATH fix — same as morning_scan
           export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
-          # ── CHANGED: run stop_alert_writer.py directly
-          # No longer calls main.py stops
-          # stop_alert_writer.py is lightweight and self-contained
           cd $GITHUB_WORKSPACE/scanner && python stop_alert_writer.py
 
-      - name: Commit stop alerts
-        # ── CHANGED: commits stop_alerts.json not journal/
+      - name: Commit and push stop alerts
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-          git add output/stop_alerts.json || true
-          git diff --staged --quiet || \
-            git commit -m \
-            "Stop check $(date '+%H:%M') IST"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          git add output/stop_alerts.json
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Stop check $(date '+%H:%M') IST"
+          for i in 1 2 3; do
+            git pull --rebase origin main \
+              && git push origin HEAD:main \
+              && echo "Push succeeded on attempt $i" \
+              && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
