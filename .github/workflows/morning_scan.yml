@@ -2,8 +2,8 @@ name: Morning Scan 8:45 AM IST
 
 on:
   schedule:
-    - cron: '15 3 * * 1-5'  # 8:45 AM IST Mon-Fri
-  workflow_dispatch:         # manual trigger
+    - cron: '15 3 * * 1-5'
+  workflow_dispatch:
 
 concurrency:
   group: tietiy-scan
@@ -26,8 +26,6 @@ jobs:
         uses: actions/setup-python@v4
         with:
           python-version: '3.11'
-          cache: 'pip'
-
 
       - name: Install dependencies
         run: |
