@@ -9,6 +9,8 @@
 // S9     — UTC→IST date fix (_todayIST defined here)
 // S10    — Stop alert NEAR banner = yellow not green
 // S12    — "X new today" count in status bar
+// C4     — status bar shows active_signals_count
+//          not signals_found (new today only)
 // ─────────────────────────────────────────────────────
 
 const VAPID_PUBLIC_KEY =
@@ -168,7 +170,6 @@ function _getNextTradingDay() {
 
   for (let i = 0; i < 30; i++) {
     const dayOfWeek = cur.getDay();
-    // Use local date string for holiday comparison
     const dateStr   = cur.toLocaleDateString(
       'en-CA', { timeZone: 'Asia/Kolkata' });
     if (dayOfWeek !== 0 &&
@@ -188,8 +189,6 @@ function _getNextTradingDay() {
 
 
 // ── S12 — TODAY SIGNAL COUNT ──────────────────────────
-// Count PENDING signals scanned today
-// Used in status bar "X new today"
 
 function _countTodaySignals() {
   const today = _todayIST();
@@ -223,16 +222,21 @@ function _renderStatusBar(meta) {
   }
 
   const regime    = meta.regime || 'Unknown';
-
-  // S9 — IST date comparison, not UTC
   const today     = _todayIST();
   const isToday   = meta.market_date === today;
   const isTrading = meta.is_trading_day;
   const scanTime  = meta.last_scan
     ? fmtTime(meta.last_scan) : null;
-
-  // S12 — count new signals today
   const newToday  = _countTodaySignals();
+
+  // C4 FIX — use active_signals_count (total PENDING)
+  // not signals_found (new today only).
+  // active_signals_count written by meta_writer.py.
+  // Falls back to signals_found for old meta.json.
+  const activeCount =
+    meta.active_signals_count != null
+      ? meta.active_signals_count
+      : meta.signals_found || 0;
 
   const rc = regime === 'Bear'  ? '#ff4444' :
              regime === 'Bull'  ? '#00C851' :
@@ -288,7 +292,6 @@ function _renderStatusBar(meta) {
        </div>`
     : '';
 
-  // S12 — "X new today" badge
   const newTodayHtml = newToday > 0
     ? `<span style="background:#1a3a1a;
          color:#00C851;border-radius:4px;
@@ -353,7 +356,7 @@ function _renderStatusBar(meta) {
         </span>
         <span style="color:#555;font-size:10px;">
           ${meta.universe_size || 0} stocks ·
-          ${meta.signals_found || 0} signals
+          ${activeCount} signals
         </span>
       </div>
 
@@ -363,9 +366,6 @@ function _renderStatusBar(meta) {
 
 
 // ── STOP ALERT BANNER ─────────────────────────────────
-// S10 — NEAR = yellow background (#1a1a0a)
-//        AT/BREACHED = red background
-// Old code had NEAR default = '#0d2a0d' (green) — wrong
 
 function _renderAlertBanner(stopAlerts) {
   const el = document.getElementById(
@@ -391,9 +391,8 @@ function _renderAlertBanner(stopAlerts) {
   const at = alerts.filter(
     a => a.alert_level === 'AT');
 
-  // S10 — NEAR default is dark amber, not green
-  let bgColor  = '#1a1a0a';   // dark amber ← FIXED
-  let txtColor = '#FFD700';   // yellow text
+  let bgColor  = '#1a1a0a';
+  let txtColor = '#FFD700';
   let icon     = '🟡';
 
   if (breached.length > 0) {
@@ -405,7 +404,6 @@ function _renderAlertBanner(stopAlerts) {
     txtColor = '#f85149';
     icon     = '🔴';
   }
-  // else: NEAR only — keep amber defaults above
 
   const names = alerts.slice(0, 3)
     .map(a => a.symbol.replace('.NS',''))
@@ -766,8 +764,7 @@ function _helpStep(num, title, desc) {
     </div>`;
 }
 
-function _helpSignal(
-    name, color, subtitle, desc) {
+function _helpSignal(name, color, subtitle, desc) {
   return `
     <div style="background:#0d1117;
       border-left:3px solid ${color};
@@ -951,7 +948,6 @@ function getEntryDate(signalDateStr) {
 
 function getDayNumber(signalDateStr) {
   const entryDate = getEntryDate(signalDateStr);
-  // S9 — IST date, not UTC
   const today     = _todayIST();
   if (today < entryDate) return 1;
   const days = tradingDaysBetween(
