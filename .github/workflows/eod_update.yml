@@ -2,7 +2,7 @@ name: EOD Update 3:35 PM IST
 
 on:
   schedule:
-    - cron: '5 10 * * 1-5'   # 3:35 PM IST Mon-Fri
+    - cron: '5 10 * * 1-5'  # 3:35 PM IST Mon-Fri
   workflow_dispatch:
 
 permissions:
@@ -33,7 +33,6 @@ jobs:
             requests
 
       - name: Create folders
-        # ── CHANGED: removed journal/ — no longer exists
         run: |
           mkdir -p output data
 
@@ -43,15 +42,12 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           GH_TOKEN:         ${{ secrets.GH_TOKEN }}
         run: |
-          # ── CHANGED: PYTHONPATH fix — same as morning_scan
           export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
-          # ── CHANGED: run eod_prices_writer.py directly
-          # Lightweight and self-contained
-          # Telegram EOD summary still sent via main.py eod
           cd $GITHUB_WORKSPACE/scanner && python main.py eod
 
-      - name: Commit outputs
-        # ── CHANGED: removed journal/ — added specific files
+      - name: Commit and push outputs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
@@ -59,11 +55,14 @@ jobs:
             output/eod_prices.json \
             output/signal_history.json \
             output/signal_history.backup.json \
-            output/meta.json \
-            || true
-          git diff --staged --quiet || \
-            git commit -m \
-            "EOD update $(date '+%Y-%m-%d') IST"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+            output/meta.json
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "EOD update $(date '+%Y-%m-%d') IST"
+          for i in 1 2 3; do
+            git pull --rebase origin main \
+              && git push origin HEAD:main \
+              && echo "Push succeeded on attempt $i" \
+              && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
