@@ -6,6 +6,8 @@
 # MORNING SCAN:
 #  1.  check trading day
 #  1b. backfill_target_prices() — S5 fix
+#  1c. backfill_generation_flags() — GEN fix
+#  1d. ensure_archive_exists() — ARC fix
 #  2.  write_ban_list() — ban_fetcher
 #  3.  get_nifty_info()
 #  4.  get_sector_momentum()
@@ -24,6 +26,7 @@
 #  17. write_meta() — meta_writer, MUST be last
 #  18. build_html() — html_builder, shell only
 #  19. send_notifications() — push_sender
+#  20. send_morning_scan() — telegram
 #
 # STOP CHECK:
 #  1. check trading day
@@ -33,17 +36,22 @@
 #  1. check trading day
 #  2. run_outcome_evaluation() — outcome_evaluator
 #  3. run_eod_update() — eod_prices_writer
+#  4. send_eod_summary() — telegram
 #
-# S5 — backfill_target_prices added to journal import
-# S6 — shadow rejection logging fixed: only logs
-#       signals NOT already logged as MINI/TOOK
+# S5  — backfill_target_prices added
+# S6  — shadow rejection logging fixed
+# GEN — backfill_generation_flags added
+# ARC — ensure_archive_exists added
+# C4  — active_signals_count passed to write_meta
+# W1  — EOD telegram null safety added
 # ─────────────────────────────────────────────────────
 
 import sys
 import os
 import json
 
-current_dir = os.path.dirname(os.path.abspath(__file__))
+current_dir = os.path.dirname(
+    os.path.abspath(__file__))
 parent_dir  = os.path.dirname(current_dir)
 sys.path.insert(0, current_dir)
 sys.path.insert(0, parent_dir)
@@ -67,7 +75,8 @@ from calendar_utils import (
     next_trading_day, days_until_exit
 )
 from universe import (
-    load_universe, get_sector_map, get_grade_map
+    load_universe, get_sector_map,
+    get_grade_map
 )
 from scorer import enrich_signal
 from telegram_bot import (
@@ -75,7 +84,8 @@ from telegram_bot import (
     send_stop_alert
 )
 from scanner_core import (
-    prepare, detect_signals, detect_second_attempt,
+    prepare, detect_signals,
+    detect_second_attempt,
     has_recent_corporate_action
 )
 from journal import (
@@ -84,33 +94,38 @@ from journal import (
     get_system_health, get_summary,
     archive_old_records, load_history,
     get_history_count,
-    backfill_target_prices,              # ← S5
+    get_active_signals_count,        # C4
+    backfill_target_prices,          # S5
+    backfill_generation_flags,       # GEN
+    ensure_archive_exists,           # ARC
 )
 from mini_scanner import (
     filter_signals as mini_filter,
     write_mini_log, write_rejected_log
 )
-from meta_writer   import write_meta, write_holidays
+from meta_writer   import (
+    write_meta, write_holidays)
 from html_builder  import build_html
 from push_sender   import (
     send_notifications, check_dependencies
 )
 from eod_prices_writer  import run_eod_update
 from stop_alert_writer  import run_stop_check
-from outcome_evaluator  import run_outcome_evaluation
+from outcome_evaluator  import (
+    run_outcome_evaluation)
 from ban_fetcher        import write_ban_list
 
 # ── CONSTANTS ─────────────────────────────────────────
 NIFTY_SYMBOL   = "^NSEI"
 SECTOR_INDICES = {
-    "Bank":    "^NSEBANK",
-    "IT":      "^CNXIT",
-    "Pharma":  "^CNXPHARMA",
-    "Auto":    "^CNXAUTO",
-    "Metal":   "^CNXMETAL",
-    "Energy":  "^CNXENERGY",
-    "FMCG":    "^CNXFMCG",
-    "Infra":   "^CNXINFRA",
+    "Bank":   "^NSEBANK",
+    "IT":     "^CNXIT",
+    "Pharma": "^CNXPHARMA",
+    "Auto":   "^CNXAUTO",
+    "Metal":  "^CNXMETAL",
+    "Energy": "^CNXENERGY",
+    "FMCG":   "^CNXFMCG",
+    "Infra":  "^CNXINFRA",
 }
 
 
@@ -122,25 +137,28 @@ def get_nifty_info():
             NIFTY_SYMBOL, period='3mo',
             progress=False, auto_adjust=True)
         if isinstance(df.columns, pd.MultiIndex):
-            df.columns = [c[0] for c in df.columns]
+            df.columns = [
+                c[0] for c in df.columns]
 
         closes     = df['Close']
         ema50      = closes.ewm(span=50).mean()
-        slope      = ema50.diff(10) / ema50.shift(10)
+        slope      = (ema50.diff(10)
+                      / ema50.shift(10))
         above      = closes > ema50
         last_slope = float(slope.iloc[-1])
         last_above = bool(above.iloc[-1])
 
         if last_slope > 0.005 and last_above:
             regime = 'Bull'
-        elif last_slope < -0.005 and not last_above:
+        elif last_slope < -0.005 \
+                and not last_above:
             regime = 'Bear'
         else:
             regime = 'Choppy'
 
         ret20 = float(
-            (closes.iloc[-1] / closes.iloc[-20] - 1)
-            * 100)
+            (closes.iloc[-1] /
+             closes.iloc[-20] - 1) * 100)
         regime_score = (
              2 if ret20 >  5 else
              1 if ret20 >  2 else
@@ -155,9 +173,10 @@ def get_nifty_info():
                 float(closes.iloc[-1]), 2),
             'nifty_change':   round(ret20, 2),
             'ret20':          round(ret20, 2),
-            'today':          date.today().strftime(
-                '%d %b %Y'),
-            'market_date':    date.today().isoformat(),
+            'today':          date.today()
+                              .strftime('%d %b %Y'),
+            'market_date':    date.today()
+                              .isoformat(),
             'sector_leaders': []
         }
     except Exception as e:
@@ -169,9 +188,10 @@ def get_nifty_info():
             'nifty_price':    0,
             'nifty_change':   0,
             'ret20':          0,
-            'today':          date.today().strftime(
-                '%d %b %Y'),
-            'market_date':    date.today().isoformat(),
+            'today':          date.today()
+                              .strftime('%d %b %Y'),
+            'market_date':    date.today()
+                              .isoformat(),
             'sector_leaders': []
         }
 
@@ -182,7 +202,8 @@ def get_sector_momentum():
         try:
             df = yf.download(
                 sym, period='1mo',
-                progress=False, auto_adjust=True)
+                progress=False,
+                auto_adjust=True)
             if isinstance(df.columns,
                           pd.MultiIndex):
                 df.columns = [
@@ -211,8 +232,8 @@ def get_sector_leaders(momentum):
 
 # ── DUPLICATE PENDING FILTER ──────────────────────────
 
-def _filter_duplicate_pending(signals,
-                               history_signals):
+def _filter_duplicate_pending(
+        signals, history_signals):
     pending_set = set()
     for h in history_signals:
         if h.get('result') != 'PENDING':
@@ -244,8 +265,8 @@ def _filter_duplicate_pending(signals,
             filtered.append(sig)
 
     if skipped:
-        print(f"[main] Duplicate pending filtered: "
-              f"{len(skipped)} signals")
+        print(f"[main] Duplicate pending "
+              f"filtered: {len(skipped)} signals")
         for k in skipped:
             print(f"[main]   Skip: {k}")
 
@@ -261,21 +282,28 @@ def write_scan_log(signals, rejected,
         OUTPUT_DIR, 'scan_log.json')
 
     def _fmt(s):
-        entry = float(s.get('entry_est') or 0)
-        stop  = float(s.get('stop')      or 0)
+        entry = float(
+            s.get('entry_est') or 0)
+        stop  = float(s.get('stop') or 0)
         risk  = abs(entry - stop)
         dirn  = s.get('direction', 'LONG')
 
         if dirn == 'LONG':
-            target = round(entry + 2 * risk, 2)
+            target = round(
+                entry + 2 * risk, 2)
         else:
-            target = round(entry - 2 * risk, 2)
+            target = round(
+                entry - 2 * risk, 2)
 
         return {
-            'symbol':         s.get('symbol', ''),
-            'sector':         s.get('sector', ''),
-            'grade':          s.get('grade', 'C'),
-            'signal':         s.get('signal', ''),
+            'symbol':         s.get(
+                'symbol', ''),
+            'sector':         s.get(
+                'sector', ''),
+            'grade':          s.get(
+                'grade', 'C'),
+            'signal':         s.get(
+                'signal', ''),
             'direction':      dirn,
             'age':            s.get('age', 0),
             'score':          s.get('score', 0),
@@ -286,18 +314,20 @@ def write_scan_log(signals, rejected,
                 s.get('atr') or 0), 2),
             'pivot_price':    round(float(
                 s.get('pivot_price') or 0), 2),
-            'pivot_date':     s.get('pivot_date', ''),
+            'pivot_date':     s.get(
+                'pivot_date', ''),
             'regime':         s.get('regime', ''),
-            'regime_score':   s.get('regime_score', 0),
+            'regime_score':   s.get(
+                'regime_score', 0),
             'stock_regime':   s.get(
                 'stock_regime', 'Choppy'),
             'vol_q':          s.get('vol_q', ''),
-            'vol_confirm':    s.get('vol_confirm',
-                                    False),
+            'vol_confirm':    s.get(
+                'vol_confirm', False),
             'rs_q':           s.get('rs_q', ''),
             'sec_mom':        s.get('sec_mom', ''),
-            'bear_bonus':     s.get('bear_bonus',
-                                    False),
+            'bear_bonus':     s.get(
+                'bear_bonus', False),
             'attempt_number': s.get(
                 'attempt_number', 1),
             'parent_signal':  s.get(
@@ -305,7 +335,7 @@ def write_scan_log(signals, rejected,
             'parent_date':    s.get(
                 'parent_date', None),
             'scan_time':      datetime.utcnow()
-                              .strftime('%H:%M IST'),
+                              .strftime('%H:%M UTC'),
             'date':           scan_date,
             'scanner_version': SCANNER_VERSION,
         }
@@ -319,7 +349,8 @@ def write_scan_log(signals, rejected,
     }
 
     with open(log_path, 'w') as f:
-        json.dump(data, f, indent=2, default=str)
+        json.dump(data, f, indent=2,
+                  default=str)
 
     print(f"[main] scan_log.json written → "
           f"{len(signals)} signals, "
@@ -336,16 +367,26 @@ def run_morning_scan():
         print(f"[main] Not a trading day: "
               f"{status['reason']}")
         market_info = get_nifty_info()
+
+        # Still run startup maintenance
+        try:
+            ensure_archive_exists()
+        except Exception as e:
+            print(f"[main] Archive init: {e}")
+
         write_holidays(OUTPUT_DIR)
         write_meta(
-            output_dir      = OUTPUT_DIR,
-            market_date     = date.today().isoformat(),
-            regime          = market_info['regime'],
-            universe_size   = 0,
-            signals_found   = 0,
-            is_trading_day  = False,
-            scanner_version = SCANNER_VERSION,
-            app_version     = APP_VERSION,
+            output_dir           = OUTPUT_DIR,
+            market_date          = date.today()
+                                   .isoformat(),
+            regime               = market_info[
+                                       'regime'],
+            universe_size        = 0,
+            signals_found        = 0,
+            active_signals_count = get_active_signals_count(),
+            is_trading_day       = False,
+            scanner_version      = SCANNER_VERSION,
+            app_version          = APP_VERSION,
             history_record_count = get_history_count(),
         )
         build_html()
@@ -354,14 +395,26 @@ def run_morning_scan():
     print("[main] Trading day confirmed — "
           "starting morning scan")
 
-    # ── STEP 1b: Backfill missing target prices ───
-    # S5 fix — repairs Apr 1 signals with null
-    # target_price before outcome_evaluator runs.
-    # Idempotent — skips already-set records.
+    # ── STEP 1b: Ensure archive exists ───────────
+    try:
+        ensure_archive_exists()
+    except Exception as e:
+        print(f"[main] Archive init error: {e}")
+
+    # ── STEP 1c: Backfill target prices ──────────
     try:
         backfill_target_prices()
     except Exception as e:
         print(f"[main] Backfill error: {e}")
+
+    # ── STEP 1d: Backfill generation flags ───────
+    # Tags pre-live signals as generation=0 and
+    # live signals as generation=1. Idempotent.
+    try:
+        backfill_generation_flags()
+    except Exception as e:
+        print(f"[main] Generation backfill "
+              f"error: {e}")
 
     # ── STEP 2: F&O ban list ──────────────────────
     try:
@@ -389,7 +442,8 @@ def run_morning_scan():
     universe   = load_universe()
     sector_map = get_sector_map()
     grade_map  = get_grade_map()
-    print(f"[main] Universe: {len(universe)} stocks")
+    print(f"[main] Universe: "
+          f"{len(universe)} stocks")
 
     try:
         nifty_df = yf.download(
@@ -455,14 +509,16 @@ def run_morning_scan():
                 sig['grade']           = grade
                 sig['scanner_version'] = \
                     SCANNER_VERSION
-                sym_clean = sym.replace('.NS', '')
+                sym_clean = sym.replace(
+                    '.NS', '')
                 sig['is_banned'] = \
                     sym_clean in banned_stocks
                 sig = enrich_signal(sig, grade)
                 all_raw_signals.append(sig)
 
         except Exception as e:
-            print(f"[main] Scan error {sym}: {e}")
+            print(f"[main] Scan error "
+                  f"{sym}: {e}")
             fetch_failed.append(sym)
             continue
 
@@ -476,10 +532,12 @@ def run_morning_scan():
           f"{len(all_raw_signals)} signals")
 
     # ── STEP 10: Mini scanner filter ──────────────
-    mini_signals, alpha_signals, rejection_log = \
+    mini_signals, alpha_signals, \
+        rejection_log = \
         mini_filter(all_raw_signals)
 
-    print(f"[main] Mini: {len(mini_signals)} | "
+    print(f"[main] Mini: "
+          f"{len(mini_signals)} | "
           f"Alpha: {len(alpha_signals)} | "
           f"Shadow hits: {len(rejection_log)}")
 
@@ -508,16 +566,9 @@ def run_morning_scan():
                   f"{sig.get('symbol','')}: {e}")
 
     # ── S6 FIX: Shadow rejection logging ──────────
-    # Only log shadow rejections for signals that
-    # were NOT already logged as MINI/TOOK above.
-    # Before this fix every signal was logged twice
-    # — once as TOOK and once as REJECTED — causing
-    # the funnel to show double the real signal count.
-    #
-    # Build lookup of symbol+signal combos that were
-    # just logged as MINI so we can skip them below.
     mini_took_keys = {
-        (s.get('symbol', ''), s.get('signal', ''))
+        (s.get('symbol', ''),
+         s.get('signal', ''))
         for s in mini_signals
     }
 
@@ -528,7 +579,6 @@ def run_morning_scan():
             rej.get('symbol', ''),
             rej.get('signal',  '')
         )
-        # Skip if this signal was already TOOK
         if rej_key in mini_took_keys:
             continue
         try:
@@ -541,16 +591,19 @@ def run_morning_scan():
             if orig:
                 log_rejected(
                     orig,
-                    rej.get('rejection_reason',
-                             'unknown'),
-                    rej.get('rejection_filter',
-                             'unknown'),
+                    rej.get(
+                        'rejection_reason',
+                        'unknown'),
+                    rej.get(
+                        'rejection_filter',
+                        'unknown'),
                     rej.get('threshold', None)
                 )
         except Exception:
             pass
 
-    print(f"[main] Logged {logged_count} signals")
+    print(f"[main] Logged "
+          f"{logged_count} signals")
 
     # ── STEP 15: Archive old records ──────────────
     try:
@@ -565,13 +618,17 @@ def run_morning_scan():
         print(f"[main] Holidays write error: {e}")
 
     # ── STEP 17: Write meta.json — MUST BE LAST ───
+    # C4 FIX — pass active_signals_count separately
+    # from signals_found. Status bar uses active count.
     try:
         write_meta(
             output_dir            = OUTPUT_DIR,
             market_date           = scan_date,
             regime                = regime,
             universe_size         = len(universe),
-            signals_found         = len(mini_signals),
+            signals_found         = len(
+                mini_signals),
+            active_signals_count  = get_active_signals_count(),
             is_trading_day        = True,
             scanner_version       = SCANNER_VERSION,
             app_version           = APP_VERSION,
@@ -602,7 +659,8 @@ def run_morning_scan():
 
     # ── STEP 20: Telegram morning alert ───────────
     try:
-        send_morning_scan(mini_signals, market_info)
+        send_morning_scan(
+            mini_signals, market_info)
     except Exception as e:
         print(f"[main] Telegram error: {e}")
 
@@ -610,7 +668,8 @@ def run_morning_scan():
           f"{len(mini_signals)} signals | "
           f"Regime: {regime} | "
           f"Failed: {len(fetch_failed)} | "
-          f"CA skip: {len(corporate_action_skip)}")
+          f"CA skip: "
+          f"{len(corporate_action_skip)}")
 
 
 # ── STOP CHECK ────────────────────────────────────────
@@ -647,10 +706,33 @@ def run_eod():
     except Exception as e:
         print(f"[main] EOD error: {e}")
 
+    # W1 FIX — sanitize None values before
+    # passing to Telegram formatter.
+    # Prevents NoneType.__format__ error on
+    # pnl_pct, mfe_pct, mae_pct fields.
     try:
         open_trades = get_open_trades()
+        safe_trades = []
+        _numeric_fields = (
+            'pnl_pct', 'pnl_rs',
+            'mfe_pct', 'mae_pct',
+            'score', 'adjusted_rr'
+        )
+        for t in open_trades:
+            safe_t = dict(t)
+            for k in _numeric_fields:
+                if safe_t.get(k) is None:
+                    safe_t[k] = 0.0
+            # Ensure string fields are never None
+            for k in ('symbol', 'signal',
+                      'regime', 'direction',
+                      'sector', 'grade'):
+                if safe_t.get(k) is None:
+                    safe_t[k] = '—'
+            safe_trades.append(safe_t)
+
         send_eod_summary(
-            open_trades, len(open_trades))
+            safe_trades, len(safe_trades))
     except Exception as e:
         print(f"[main] Telegram EOD error: {e}")
 
