@@ -2,10 +2,9 @@ name: Open Price Validation 9:25 AM IST
 
 on:
   schedule:
-    - cron: '55 3 * * 1-5'   # 9:25 AM IST Mon-Fri
+    - cron: '55 3 * * 1-5'  # 9:25 AM IST Mon-Fri
   workflow_dispatch:
 
-# ── STEP 23 CHANGE ───────────────────────────────────
 # Same group as morning_scan — they queue not race
 # If morning scan is somehow still running at 9:25 AM
 # open_validate waits rather than corrupting output
@@ -13,7 +12,6 @@ on:
 concurrency:
   group: tietiy-scan
   cancel-in-progress: false
-# ── END CHANGE ────────────────────────────────────────
 
 jobs:
   validate:
@@ -48,17 +46,22 @@ jobs:
           export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
           cd $GITHUB_WORKSPACE/scanner && python open_validator.py
 
-      - name: Commit outputs
+      - name: Commit and push outputs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
           git add output/open_prices.json \
                   output/signal_history.json \
-                  output/signal_history.backup.json \
-                  || true
-          git diff --staged --quiet || \
-            git commit -m \
-            "Open validation $(date '+%Y-%m-%d %H:%M') IST"
-          git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+                  output/signal_history.backup.json
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Open validation $(date '+%Y-%m-%d %H:%M') IST"
+          for i in 1 2 3; do
+            git pull --rebase origin main \
+              && git push origin HEAD:main \
+              && echo "Push succeeded on attempt $i" \
+              && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
