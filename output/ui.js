@@ -2,14 +2,18 @@
 // Master controller for TIE TIY Scanner frontend
 // Loads first — all other JS files depend on this
 //
-// FIX 1 — Status bar shows next scan time
-// FIX 2 — ltp_prices.json added to fetchAll
+// FIX 1  — Status bar shows next scan time
+// FIX 2  — ltp_prices.json added to fetchAll
 // FIXED  — duplicate _renderStatusBar removed
 // ADDED  — banned_stocks.json fetched and stored
+// S9     — UTC→IST date fix (_todayIST defined here)
+// S10    — Stop alert NEAR banner = yellow not green
+// S12    — "X new today" count in status bar
 // ─────────────────────────────────────────────────────
 
 const VAPID_PUBLIC_KEY =
-  'BD0o5qPcwXsEpSv5KXOSKZRHyyGVoC0bTNbRMcOSX2t-t5OBf1sHGKJH2y8m6uYnCwa3g_xfzJdmWoEuxR941Rk';
+  'BD0o5qPcwXsEpSv5KXOSKZRHyyGVoC0bTNbRMcOSX2t-' +
+  't5OBf1sHGKJH2y8m6uYnCwa3g_xfzJdmWoEuxR941Rk';
 
 const PUSH_PIN_LENGTH = 4;
 const BASE_URL        = '/tietiy-scanner/';
@@ -52,7 +56,7 @@ function fmt(n) {
 function fmtDate(str) {
   if (!str) return '—';
   try {
-    const d = new Date(str);
+    const d = new Date(str + 'T00:00:00');
     return d.toLocaleDateString('en-IN', {
       day:   '2-digit',
       month: 'short',
@@ -70,6 +74,16 @@ function fmtTime(utcStr) {
       timeZone: 'Asia/Kolkata',
     }) + ' IST';
   } catch(e) { return utcStr; }
+}
+
+// ── S9 — IST DATE HELPER ──────────────────────────────
+// Defined in ui.js (master controller) so all files
+// can use it. en-CA locale = YYYY-MM-DD natively.
+// Fixes UTC bleed after 6:30 PM IST.
+
+function _todayIST() {
+  return new Date().toLocaleDateString(
+    'en-CA', { timeZone: 'Asia/Kolkata' });
 }
 
 function _bust(url) {
@@ -130,11 +144,14 @@ async function _fetchAll() {
 
 function _checkAppVersion(meta) {
   if (!meta) return;
-  const stored  = localStorage.getItem('tietiy_app_v');
+  const stored  = localStorage.getItem(
+    'tietiy_app_v');
   const current = meta.app_version || '2.0';
   if (stored && stored !== current) {
-    localStorage.setItem('tietiy_app_v', current);
-    console.log('[ui] App version changed — reloading');
+    localStorage.setItem(
+      'tietiy_app_v', current);
+    console.log(
+      '[ui] App version changed — reloading');
     location.reload(true);
     return;
   }
@@ -151,7 +168,9 @@ function _getNextTradingDay() {
 
   for (let i = 0; i < 30; i++) {
     const dayOfWeek = cur.getDay();
-    const dateStr   = cur.toISOString().slice(0, 10);
+    // Use local date string for holiday comparison
+    const dateStr   = cur.toLocaleDateString(
+      'en-CA', { timeZone: 'Asia/Kolkata' });
     if (dayOfWeek !== 0 &&
         dayOfWeek !== 6 &&
         !holidays.includes(dateStr)) {
@@ -168,10 +187,26 @@ function _getNextTradingDay() {
 }
 
 
+// ── S12 — TODAY SIGNAL COUNT ──────────────────────────
+// Count PENDING signals scanned today
+// Used in status bar "X new today"
+
+function _countTodaySignals() {
+  const today = _todayIST();
+  const hist  = window.TIETIY.history;
+  if (!hist || !hist.history) return 0;
+  return hist.history.filter(
+    s => s.date === today
+      && s.result === 'PENDING'
+  ).length;
+}
+
+
 // ── STATUS BAR ────────────────────────────────────────
 
 function _renderStatusBar(meta) {
-  const el = document.getElementById('status-bar');
+  const el = document.getElementById(
+    'status-bar');
   if (!el) return;
 
   if (!meta) {
@@ -179,7 +214,8 @@ function _renderStatusBar(meta) {
       <div style="background:#1a0a0a;
         padding:10px 14px;
         border-bottom:1px solid #f85149;">
-        <span style="color:#f85149;font-size:12px;">
+        <span style="color:#f85149;
+          font-size:12px;">
           ⚠️ Scanner data unavailable
         </span>
       </div>`;
@@ -187,11 +223,16 @@ function _renderStatusBar(meta) {
   }
 
   const regime    = meta.regime || 'Unknown';
-  const isToday   = meta.market_date ===
-    new Date().toISOString().slice(0, 10);
+
+  // S9 — IST date comparison, not UTC
+  const today     = _todayIST();
+  const isToday   = meta.market_date === today;
   const isTrading = meta.is_trading_day;
   const scanTime  = meta.last_scan
     ? fmtTime(meta.last_scan) : null;
+
+  // S12 — count new signals today
+  const newToday  = _countTodaySignals();
 
   const rc = regime === 'Bear'  ? '#ff4444' :
              regime === 'Bull'  ? '#00C851' :
@@ -247,6 +288,16 @@ function _renderStatusBar(meta) {
        </div>`
     : '';
 
+  // S12 — "X new today" badge
+  const newTodayHtml = newToday > 0
+    ? `<span style="background:#1a3a1a;
+         color:#00C851;border-radius:4px;
+         padding:1px 6px;font-size:10px;
+         font-weight:700;margin-left:6px;">
+         ${newToday} new today
+       </span>`
+    : '';
+
   el.innerHTML = `
     <div style="background:${bgColor};
       border-bottom:1px solid ${borderColor};
@@ -254,16 +305,18 @@ function _renderStatusBar(meta) {
 
       <div style="display:flex;
         justify-content:space-between;
-        align-items:center;margin-bottom:4px;">
+        align-items:center;
+        margin-bottom:4px;">
         <div style="display:flex;
           align-items:center;gap:8px;">
           <span style="color:#ffd700;
             font-size:17px;font-weight:700;">
             🎯 TIE TIY
           </span>
-          <span style="background:${rc};color:#000;
-            border-radius:4px;padding:1px 7px;
-            font-size:11px;font-weight:700;">
+          <span style="background:${rc};
+            color:#000;border-radius:4px;
+            padding:1px 7px;font-size:11px;
+            font-weight:700;">
             ${regime}
           </span>
         </div>
@@ -293,8 +346,10 @@ function _renderStatusBar(meta) {
       <div style="display:flex;
         justify-content:space-between;
         align-items:center;font-size:11px;">
-        <span style="color:${statusColor};">
+        <span style="color:${statusColor};
+          display:flex;align-items:center;">
           ${statusDot} ${statusText}
+          ${newTodayHtml}
         </span>
         <span style="color:#555;font-size:10px;">
           ${meta.universe_size || 0} stocks ·
@@ -308,9 +363,13 @@ function _renderStatusBar(meta) {
 
 
 // ── STOP ALERT BANNER ─────────────────────────────────
+// S10 — NEAR = yellow background (#1a1a0a)
+//        AT/BREACHED = red background
+// Old code had NEAR default = '#0d2a0d' (green) — wrong
 
 function _renderAlertBanner(stopAlerts) {
-  const el = document.getElementById('alert-banner');
+  const el = document.getElementById(
+    'alert-banner');
   if (!el) return;
 
   if (!stopAlerts || !stopAlerts.has_alerts) {
@@ -332,8 +391,9 @@ function _renderAlertBanner(stopAlerts) {
   const at = alerts.filter(
     a => a.alert_level === 'AT');
 
-  let bgColor  = '#0d2a0d';
-  let txtColor = '#FFD700';
+  // S10 — NEAR default is dark amber, not green
+  let bgColor  = '#1a1a0a';   // dark amber ← FIXED
+  let txtColor = '#FFD700';   // yellow text
   let icon     = '🟡';
 
   if (breached.length > 0) {
@@ -345,6 +405,7 @@ function _renderAlertBanner(stopAlerts) {
     txtColor = '#f85149';
     icon     = '🔴';
   }
+  // else: NEAR only — keep amber defaults above
 
   const names = alerts.slice(0, 3)
     .map(a => a.symbol.replace('.NS',''))
@@ -382,7 +443,8 @@ function _renderNav(activeTab) {
   el.innerHTML = `
     <div style="position:fixed;bottom:0;left:50%;
       transform:translateX(-50%);
-      width:100%;max-width:min(960px,100vw);
+      width:100%;
+      max-width:min(960px,100vw);
       background:#0d1117;
       border-top:1px solid #21262d;
       display:flex;z-index:50;
@@ -393,7 +455,8 @@ function _renderNav(activeTab) {
           <button onclick="switchTab('${t.id}')"
             style="flex:1;background:none;
               border:none;
-              padding:10px 0 8px;cursor:pointer;
+              padding:10px 0 8px;
+              cursor:pointer;
               display:flex;flex-direction:column;
               align-items:center;gap:2px;">
             <span style="font-size:18px;
@@ -401,8 +464,10 @@ function _renderNav(activeTab) {
               ${t.icon}
             </span>
             <span style="font-size:10px;
-              color:${active ? '#ffd700' : '#555'};
-              font-weight:${active ? '700' : '400'};">
+              color:${active
+                ? '#ffd700' : '#555'};
+              font-weight:${active
+                ? '700' : '400'};">
               ${t.label}
             </span>
           </button>`;
@@ -441,7 +506,8 @@ function switchTab(tabId) {
 // ── REFRESH ───────────────────────────────────────────
 
 async function refreshData() {
-  const btn = document.getElementById('refresh-btn');
+  const btn = document.getElementById(
+    'refresh-btn');
   if (btn) {
     btn.textContent = '⏳';
     btn.disabled    = true;
@@ -472,7 +538,8 @@ async function refreshData() {
 // ── HELP OVERLAY ──────────────────────────────────────
 
 function showHelp() {
-  const el = document.getElementById('help-overlay');
+  const el = document.getElementById(
+    'help-overlay');
   if (!el) return;
 
   el.style.display = 'block';
@@ -485,8 +552,8 @@ function showHelp() {
         align-items:center;margin-bottom:20px;
         padding-bottom:12px;
         border-bottom:1px solid #21262d;">
-        <span style="color:#ffd700;font-size:18px;
-          font-weight:700;">
+        <span style="color:#ffd700;
+          font-size:18px;font-weight:700;">
           ℹ️ How To Use TIE TIY
         </span>
         <button onclick="hideHelp()"
@@ -529,13 +596,14 @@ function showHelp() {
         </div>
         ${_helpSignal('UP_TRI ▲','#00C851',
           'Bullish triangle breakout',
-          'Price broke above a series of higher lows. ' +
-          'Best in Bear regime. Ages 0–3 valid. ' +
-          'Bear regime = highest conviction 🔥')}
+          'Price broke above a series of higher ' +
+          'lows. Best in Bear regime. Ages 0–3 ' +
+          'valid. Bear regime = highest ' +
+          'conviction 🔥')}
         ${_helpSignal('DOWN_TRI ▼','#f85149',
           'Bearish triangle breakdown',
-          'Price broke below a series of lower highs. ' +
-          'Age 0 ONLY — miss it, skip it.')}
+          'Price broke below a series of lower ' +
+          'highs. Age 0 ONLY — miss it, skip it.')}
         ${_helpSignal('BULL_PROXY ◆','#58a6ff',
           'Support zone rejection',
           'Price bounced from a key support zone. ' +
@@ -543,7 +611,8 @@ function showHelp() {
         ${_helpSignal('UP_TRI_SA ▲▲','#00C851',
           'Second attempt — bullish',
           'First UP_TRI attempt stopped. ' +
-          'Same level proven twice = higher conviction.')}
+          'Same level proven twice = ' +
+          'higher conviction.')}
         ${_helpSignal('DOWN_TRI_SA ▼▼','#f85149',
           'Second attempt — bearish',
           'First DOWN_TRI attempt stopped. ' +
@@ -572,7 +641,8 @@ function showHelp() {
           'Risk to Reward ratio. ' +
           '2.0 = make ₹2 for every ₹1 risked.')}
         ${_helpTerm('Entry',
-          'Buy/sell at 9:15 AM open next trading day.')}
+          'Buy/sell at 9:15 AM open ' +
+          'next trading day.')}
         ${_helpTerm('Stop',
           '1 ATR beyond pivot. Set immediately. ' +
           'Never move it.')}
@@ -581,7 +651,8 @@ function showHelp() {
         ${_helpTerm('Day X of 6',
           'Day 6 = exit at open today.')}
         ${_helpTerm('Bear Bonus 🔥',
-          'UP_TRI in Bear market = highest conviction.')}
+          'UP_TRI in Bear market = ' +
+          'highest conviction.')}
         ${_helpTerm('Grade A/B/C',
           'A = backtest validated. ' +
           'B = limited history. ' +
@@ -606,14 +677,21 @@ function showHelp() {
           ⚠️ RISK RULES — NON NEGOTIABLE
         </div>
         ${_helpRule('Max 5% capital per trade')}
-        ${_helpRule('Stop is set immediately at entry')}
+        ${_helpRule(
+          'Stop is set immediately at entry')}
         ${_helpRule('Stop is never moved')}
-        ${_helpRule('Stop hit intraday = exit same day')}
-        ${_helpRule('No adding to an open position')}
-        ${_helpRule('R:R below 1.5 = reduce size or skip')}
-        ${_helpRule('Miss 9:15 AM by 15+ mins = skip')}
-        ${_helpRule('Gap > 3% at open = skip signal')}
-        ${_helpRule('⛔ BAN stock = no new F&O position')}
+        ${_helpRule(
+          'Stop hit intraday = exit same day')}
+        ${_helpRule(
+          'No adding to an open position')}
+        ${_helpRule(
+          'R:R below 1.5 = reduce size or skip')}
+        ${_helpRule(
+          'Miss 9:15 AM by 15+ mins = skip')}
+        ${_helpRule(
+          'Gap > 3% at open = skip signal')}
+        ${_helpRule(
+          '⛔ BAN stock = no new F&O position')}
       </div>
 
       <div style="margin-bottom:20px;">
@@ -626,14 +704,14 @@ function showHelp() {
           border-radius:8px;padding:12px;
           font-size:12px;color:#8b949e;
           line-height:1.6;">
-          Get notified at 8:50 AM every trading day.
-          <br><br>
+          Get notified at 8:50 AM every
+          trading day.<br><br>
           <strong style="color:#c9d1d9;">
             iOS users:
           </strong>
-          Add to Home Screen first, then open from
-          home screen icon to enable notifications.
-          <br><br>
+          Add to Home Screen first, then open
+          from home screen icon to enable
+          notifications.<br><br>
           <button onclick="requestNotifications()"
             id="notif-btn"
             style="background:#21262d;
@@ -644,8 +722,9 @@ function showHelp() {
             Enable Notifications
           </button>
           <div id="notif-status"
-            style="margin-top:8px;font-size:11px;
-              color:#555;"></div>
+            style="margin-top:8px;
+              font-size:11px;color:#555;">
+          </div>
         </div>
       </div>
 
@@ -661,7 +740,8 @@ function showHelp() {
 }
 
 function hideHelp() {
-  const el = document.getElementById('help-overlay');
+  const el = document.getElementById(
+    'help-overlay');
   if (el) el.style.display = 'none';
 }
 
@@ -686,7 +766,8 @@ function _helpStep(num, title, desc) {
     </div>`;
 }
 
-function _helpSignal(name, color, subtitle, desc) {
+function _helpSignal(
+    name, color, subtitle, desc) {
   return `
     <div style="background:#0d1117;
       border-left:3px solid ${color};
@@ -728,7 +809,8 @@ function _helpRule(rule) {
 async function requestNotifications() {
   const statusEl = document.getElementById(
     'notif-status');
-  const btn = document.getElementById('notif-btn');
+  const btn = document.getElementById(
+    'notif-btn');
 
   if (!('serviceWorker' in navigator) ||
       !('PushManager' in window)) {
@@ -786,7 +868,8 @@ async function requestNotifications() {
 
     if (statusEl) statusEl.innerHTML =
       '<span style="color:#00C851;">' +
-      '✓ Subscribed!</span> Alerts at 8:50 AM IST.';
+      '✓ Subscribed!</span> ' +
+      'Alerts at 8:50 AM IST.';
 
     if (btn) btn.textContent = '✓ Subscribed';
 
@@ -824,16 +907,20 @@ function _restoreSession() {
 
 // ── TRADING DAY COUNTER ───────────────────────────────
 
-function tradingDaysBetween(startDateStr, endDateStr) {
+function tradingDaysBetween(
+    startDateStr, endDateStr) {
   const holidays = window.TIETIY.holidays || [];
   let   count    = 0;
-  const start    = new Date(startDateStr);
-  const end      = new Date(endDateStr);
+  const start    = new Date(
+    startDateStr + 'T00:00:00');
+  const end      = new Date(
+    endDateStr   + 'T00:00:00');
   const cur      = new Date(start);
 
   while (cur <= end) {
     const dayOfWeek = cur.getDay();
-    const dateStr   = cur.toISOString().slice(0, 10);
+    const dateStr   = cur.toLocaleDateString(
+      'en-CA', { timeZone: 'Asia/Kolkata' });
     if (dayOfWeek !== 0 &&
         dayOfWeek !== 6 &&
         !holidays.includes(dateStr)) {
@@ -846,11 +933,13 @@ function tradingDaysBetween(startDateStr, endDateStr) {
 
 function getEntryDate(signalDateStr) {
   const holidays = window.TIETIY.holidays || [];
-  const cur      = new Date(signalDateStr);
+  const cur      = new Date(
+    signalDateStr + 'T00:00:00');
   cur.setDate(cur.getDate() + 1);
   while (true) {
     const dayOfWeek = cur.getDay();
-    const dateStr   = cur.toISOString().slice(0, 10);
+    const dateStr   = cur.toLocaleDateString(
+      'en-CA', { timeZone: 'Asia/Kolkata' });
     if (dayOfWeek !== 0 &&
         dayOfWeek !== 6 &&
         !holidays.includes(dateStr)) {
@@ -862,10 +951,11 @@ function getEntryDate(signalDateStr) {
 
 function getDayNumber(signalDateStr) {
   const entryDate = getEntryDate(signalDateStr);
-  const today     = new Date()
-                    .toISOString().slice(0, 10);
+  // S9 — IST date, not UTC
+  const today     = _todayIST();
   if (today < entryDate) return 1;
-  const days = tradingDaysBetween(entryDate, today);
+  const days = tradingDaysBetween(
+    entryDate, today);
   return Math.min(Math.max(days, 1), 6);
 }
 
@@ -873,18 +963,21 @@ function getExitDate(signalDateStr) {
   const holidays  = window.TIETIY.holidays || [];
   const entryDate = getEntryDate(signalDateStr);
   let   count     = 0;
-  const cur       = new Date(entryDate);
+  const cur       = new Date(
+    entryDate + 'T00:00:00');
   while (count < 5) {
     cur.setDate(cur.getDate() + 1);
     const dayOfWeek = cur.getDay();
-    const dateStr   = cur.toISOString().slice(0, 10);
+    const dateStr   = cur.toLocaleDateString(
+      'en-CA', { timeZone: 'Asia/Kolkata' });
     if (dayOfWeek !== 0 &&
         dayOfWeek !== 6 &&
         !holidays.includes(dateStr)) {
       count++;
     }
   }
-  return cur.toISOString().slice(0, 10);
+  return cur.toLocaleDateString(
+    'en-CA', { timeZone: 'Asia/Kolkata' });
 }
 
 
@@ -909,7 +1002,8 @@ async function initApp() {
     const success = await _fetchAll();
 
     if (!success || !window.TIETIY.meta) {
-      if (loader)   loader.style.display = 'none';
+      if (loader)
+        loader.style.display = 'none';
       if (errorDiv) {
         errorDiv.style.display = 'block';
         const detail = document.getElementById(
@@ -923,8 +1017,10 @@ async function initApp() {
 
     _checkAppVersion(window.TIETIY.meta);
 
-    if (loader)  loader.style.display  = 'none';
-    if (appRoot) appRoot.style.display = 'block';
+    if (loader)
+      loader.style.display  = 'none';
+    if (appRoot)
+      appRoot.style.display = 'block';
 
     _renderStatusBar(window.TIETIY.meta);
     _renderAlertBanner(window.TIETIY.stopAlerts);
@@ -933,7 +1029,8 @@ async function initApp() {
 
   } catch(e) {
     console.error('[ui] Init error:', e);
-    if (loader)   loader.style.display = 'none';
+    if (loader)
+      loader.style.display = 'none';
     if (errorDiv) {
       errorDiv.style.display = 'block';
       const lastScan = document.getElementById(
