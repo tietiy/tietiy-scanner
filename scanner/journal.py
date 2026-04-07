@@ -12,10 +12,13 @@
 # 7. auto-TOOK default — every signal recorded
 # 8. schema_version = 4 on all records
 #
-# FIX 3 — stock_regime field added to log_signal()
-# FIX 4 — scan_price fallback fixed (was showing "—")
-# S4    — atomic write via .tmp + os.replace (done)
-# S5    — backfill_target_prices() for Apr 1 signals
+# FIX 3  — stock_regime field added to log_signal()
+# FIX 4  — scan_price fallback fixed
+# S4     — atomic write via .tmp + os.replace
+# S5     — backfill_target_prices() for Apr 1 signals
+# GEN    — generation + data_quality fields added
+#          generation=0 backfill, generation=1 live
+# ARC    — ensure_archive_exists() on startup
 # ─────────────────────────────────────────────────────
 
 import json
@@ -33,9 +36,11 @@ _OUTPUT_DIR = os.path.join(
                   os.path.dirname(_HERE), 'output')
 
 HISTORY_FILE = os.path.join(
-                   _OUTPUT_DIR, 'signal_history.json')
+                   _OUTPUT_DIR,
+                   'signal_history.json')
 ARCHIVE_FILE = os.path.join(
-                   _OUTPUT_DIR, 'signal_archive.json')
+                   _OUTPUT_DIR,
+                   'signal_archive.json')
 BACKUP_FILE  = os.path.join(
                    _OUTPUT_DIR,
                    'signal_history.backup.json')
@@ -43,6 +48,14 @@ BACKUP_FILE  = os.path.join(
 SCHEMA_VERSION = 4
 ACTIVE_DAYS    = 90
 ARCHIVE_DAYS   = 9999
+
+# ── LIVE START DATE ───────────────────────────────────
+# First real auto-scan day.
+# Signals before this date are generation=0 (backfill).
+# Signals from this date onwards are generation=1 (live).
+# Stats and win rate only use generation=1 signals
+# for Phase 2 decisions.
+LIVE_START_DATE = "2026-04-06"
 
 
 # ── HELPERS ───────────────────────────────────────────
@@ -93,14 +106,16 @@ def _save_json(path, data):
     except Exception as e:
         os.remove(tmp_path)
         raise RuntimeError(
-            f"[journal] Write validation failed: {e}")
+            f"[journal] Write validation "
+            f"failed: {e}")
     os.replace(tmp_path, path)
 
 
 def _backup_history():
     if os.path.exists(HISTORY_FILE):
         try:
-            shutil.copy2(HISTORY_FILE, BACKUP_FILE)
+            shutil.copy2(HISTORY_FILE,
+                         BACKUP_FILE)
         except Exception as e:
             print(f"[journal] Backup warning: {e}")
 
@@ -108,7 +123,9 @@ def _backup_history():
 def _make_id(signal_date, symbol, signal_type,
              attempt=1):
     sym_clean = symbol.replace('.NS', '')
-    base = f"{signal_date}-{sym_clean}-{signal_type}"
+    base = (f"{signal_date}-"
+            f"{sym_clean}-"
+            f"{signal_type}")
     if attempt == 2:
         base += "-SA"
     return base
@@ -121,15 +138,21 @@ def _trading_day_cutoff(days_back):
     return cutoff.isoformat()
 
 
+def _get_generation(signal_date_str):
+    """
+    Returns generation number and data_quality label.
+    generation=0 = pre-live backfill data
+    generation=1 = live scanner data
+    """
+    if signal_date_str and \
+            signal_date_str >= LIVE_START_DATE:
+        return 1, 'live'
+    return 0, 'backfill'
+
+
 # ── TARGET PRICE HELPER ───────────────────────────────
 
 def _calculate_target(entry, stop, direction):
-    """
-    Returns 2R target price.
-    LONG:  entry + 2 × (entry - stop)
-    SHORT: entry - 2 × (stop  - entry)
-    Returns None if inputs invalid.
-    """
     try:
         entry = float(entry or 0)
         stop  = float(stop  or 0)
@@ -144,10 +167,11 @@ def _calculate_target(entry, stop, direction):
         return None
 
 
-# ── SCAN PRICE HELPER — FIX 4 ─────────────────────────
+# ── SCAN PRICE HELPER ─────────────────────────────────
 
 def _resolve_scan_price(sig):
-    for field in ['entry_est', 'entry', 'scan_price']:
+    for field in [
+        'entry_est', 'entry', 'scan_price']:
         val = sig.get(field)
         if val is not None:
             try:
@@ -162,18 +186,39 @@ def _resolve_scan_price(sig):
 # ── CORE PUBLIC FUNCTIONS ─────────────────────────────
 
 def load_history():
-    data = _load_json(HISTORY_FILE, _empty_history)
+    data = _load_json(
+        HISTORY_FILE, _empty_history)
     return data.get('history', [])
 
 
 def load_archive():
-    data = _load_json(ARCHIVE_FILE, _empty_archive)
+    data = _load_json(
+        ARCHIVE_FILE, _empty_archive)
     return data.get('history', [])
 
 
 def get_history_count():
-    data = _load_json(HISTORY_FILE, _empty_history)
+    data = _load_json(
+        HISTORY_FILE, _empty_history)
     return len(data.get('history', []))
+
+
+def ensure_archive_exists():
+    """
+    Creates an empty signal_archive.json if it
+    does not exist. Called on startup.
+    Prevents 'file not found' errors on first run.
+    """
+    _ensure_output_dir()
+    if not os.path.exists(ARCHIVE_FILE):
+        try:
+            _save_json(
+                ARCHIVE_FILE, _empty_archive())
+            print("[journal] signal_archive.json "
+                  "created (empty)")
+        except Exception as e:
+            print(f"[journal] Archive init "
+                  f"failed: {e}")
 
 
 def log_signal(sig, layer='MINI'):
@@ -184,21 +229,24 @@ def log_signal(sig, layer='MINI'):
     signal_t  = sig.get('signal', '')
     attempt   = sig.get('attempt_number', 1)
     direction = sig.get('direction', 'LONG')
-    record_id = _make_id(today, symbol,
-                         signal_t, attempt)
+    record_id = _make_id(
+        today, symbol, signal_t, attempt)
 
-    data    = _load_json(HISTORY_FILE, _empty_history)
+    data    = _load_json(
+        HISTORY_FILE, _empty_history)
     history = data.get('history', [])
 
-    existing_ids = {r.get('id') for r in history}
+    existing_ids = {
+        r.get('id') for r in history}
     if record_id in existing_ids:
         print(f"[journal] Duplicate skipped: "
               f"{record_id}")
         return
 
-    entry_date = datetime.strptime(today, '%Y-%m-%d')
-    exit_dt    = entry_date + timedelta(days=8)
-    exit_date  = exit_dt.strftime('%Y-%m-%d')
+    exit_dt   = (datetime.strptime(
+                     today, '%Y-%m-%d')
+                 + timedelta(days=8))
+    exit_date = exit_dt.strftime('%Y-%m-%d')
 
     scan_price   = _resolve_scan_price(sig)
     entry_est    = sig.get('entry_est', None)
@@ -206,9 +254,14 @@ def log_signal(sig, layer='MINI'):
     target_price = _calculate_target(
         scan_price or entry_est, stop, direction)
 
+    generation, data_quality = \
+        _get_generation(today)
+
     record = {
         "id":               record_id,
         "schema_version":   SCHEMA_VERSION,
+        "generation":       generation,
+        "data_quality":     data_quality,
         "date":             today,
         "symbol":           symbol,
         "sector":           sig.get('sector', ''),
@@ -218,21 +271,24 @@ def log_signal(sig, layer='MINI'):
         "age":              sig.get('age', 0),
         "score":            sig.get('score', 0),
         "regime":           sig.get('regime', ''),
-        "regime_score":     sig.get('regime_score', 0),
+        "regime_score":     sig.get(
+                                'regime_score', 0),
         "vol_q":            sig.get('vol_q', ''),
-        "vol_confirm":      sig.get('vol_confirm',
-                                    False),
+        "vol_confirm":      sig.get(
+                                'vol_confirm', False),
         "rs_q":             sig.get('rs_q', ''),
         "sec_mom":          sig.get('sec_mom', ''),
-        "bear_bonus":       sig.get('bear_bonus',
-                                    False),
-        "stock_regime":     sig.get('stock_regime', ''),
+        "bear_bonus":       sig.get(
+                                'bear_bonus', False),
+        "stock_regime":     sig.get(
+                                'stock_regime', ''),
         "scan_price":       scan_price,
-        "scan_time":        datetime.utcnow().strftime(
-                                '%H:%M IST'),
-        "pivot_price":      sig.get('pivot_price',
-                                    None),
-        "pivot_date":       sig.get('pivot_date', ''),
+        "scan_time":        datetime.utcnow()
+                            .strftime('%H:%M UTC'),
+        "pivot_price":      sig.get(
+                                'pivot_price', None),
+        "pivot_date":       sig.get(
+                                'pivot_date', ''),
         "entry":            scan_price or entry_est,
         "stop":             stop,
         "atr":              sig.get('atr', None),
@@ -262,11 +318,13 @@ def log_signal(sig, layer='MINI'):
                                 'parent_signal_id',
                                 None),
         "parent_signal":    sig.get(
-                                'parent_signal', None),
+                                'parent_signal',
+                                None),
         "parent_date":      sig.get(
                                 'parent_date', None),
         "parent_result":    sig.get(
-                                'parent_result', None),
+                                'parent_result',
+                                None),
         "layer":            layer,
         "rejection_reason": None,
         "scanner_version":  sig.get(
@@ -282,9 +340,11 @@ def log_signal(sig, layer='MINI'):
         _save_json(HISTORY_FILE, data)
         print(f"[journal] Logged: {record_id} "
               f"target={target_price} "
-              f"scan_price={scan_price}")
+              f"scan_price={scan_price} "
+              f"gen={generation}")
     except RuntimeError as e:
-        print(f"[journal] CRITICAL write failed: {e}")
+        print(f"[journal] CRITICAL write "
+              f"failed: {e}")
 
 
 def log_rejected(sig, rejection_reason,
@@ -298,10 +358,12 @@ def log_rejected(sig, rejection_reason,
     record_id = _make_id(
         today, symbol, signal_t) + '-REJ'
 
-    data    = _load_json(HISTORY_FILE, _empty_history)
+    data    = _load_json(
+        HISTORY_FILE, _empty_history)
     history = data.get('history', [])
 
-    existing_ids = {r.get('id') for r in history}
+    existing_ids = {
+        r.get('id') for r in history}
     if record_id in existing_ids:
         return
 
@@ -310,32 +372,45 @@ def log_rejected(sig, rejection_reason,
     target_price = _calculate_target(
         scan_price, stop, direction)
 
+    generation, data_quality = \
+        _get_generation(today)
+
     record = {
         "id":                  record_id,
         "schema_version":      SCHEMA_VERSION,
+        "generation":          generation,
+        "data_quality":        data_quality,
         "date":                today,
         "symbol":              symbol,
-        "sector":              sig.get('sector', ''),
-        "grade":               sig.get('grade', 'C'),
+        "sector":              sig.get(
+                                   'sector', ''),
+        "grade":               sig.get(
+                                   'grade', 'C'),
         "signal":              signal_t,
         "direction":           direction,
         "age":                 sig.get('age', 0),
         "score":               sig.get('score', 0),
-        "regime":              sig.get('regime', ''),
-        "regime_score":        sig.get('regime_score',
-                                       0),
+        "regime":              sig.get(
+                                   'regime', ''),
+        "regime_score":        sig.get(
+                                   'regime_score',
+                                   0),
         "vol_q":               sig.get('vol_q', ''),
-        "vol_confirm":         sig.get('vol_confirm',
-                                       False),
+        "vol_confirm":         sig.get(
+                                   'vol_confirm',
+                                   False),
         "rs_q":                sig.get('rs_q', ''),
-        "sec_mom":             sig.get('sec_mom', ''),
-        "bear_bonus":          sig.get('bear_bonus',
-                                       False),
+        "sec_mom":             sig.get(
+                                   'sec_mom', ''),
+        "bear_bonus":          sig.get(
+                                   'bear_bonus',
+                                   False),
         "stock_regime":        sig.get(
-                                   'stock_regime', ''),
+                                   'stock_regime',
+                                   ''),
         "scan_price":          scan_price,
         "scan_time":           datetime.utcnow()
-                               .strftime('%H:%M IST'),
+                               .strftime('%H:%M UTC'),
         "entry":               scan_price,
         "stop":                stop,
         "atr":                 sig.get('atr', None),
@@ -361,7 +436,8 @@ def log_rejected(sig, rejection_reason,
         "result":              "REJECTED",
         "action":              "REJECTED",
         "attempt_number":      sig.get(
-                                   'attempt_number', 1),
+                                   'attempt_number',
+                                   1),
         "parent_signal_id":    sig.get(
                                    'parent_signal_id',
                                    None),
@@ -369,7 +445,8 @@ def log_rejected(sig, rejection_reason,
                                    'parent_signal',
                                    None),
         "parent_date":         sig.get(
-                                   'parent_date', None),
+                                   'parent_date',
+                                   None),
         "parent_result":       None,
         "layer":               "ALPHA",
         "rejection_reason":    rejection_reason,
@@ -387,20 +464,23 @@ def log_rejected(sig, rejection_reason,
     try:
         _save_json(HISTORY_FILE, data)
     except RuntimeError as e:
-        print(f"[journal] Rejected log failed: {e}")
+        print(f"[journal] Rejected log "
+              f"failed: {e}")
 
 
 def update_open_price(symbol, signal_date,
                       actual_open, adjusted_rr,
                       entry_valid, gap_pct):
-    data    = _load_json(HISTORY_FILE, _empty_history)
+    data    = _load_json(
+        HISTORY_FILE, _empty_history)
     history = data.get('history', [])
     updated = False
 
     for record in history:
         if (record.get('symbol') == symbol and
-                record.get('date') == signal_date and
-                record.get('result') == 'PENDING'):
+                record.get('date') == signal_date
+                and record.get('result') ==
+                'PENDING'):
             record['actual_open'] = actual_open
             record['adjusted_rr'] = adjusted_rr
             record['entry_valid'] = entry_valid
@@ -413,50 +493,58 @@ def update_open_price(symbol, signal_date,
         data['history'] = history
         try:
             _save_json(HISTORY_FILE, data)
-            print(f"[journal] Open price updated: "
-                  f"{symbol}")
+            print(f"[journal] Open price "
+                  f"updated: {symbol}")
         except RuntimeError as e:
             print(f"[journal] Open price update "
                   f"failed: {e}")
 
 
-def close_trade(symbol, signal_date, exit_price,
-                exit_type):
-    data    = _load_json(HISTORY_FILE, _empty_history)
+def close_trade(symbol, signal_date,
+                exit_price, exit_type):
+    data    = _load_json(
+        HISTORY_FILE, _empty_history)
     history = data.get('history', [])
     updated = False
 
     for record in history:
         if (record.get('symbol') == symbol and
-                record.get('date') == signal_date and
-                record.get('result') == 'PENDING'):
-            entry = float(record.get('entry') or 0)
+                record.get('date') == signal_date
+                and record.get('result') ==
+                'PENDING'):
+            entry = float(
+                record.get('entry') or 0)
             size  = float(
-                record.get('position_size') or 0)
+                record.get(
+                    'position_size') or 0)
 
             if entry > 0:
                 direction = (
                     1 if record.get(
-                        'direction') == 'LONG' else -1)
+                        'direction') == 'LONG'
+                    else -1)
                 pnl_pct = round(
                     direction *
                     (exit_price - entry) /
                     entry * 100, 2)
                 pnl_rs = round(
                     direction *
-                    (exit_price - entry) * size, 0) \
+                    (exit_price - entry) *
+                    size, 0) \
                     if size > 0 else None
 
-                record['exit_price']       = exit_price
-                record['exit_type']        = exit_type
+                record['exit_price'] = \
+                    exit_price
+                record['exit_type']  = exit_type
                 record['exit_date_actual'] = (
                     date.today().isoformat())
-                record['pnl_pct']          = pnl_pct
-                record['pnl_rs']           = pnl_rs
-                record['result']           = (
+                record['pnl_pct'] = pnl_pct
+                record['pnl_rs']  = pnl_rs
+                record['result']  = (
                     'STOPPED'
                     if exit_type == 'StopHit'
-                    else 'WON' if pnl_pct > 0
+                    else 'WON'
+                    if pnl_pct > 0
                     else 'EXITED')
             else:
                 record['result']    = 'EXITED'
@@ -470,18 +558,20 @@ def close_trade(symbol, signal_date, exit_price,
         data['history'] = history
         try:
             _save_json(HISTORY_FILE, data)
-            print(f"[journal] Trade closed: {symbol}")
+            print(f"[journal] Trade closed: "
+                  f"{symbol}")
         except RuntimeError as e:
-            print(f"[journal] Close trade failed: {e}")
+            print(f"[journal] Close trade "
+                  f"failed: {e}")
 
 
 def archive_old_records():
     cutoff = _trading_day_cutoff(ACTIVE_DAYS)
 
     hist_data = _load_json(
-                    HISTORY_FILE, _empty_history)
+        HISTORY_FILE, _empty_history)
     arch_data = _load_json(
-                    ARCHIVE_FILE, _empty_archive)
+        ARCHIVE_FILE, _empty_archive)
 
     history = hist_data.get('history', [])
     archive = arch_data.get('history', [])
@@ -490,7 +580,8 @@ def archive_old_records():
     to_move = []
 
     for record in history:
-        rec_date = record.get('date', '9999-12-31')
+        rec_date = record.get(
+            'date', '9999-12-31')
         if record.get('result') == 'PENDING':
             keep.append(record)
         elif rec_date >= cutoff:
@@ -501,7 +592,8 @@ def archive_old_records():
     if not to_move:
         return
 
-    archive_ids    = {r.get('id') for r in archive}
+    archive_ids    = {
+        r.get('id') for r in archive}
     new_to_archive = [
         r for r in to_move
         if r.get('id') not in archive_ids
@@ -511,9 +603,11 @@ def archive_old_records():
         archive.extend(new_to_archive)
         arch_data['history'] = archive
         try:
-            _save_json(ARCHIVE_FILE, arch_data)
+            _save_json(
+                ARCHIVE_FILE, arch_data)
             print(f"[journal] Archived "
-                  f"{len(new_to_archive)} records")
+                  f"{len(new_to_archive)} "
+                  f"records")
         except RuntimeError as e:
             print(f"[journal] Archive write "
                   f"failed: {e}")
@@ -526,35 +620,26 @@ def archive_old_records():
         print(f"[journal] History trimmed → "
               f"{len(keep)} active records")
     except RuntimeError as e:
-        print(f"[journal] History trim failed: {e}")
+        print(f"[journal] History trim "
+              f"failed: {e}")
 
 
 # ── S5 — BACKFILL TARGET PRICES ───────────────────────
-# Fixes signals written before target_price was added.
-# Specifically: all Apr 1 signals have target=null.
-# Safe to run every morning — skips already-set records.
-# Called from main.py run_morning_scan() on startup.
 
 def backfill_target_prices():
-    """
-    Iterates all PENDING signals in signal_history.json.
-    For any record where target_price is None,
-    calculates and writes 2R target price.
-    Idempotent — safe to call every scan day.
-    """
-    data    = _load_json(HISTORY_FILE, _empty_history)
+    data    = _load_json(
+        HISTORY_FILE, _empty_history)
     history = data.get('history', [])
     fixed   = 0
 
     for record in history:
-        # Only fix PENDING signals missing target
         if record.get('target_price') is not None:
             continue
         if record.get('result') != 'PENDING':
             continue
 
-        entry     = record.get('entry') or \
-                    record.get('scan_price')
+        entry     = (record.get('entry') or
+                     record.get('scan_price'))
         stop      = record.get('stop')
         direction = record.get('direction', 'LONG')
 
@@ -571,7 +656,8 @@ def backfill_target_prices():
         try:
             _save_json(HISTORY_FILE, data)
             print(f"[journal] S5 backfill: fixed "
-                  f"target_price on {fixed} signals")
+                  f"target_price on {fixed} "
+                  f"signals")
         except RuntimeError as e:
             print(f"[journal] S5 backfill "
                   f"failed: {e}")
@@ -580,12 +666,65 @@ def backfill_target_prices():
               "nothing to fix")
 
 
+# ── GENERATION BACKFILL ───────────────────────────────
+# Sets generation=0 for pre-live signals (before
+# LIVE_START_DATE) and generation=1 for live signals.
+# Idempotent — skips records already tagged.
+# Called from main.py on every morning scan startup.
+#
+# Stats and win rate calculations exclude generation=0
+# signals from Phase 2 decisions to ensure clean data.
+
+def backfill_generation_flags():
+    data    = _load_json(
+        HISTORY_FILE, _empty_history)
+    history = data.get('history', [])
+    fixed   = 0
+
+    for record in history:
+        if record.get('generation') is not None:
+            continue  # Already tagged — skip
+
+        sig_date = record.get('date', '')
+        generation, data_quality = \
+            _get_generation(sig_date)
+
+        record['generation']   = generation
+        record['data_quality'] = data_quality
+        fixed += 1
+
+    if fixed > 0:
+        _backup_history()
+        data['history'] = history
+        try:
+            _save_json(HISTORY_FILE, data)
+            print(f"[journal] Generation flags: "
+                  f"set on {fixed} signals "
+                  f"(live_start={LIVE_START_DATE})")
+        except RuntimeError as e:
+            print(f"[journal] Generation backfill "
+                  f"failed: {e}")
+    else:
+        print("[journal] Generation flags: "
+              "already complete")
+
+
 # ── QUERY FUNCTIONS ───────────────────────────────────
 
 def get_open_trades():
     history = load_history()
     return [r for r in history
             if r.get('result') == 'PENDING']
+
+
+def get_active_signals_count():
+    """
+    Returns count of PENDING signals.
+    Used by meta_writer for status bar display.
+    This is distinct from signals_found
+    (new signals today only).
+    """
+    return len(get_open_trades())
 
 
 def get_recent_closed(n=10):
@@ -614,7 +753,8 @@ def get_system_health():
 
 def get_history_for_symbol(symbol, days_back=15):
     cutoff  = (date.today() -
-               timedelta(days=days_back)).isoformat()
+               timedelta(
+                   days=days_back)).isoformat()
     history = load_history()
     return [
         r for r in history
@@ -632,8 +772,9 @@ def get_summary():
                ('WON', 'STOPPED', 'EXITED')]
     wins    = sum(1 for r in closed
                   if r.get('result') == 'WON')
-    wr      = round(wins / len(closed) * 100) \
-              if closed else 0
+    wr      = round(
+        wins / len(closed) * 100) \
+        if closed else 0
     health, hw = get_system_health()
 
     return {
