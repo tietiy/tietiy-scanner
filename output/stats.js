@@ -4,12 +4,22 @@
 // Phase 1 goal: collect 30 resolved signals
 // Until then: show inventory, funnel, score dist, sectors
 // Win rate section renders automatically once data exists
+//
+// GEN  — generation=0 signals excluded from win rate
+//        and RESOLVED_TARGET progress tracking.
+//        Phase 2 decisions use generation=1 only.
+//        generation=0 = pre-live backfill (before Apr 6)
+//        generation=1 = live scanner data
+// DQ   — data quality warning banner shown when
+//        generation=0 signals exist in dataset
 // ─────────────────────────────────────────────────────
 
 (function () {
 
   // ── CONSTANTS ────────────────────────────────────────
 
+  // 30 LIVE (generation=1) resolved signals needed.
+  // generation=0 signals do NOT count toward this.
   const RESOLVED_TARGET = 30;
 
   const OUTCOME_WIN = new Set([
@@ -32,24 +42,44 @@
     return Math.round((n / d) * 100);
   }
 
-  // Simple CSS bar — no external lib
+  // GEN — check if signal is live data
+  // generation=1 means live, generation=0 means backfill
+  // Signals without generation field = treat as live
+  // (future-proof — new signals always have generation)
+  function _isLive(s) {
+    const gen = s.generation;
+    if (gen === undefined || gen === null) return true;
+    return gen >= 1;
+  }
+
+  function _isBackfill(s) {
+    return s.generation === 0;
+  }
+
   function _bar(label, value, total, color) {
-    const pct   = total ? Math.round((value / total) * 100) : 0;
+    const pct   = total
+      ? Math.round((value / total) * 100) : 0;
     const width = Math.max(pct, 2);
     return `
       <div style="margin-bottom:8px;">
-        <div style="display:flex;justify-content:space-between;
-          font-size:11px;color:#8b949e;margin-bottom:3px;">
+        <div style="display:flex;
+          justify-content:space-between;
+          font-size:11px;color:#8b949e;
+          margin-bottom:3px;">
           <span>${label}</span>
           <span style="color:#c9d1d9;">
             ${value}
-            <span style="color:#555;">&nbsp;${pct}%</span>
+            <span style="color:#555;">
+              &nbsp;${pct}%
+            </span>
           </span>
         </div>
-        <div style="background:#21262d;border-radius:3px;
+        <div style="background:#21262d;
+          border-radius:3px;
           height:6px;overflow:hidden;">
-          <div style="background:${color};height:6px;
-            width:${width}%;border-radius:3px;
+          <div style="background:${color};
+            height:6px;width:${width}%;
+            border-radius:3px;
             transition:width 0.3s ease;">
           </div>
         </div>
@@ -58,35 +88,45 @@
 
   function _scoreBar(score, count, maxCount) {
     const width = maxCount
-      ? Math.max(Math.round((count / maxCount) * 100), 2) : 2;
+      ? Math.max(Math.round(
+          (count / maxCount) * 100), 2)
+      : 2;
     const color = score >= 8 ? '#ffd700'
                 : score >= 6 ? '#00C851'
                 : score >= 4 ? '#58a6ff'
                 : '#555';
     return `
-      <div style="display:flex;align-items:center;
+      <div style="display:flex;
+        align-items:center;
         gap:8px;margin-bottom:6px;">
-        <span style="color:${color};font-size:11px;
-          font-weight:700;min-width:28px;
-          text-align:right;">${score}/10</span>
+        <span style="color:${color};
+          font-size:11px;font-weight:700;
+          min-width:28px;text-align:right;">
+          ${score}/10
+        </span>
         <div style="flex:1;background:#21262d;
           border-radius:3px;height:8px;">
-          <div style="background:${color};height:8px;
-            width:${width}%;border-radius:3px;">
+          <div style="background:${color};
+            height:8px;width:${width}%;
+            border-radius:3px;">
           </div>
         </div>
         <span style="color:#555;font-size:11px;
-          min-width:20px;">${count}</span>
+          min-width:20px;">
+          ${count}
+        </span>
       </div>`;
   }
 
   function _section(title, content) {
     return `
       <div style="background:#161b22;
-        border:1px solid #21262d;border-radius:8px;
+        border:1px solid #21262d;
+        border-radius:8px;
         padding:14px;margin-bottom:12px;">
-        <div style="font-size:11px;color:#ffd700;
-          font-weight:700;letter-spacing:1px;
+        <div style="font-size:11px;
+          color:#ffd700;font-weight:700;
+          letter-spacing:1px;
           margin-bottom:12px;">
           ${title}
         </div>
@@ -94,21 +134,29 @@
       </div>`;
   }
 
-  function _statRow(label, value, subtext, valueColor) {
+  function _statRow(label, value,
+                    subtext, valueColor) {
     return `
-      <div style="display:flex;justify-content:space-between;
-        align-items:baseline;margin-bottom:6px;">
-        <span style="color:#8b949e;font-size:12px;">
+      <div style="display:flex;
+        justify-content:space-between;
+        align-items:baseline;
+        margin-bottom:6px;">
+        <span style="color:#8b949e;
+          font-size:12px;">
           ${label}
         </span>
         <span>
-          <span style="color:${valueColor || '#c9d1d9'};
+          <span style="color:${
+            valueColor || '#c9d1d9'};
             font-size:13px;font-weight:700;">
             ${value}
           </span>
           ${subtext
-            ? `<span style="color:#555;font-size:10px;
-                 margin-left:4px;">${subtext}</span>`
+            ? `<span style="color:#555;
+                 font-size:10px;
+                 margin-left:4px;">
+                 ${subtext}
+               </span>`
             : ''}
         </span>
       </div>`;
@@ -116,8 +164,10 @@
 
   function _lockedRow(label) {
     return `
-      <div style="display:flex;justify-content:space-between;
-        align-items:center;margin-bottom:6px;opacity:0.4;">
+      <div style="display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:6px;opacity:0.4;">
         <span style="color:#555;font-size:12px;">
           ${label}
         </span>
@@ -131,68 +181,87 @@
   // ── DATA ANALYSIS ────────────────────────────────────
 
   function _analyse(raw) {
-    // Only analyse TOOK entries (MINI layer)
-    // REJECTED entries used separately for funnel
+    // ── Split by layer ────────────────────────────
     const took = raw.filter(
-      s => s.layer === 'MINI' && s.action === 'TOOK');
+      s => s.layer  === 'MINI'
+        && s.action === 'TOOK');
     const rej  = raw.filter(
-      s => s.layer === 'ALPHA' && s.action === 'REJECTED');
+      s => s.layer  === 'ALPHA'
+        && s.action === 'REJECTED');
 
-    // Resolved = outcome in DONE set
-    const resolved = took.filter(
+    // ── GEN — split TOOK by generation ───────────
+    // live = generation=1 (from Apr 6 onwards)
+    // backfill = generation=0 (before Apr 6)
+    const tookLive      = took.filter(_isLive);
+    const tookBackfill  = took.filter(_isBackfill);
+    const hasBackfill   = tookBackfill.length > 0;
+
+    // ── Resolved — LIVE ONLY for Phase 2 ─────────
+    // generation=0 signals excluded from win rate
+    // and from RESOLVED_TARGET progress.
+    const resolvedLive = tookLive.filter(
       s => OUTCOME_DONE.has(s.outcome || ''));
-    const wins   = resolved.filter(
+    const winsLive   = resolvedLive.filter(
       s => OUTCOME_WIN.has(s.outcome));
-    const losses = resolved.filter(
+    const lossesLive = resolvedLive.filter(
       s => OUTCOME_LOSS.has(s.outcome));
-    const open   = took.filter(
+    const openLive   = tookLive.filter(
       s => !OUTCOME_DONE.has(s.outcome || ''));
 
-    // Signal type breakdown — TOOK only
+    // All resolved (for display context only)
+    const resolvedAll = took.filter(
+      s => OUTCOME_DONE.has(s.outcome || ''));
+
+    // ── Signal type breakdown — ALL TOOK ─────────
+    // Show full picture in breakdown charts
     const byType = {};
-    took.forEach(function (s) {
+    took.forEach(function(s) {
       const t = s.signal || 'Unknown';
       byType[t] = (byType[t] || 0) + 1;
     });
 
-    // Score distribution — TOOK only
+    // ── Score distribution — LIVE TOOK only ──────
+    // generation=0 may have inflated scores (pre-S7)
     const byScore = {};
-    took.forEach(function (s) {
+    tookLive.forEach(function(s) {
       const sc = parseInt(s.score) || 0;
       byScore[sc] = (byScore[sc] || 0) + 1;
     });
 
-    // Sector breakdown — TOOK only
+    // ── Sector breakdown — ALL TOOK ───────────────
     const bySector = {};
-    took.forEach(function (s) {
+    took.forEach(function(s) {
       const sec = s.sector || 'Other';
       bySector[sec] = (bySector[sec] || 0) + 1;
     });
 
-    // Rejection reasons — ALPHA layer
+    // ── Rejection reasons — ALPHA layer ──────────
     const byRej = {};
-    rej.forEach(function (s) {
+    rej.forEach(function(s) {
       const r = s.rejection_reason || 'unknown';
       byRej[r] = (byRej[r] || 0) + 1;
     });
 
-    // Bear bonus rate
-    const bearCount = took.filter(
+    // ── Bear bonus — LIVE ONLY (pre-S7 may be wrong)
+    const bearCount = tookLive.filter(
       s => s.bear_bonus === true
         || s.bear_bonus === 'true').length;
 
-    // Win rates (only when enough data)
-    const wrTotal = resolved.length
-      ? _pct(wins.length, resolved.length) : null;
+    // ── Win rates — LIVE ONLY ─────────────────────
+    const wrTotal = resolvedLive.length
+      ? _pct(winsLive.length,
+             resolvedLive.length)
+      : null;
 
-    // By signal type WR
+    // By signal type WR — LIVE ONLY
     const wrByType = {};
-    ['UP_TRI', 'DOWN_TRI', 'BULL_PROXY'].forEach(
-      function (t) {
-        const typeResolved = resolved.filter(
-          s => s.signal === t);
-        const typeWins = typeResolved.filter(
-          s => OUTCOME_WIN.has(s.outcome));
+    ['UP_TRI', 'DOWN_TRI', 'BULL_PROXY']
+      .forEach(function(t) {
+        const typeResolved = resolvedLive
+          .filter(s => s.signal === t);
+        const typeWins = typeResolved
+          .filter(s => OUTCOME_WIN.has(
+            s.outcome));
         if (typeResolved.length >= 5) {
           wrByType[t] = {
             wr:    _pct(typeWins.length,
@@ -203,86 +272,154 @@
         }
       });
 
-    // Avg P&L on resolved
-    const pnlArr = resolved
+    // Avg P&L — LIVE ONLY
+    const pnlArr = resolvedLive
       .filter(s => s.pnl_pct != null)
       .map(s => parseFloat(s.pnl_pct));
     const avgPnl = pnlArr.length
-      ? (pnlArr.reduce((a, b) => a + b, 0)
+      ? (pnlArr.reduce(
+          (a, b) => a + b, 0)
          / pnlArr.length).toFixed(2)
       : null;
 
-    // Dates seen
+    // Scan days — ALL took
     const dates = [...new Set(
-      took.map(s => s.date).filter(Boolean))];
+      took.map(s => s.date)
+          .filter(Boolean))];
 
     return {
-      total:      took.length,
-      resolved:   resolved.length,
-      open:       open.length,
-      wins:       wins.length,
-      losses:     losses.length,
-      byType,
-      byScore,
-      bySector,
-      byRej,
-      bearCount,
+      // Live signal stats (Phase 2 decisions)
+      totalLive:     tookLive.length,
+      resolvedLive:  resolvedLive.length,
+      openLive:      openLive.length,
+      winsLive:      winsLive.length,
+      lossesLive:    lossesLive.length,
       wrTotal,
       wrByType,
       avgPnl,
+      bearCount,
+      byScore,
+
+      // All signal stats (display context)
+      totalAll:      took.length,
+      resolvedAll:   resolvedAll.length,
+      byType,
+      bySector,
+      byRej,
       dates,
-      tookCount:  took.length,
-      rejCount:   rej.length,
+      tookCount:     took.length,
+      rejCount:      rej.length,
+
+      // Data quality flags
+      hasBackfill,
+      backfillCount: tookBackfill.length,
     };
+  }
+
+
+  // ── DATA QUALITY WARNING ──────────────────────────────
+  // DQ — shown when generation=0 signals exist.
+  // Warns user that win rate uses live data only.
+
+  function _renderDataQualityBanner(d) {
+    if (!d.hasBackfill) return '';
+    return `
+      <div style="background:#1a1a0a;
+        border:1px solid #ffd70044;
+        border-radius:8px;padding:10px 12px;
+        margin-bottom:12px;font-size:11px;">
+        <div style="color:#ffd700;
+          font-weight:700;margin-bottom:4px;">
+          ⚠️ DATA QUALITY NOTE
+        </div>
+        <div style="color:#8b949e;
+          line-height:1.6;">
+          ${d.backfillCount} signals are
+          pre-live backfill data
+          (generation=0, before Apr 6).
+          These are excluded from win rate
+          calculations and Phase 2 decisions.
+          Only live scanner data (${d.totalLive}
+          signals from Apr 6+) is used for
+          statistical analysis.
+        </div>
+      </div>`;
   }
 
 
   // ── SECTION RENDERERS ────────────────────────────────
 
   function _renderProgress(d) {
-    const n      = d.resolved;
+    const n      = d.resolvedLive;
     const target = RESOLVED_TARGET;
-    const pct    = Math.min(Math.round(
-      (n / target) * 100), 100);
+    const pct    = Math.min(
+      Math.round((n / target) * 100), 100);
     const left   = Math.max(target - n, 0);
     const color  = pct >= 100 ? '#00C851'
                  : pct >= 50  ? '#FFD700'
                  : '#58a6ff';
 
-    return _section('📊 PHASE 1 — SIGNAL VALIDATION', `
+    return _section(
+      '📊 PHASE 1 — SIGNAL VALIDATION', `
       <div style="margin-bottom:10px;">
         <div style="display:flex;
           justify-content:space-between;
           font-size:12px;color:#8b949e;
           margin-bottom:6px;">
-          <span>Resolved signals</span>
-          <span style="color:${color};font-weight:700;">
+          <span>Live resolved signals</span>
+          <span style="color:${color};
+            font-weight:700;">
             ${n} / ${target}
           </span>
         </div>
-        <div style="background:#21262d;border-radius:4px;
+        <div style="background:#21262d;
+          border-radius:4px;
           height:8px;overflow:hidden;">
-          <div style="background:${color};height:8px;
-            width:${pct}%;border-radius:4px;
+          <div style="background:${color};
+            height:8px;width:${pct}%;
+            border-radius:4px;
             transition:width 0.3s ease;">
           </div>
         </div>
         <div style="font-size:10px;color:#555;
           margin-top:6px;">
           ${n === 0
-            ? 'Collecting first outcomes — first signals exit Apr 14.'
+            ? 'Collecting first live outcomes — ' +
+              'first signals exit ~Apr 14.'
             : left > 0
-              ? `${left} more needed for statistical significance.`
-              : '30+ resolved — win rate data is now valid.'}
+              ? `${left} more live signals needed ` +
+                `for statistical significance.`
+              : '30+ live resolved — ' +
+                'win rate data is valid.'}
         </div>
       </div>
 
-      <div style="display:flex;gap:8px;flex-wrap:wrap;">
-        ${_miniStat('Signals Fired', d.total, '#c9d1d9')}
-        ${_miniStat('Open Now',      d.open,  '#FFD700')}
-        ${_miniStat('Resolved',      d.resolved, color)}
-        ${_miniStat('Scan Days',     d.dates.length, '#8b949e')}
-      </div>`);
+      <div style="display:flex;gap:8px;
+        flex-wrap:wrap;">
+        ${_miniStat(
+          'Live Signals', d.totalLive,
+          '#c9d1d9')}
+        ${_miniStat(
+          'Open Now', d.openLive,
+          '#FFD700')}
+        ${_miniStat(
+          'Resolved', d.resolvedLive,
+          color)}
+        ${_miniStat(
+          'Scan Days', d.dates.length,
+          '#8b949e')}
+      </div>
+
+      ${d.hasBackfill
+        ? `<div style="font-size:10px;
+             color:#555;margin-top:8px;
+             padding-top:8px;
+             border-top:1px solid #21262d;">
+             + ${d.backfillCount} backfill
+             signals (gen=0) tracked but
+             excluded from win rate
+           </div>`
+        : ''}`);
   }
 
   function _miniStat(label, value, color) {
@@ -290,10 +427,14 @@
       <div style="flex:1;min-width:60px;
         background:#0d1117;border-radius:6px;
         padding:8px;text-align:center;">
-        <div style="color:${color};font-size:16px;
-          font-weight:700;">${value}</div>
+        <div style="color:${color};
+          font-size:16px;font-weight:700;">
+          ${value}
+        </div>
         <div style="color:#555;font-size:9px;
-          margin-top:2px;">${label}</div>
+          margin-top:2px;">
+          ${label}
+        </div>
       </div>`;
   }
 
@@ -311,9 +452,11 @@
         `${_pct(d.rejCount, total)}% reject rate`,
         '#f85149')}
       <div style="margin-top:10px;
-        border-top:1px solid #21262d;padding-top:10px;">
+        border-top:1px solid #21262d;
+        padding-top:10px;">
         <div style="font-size:11px;color:#555;
-          margin-bottom:8px;letter-spacing:0.5px;">
+          margin-bottom:8px;
+          letter-spacing:0.5px;">
           REJECTION REASONS
         </div>
         ${Object.entries(d.byRej)
@@ -326,9 +469,10 @@
   }
 
   function _renderByType(d) {
-    const order  = ['UP_TRI', 'DOWN_TRI',
-                    'BULL_PROXY', 'UP_TRI_SA',
-                    'DOWN_TRI_SA'];
+    const order  = [
+      'UP_TRI', 'DOWN_TRI',
+      'BULL_PROXY', 'UP_TRI_SA',
+      'DOWN_TRI_SA'];
     const colors = {
       UP_TRI:      '#00C851',
       DOWN_TRI:    '#f85149',
@@ -341,16 +485,17 @@
       .filter(t => d.byType[t])
       .map(t => _bar(
         t.replace(/_/g, ' '),
-        d.byType[t], d.total,
+        d.byType[t], d.totalAll,
         colors[t] || '#8b949e'));
 
-    // Unknown types
     Object.keys(d.byType)
       .filter(t => !order.includes(t))
       .forEach(t => rows.push(
-        _bar(t, d.byType[t], d.total, '#8b949e')));
+        _bar(t, d.byType[t],
+             d.totalAll, '#8b949e')));
 
-    return _section('📌 BY SIGNAL TYPE', rows.join(''));
+    return _section(
+      '📌 BY SIGNAL TYPE', rows.join(''));
   }
 
   function _renderScoreDist(d) {
@@ -361,24 +506,34 @@
       ...Object.values(d.byScore), 1);
 
     const bars = scores.map(s =>
-      _scoreBar(s, d.byScore[s], maxCount)).join('');
+      _scoreBar(s, d.byScore[s],
+                maxCount)).join('');
 
-    return _section('🎯 SCORE DISTRIBUTION', `
+    return _section(
+      '🎯 SCORE DISTRIBUTION', `
       <div style="font-size:10px;color:#555;
         margin-bottom:10px;">
-        TOOK signals only · higher score = stronger setup
+        Live signals only (gen=1) ·
+        higher score = stronger setup
       </div>
-      ${bars}
+      ${bars || '<div style="color:#555;' +
+        'font-size:11px;">No live signals yet.' +
+        '</div>'}
       <div style="margin-top:8px;
-        border-top:1px solid #21262d;padding-top:8px;
+        border-top:1px solid #21262d;
+        padding-top:8px;
         display:flex;gap:16px;font-size:11px;">
         <span style="color:#555;">
           Bear bonus
-          <b style="color:#ffd700;margin-left:4px;">
+          <b style="color:#ffd700;
+            margin-left:4px;">
             ${d.bearCount}
           </b>
-          <span style="color:#555;font-size:10px;">
-            &nbsp;(${_pct(d.bearCount, d.total)}%)
+          <span style="color:#555;
+            font-size:10px;">
+            &nbsp;(${_pct(
+              d.bearCount,
+              d.totalLive)}%)
           </span>
         </span>
       </div>`);
@@ -388,35 +543,41 @@
     const sorted = Object.entries(d.bySector)
       .sort((a, b) => b[1] - a[1]);
 
-    return _section('🏭 BY SECTOR', sorted
-      .map(([s, n]) =>
-        _bar(s, n, d.total, '#58a6ff'))
+    return _section('🏭 BY SECTOR',
+      sorted.map(([s, n]) =>
+        _bar(s, n, d.totalAll, '#58a6ff'))
       .join(''));
   }
 
   function _renderWinRate(d) {
-    const n      = d.resolved;
+    const n      = d.resolvedLive;
     const target = RESOLVED_TARGET;
     const ready  = n >= target;
 
-    // Header with overall WR if enough data
     let content = '';
 
     if (!ready) {
       content += `
         <div style="text-align:center;
           padding:16px 0;color:#555;">
-          <div style="font-size:28px;margin-bottom:6px;">
-            🔒
-          </div>
+          <div style="font-size:28px;
+            margin-bottom:6px;">🔒</div>
           <div style="font-size:12px;">
-            Win rate unlocks at ${target} resolved signals.
+            Win rate unlocks at
+            ${target} live resolved signals.
           </div>
-          <div style="font-size:11px;color:#555;
-            margin-top:4px;">
-            Currently: ${n} resolved.
+          <div style="font-size:11px;
+            color:#555;margin-top:4px;">
+            Currently: ${n} live resolved.
             ${target - n} more needed.
           </div>
+          ${d.hasBackfill
+            ? `<div style="font-size:10px;
+                 color:#444;margin-top:6px;">
+                 ${d.backfillCount} backfill
+                 signals not counted
+               </div>`
+            : ''}
         </div>
 
         <div style="border-top:1px solid #21262d;
@@ -429,31 +590,35 @@
           ${_lockedRow('Avg R multiple')}
         </div>`;
     } else {
-      // Enough data — show it
       content += `
         <div style="display:flex;gap:8px;
           flex-wrap:wrap;margin-bottom:12px;">
           ${_miniStat('Win Rate',
             d.wrTotal + '%',
-            d.wrTotal >= 60 ? '#00C851' : '#f85149')}
-          ${_miniStat('Wins',   d.wins,   '#00C851')}
-          ${_miniStat('Losses', d.losses, '#f85149')}
+            d.wrTotal >= 60
+              ? '#00C851' : '#f85149')}
+          ${_miniStat('Wins',
+            d.winsLive, '#00C851')}
+          ${_miniStat('Losses',
+            d.lossesLive, '#f85149')}
           ${_miniStat('Avg P&L',
-            d.avgPnl != null ? d.avgPnl + '%' : '—',
-            parseFloat(d.avgPnl) > 0 ? '#00C851' : '#f85149')}
+            d.avgPnl != null
+              ? d.avgPnl + '%' : '—',
+            parseFloat(d.avgPnl) > 0
+              ? '#00C851' : '#f85149')}
         </div>
 
         <div style="border-top:1px solid #21262d;
           padding-top:10px;">
-          <div style="font-size:11px;color:#555;
-            margin-bottom:8px;">
+          <div style="font-size:11px;
+            color:#555;margin-bottom:8px;">
             BY SIGNAL TYPE (min 5 resolved)
           </div>
           ${['UP_TRI', 'DOWN_TRI', 'BULL_PROXY']
             .filter(t => d.wrByType[t])
             .map(t => {
-              const wr   = d.wrByType[t];
-              const col  = wr.wr >= 60
+              const wr  = d.wrByType[t];
+              const col = wr.wr >= 60
                 ? '#00C851' : '#f85149';
               return _statRow(
                 t.replace(/_/g, ' '),
@@ -471,10 +636,12 @@
   // ── MAIN RENDER ──────────────────────────────────────
 
   window.renderStats = function (tietiy) {
-    const el = document.getElementById('tab-content');
+    const el = document.getElementById(
+      'tab-content');
     if (!el) return;
 
-    const raw = (tietiy.history && tietiy.history.history)
+    const raw = (tietiy.history
+                 && tietiy.history.history)
       ? tietiy.history.history : [];
 
     if (!raw.length) {
@@ -493,10 +660,12 @@
       <div style="padding:12px 16px 80px;">
 
         <div style="font-size:11px;color:#555;
-          letter-spacing:1px;margin-bottom:12px;">
+          letter-spacing:1px;
+          margin-bottom:12px;">
           📈 STATS — PHASE 1 COLLECTION
         </div>
 
+        ${_renderDataQualityBanner(d)}
         ${_renderProgress(d)}
         ${_renderWinRate(d)}
         ${_renderByType(d)}
