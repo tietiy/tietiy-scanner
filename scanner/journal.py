@@ -14,6 +14,8 @@
 #
 # FIX 3 — stock_regime field added to log_signal()
 # FIX 4 — scan_price fallback fixed (was showing "—")
+# S4    — atomic write via .tmp + os.replace (done)
+# S5    — backfill_target_prices() for Apr 1 signals
 # ─────────────────────────────────────────────────────
 
 import json
@@ -143,15 +145,8 @@ def _calculate_target(entry, stop, direction):
 
 
 # ── SCAN PRICE HELPER — FIX 4 ─────────────────────────
-# Was showing "—" because entry_est was None
-# Now tries multiple fallback fields
 
 def _resolve_scan_price(sig):
-    """
-    Resolves the best available scan price
-    from signal dict.
-    Tries entry_est → entry → scan_price → None
-    """
     for field in ['entry_est', 'entry', 'scan_price']:
         val = sig.get(field)
         if val is not None:
@@ -182,13 +177,6 @@ def get_history_count():
 
 
 def log_signal(sig, layer='MINI'):
-    """
-    Appends a signal to signal_history.json.
-
-    FIX 3: stock_regime field now stored
-    FIX 4: scan_price uses _resolve_scan_price()
-           no longer shows "—" in tap panel
-    """
     _ensure_output_dir()
 
     today     = date.today().isoformat()
@@ -208,12 +196,10 @@ def log_signal(sig, layer='MINI'):
               f"{record_id}")
         return
 
-    # Exit date approximation for display
     entry_date = datetime.strptime(today, '%Y-%m-%d')
     exit_dt    = entry_date + timedelta(days=8)
     exit_date  = exit_dt.strftime('%Y-%m-%d')
 
-    # FIX 4 — resolve scan price with fallbacks
     scan_price   = _resolve_scan_price(sig)
     entry_est    = sig.get('entry_est', None)
     stop         = sig.get('stop', None)
@@ -221,15 +207,12 @@ def log_signal(sig, layer='MINI'):
         scan_price or entry_est, stop, direction)
 
     record = {
-        # Identity
         "id":               record_id,
         "schema_version":   SCHEMA_VERSION,
         "date":             today,
         "symbol":           symbol,
         "sector":           sig.get('sector', ''),
         "grade":            sig.get('grade', 'C'),
-
-        # Signal
         "signal":           signal_t,
         "direction":        direction,
         "age":              sig.get('age', 0),
@@ -243,11 +226,7 @@ def log_signal(sig, layer='MINI'):
         "sec_mom":          sig.get('sec_mom', ''),
         "bear_bonus":       sig.get('bear_bonus',
                                     False),
-
-        # FIX 3 — individual stock regime
         "stock_regime":     sig.get('stock_regime', ''),
-
-        # Price — FIX 4 applied
         "scan_price":       scan_price,
         "scan_time":        datetime.utcnow().strftime(
                                 '%H:%M IST'),
@@ -258,17 +237,11 @@ def log_signal(sig, layer='MINI'):
         "stop":             stop,
         "atr":              sig.get('atr', None),
         "exit_date":        exit_date,
-
-        # Phase 1 — target price
         "target_price":     target_price,
-
-        # Open validation
         "actual_open":      None,
         "adjusted_rr":      None,
         "entry_valid":      None,
         "gap_pct":          None,
-
-        # Phase 1 — outcome tracking
         "outcome":          "OPEN",
         "outcome_date":     None,
         "outcome_price":    None,
@@ -277,19 +250,13 @@ def log_signal(sig, layer='MINI'):
         "mfe_pct":          None,
         "mae_pct":          None,
         "days_to_outcome":  None,
-
-        # Legacy outcome fields
         "exit_price":       None,
         "exit_type":        None,
         "exit_date_actual": None,
         "pnl_pct":          None,
         "pnl_rs":           None,
         "result":           "PENDING",
-
-        # Action
         "action":           "TOOK",
-
-        # Second attempt
         "attempt_number":   attempt,
         "parent_signal_id": sig.get(
                                 'parent_signal_id',
@@ -300,8 +267,6 @@ def log_signal(sig, layer='MINI'):
                                 'parent_date', None),
         "parent_result":    sig.get(
                                 'parent_result', None),
-
-        # System
         "layer":            layer,
         "rejection_reason": None,
         "scanner_version":  sig.get(
@@ -324,10 +289,6 @@ def log_signal(sig, layer='MINI'):
 
 def log_rejected(sig, rejection_reason,
                  rejection_filter, threshold):
-    """
-    Logs a rejected signal.
-    result = REJECTED. Used for shadow mode analysis.
-    """
     _ensure_output_dir()
 
     today     = date.today().isoformat()
@@ -344,7 +305,6 @@ def log_rejected(sig, rejection_reason,
     if record_id in existing_ids:
         return
 
-    # FIX 4 applied to rejected signals too
     scan_price   = _resolve_scan_price(sig)
     stop         = sig.get('stop', None)
     target_price = _calculate_target(
@@ -371,12 +331,8 @@ def log_rejected(sig, rejection_reason,
         "sec_mom":             sig.get('sec_mom', ''),
         "bear_bonus":          sig.get('bear_bonus',
                                        False),
-
-        # FIX 3 — stock regime on rejected too
         "stock_regime":        sig.get(
                                    'stock_regime', ''),
-
-        # FIX 4 — resolved scan price
         "scan_price":          scan_price,
         "scan_time":           datetime.utcnow()
                                .strftime('%H:%M IST'),
@@ -385,14 +341,10 @@ def log_rejected(sig, rejection_reason,
         "atr":                 sig.get('atr', None),
         "exit_date":           None,
         "target_price":        target_price,
-
-        # Open validation
         "actual_open":         None,
         "adjusted_rr":         None,
         "entry_valid":         None,
         "gap_pct":             None,
-
-        # Outcome fields
         "outcome":             "OPEN",
         "outcome_date":        None,
         "outcome_price":       None,
@@ -401,8 +353,6 @@ def log_rejected(sig, rejection_reason,
         "mfe_pct":             None,
         "mae_pct":             None,
         "days_to_outcome":     None,
-
-        # Legacy
         "exit_price":          None,
         "exit_type":           None,
         "exit_date_actual":    None,
@@ -410,8 +360,6 @@ def log_rejected(sig, rejection_reason,
         "pnl_rs":              None,
         "result":              "REJECTED",
         "action":              "REJECTED",
-
-        # Second attempt
         "attempt_number":      sig.get(
                                    'attempt_number', 1),
         "parent_signal_id":    sig.get(
@@ -423,8 +371,6 @@ def log_rejected(sig, rejection_reason,
         "parent_date":         sig.get(
                                    'parent_date', None),
         "parent_result":       None,
-
-        # System
         "layer":               "ALPHA",
         "rejection_reason":    rejection_reason,
         "rejection_filter":    rejection_filter,
@@ -447,10 +393,6 @@ def log_rejected(sig, rejection_reason,
 def update_open_price(symbol, signal_date,
                       actual_open, adjusted_rr,
                       entry_valid, gap_pct):
-    """
-    Called by open_validator.py at 9:25 AM.
-    Updates actual open price fields on a signal.
-    """
     data    = _load_json(HISTORY_FILE, _empty_history)
     history = data.get('history', [])
     updated = False
@@ -480,10 +422,6 @@ def update_open_price(symbol, signal_date,
 
 def close_trade(symbol, signal_date, exit_price,
                 exit_type):
-    """
-    Closes a trade record.
-    exit_type: 'StopHit' / 'DayExit' / 'Manual'
-    """
     data    = _load_json(HISTORY_FILE, _empty_history)
     history = data.get('history', [])
     updated = False
@@ -538,10 +476,6 @@ def close_trade(symbol, signal_date, exit_price,
 
 
 def archive_old_records():
-    """
-    Moves records older than ACTIVE_DAYS to archive.
-    PENDING records always kept in active file.
-    """
     cutoff = _trading_day_cutoff(ACTIVE_DAYS)
 
     hist_data = _load_json(
@@ -594,23 +528,26 @@ def archive_old_records():
     except RuntimeError as e:
         print(f"[journal] History trim failed: {e}")
 
-# ── BACKFILL TARGET PRICE — S5 ────────────────────────
-# Fixes Apr 1 signals written before target_price
-# was added to log_signal().
-# Safe to run multiple times — skips if already set.
-# Called once from main.py on startup.
+
+# ── S5 — BACKFILL TARGET PRICES ───────────────────────
+# Fixes signals written before target_price was added.
+# Specifically: all Apr 1 signals have target=null.
+# Safe to run every morning — skips already-set records.
+# Called from main.py run_morning_scan() on startup.
 
 def backfill_target_prices():
     """
     Iterates all PENDING signals in signal_history.json.
     For any record where target_price is None,
-    calculates and writes 2R target.
+    calculates and writes 2R target price.
+    Idempotent — safe to call every scan day.
     """
     data    = _load_json(HISTORY_FILE, _empty_history)
     history = data.get('history', [])
     fixed   = 0
 
     for record in history:
+        # Only fix PENDING signals missing target
         if record.get('target_price') is not None:
             continue
         if record.get('result') != 'PENDING':
@@ -633,13 +570,14 @@ def backfill_target_prices():
         data['history'] = history
         try:
             _save_json(HISTORY_FILE, data)
-            print(f"[journal] Backfilled target_price "
-                  f"on {fixed} signals")
+            print(f"[journal] S5 backfill: fixed "
+                  f"target_price on {fixed} signals")
         except RuntimeError as e:
-            print(f"[journal] Backfill failed: {e}")
+            print(f"[journal] S5 backfill "
+                  f"failed: {e}")
     else:
-        print("[journal] Backfill — nothing to fix")
-
+        print("[journal] S5 backfill: "
+              "nothing to fix")
 
 
 # ── QUERY FUNCTIONS ───────────────────────────────────
