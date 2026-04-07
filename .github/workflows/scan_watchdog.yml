@@ -1,20 +1,8 @@
-# ── scan_watchdog.yml ────────────────────────────────
-# Watchdog that checks if morning scan ran today
-# Runs at 9:00 AM IST = 3:30 AM UTC every weekday
-#
-# F14 ADDED — Self healing:
-#   If scan missed → auto-triggers morning scan
-#   via GitHub API using GH_TOKEN
-#   No manual intervention needed
-#   You just get a Telegram alert telling you
-#   the scan was auto-triggered
-# ─────────────────────────────────────────────────────
-
 name: Scan Watchdog 9:00 AM IST
 
 on:
   schedule:
-    - cron: '30 3 * * 1-5'   # 9:00 AM IST Mon-Fri
+    - cron: '30 3 * * 1-5'
   workflow_dispatch:
 
 jobs:
@@ -33,7 +21,6 @@ jobs:
           TODAY=$(TZ='Asia/Kolkata' date '+%Y-%m-%d')
           echo "Watchdog running — today: $TODAY"
 
-          # ── STEP 1: Fetch meta.json ───────────
           META_URL="https://tietiy.github.io/tietiy-scanner/meta.json"
           HTTP_CODE=$(curl -s -o /tmp/meta.json \
             -w "%{http_code}" \
@@ -42,7 +29,6 @@ jobs:
 
           echo "meta.json HTTP: $HTTP_CODE"
 
-          # ── STEP 2: Parse scan date ───────────
           if [ "$HTTP_CODE" = "200" ]; then
             SCAN_DATE=$(python3 -c "
           import json
@@ -58,16 +44,13 @@ jobs:
 
           echo "Last scan date: $SCAN_DATE"
 
-          # ── STEP 3: Check if scan ran today ───
           if [ "$SCAN_DATE" = "$TODAY" ]; then
             echo "✅ Scan ran today — all good"
             exit 0
           fi
 
-          # ── STEP 4: Scan missed ───────────────
           echo "⚠️ Scan missed — auto-triggering"
 
-          # Trigger morning scan via GitHub API
           TRIGGER_RESPONSE=$(curl -s -w "\n%{http_code}" \
             -X POST \
             -H "Accept: application/vnd.github+json" \
@@ -76,27 +59,13 @@ jobs:
             "https://api.github.com/repos/${REPO}/actions/workflows/morning_scan.yml/dispatches" \
             -d '{"ref":"main"}')
 
-          TRIGGER_HTTP=$(echo "$TRIGGER_RESPONSE" \
-            | tail -1)
-
+          TRIGGER_HTTP=$(echo "$TRIGGER_RESPONSE" | tail -1)
           echo "Trigger response: $TRIGGER_HTTP"
 
-          # ── STEP 5: Telegram alert ────────────
           if [ "$TRIGGER_HTTP" = "204" ]; then
-            # 204 = success, scan triggered
-            MSG="⚠️ TIE TIY WATCHDOG%0A%0A"
-            MSG="${MSG}Morning scan missed at 8:45 AM%0A"
-            MSG="${MSG}Auto-triggered at 9:00 AM ✅%0A%0A"
-            MSG="${MSG}Scan running now.%0A"
-            MSG="${MSG}Data ready by ~9:10 AM.%0A"
-            MSG="${MSG}Entry window: 9:15 AM"
+            MSG="⚠️ TIE TIY WATCHDOG%0A%0AMorning scan missed at 8:45 AM%0AAuto-triggered at 9:00 AM ✅%0A%0AScan running now.%0AData ready by ~9:10 AM.%0AEntry window: 9:15 AM"
           else
-            # Trigger failed — manual action needed
-            MSG="🚨 TIE TIY WATCHDOG%0A%0A"
-            MSG="${MSG}Morning scan missed.%0A"
-            MSG="${MSG}Auto-trigger FAILED (${TRIGGER_HTTP})%0A%0A"
-            MSG="${MSG}Run manually NOW:%0A"
-            MSG="${MSG}GitHub → Actions → Morning Scan → Run workflow"
+            MSG="🚨 TIE TIY WATCHDOG%0A%0AMorning scan missed.%0AAuto-trigger FAILED (${TRIGGER_HTTP})%0A%0ARun manually NOW:%0AGitHub → Actions → Morning Scan → Run workflow"
           fi
 
           curl -s -X POST \
