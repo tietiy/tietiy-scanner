@@ -21,6 +21,9 @@
 // D32     — Filter "Age 0" → "New Today"
 // D34     — Score ≤ 2 reduced opacity on card
 // D35     — generation=0 signals no NEW badge
+// E38     — Total risk exposure in signal header
+// E39     — SHORT warning for cash equity
+// E40     — ALPHA prefix in rejected section
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
@@ -178,11 +181,9 @@ function _buildCard(sig, isNew, dayNum) {
   const banned      = _isBanned(
     sig.symbol || sym);
 
-  // D35 — generation=0 signals never show NEW badge
-  // They are backfill data, not live detections.
-  // generation undefined = treat as live (new signals)
-  const isBackfill  = sig.generation === 0;
-  const showAsNew   = isNew && !isBackfill;
+  // D35 — generation=0 = backfill, no NEW badge
+  const isBackfill = sig.generation === 0;
+  const showAsNew  = isNew && !isBackfill;
 
   const openData = _getOpenPrice(
     sig.symbol || sym);
@@ -255,9 +256,7 @@ function _buildCard(sig, isNew, dayNum) {
                   `${stockRegime}(Stk)`;
   }
 
-  // D29 — improved entry window banner text
-  // "monitor only" was ambiguous — now clearly says
-  // entry was this morning, currently monitoring.
+  // D29 — improved entry window banner
   const windowClosed = showAsNew &&
     _entryWindowClosed()
     ? `<div style="background:#1a0a0a;
@@ -275,6 +274,21 @@ function _buildCard(sig, isNew, dayNum) {
          ⛔ F&O ban period — no new positions
        </div>`
     : '';
+
+  // E39 — SHORT warning for cash equity
+  // DOWN_TRI signals = SHORT direction.
+  // Overnight cash equity shorts not available
+  // to most retail accounts in India.
+  const shortWarning =
+    direction === 'SHORT' && !banned
+      ? `<div style="background:#1a0a2a;
+           border-radius:4px;padding:3px 8px;
+           font-size:10px;color:#a78bfa;
+           margin-top:4px;">
+           ↓ SHORT — verify your broker supports
+           overnight cash equity shorts
+         </div>`
+      : '';
 
   let gapBanner = '';
   if (openData) {
@@ -344,8 +358,7 @@ function _buildCard(sig, isNew, dayNum) {
   const borderGlow = dayNum >= 6
     ? `box-shadow:0 0 8px ${cfg.color}44;` : '';
 
-  // D34 — score ≤ 2 = low conviction visual
-  // Reduce opacity and add CAUTION label
+  // D34 — score ≤ 2 = low conviction
   const lowConviction = score <= 2;
   const cardOpacity   = lowConviction
     ? 'opacity:0.65;' : '';
@@ -470,6 +483,7 @@ function _buildCard(sig, isNew, dayNum) {
 
       ${windowClosed}
       ${banBanner}
+      ${shortWarning}
       ${gapBanner}
       ${eodBanner}
       ${parentContext}
@@ -487,8 +501,7 @@ function _buildFilterBar(signals) {
     counts[sig]++;
   });
 
-  // D32 — "Age 0" renamed to "New Today"
-  // Age 0 means fired today — "New Today" is clearer
+  // D32 — "New Today" replaces "Age 0"
   const filters = [
     { id: 'all',
       label: `All (${counts.all})` },
@@ -612,7 +625,6 @@ function openTapPanel(el) {
   const ltpData  = _getLtp(
     sig.symbol || sym);
 
-  // Price priority: LTP → actual_open → scan
   let entry       = 0;
   let priceSource = 'Scan price';
   let priceDetail = '';
@@ -641,7 +653,6 @@ function openTapPanel(el) {
 
   const sizing = _calcPositionSize(entry, stop);
 
-  // S9 — IST date
   const today    = _todayIST();
   const sigDate  = sig.date || today;
   const dayNum   = getDayNumber(sigDate);
@@ -649,7 +660,6 @@ function openTapPanel(el) {
     || getExitDate(sigDate);
   const isNew    = sigDate === today;
 
-  // D35 — generation=0 = backfill, no NEW treatment
   const isBackfill = sig.generation === 0;
   const showAsNew  = isNew && !isBackfill;
 
@@ -704,10 +714,7 @@ function openTapPanel(el) {
   panel.style.transform =
     'translateX(-50%) translateY(100%)';
 
-  // D28 — trade window logic:
-  // showAsNew + entry window open  → Enter now
-  // showAsNew + entry window closed → Day 1, note entry was this morning
-  // not new → Day X of 6
+  // D28 — correct trade window status
   const tradeWindowStatus =
     showAsNew && !_entryWindowClosed()
       ? '🟢 Enter at 9:15 AM open'
@@ -759,6 +766,16 @@ function openTapPanel(el) {
         margin-bottom:10px;font-size:11px;
         color:#ff66ff;">
         ⛔ F&O ban — cash equity only
+      </div>` : ''}
+
+    ${direction === 'SHORT' ? `
+      <div style="background:#1a0a2a;
+        border:1px solid #a78bfa44;
+        border-radius:6px;padding:8px 10px;
+        margin-bottom:10px;font-size:11px;
+        color:#a78bfa;">
+        ↓ SHORT — verify your broker supports
+        overnight cash equity shorts before entering
       </div>` : ''}
 
     ${stopAlert ? `
@@ -1000,6 +1017,9 @@ function copySignal() {
     `Stock Regime: ${s.stock_regime || '—'}`,
     `Grade: ${s.grade}`,
     banned ? `⛔ F&O BAN PERIOD` : '',
+    s.direction === 'SHORT'
+      ? '↓ SHORT — verify broker supports overnight shorts'
+      : '',
   ].filter(Boolean).join('\n');
 
   if (navigator.clipboard &&
@@ -1247,10 +1267,8 @@ function renderSignals(data) {
       const ageDiff =
         (a.age || 0) - (b.age || 0);
       if (ageDiff !== 0) return ageDiff;
-      const aPri =
-        SIG_PRIORITY[a.signal] ?? 99;
-      const bPri =
-        SIG_PRIORITY[b.signal] ?? 99;
+      const aPri = SIG_PRIORITY[a.signal] ?? 99;
+      const bPri = SIG_PRIORITY[b.signal] ?? 99;
       return aPri - bPri;
     });
 
@@ -1305,6 +1323,27 @@ function renderSignals(data) {
     return;
   }
 
+  // E38 — total risk exposure across all signals
+  const totalRisk = allSignals.reduce(
+    (sum, s) => {
+      const e = parseFloat(
+        s.actual_open ||
+        s.scan_price  ||
+        s.entry       || 0);
+      const st = parseFloat(s.stop || 0);
+      if (!e || !st) return sum;
+      const risk = Math.abs(e - st);
+      const shares = risk > 0
+        ? Math.floor(DEFAULT_CAPITAL / risk)
+        : 0;
+      return sum + shares * risk;
+    }, 0);
+  const riskStr = totalRisk > 0
+    ? ` · Total risk ₹${
+        Math.round(totalRisk)
+        .toLocaleString('en-IN')}`
+    : '';
+
   content.innerHTML = `
     ${_buildStyles()}
     <div style="padding:0 0 14px;">
@@ -1323,6 +1362,10 @@ function renderSignals(data) {
           <span style="color:#555;
             font-weight:400;">
             (${allSignals.length})
+          </span>
+          <span style="color:#555;
+            font-size:10px;font-weight:400;">
+            ${riskStr}
           </span>
         </div>
 
@@ -1363,10 +1406,14 @@ function _buildRejectedSection(rejected) {
     const cfg    = _sigCfg(signal);
     const score  = s.score || 0;
     const age    = s.age   || 0;
-    const reason = s.rejection_reason
-      || (age > 0 && signal === 'DOWN_TRI'
-          ? 'DOWN_TRI age>0 — edge gone'
-          : `Score ${score}/10`);
+
+    // E40 — ALPHA prefix on rejection reasons
+    const reason = 'ALPHA: ' + (
+      s.rejection_reason
+        || (age > 0 && signal === 'DOWN_TRI'
+            ? 'DOWN_TRI age>0 — edge gone'
+            : `Score ${score}/10`));
+
     return `
       <div style="display:flex;
         justify-content:space-between;
