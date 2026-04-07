@@ -25,22 +25,16 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install \
-            yfinance \
-            pandas \
-            numpy \
-            requests
+        run: pip install yfinance pandas numpy requests
 
       - name: Create folders
-        run: |
-          mkdir -p output data
+        run: mkdir -p output data
 
       - name: Run EOD update
         env:
-          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GH_TOKEN:         ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
           cd $GITHUB_WORKSPACE/scanner && python main.py eod
@@ -49,20 +43,13 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git config user.name  "TIE TIY Bot"
+          git config user.name "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-          git add \
-            output/eod_prices.json \
-            output/signal_history.json \
-            output/signal_history.backup.json \
-            output/meta.json
+          git add output/eod_prices.json output/signal_history.json output/signal_history.backup.json output/meta.json
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "EOD update $(date '+%Y-%m-%d') IST"
           for i in 1 2 3; do
-            git pull --rebase origin main \
-              && git push origin HEAD:main \
-              && echo "Push succeeded on attempt $i" \
-              && break
+            git pull --rebase origin main && git push origin HEAD:main && echo "Push succeeded on attempt $i" && break
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
