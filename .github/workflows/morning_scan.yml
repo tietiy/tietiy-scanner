@@ -2,8 +2,8 @@ name: Morning Scan 8:45 AM IST
 
 on:
   schedule:
-    - cron: '15 3 * * 1-5'   # 8:45 AM IST Mon-Fri
-  workflow_dispatch:           # manual trigger
+    - cron: '15 3 * * 1-5'  # 8:45 AM IST Mon-Fri
+  workflow_dispatch:         # manual trigger
 
 concurrency:
   group: tietiy-scan
@@ -50,17 +50,20 @@ jobs:
           export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
           cd $GITHUB_WORKSPACE/scanner && python main.py morning
 
-      - name: Commit outputs
+      - name: Commit and push outputs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-          git add output/ data/ || true
-          git diff --staged --quiet || \
-            git commit -m \
-            "Scan $(date '+%Y-%m-%d %H:%M') IST"
-          git pull --rebase origin main || \
-            git rebase --abort
-          git push origin HEAD:main || \
-            git push --force-with-lease origin HEAD:main
-        env:
-          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+          git add output/ data/
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git commit -m "Scan $(date '+%Y-%m-%d %H:%M') IST"
+          for i in 1 2 3; do
+            git pull --rebase origin main \
+              && git push origin HEAD:main \
+              && echo "Push succeeded on attempt $i" \
+              && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
