@@ -1,94 +1,138 @@
 # scanner/telegram_bot.py
-# F9:  exit-tomorrow alerts
-# F10: score shown as X.X/10
-# F11: total active count line in morning scan
-# C1:  fixed field names — entry/stop/target/signal
-# C2:  fixed signal type field name
-# W1:  EOD pnl_pct None safety (also in main.py)
+# All Telegram message formatting and sending
+#
+# Message designs confirmed:
+# 1. Morning scan   — spoiler price details, stock regime visible
+# 2. Open validate  — gap focused, silent if all OK
+# 3. Stop alert     — compact, urgent
+# 4. Exit tomorrow  — entry + ltp + % vs entry
+# 5. EOD summary    — signal type + outcome + P&L
 # ─────────────────────────────────────────────────────
 
 import os
 import requests
 
-TELEGRAM_TOKEN   = os.environ.get(
-    "TELEGRAM_TOKEN", "")
-TELEGRAM_CHAT_ID = os.environ.get(
-    "TELEGRAM_CHAT_ID", "8493010921")
+TELEGRAM_TOKEN   = os.environ.get('TELEGRAM_TOKEN', '')
+TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '8493010921')
 
 
 # ── CORE SEND ─────────────────────────────────────────
-
 def send_message(text: str) -> bool:
     if not TELEGRAM_TOKEN:
-        print("[telegram] No TELEGRAM_TOKEN "
-              "— skipping")
+        print('[telegram] No TELEGRAM_TOKEN — skipping')
         return False
-    url     = (f"https://api.telegram.org/"
-               f"bot{TELEGRAM_TOKEN}/sendMessage")
+    url     = (f'https://api.telegram.org/'
+               f'bot{TELEGRAM_TOKEN}/sendMessage')
     payload = {
-        "chat_id":    TELEGRAM_CHAT_ID,
-        "text":       text,
-        "parse_mode": "HTML",
+        'chat_id':    TELEGRAM_CHAT_ID,
+        'text':       text,
+        'parse_mode': 'MarkdownV2',
     }
     try:
-        r = requests.post(
-            url, json=payload, timeout=10)
+        r = requests.post(url, json=payload, timeout=10)
         r.raise_for_status()
-        print(f"[telegram] Sent OK "
-              f"({r.status_code})")
+        print(f'[telegram] Sent OK ({r.status_code})')
         return True
     except Exception as e:
-        print(f"[telegram] Error: {e}")
-        return False
+        print(f'[telegram] Error: {e}')
+        # Fallback: try without parse_mode
+        try:
+            payload['parse_mode'] = 'HTML'
+            payload['text']       = _md_to_html(text)
+            r = requests.post(
+                url, json=payload, timeout=10)
+            r.raise_for_status()
+            print(f'[telegram] Sent OK HTML fallback')
+            return True
+        except Exception as e2:
+            print(f'[telegram] HTML fallback error: {e2}')
+            return False
 
 
-# ── HELPERS ───────────────────────────────────────────
+def _md_to_html(text):
+    """Basic MarkdownV2 to HTML conversion for fallback."""
+    import re
+    # Spoiler: ||text|| → <tg-spoiler>text</tg-spoiler>
+    text = re.sub(
+        r'\|\|(.+?)\|\|',
+        r'<tg-spoiler>\1</tg-spoiler>',
+        text, flags=re.DOTALL)
+    # Bold: *text* → <b>text</b>
+    text = re.sub(r'\*(.+?)\*', r'<b>\1</b>', text)
+    # Escape remaining HTML chars
+    return text
 
-def fmt_score(raw) -> str:
-    """F10 — always render score as X.X/10"""
-    try:
-        s = float(raw)
-        if s > 10:
-            s = s / 10.0
-        return f"{s:.1f}/10"
-    except Exception:
-        return "—/10"
+
+# ── ESCAPE FOR MARKDOWNV2 ─────────────────────────────
+def _esc(text):
+    """
+    Escape special characters for Telegram MarkdownV2.
+    Must escape: _ * [ ] ( ) ~ ` > # + - = | { } . !
+    Do NOT escape inside spoiler tags — handled separately.
+    """
+    if text is None:
+        return '—'
+    text = str(text)
+    special = r'\_*[]()~`>#+-=|{}.!'
+    for ch in special:
+        text = text.replace(ch, f'\\{ch}')
+    return text
 
 
-def fmt_price(val) -> str:
-    """Safe price formatter — never crashes on None"""
+def _spoiler(text):
+    """Wrap text in Telegram spoiler tags."""
+    return f'||{text}||'
+
+
+# ── PRICE FORMATTERS ──────────────────────────────────
+def _p(val):
+    """Format price as ₹X or ₹X,XXX — no escaping needed inside spoiler."""
     try:
         f = float(val)
-        if f > 0:
-            return f"₹{f:.2f}"
-        return "—"
+        if f <= 0:
+            return '—'
+        if f >= 1000:
+            return f'₹{f:,.0f}'
+        return f'₹{f:.2f}'
     except Exception:
-        return "—"
+        return '—'
 
 
-def fmt_pnl(val) -> str:
-    """Safe P&L formatter"""
+def _p_esc(val):
+    """Format price, escaped for MarkdownV2 outside spoiler."""
+    return _esc(_p(val))
+
+
+def _pct(val, favorable=True):
+    """Format percentage with sign."""
     try:
         f = float(val)
-        return f"{f:+.1f}%"
+        sign = '+' if f >= 0 else ''
+        return f'{sign}{f:.1f}%'
     except Exception:
-        return "—"
+        return '—'
 
 
-def sig_emoji(signal_type: str) -> str:
-    t = (signal_type or "").upper()
-    if "UP"   in t: return "🔺"
-    if "DOWN" in t: return "🔻"
-    if "BULL" in t: return "🟢"
-    return "📌"
+def _rr_calc(entry, stop, target, direction='LONG'):
+    """Calculate R:R. Returns string or None."""
+    try:
+        e = float(entry  or 0)
+        s = float(stop   or 0)
+        t = float(target or 0)
+        if not e or not s or not t:
+            return None
+        risk   = abs(e - s)
+        reward = abs(t - e)
+        if risk <= 0:
+            return None
+        rr = reward / risk
+        return f'{rr:.1f}x'
+    except Exception:
+        return None
 
 
-def _resolve_price(sig, *fields):
-    """
-    Try multiple field names in order.
-    Returns float > 0 or 0.0.
-    Prevents 0.00 showing in Telegram.
-    """
+def _resolve(sig, *fields):
+    """Try multiple field names, return first valid float > 0."""
     for field in fields:
         val = sig.get(field)
         if val is not None:
@@ -98,335 +142,464 @@ def _resolve_price(sig, *fields):
                     return f
             except Exception:
                 continue
-    return 0.0
+    return None
 
 
-def _calc_rr(entry, stop, target,
-             direction='LONG'):
-    """Safe R:R calculation"""
-    try:
-        risk   = abs(entry - stop)
-        reward = abs(target - entry)
-        if risk <= 0:
-            return 0.0
-        return round(reward / risk, 1)
-    except Exception:
-        return 0.0
+def _sig_emoji(signal_type):
+    t = (signal_type or '').upper()
+    if 'UP'   in t: return '🟢'
+    if 'DOWN' in t: return '🔻'
+    if 'BULL' in t: return '🟢'
+    return '📌'
 
 
-# ── MORNING SCAN ──────────────────────────────────────
+def _outcome_emoji(outcome):
+    o = (outcome or '').upper()
+    if 'TARGET' in o:       return '🎯'
+    if 'STOP'   in o:       return '🛑'
+    if 'WIN'    in o:       return '✅'
+    if 'LOSS'   in o:       return '🔴'
+    if 'FLAT'   in o:       return '〰️'
+    return '📌'
 
-def send_morning_scan(signals: list,
-                      meta: dict):
+
+def _stock_regime_tag(sig):
+    """Returns stk:Bull / stk:Bear / stk:Choppy or empty."""
+    sr = sig.get('stock_regime', '')
+    if not sr:
+        return ''
+    return f'stk:{sr}'
+
+
+# ── 1. MORNING SCAN ───────────────────────────────────
+def send_morning_scan(signals: list, meta: dict):
     """
-    Called by main.py after scan.
-    F11: first content line = total active count.
-    F10: every score shown as X.X/10.
-    C1:  correct field names for prices.
-    C2:  correct field name for signal type.
+    Design: compact visible line per signal with stock regime.
+    Price details hidden in spoiler — tap to reveal.
+    Sorted by score descending.
     """
-    date_str = meta.get(
-        "market_date", "today")
+    date_str     = meta.get('market_date', 'today')
+    regime       = meta.get('regime', '')
+    universe     = meta.get('universe_size', 0)
+    active_count = meta.get('active_signals_count',
+                   meta.get('signals_found', 0))
+    new_count    = len(signals)
 
-    # C2 FIX — meta uses 'regime' not 'nifty_regime'
-    regime_label = meta.get("regime", "")
+    # Sort by score descending
+    sorted_sigs = sorted(
+        signals,
+        key=lambda x: float(x.get('score', 0) or 0),
+        reverse=True)
 
-    active_count = len(signals)
-
-    lines = [
-        f"🔔 <b>TIE TIY — {date_str}</b>"]
-
-    if regime_label:
-        lines.append(
-            f"📈 Nifty: <b>{regime_label}</b>")
-
-    # F11 — total active count
+    lines = []
     lines.append(
-        f"📊 Active signals: "
-        f"<b>{active_count}</b>")
-    lines.append("")
+        f'🔔 *TIE TIY · {_esc(date_str)} · '
+        f'{_esc(regime)}*')
+    lines.append('')
+    lines.append(
+        f'{_esc(str(new_count))} new signals · '
+        f'{_esc(str(active_count))} active')
+    lines.append('')
 
-    if active_count == 0:
+    if not sorted_sigs:
         lines.append(
-            "No signals today. Market watching.")
-        send_message("\n".join(lines))
+            'No new signals today\\. Market watching\\.')
+    else:
+        for sig in sorted_sigs:
+            sym       = (sig.get('symbol') or '?') \
+                        .replace('.NS', '')
+            stype     = sig.get('signal', '?')
+            score     = sig.get('score', 0)
+            age       = sig.get('age', 0)
+            sr_tag    = _stock_regime_tag(sig)
+            direction = sig.get('direction', 'LONG')
+            emoji     = _sig_emoji(stype)
+
+            entry  = _resolve(sig,
+                'actual_open', 'scan_price',
+                'entry', 'entry_est')
+            stop   = _resolve(sig, 'stop')
+            target = _resolve(sig, 'target_price',
+                              'target')
+            rr     = _rr_calc(entry, stop, target,
+                               direction)
+
+            # Visible line — name, type, score, age,
+            # stock regime
+            visible = (
+                f'{emoji} *{_esc(sym)}* · '
+                f'{_esc(stype)} · '
+                f'{_esc(str(score))}/10 · '
+                f'Age {_esc(str(age))}'
+                + (f' · {_esc(sr_tag)}'
+                   if sr_tag else ''))
+
+            # Spoiler line — price details
+            # No escaping inside spoiler
+            spoiler_parts = []
+            if entry:
+                spoiler_parts.append(
+                    f'Entry {_p(entry)}')
+            if stop:
+                spoiler_parts.append(
+                    f'Stop {_p(stop)}')
+            if target:
+                spoiler_parts.append(
+                    f'Target {_p(target)}')
+            if rr:
+                spoiler_parts.append(
+                    f'R:R {rr}')
+            spoiler_text = ' · '.join(
+                spoiler_parts) if spoiler_parts \
+                else 'Price data unavailable'
+
+            lines.append(visible)
+            lines.append(_spoiler(spoiler_text))
+            lines.append('')
+
+    lines.append(
+        '🔗 tietiy\\.github\\.io/tietiy\\-scanner/')
+
+    send_message('\n'.join(lines))
+
+
+# ── 2. OPEN VALIDATION ────────────────────────────────
+def send_open_validation(confirmed: list,
+                         rejected: list):
+    """
+    Design: gap focused.
+    Show all signals with gap status.
+    Flag clearly if skip needed.
+    """
+    lines = []
+    lines.append('📋 *Open Prices · 9:25 AM*')
+    lines.append('')
+
+    all_results = confirmed + rejected
+    if not all_results:
+        lines.append(
+            'No signals entering today\\.')
+        send_message('\n'.join(lines))
         return
 
-    for sig in signals[:10]:
-        symbol = (sig.get("symbol") or "?") \
-                 .replace(".NS", "")
-        sector = sig.get("sector", "")
+    has_skip    = any(
+        s.get('gap_status') == 'SKIP'
+        for s in all_results)
+    has_warning = any(
+        s.get('gap_status') == 'WARNING'
+        for s in all_results)
 
-        # C2 FIX — field is 'signal' not
-        # 'signal_type'
-        stype  = sig.get("signal", "?")
-        age    = sig.get("age", 0)
-        score  = fmt_score(sig.get("score", 0))
-        regime = sig.get("regime", "")
-        direction = sig.get("direction", "LONG")
+    for sig in all_results:
+        sym        = (sig.get('symbol') or '?') \
+                     .replace('.NS', '')
+        actual     = _resolve(sig, 'actual_open',
+                              'open_price')
+        gap        = sig.get('gap_pct')
+        gap_status = sig.get('gap_status', 'OK')
 
-        # C1 FIX — correct field name priority
-        # entry: actual_open → scan_price → entry
-        # stop:  stop
-        # target: target_price
-        entry  = _resolve_price(
-            sig,
-            'actual_open',
-            'scan_price',
-            'entry',
-            'entry_est')
-        stop   = _resolve_price(
-            sig, 'stop')
-        target = _resolve_price(
-            sig, 'target_price')
+        if gap_status == 'SKIP':
+            icon = '❌'
+        elif gap_status == 'WARNING':
+            icon = '⚠️'
+        else:
+            icon = '✅'
 
-        rr = _calc_rr(
-            entry, stop, target, direction)
-
-        bear_flag = " 🔥" \
-            if sig.get("bear_bonus") else ""
-        sector_tag = \
-            f" · {sector}" if sector else ""
-        regime_tag = \
-            f" · {regime}" if regime else ""
+        gap_str = ''
+        if gap is not None:
+            try:
+                gap_str = (f' gap '
+                           f'{float(gap):+.1f}%')
+            except Exception:
+                pass
 
         lines.append(
-            f"{sig_emoji(stype)} "
-            f"<b>{symbol}</b>"
-            f"{sector_tag}"
-            f"{regime_tag} | "
-            f"Age {age}"
-            f"{bear_flag}"
-        )
+            f'{icon} *{_esc(sym)}*  '
+            f'{_p_esc(actual)}'
+            f'{_esc(gap_str)}  '
+            f'{_esc(gap_status)}')
+
+    lines.append('')
+    if has_skip:
         lines.append(
-            f"   {stype} | "
-            f"Score: {score} | "
-            f"R:R {rr}x"
-        )
+            '❌ *Skip signals marked above\\. '
+            'Gap too large\\.*')
+    elif has_warning:
         lines.append(
-            f"   Entry: {fmt_price(entry)}  "
-            f"Stop: {fmt_price(stop)}  "
-            f"Target: {fmt_price(target)}"
-        )
-        lines.append("")
-
-    if active_count > 10:
+            '⚠️ Caution signals above — reduced R:R\\.')
+    else:
         lines.append(
-            f"…and <b>{active_count - 10}"
-            f"</b> more on the dashboard.")
-        lines.append("")
+            'All entries valid\\. Enter at market\\.')
 
-    lines.append(
-        "🔗 tietiy.github.io/tietiy-scanner/")
-    send_message("\n".join(lines))
+    send_message('\n'.join(lines))
 
 
-# ── OPEN VALIDATION ───────────────────────────────────
-
-def send_open_validation(confirmed: list,
-                          rejected: list):
-    lines = [
-        "📋 <b>Open Validation — 9:25 AM</b>",
-        ""]
-
-    if confirmed:
-        lines.append(
-            f"✅ Entries confirmed: "
-            f"<b>{len(confirmed)}</b>")
-        for sig in confirmed:
-            symbol     = (
-                sig.get("symbol") or "?") \
-                .replace(".NS", "")
-            open_price = _resolve_price(
-                sig,
-                'actual_open',
-                'open_price',
-                'scan_price')
-            lines.append(
-                f"   • {symbol} @ "
-                f"{fmt_price(open_price)}")
-        lines.append("")
-
-    if rejected:
-        lines.append(
-            f"❌ Gap rejections: "
-            f"<b>{len(rejected)}</b>")
-        for sig in rejected:
-            symbol = (
-                sig.get("symbol") or "?") \
-                .replace(".NS", "")
-            reason = sig.get(
-                "rejection_reason",
-                "gap violation")
-            lines.append(
-                f"   • {symbol} — {reason}")
-
-    if not confirmed and not rejected:
-        lines.append(
-            "No signals to validate today.")
-
-    send_message("\n".join(lines))
-
-
-# ── STOP ALERT ────────────────────────────────────────
-
+# ── 3. STOP ALERT ─────────────────────────────────────
 def send_stop_alert(signal: dict):
-    symbol = (signal.get("symbol") or "?") \
-             .replace(".NS", "")
+    """
+    Design: compact, urgent, actionable.
+    Name + price + stop + distance + action.
+    """
+    sym   = (signal.get('symbol') or '?') \
+            .replace('.NS', '')
+    stype = signal.get('signal', '?')
+    stop  = _resolve(signal, 'stop')
+    price = _resolve(signal, 'current_price',
+                     'ltp', 'close')
+    level = signal.get('alert_level', 'NEAR')
+    note  = signal.get('note', '')
 
-    # C2 FIX — field is 'signal' not 'signal_type'
-    stype  = signal.get("signal", "?")
-    stop   = _resolve_price(signal, 'stop')
-    score  = fmt_score(signal.get("score", 0))
-    level  = signal.get("alert_level", "NEAR")
+    if level == 'BREACHED':
+        icon = '🚨'
+        action = 'Exit immediately at market\\.'
+    elif level == 'AT':
+        icon = '🔴'
+        action = 'At stop level\\. Exit if next tick goes against\\.'
+    else:
+        icon = '⚠️'
+        action = 'Watch closely\\.'
 
-    icon = "🚨" if level == "BREACHED" else "⚠️"
+    lines = []
+    lines.append(
+        f'{icon} *STOP ALERT · '
+        f'{signal.get("check_time", "")}*')
+    lines.append('')
+    lines.append(
+        f'*{_esc(sym)}* · {_esc(stype)}')
+    lines.append(
+        f'Price {_p_esc(price)}  '
+        f'Stop {_p_esc(stop)}  '
+        f'{_esc(level)}')
+    lines.append('')
+    lines.append(action)
+    lines.append(
+        'Rule: stop hit intraday \\= '
+        'exit same day\\.')
 
-    text = (
-        f"{icon} <b>STOP ALERT — {symbol}</b>\n"
-        f"Level: {level}\n"
-        f"Signal: {stype} | Score: {score}\n"
-        f"Stop level: {fmt_price(stop)}\n"
-        f"Rule: exit at market if stop "
-        f"breached intraday."
-    )
-    send_message(text)
+    send_message('\n'.join(lines))
 
 
-# ── EXIT TOMORROW ALERT (F9) ──────────────────────────
-
+# ── 4. EXIT TOMORROW ──────────────────────────────────
 def send_exit_tomorrow(signals: list):
     """
-    F9 — called for any signal on Day 5.
-    Rule: exit at open of Day 6 = tomorrow 9:15 AM.
+    Design: entry + ltp + % vs entry per signal.
+    Green/red/warning emoji by P&L.
+    Sorted worst to best so negatives are visible first.
     """
     if not signals:
         return
 
-    lines = [
-        "⏰ <b>EXIT TOMORROW — Day 6 Open</b>",
-        ""]
+    lines = []
     lines.append(
-        f"The following <b>{len(signals)}</b> "
-        f"signal(s) must be closed at "
-        f"<b>9:15 AM open tomorrow</b>. "
-        f"No extensions.")
-    lines.append("")
+        f'⏰ *EXIT TOMORROW — Day 6 Open*')
+    lines.append(
+        f'{_esc(str(len(signals)))} signals · '
+        f'Sell at 9:15 AM open\\. No extensions\\.')
+    lines.append('')
 
+    # Calculate P&L for each, sort worst first
+    enriched = []
     for sig in signals:
-        symbol = (sig.get("symbol") or "?") \
-                 .replace(".NS", "")
+        sym       = (sig.get('symbol') or '?') \
+                    .replace('.NS', '')
+        stype     = sig.get('signal',
+                    sig.get('signal_type', '?'))
+        direction = sig.get('direction', 'LONG')
 
-        # C2 FIX — field is 'signal'
-        stype  = sig.get("signal", "?")
-        score  = fmt_score(
-            sig.get("score", 0))
-        direction = sig.get(
-            "direction", "LONG")
+        entry = _resolve(sig,
+            'actual_open', 'scan_price',
+            'entry', 'entry_price')
+        ltp   = _resolve(sig, 'ltp',
+                         'close', 'current_price')
 
-        entry  = _resolve_price(
-            sig,
-            'actual_open',
-            'scan_price',
-            'entry',
-            'entry_est')
-        stop   = _resolve_price(
-            sig, 'stop')
-        target = _resolve_price(
-            sig, 'target_price')
-        ltp    = _resolve_price(
-            sig, 'ltp') or None
-
-        lines.append(
-            f"📌 <b>{symbol}</b> | "
-            f"{stype} | Score: {score}")
-        lines.append(
-            f"   Entry: {fmt_price(entry)}  "
-            f"Stop: {fmt_price(stop)}  "
-            f"Target: {fmt_price(target)}")
-
-        if ltp:
+        pnl_pct = None
+        if entry and ltp:
             try:
-                pnl_pct = (
-                    (ltp - entry) / entry * 100
-                    if entry > 0 else 0)
-                if direction == 'SHORT':
-                    pnl_pct = -pnl_pct
-                at_stop = (
-                    ltp <= stop
-                    if direction == 'LONG'
-                    else ltp >= stop)
-                status = (
-                    "⚠️ AT/BELOW STOP"
-                    if at_stop
-                    else fmt_pnl(pnl_pct))
-                lines.append(
-                    f"   LTP: {fmt_price(ltp)}"
-                    f" | {status}")
+                raw = (ltp - entry) / entry * 100
+                pnl_pct = raw if direction == 'LONG' \
+                          else -raw
             except Exception:
                 pass
 
-        lines.append("")
+        enriched.append({
+            'sym':      sym,
+            'stype':    stype,
+            'entry':    entry,
+            'ltp':      ltp,
+            'pnl_pct':  pnl_pct,
+            'direction': direction,
+        })
 
+    # Sort: worst P&L first (negatives at top = urgent)
+    enriched.sort(
+        key=lambda x: float(
+            x['pnl_pct'] or 0))
+
+    for e in enriched:
+        pnl = e['pnl_pct']
+
+        if pnl is None:
+            icon = '📌'
+            pnl_str = '—'
+        elif pnl >= 3:
+            icon    = '🟢'
+            pnl_str = _esc(_pct(pnl))
+        elif pnl >= 0:
+            icon    = '🟡'
+            pnl_str = _esc(_pct(pnl))
+        elif pnl >= -2:
+            icon    = '⚠️'
+            pnl_str = _esc(_pct(pnl))
+        else:
+            icon    = '🔴'
+            pnl_str = _esc(_pct(pnl))
+
+        # Pad name for alignment
+        sym_padded = _esc(
+            e['sym'].ljust(12))
+
+        lines.append(
+            f'{icon} {sym_padded}  '
+            f'{_p_esc(e["ltp"])}  '
+            f'{pnl_str}')
+
+    lines.append('')
     lines.append(
-        "Rule: exit at open. "
-        "Do not wait. Do not chase close.")
-    send_message("\n".join(lines))
+        'Sell at open\\. '
+        'Do not wait\\. '
+        'Do not chase close\\.')
+
+    send_message('\n'.join(lines))
 
 
-# ── EOD SUMMARY ───────────────────────────────────────
-
+# ── 5. EOD SUMMARY ────────────────────────────────────
 def send_eod_summary(outcomes: list,
                      still_open: int):
     """
-    Called by main.py run_eod() after evaluation.
-    W1 FIX — None safety already handled in main.py
-    before this function is called. Additional
-    safety here as second layer.
+    Design: signal type + outcome + P&L per resolved.
+    Win/loss/flat count at bottom.
+    Always sends — even if 0 resolved.
     """
-    if not outcomes and still_open == 0:
-        return
+    from datetime import date
 
-    lines = ["📉 <b>EOD Update</b>", ""]
-
+    today    = date.today().strftime('%Y\\-%m\\-%d')
     resolved = [
         o for o in outcomes
-        if o.get("outcome") and
-        o.get("outcome") != "OPEN"
+        if o.get('outcome') and
+        o.get('outcome') != 'OPEN'
     ]
 
-    if resolved:
+    lines = []
+    lines.append(
+        f'📊 *EOD · {today}*')
+    lines.append('')
+
+    if not resolved:
         lines.append(
-            f"Resolved today: "
-            f"<b>{len(resolved)}</b>")
-        for o in resolved:
-            symbol  = (
-                o.get("symbol") or "?") \
-                .replace(".NS", "")
-            outcome = o.get("outcome", "?")
-            pnl     = fmt_pnl(
-                o.get("pnl_pct", 0))
-            emoji   = (
-                "✅"
-                if "WIN" in outcome
-                or "TARGET" in outcome
-                else "❌")
+            f'Resolved: 0    '
+            f'Open: {_esc(str(still_open))}')
+        lines.append('')
+        lines.append(
+            'No signals closed today\\.')
+
+        # Find next exit date
+        next_exit = _find_next_exit(outcomes)
+        if next_exit:
             lines.append(
-                f"   {emoji} {symbol} — "
-                f"{outcome} ({pnl})")
-        lines.append("")
+                f'Next exits: {_esc(next_exit)}')
 
-    if still_open:
+        send_message('\n'.join(lines))
+        return
+
+    # Sort: targets first, then wins, then flat, then stops
+    def _sort_key(o):
+        out = (o.get('outcome') or '').upper()
+        if 'TARGET' in out: return 0
+        if 'WIN'    in out: return 1
+        if 'FLAT'   in out: return 2
+        if 'LOSS'   in out: return 3
+        if 'STOP'   in out: return 4
+        return 5
+
+    resolved.sort(key=_sort_key)
+
+    lines.append(
+        f'Resolved: {_esc(str(len(resolved)))}    '
+        f'Open: {_esc(str(still_open))}')
+    lines.append('')
+
+    wins   = 0
+    losses = 0
+    flats  = 0
+
+    for o in resolved:
+        sym     = (o.get('symbol') or '?') \
+                  .replace('.NS', '')
+        stype   = (o.get('signal') or '?')
+        outcome = (o.get('outcome') or '?')
+        pnl     = o.get('pnl_pct')
+        emoji   = _outcome_emoji(outcome)
+
+        out = outcome.upper()
+        if 'TARGET' in out or 'WIN' in out:
+            wins += 1
+        elif 'STOP' in out or 'LOSS' in out:
+            losses += 1
+        else:
+            flats += 1
+
+        pnl_str = ''
+        if pnl is not None:
+            try:
+                pnl_str = f'  {_esc(_pct(pnl))}'
+            except Exception:
+                pass
+
+        outcome_label = outcome.replace(
+            '_', '\\_')
+
         lines.append(
-            f"Still open: "
-            f"<b>{still_open}</b> signal(s)")
+            f'{emoji} '
+            f'*{_esc(sym)}*  '
+            f'{_esc(stype)}  '
+            f'{outcome_label}'
+            f'{pnl_str}')
 
-    send_message("\n".join(lines))
+    lines.append('')
+    lines.append(
+        f'W:{_esc(str(wins))}  '
+        f'L:{_esc(str(losses))}  '
+        f'F:{_esc(str(flats))}')
+
+    next_exit = _find_next_exit(outcomes)
+    if next_exit:
+        lines.append(
+            f'Next exits: {_esc(next_exit)}')
+
+    send_message('\n'.join(lines))
+
+
+# ── NEXT EXIT DATE HELPER ─────────────────────────────
+def _find_next_exit(outcomes):
+    """Find the nearest future exit_date from open signals."""
+    from datetime import date
+    today     = date.today().isoformat()
+    dates     = []
+    for o in outcomes:
+        ed = o.get('exit_date', '')
+        if ed and ed > today:
+            dates.append(ed)
+    if not dates:
+        return None
+    nearest = min(dates)
+    try:
+        from datetime import datetime
+        d = datetime.strptime(nearest, '%Y-%m-%d')
+        return d.strftime('%b %d')
+    except Exception:
+        return nearest
 
 
 # ── TEST ──────────────────────────────────────────────
-
-if __name__ == "__main__":
+if __name__ == '__main__':
     send_message(
-        "✅ <b>TIE TIY</b> — "
-        "Telegram connection test OK.")
+        '✅ *TIE TIY* — Telegram test OK\\.')
