@@ -3,7 +3,7 @@ name: Open Price Validation 9:25 AM IST
 on:
   schedule:
     - cron: '55 3 * * 1-5'   # 9:25 AM IST = 3:55 AM UTC
-  workflow_dispatch:           # manual trigger from GitHub UI
+  workflow_dispatch:
 
 concurrency:
   group: tietiy-open-validate
@@ -34,7 +34,6 @@ jobs:
         env:
           TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GH_TOKEN:         ${{ secrets.GH_TOKEN }}
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
           cd $GITHUB_WORKSPACE/scanner
@@ -44,17 +43,24 @@ jobs:
         run: |
           git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
+
+          # Stage output files first before any git operations
           git add output/open_prices.json \
                   output/signal_history.json \
-                  output/signal_history.backup.json
+                  output/signal_history.backup.json || true
+
+          # Check if there is anything to commit
           git diff --cached --quiet && \
-            echo "No changes to commit" && exit 0
+            echo "No changes to commit — exiting cleanly" && exit 0
+
+          # Commit locally first
+          git commit -m "Open validation $(date +'%Y-%m-%d %H:%M IST')"
+
+          # Then push with retry
           for i in 1 2 3; do
             git pull --rebase origin main && \
-            git commit -m "Open validation ${today}" && \
-            git push origin HEAD:main && break
+            git push origin HEAD:main && \
+              echo "Push succeeded on attempt $i" && break
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
-        env:
-          today: ${{ env.today }}
