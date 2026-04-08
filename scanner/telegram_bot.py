@@ -256,9 +256,10 @@ def send_morning_scan(signals: list, meta: dict):
             lines.append(visible)
             lines.append(_spoiler(spoiler_text))
             lines.append('')
+lines.append(
+    '🔗 [tietiy\\.github\\.io/tietiy\\-scanner/]'
+    '(https://tietiy.github.io/tietiy-scanner/)')
 
-    lines.append(
-        '🔗 tietiy\\.github\\.io/tietiy\\-scanner/')
 
     send_message('\n'.join(lines))
 
