@@ -1,5 +1,66 @@
 {
   "date": "2026-04-08",
-  "count": 0,
-  "rejections": []
+  "count": 4,
+  "rejections": [
+    {
+      "date": "2026-04-08",
+      "symbol": "ADANIGREEN.NS",
+      "signal": "DOWN_TRI_SA",
+      "alpha_score": 3,
+      "regime": "Bear",
+      "grade": "B",
+      "passed": true,
+      "shadow_only": true,
+      "rejection_reason": "score_below_threshold",
+      "rejection_filter": "min_score",
+      "threshold": 5,
+      "actual_value": 3,
+      "scanner_version": "v2.0"
+    },
+    {
+      "date": "2026-04-08",
+      "symbol": "ADANIGREEN.NS",
+      "signal": "DOWN_TRI_SA",
+      "alpha_score": 3,
+      "regime": "Bear",
+      "grade": "B",
+      "passed": true,
+      "shadow_only": true,
+      "rejection_reason": "volume_not_confirmed",
+      "rejection_filter": "require_volume",
+      "threshold": true,
+      "actual_value": false,
+      "scanner_version": "v2.0"
+    },
+    {
+      "date": "2026-04-08",
+      "symbol": "BSE.NS",
+      "signal": "DOWN_TRI_SA",
+      "alpha_score": 3,
+      "regime": "Bear",
+      "grade": "B",
+      "passed": true,
+      "shadow_only": true,
+      "rejection_reason": "score_below_threshold",
+      "rejection_filter": "min_score",
+      "threshold": 5,
+      "actual_value": 3,
+      "scanner_version": "v2.0"
+    },
+    {
+      "date": "2026-04-08",
+      "symbol": "BSE.NS",
+      "signal": "DOWN_TRI_SA",
+      "alpha_score": 3,
+      "regime": "Bear",
+      "grade": "B",
+      "passed": true,
+      "shadow_only": true,
+      "rejection_reason": "volume_not_confirmed",
+      "rejection_filter": "require_volume",
+      "threshold": true,
+      "actual_value": false,
+      "scanner_version": "v2.0"
+    }
+  ]
 }
