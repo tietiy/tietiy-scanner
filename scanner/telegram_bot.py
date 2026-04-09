@@ -7,6 +7,11 @@
 # 3. Stop alert     — compact, urgent
 # 4. Exit tomorrow  — entry + ltp + % vs entry
 # 5. EOD summary    — signal type + outcome + P&L
+#
+# CHANGES:
+# D1 FIX: send_morning_scan reads active_signals_count from meta
+# NEW: scan_time + ltp_updated_at shown in morning scan header
+# B1 FIX: send_exit_tomorrow accepts exit_today flag
 # ─────────────────────────────────────────────────────
 
 import os
@@ -39,12 +44,11 @@ def send_message(text: str) -> bool:
         return True
     except Exception as e:
         print(f'[telegram] MarkdownV2 error: {e}')
-        # Fallback — strip all markdown and send plain
         try:
             plain = _strip_markdown(text)
             payload2 = {
-                'chat_id':  TELEGRAM_CHAT_ID,
-                'text':     plain,
+                'chat_id':    TELEGRAM_CHAT_ID,
+                'text':       plain,
                 'parse_mode': '',
             }
             r2 = requests.post(
@@ -58,27 +62,17 @@ def send_message(text: str) -> bool:
 
 
 def _strip_markdown(text):
-    """Remove all MarkdownV2 formatting for plain fallback."""
-    # Remove spoiler tags
     text = re.sub(r'\|\|(.+?)\|\|', r'\1', text,
                   flags=re.DOTALL)
-    # Remove bold
     text = re.sub(r'\*(.+?)\*', r'\1', text)
-    # Convert links [text](url) → text url
     text = re.sub(r'\[(.+?)\]\((.+?)\)',
                   r'\1 \2', text)
-    # Remove escape backslashes
     text = re.sub(r'\\(.)', r'\1', text)
     return text
 
 
 # ── MARKDOWNV2 ESCAPING ───────────────────────────────
 def _esc(text):
-    """
-    Escape all MarkdownV2 special characters.
-    Use this for all text OUTSIDE spoiler tags and links.
-    Do NOT use inside spoiler || || or link () — those are unescaped.
-    """
     if text is None:
         return '—'
     text = str(text)
@@ -88,29 +82,15 @@ def _esc(text):
 
 
 def _spoiler(text):
-    """
-    Wrap text in Telegram spoiler tags.
-    Text inside spoiler does NOT need MarkdownV2 escaping.
-    """
     return f'||{text}||'
 
 
 def _link(display, url):
-    """
-    Create a MarkdownV2 link.
-    display = escaped text shown to user
-    url     = raw URL, NOT escaped
-    """
     return f'[{display}]({url})'
 
 
 # ── PRICE FORMATTERS ──────────────────────────────────
 def _p(val):
-    """
-    Format price as ₹X or ₹X,XXX.
-    Returns plain string — no escaping.
-    Use inside spoiler tags or escape separately.
-    """
     try:
         f = float(val)
         if f <= 0:
@@ -125,23 +105,19 @@ def _p(val):
 
 
 def _p_esc(val):
-    """Format price, escaped for MarkdownV2 outside spoiler."""
     return _esc(_p(val))
 
 
 def _pct_str(val):
-    """Format percentage with sign. Returns plain string."""
     try:
-        f = float(val)
+        f    = float(val)
         sign = '+' if f >= 0 else ''
         return f'{sign}{f:.1f}%'
     except Exception:
         return '—'
 
 
-def _rr_calc(entry, stop, target,
-             direction='LONG'):
-    """Calculate R:R ratio. Returns string or None."""
+def _rr_calc(entry, stop, target, direction='LONG'):
     try:
         e = float(entry  or 0)
         s = float(stop   or 0)
@@ -158,10 +134,6 @@ def _rr_calc(entry, stop, target,
 
 
 def _resolve(sig, *fields):
-    """
-    Try multiple field names in order.
-    Return first valid float > 0 or None.
-    """
     for field in fields:
         val = sig.get(field)
         if val is not None:
@@ -193,7 +165,6 @@ def _outcome_emoji(outcome):
 
 
 def _stock_regime_tag(sig):
-    """Returns stk:Bull / stk:Bear / stk:Choppy or empty string."""
     sr = sig.get('stock_regime', '')
     if not sr:
         return ''
@@ -206,14 +177,17 @@ def send_morning_scan(signals: list, meta: dict):
     Compact visible line per signal showing stock regime.
     Price details hidden in spoiler — tap to reveal.
     Sorted by score descending.
+    Shows scan_time + ltp_updated_at if provided in meta.
     Link at bottom as clickable hyperlink.
     """
     date_str     = meta.get('market_date', 'today')
     regime       = meta.get('regime', '')
-    active_count = meta.get(
-        'active_signals_count',
-        meta.get('signals_found', 0))
+    # D1 FIX: read active_signals_count properly
+    active_count = meta.get('active_signals_count', 0)
     new_count    = len(signals)
+    # Timing info — optional, shown if provided
+    scan_time    = meta.get('scan_time', '')
+    ltp_time     = meta.get('ltp_updated_at', '')
 
     sorted_sigs = sorted(
         signals,
@@ -229,6 +203,17 @@ def send_morning_scan(signals: list, meta: dict):
     lines.append(
         f'{_esc(str(new_count))} new signals · '
         f'{_esc(str(active_count))} active')
+
+    # ── Timing line — scan + LTP timestamps ───────────
+    timing_parts = []
+    if scan_time:
+        timing_parts.append(f'Scan {scan_time}')
+    if ltp_time:
+        timing_parts.append(f'LTP {ltp_time}')
+    if timing_parts:
+        lines.append(
+            _esc('  ·  '.join(timing_parts)))
+
     lines.append('')
 
     if not sorted_sigs:
@@ -255,8 +240,6 @@ def send_morning_scan(signals: list, meta: dict):
             rr     = _rr_calc(
                 entry, stop, target, direction)
 
-            # Visible line — name, type, score,
-            # age, stock regime
             sr_part = (f' · {_esc(sr_tag)}'
                        if sr_tag else '')
             visible = (
@@ -266,8 +249,6 @@ def send_morning_scan(signals: list, meta: dict):
                 f'Age {_esc(str(age))}'
                 f'{sr_part}')
 
-            # Spoiler — price details
-            # Plain text inside spoiler, no escaping needed
             spoiler_parts = []
             if entry:
                 spoiler_parts.append(
@@ -291,8 +272,6 @@ def send_morning_scan(signals: list, meta: dict):
             lines.append(_spoiler(spoiler_text))
             lines.append('')
 
-    # Link at bottom — proper MarkdownV2 link format
-    # display text = escaped, URL = NOT escaped
     lines.append(
         _link(
             'tietiy\\.github\\.io/tietiy\\-scanner/',
@@ -305,10 +284,6 @@ def send_morning_scan(signals: list, meta: dict):
 # ── 2. OPEN VALIDATION ────────────────────────────────
 def send_open_validation(confirmed: list,
                          rejected: list):
-    """
-    Gap focused. Show all signals with status.
-    Flag clearly if skip needed.
-    """
     lines = []
     lines.append('📋 *Open Prices · 9:25 AM*')
     lines.append('')
@@ -376,17 +351,13 @@ def send_open_validation(confirmed: list,
 
 # ── 3. STOP ALERT ─────────────────────────────────────
 def send_stop_alert(signal: dict):
-    """
-    Compact, urgent, actionable.
-    Name + price + stop + level + action.
-    """
     sym   = (signal.get('symbol') or '?') \
             .replace('.NS', '')
     stype = signal.get('signal', '?')
     stop  = _resolve(signal, 'stop')
     price = _resolve(signal,
         'current_price', 'ltp', 'close')
-    level = signal.get('alert_level', 'NEAR')
+    level      = signal.get('alert_level', 'NEAR')
     check_time = signal.get('check_time', '')
 
     if level == 'BREACHED':
@@ -420,25 +391,35 @@ def send_stop_alert(signal: dict):
     send_message('\n'.join(lines))
 
 
-# ── 4. EXIT TOMORROW ──────────────────────────────────
-def send_exit_tomorrow(signals: list):
+# ── 4. EXIT TOMORROW / EXIT TODAY ─────────────────────
+def send_exit_tomorrow(signals: list,
+                       exit_today: bool = False):
     """
     Entry + LTP + % vs entry per signal.
-    Sorted worst P&L first so negatives visible at top.
-    Color coded: green/yellow/warning/red.
+    Sorted worst P&L first.
+    exit_today=True  → header says EXIT TODAY
+    exit_today=False → header says EXIT TOMORROW (default)
     """
     if not signals:
         return
 
+    # B1 FIX: correct header based on exit timing
+    header_label = (
+        'EXIT TODAY — Sell at 9:15 AM Open'
+        if exit_today
+        else 'EXIT TOMORROW — Day 6 Open'
+    )
+    header_icon = '🚨' if exit_today else '⏰'
+
     lines = []
-    lines.append('⏰ *EXIT TOMORROW — Day 6 Open*')
+    lines.append(
+        f'{header_icon} *{_esc(header_label)}*')
     lines.append(
         f'{_esc(str(len(signals)))} signals · '
         f'Sell at 9:15 AM open\\. '
         f'No extensions\\.')
     lines.append('')
 
-    # Enrich with P&L
     enriched = []
     for sig in signals:
         sym       = (sig.get('symbol') or '?') \
@@ -457,22 +438,21 @@ def send_exit_tomorrow(signals: list):
         if entry and ltp:
             try:
                 raw     = (ltp - entry) / entry * 100
-                pnl_pct = raw \
-                    if direction == 'LONG' \
-                    else -raw
+                pnl_pct = (raw
+                           if direction == 'LONG'
+                           else -raw)
             except Exception:
                 pass
 
         enriched.append({
-            'sym':      sym,
-            'stype':    stype,
-            'entry':    entry,
-            'ltp':      ltp,
-            'pnl_pct':  pnl_pct,
+            'sym':       sym,
+            'stype':     stype,
+            'entry':     entry,
+            'ltp':       ltp,
+            'pnl_pct':   pnl_pct,
             'direction': direction,
         })
 
-    # Sort worst first
     enriched.sort(
         key=lambda x: float(x['pnl_pct'] or 0))
 
@@ -515,14 +495,19 @@ def send_eod_summary(outcomes: list,
     """
     Signal type + outcome + P&L per resolved signal.
     Always sends even if 0 resolved.
-    Shows next exit date when nothing resolved today.
+    outcomes = full load_history() list
+    still_open = count of PENDING TOOK signals
     """
     today_str = date.today().strftime('%Y-%m-%d')
 
+    # B2 FIX: filter resolved from full history
+    # outcome != OPEN and outcome is not None
     resolved = [
         o for o in outcomes
-        if o.get('outcome') and
-        o.get('outcome') != 'OPEN'
+        if o.get('outcome')
+        and o.get('outcome') not in ('OPEN', None)
+        and o.get('result') != 'REJECTED'
+        and o.get('action') == 'TOOK'
     ]
 
     lines = []
@@ -546,7 +531,6 @@ def send_eod_summary(outcomes: list,
         send_message('\n'.join(lines))
         return
 
-    # Sort: targets first, wins, flat, losses, stops
     def _sort_key(o):
         out = (o.get('outcome') or '').upper()
         if 'TARGET' in out: return 0
@@ -586,12 +570,10 @@ def send_eod_summary(outcomes: list,
         pnl_str = ''
         if pnl is not None:
             try:
-                pnl_str = \
-                    f'  {_esc(_pct_str(pnl))}'
+                pnl_str = f'  {_esc(_pct_str(pnl))}'
             except Exception:
                 pass
 
-        # Escape outcome label
         outcome_esc = _esc(
             outcome.replace('_', ' '))
 
@@ -617,15 +599,13 @@ def send_eod_summary(outcomes: list,
 
 # ── NEXT EXIT DATE HELPER ─────────────────────────────
 def _find_next_exit(outcomes):
-    """
-    Find nearest future exit_date from open signals.
-    Returns formatted string like 'Apr 14' or None.
-    """
     today = date.today().isoformat()
     dates = [
         o.get('exit_date', '')
         for o in outcomes
         if o.get('exit_date', '') > today
+        and o.get('result') == 'PENDING'
+        and o.get('action') == 'TOOK'
     ]
     if not dates:
         return None
