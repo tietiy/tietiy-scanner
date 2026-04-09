@@ -6,6 +6,7 @@
 // - Default filter is now 'top' (was 'all')
 // - _buildConflictMap exported as window helper
 // - Status bar wording refined
+// - P1 FIX: LTP updated_at shown in status bar
 // ─────────────────────────────────────────────────────
 
 const VAPID_PUBLIC_KEY =
@@ -195,8 +196,16 @@ function _renderStatusBar(meta) {
   const today     = _todayIST();
   const isToday   = meta.market_date === today;
   const isTrading = meta.is_trading_day;
-  const scanTime  = meta.last_scan ? fmtTime(meta.last_scan) : null;
+  const scanTime  = meta.last_scan
+    ? fmtTime(meta.last_scan)
+    : meta.scan_time || null;
   const newToday  = _countTodaySignals();
+
+  // P1 FIX: Read LTP updated_at from stop_alerts.json
+  const stopAlerts  = window.TIETIY.stopAlerts;
+  const ltpUpdated  = stopAlerts
+    ? (stopAlerts.ltp_updated_at || stopAlerts.check_time || null)
+    : null;
 
   const activeCount = meta.active_signals_count != null
     ? meta.active_signals_count
@@ -224,15 +233,24 @@ function _renderStatusBar(meta) {
     statusColor = '#FFD700';
   } else {
     statusDot   = '🟢';
-    statusText  = scanTime ? `Scanned ${scanTime}` : 'Scanned today';
+    // P1 FIX: Show scan time + LTP time together
+    if (scanTime && ltpUpdated) {
+      statusText = `Scan ${scanTime} · LTP ${ltpUpdated}`;
+    } else if (scanTime) {
+      statusText = `Scanned ${scanTime}`;
+    } else {
+      statusText = 'Scanned today';
+    }
     statusColor = '#00C851';
   }
 
   const warnings = [];
   if (meta.fetch_failed && meta.fetch_failed.length > 0)
     warnings.push(`${meta.fetch_failed.length} stocks failed`);
-  if (meta.corporate_action_skip && meta.corporate_action_skip.length > 0)
-    warnings.push(`${meta.corporate_action_skip.length} CA skip`);
+  if (meta.corporate_action_skip &&
+      meta.corporate_action_skip.length > 0)
+    warnings.push(
+      `${meta.corporate_action_skip.length} CA skip`);
   const banned = window.TIETIY.bannedStocks || [];
   if (banned.length > 0)
     warnings.push(`${banned.length} stocks in F&O ban`);
@@ -319,8 +337,10 @@ function _renderAlertBanner(stopAlerts) {
 
   if (!alerts.length) { el.innerHTML = ''; return; }
 
-  const breached = alerts.filter(a => a.alert_level === 'BREACHED');
-  const at       = alerts.filter(a => a.alert_level === 'AT');
+  const breached = alerts.filter(
+    a => a.alert_level === 'BREACHED');
+  const at       = alerts.filter(
+    a => a.alert_level === 'AT');
 
   let bgColor  = '#1a1a0a';
   let txtColor = '#FFD700';
@@ -431,7 +451,10 @@ async function refreshData() {
       }, 1500);
     }
   } catch(e) {
-    if (btn) { btn.textContent = '🔄 Refresh'; btn.disabled = false; }
+    if (btn) {
+      btn.textContent = '🔄 Refresh';
+      btn.disabled    = false;
+    }
   }
 }
 
@@ -615,13 +638,15 @@ async function requestNotifications() {
   const statusEl = document.getElementById('notif-status');
   const btn      = document.getElementById('notif-btn');
 
-  if (!('serviceWorker' in navigator) || !('PushManager' in window)) {
+  if (!('serviceWorker' in navigator) ||
+      !('PushManager' in window)) {
     if (statusEl) statusEl.textContent =
       'Push not supported. Install as PWA from home screen first.';
     return;
   }
 
-  const pin = prompt('Enter notification PIN to subscribe:');
+  const pin = prompt(
+    'Enter notification PIN to subscribe:');
   if (!pin || pin.length !== PUSH_PIN_LENGTH) {
     if (statusEl) statusEl.textContent =
       'Invalid PIN — notifications not enabled.';
@@ -629,29 +654,36 @@ async function requestNotifications() {
   }
 
   try {
-    if (statusEl) statusEl.textContent = 'Requesting permission…';
-    const permission = await Notification.requestPermission();
+    if (statusEl) statusEl.textContent =
+      'Requesting permission…';
+    const permission =
+      await Notification.requestPermission();
     if (permission !== 'granted') {
       if (statusEl) statusEl.textContent =
         'Permission denied. Enable in browser settings.';
       return;
     }
 
-    const registration = await navigator.serviceWorker.ready;
-    const subscription = await registration.pushManager.subscribe({
-      userVisibleOnly:      true,
-      applicationServerKey: _urlB64ToUint8Array(VAPID_PUBLIC_KEY),
-    });
+    const registration =
+      await navigator.serviceWorker.ready;
+    const subscription =
+      await registration.pushManager.subscribe({
+        userVisibleOnly:      true,
+        applicationServerKey: _urlB64ToUint8Array(
+          VAPID_PUBLIC_KEY),
+      });
 
     const subJson  = subscription.toJSON();
     const payload  = {
       endpoint:      subJson.endpoint,
       keys:          subJson.keys,
       pin_verified:  true,
-      subscribed_at: new Date().toISOString().slice(0, 10),
+      subscribed_at: new Date()
+        .toISOString().slice(0, 10),
     };
 
-    localStorage.setItem('tietiy_push_sub', JSON.stringify(payload));
+    localStorage.setItem(
+      'tietiy_push_sub', JSON.stringify(payload));
 
     if (statusEl) statusEl.innerHTML =
       '<span style="color:#00C851;">✓ Subscribed!</span> ' +
@@ -659,12 +691,14 @@ async function requestNotifications() {
     if (btn) btn.textContent = '✓ Subscribed';
 
   } catch(e) {
-    if (statusEl) statusEl.textContent = 'Subscription failed: ' + e.message;
+    if (statusEl) statusEl.textContent =
+      'Subscription failed: ' + e.message;
   }
 }
 
 function _urlB64ToUint8Array(base64String) {
-  const padding = '='.repeat((4 - base64String.length % 4) % 4);
+  const padding =
+    '='.repeat((4 - base64String.length % 4) % 4);
   const base64  = (base64String + padding)
     .replace(/-/g, '+').replace(/_/g, '/');
   const rawData = window.atob(base64);
@@ -756,7 +790,8 @@ async function initApp() {
   _restoreSession();
 
   try {
-    if (loaderMsg) loaderMsg.textContent = 'Loading scanner data…';
+    if (loaderMsg)
+      loaderMsg.textContent = 'Loading scanner data…';
     const success = await _fetchAll();
 
     if (!success || !window.TIETIY.meta) {
