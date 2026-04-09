@@ -36,11 +36,13 @@ SCORE_GRADE_A     = 1
 EXIT_UPTRI_BEAR  = 'Target2x'
 EXIT_DEFAULT     = 'Day6'
 
+# ── PRICE FEED ────────────────────────────────────────
+# F3: Plug-in price source abstraction
+# Switch here only — no other file changes needed
+# Options: "yfinance" | "5paisa"
+PRICE_SOURCE = os.environ.get('PRICE_SOURCE', 'yfinance')
+
 # ── ABSOLUTE PATHS ────────────────────────────────────
-# config.py lives in scanner/
-# _BASE resolves to repo root (one level up)
-# Works correctly regardless of run directory
-# DO NOT change to relative paths
 _BASE      = os.path.dirname(
                  os.path.dirname(
                      os.path.abspath(__file__)))
@@ -49,5 +51,4 @@ DATA_DIR    = os.path.join(_BASE, 'data')
 OUTPUT_DIR  = os.path.join(_BASE, 'output')
 JOURNAL_DIR = os.path.join(_BASE, 'journal')
 
-# kept for compatibility — not actively used
 FO_UNIVERSE_URL = ''
