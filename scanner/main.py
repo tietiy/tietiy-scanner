@@ -2,38 +2,10 @@
 # Orchestrator only — calls everything in correct order
 # Does not contain detection, scoring, or rendering logic
 #
-# BUG 2 FIX: S6 shadow rejection block now ONLY creates
-# REJECTED records when shadow_only=False (active rule
-# actually blocked the signal). In shadow mode all entries
-# in rejection_log have shadow_only=True, so nothing is
-# logged as REJECTED. This eliminates duplicate
-# TOOK + REJECTED records for the same signal.
-#
-# ── CALL ORDER — DO NOT CHANGE ───────────────────────
-# MORNING SCAN:
-# 1.  check trading day
-# 1b. backfill_target_prices()
-# 1c. backfill_generation_flags()
-# 1d. ensure_archive_exists()
-# 2.  write_ban_list()
-# 3.  get_nifty_info()
-# 4.  get_sector_momentum()
-# 5.  load_universe()
-# 6.  fetch_data() per stock
-# 7.  detect_signals()
-# 8.  detect_second_attempt()
-# 9.  enrich_signal() + scorer filter
-# 10. filter_duplicate_pending()
-# 11. filter_signals() — mini_scanner
-# 12. write_scan_log()
-# 13. write_mini_log()
-# 14. write_rejected_log()
-# 15. append_history()
-# 16. archive_old_records()
-# 17. write_meta() — MUST be last
-# 18. build_html()
-# 19. send_notifications()
-# 20. send_morning_scan() — telegram
+# D1 FIX: market_info now populated with active_signals_count
+#         + scan_time before send_morning_scan call
+# B2 FIX: run_eod() passes load_history() to send_eod_summary
+#         not just get_open_trades()
 # ─────────────────────────────────────────────────────
 
 import sys
@@ -110,11 +82,6 @@ SECTOR_INDICES = {
 
 # ── SHADOW MODE CHECK ─────────────────────────────────
 def _is_shadow_mode():
-    """
-    Read shadow_mode from mini_scanner_rules.json.
-    Returns True if shadow mode is active (default safe).
-    Never raises — returns True on any error.
-    """
     try:
         rules_path = os.path.join(
             parent_dir, 'data', 'mini_scanner_rules.json')
@@ -361,7 +328,6 @@ def run_morning_scan():
         print(f"[main] Backfill error: {e}")
 
     # ── STEP 1d: Backfill generation flags ────────────
-    # Also normalizes vol_confirm string → bool (BUG 3 FIX)
     try:
         backfill_generation_flags()
     except Exception as e:
@@ -501,11 +467,6 @@ def run_morning_scan():
                   f"{sig.get('symbol','')}: {e}")
 
     # ── BUG 2 FIX: Shadow rejection logging ───────────
-    # Only create REJECTED records when shadow mode is OFF
-    # AND a rule actively blocked the signal.
-    # In shadow mode, rejection_log entries all have
-    # shadow_only=True — nothing gets logged as REJECTED.
-    # This prevents duplicate TOOK + REJECTED records.
     shadow_mode_on = _is_shadow_mode()
 
     if shadow_mode_on:
@@ -514,16 +475,12 @@ def run_morning_scan():
               f"({len(rejection_log)} shadow hits recorded "
               f"in rejected_log.json only)")
     else:
-        # Shadow mode OFF: log only actual hard rejections
         mini_took_keys = {
             (s.get('symbol', ''), s.get('signal', ''))
             for s in mini_signals
         }
         rej_logged = 0
         for rej in rejection_log:
-            # Skip shadow-only hits — these are signals that
-            # passed in shadow mode but would have been blocked.
-            # They are NOT rejected signals.
             if rej.get('shadow_only', True):
                 continue
 
@@ -568,6 +525,7 @@ def run_morning_scan():
         print(f"[main] Holidays write error: {e}")
 
     # ── STEP 17: Write meta.json — MUST BE LAST ────────
+    active_now = get_active_signals_count()
     try:
         write_meta(
             output_dir            = OUTPUT_DIR,
@@ -575,7 +533,7 @@ def run_morning_scan():
             regime                = regime,
             universe_size         = len(universe),
             signals_found         = len(mini_signals),
-            active_signals_count  = get_active_signals_count(),
+            active_signals_count  = active_now,
             is_trading_day        = True,
             scanner_version       = SCANNER_VERSION,
             app_version           = APP_VERSION,
@@ -605,7 +563,13 @@ def run_morning_scan():
         print(f"[main] Push error: {e}")
 
     # ── STEP 20: Telegram morning alert ───────────────
+    # D1 FIX: populate active_signals_count + scan_time
+    # into market_info before passing to send_morning_scan
     try:
+        market_info['active_signals_count'] = active_now
+        market_info['signals_found']        = len(mini_signals)
+        market_info['scan_time'] = (
+            datetime.now().strftime('%I:%M %p IST'))
         send_morning_scan(mini_signals, market_info)
     except Exception as e:
         print(f"[main] Telegram error: {e}")
@@ -649,16 +613,19 @@ def run_eod():
     except Exception as e:
         print(f"[main] EOD error: {e}")
 
-    # W1 FIX — sanitize None values before Telegram formatter
+    # B2 FIX: pass full load_history() to send_eod_summary
+    # not just open trades — resolved signals need to show
     try:
-        open_trades = get_open_trades()
-        safe_trades = []
+        all_history  = load_history()
+        open_count   = len(get_open_trades())
+
         _numeric_fields = (
             'pnl_pct', 'pnl_rs',
             'mfe_pct', 'mae_pct',
             'score', 'adjusted_rr'
         )
-        for t in open_trades:
+        safe_history = []
+        for t in all_history:
             safe_t = dict(t)
             for k in _numeric_fields:
                 if safe_t.get(k) is None:
@@ -667,9 +634,9 @@ def run_eod():
                       'direction', 'sector', 'grade'):
                 if safe_t.get(k) is None:
                     safe_t[k] = '—'
-            safe_trades.append(safe_t)
+            safe_history.append(safe_t)
 
-        send_eod_summary(safe_trades, len(safe_trades))
+        send_eod_summary(safe_history, open_count)
     except Exception as e:
         print(f"[main] Telegram EOD error: {e}")
 
