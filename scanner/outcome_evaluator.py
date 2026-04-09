@@ -1,14 +1,19 @@
 # ── outcome_evaluator.py ─────────────────────────────
 # Evaluates signal outcomes using 6-day OHLC window
-# Matches actual trading rules exactly
 #
-# FIXES APPLIED:
-#   BUG B  — entry fallback chain fixed
-#   BUG C  — tracking_start only set once
-#   BUG E  — verbose logging for OPEN signals
-#   OE4    — Day 6 exit uses OPEN price not CLOSE
-#   DI3    — MFE/MAE baseline uses actual_open first
-#   PNL    — pnl_pct calculated and written on resolve
+# FIXES:
+#   B FIX  — entry fallback chain
+#   C FIX  — tracking_start set once only
+#   E FIX  — verbose OPEN signal logging
+#   OE4    — Day 6 uses OPEN price not CLOSE
+#   DI3    — MFE/MAE uses actual_open first
+#   PNL    — pnl_pct calculated on resolve
+#
+# F1 FIX: Dual track — after TARGET_HIT, continue
+#         observing till Day 6. Record day6_open
+#         and post_target_move as shadow data.
+# F2 FIX: post_target_move, day6_open, exit_day,
+#         exit_type fields added to schema.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -106,8 +111,7 @@ def _fetch_ohlc(symbol, start_date,
             if df is None or df.empty:
                 continue
 
-            if isinstance(df.columns,
-                          pd.MultiIndex):
+            if isinstance(df.columns, pd.MultiIndex):
                 df.columns = [
                     c[0] for c in df.columns]
 
@@ -132,7 +136,7 @@ def _fetch_ohlc(symbol, start_date,
     return None
 
 
-# ── TARGET CALCULATOR ─────────────────────────────────
+# ── HELPERS ───────────────────────────────────────────
 
 def _calculate_target(entry, stop, direction):
     try:
@@ -149,18 +153,13 @@ def _calculate_target(entry, stop, direction):
         return None
 
 
-# ── ENTRY PRICE RESOLVER ──────────────────────────────
-# DI3 FIX — prefer actual_open (real fill price)
-# over scan_price (pre-market estimate).
-# actual_open is written by open_validator at 9:25 AM.
-# Fallback chain: actual_open → scan_price → entry → entry_est
-
 def _resolve_entry(signal):
+    """DI3 FIX — actual_open preferred."""
     for field in [
-        'actual_open',   # Real open price — highest priority
-        'scan_price',    # Pre-market estimate — fallback
-        'entry',         # General entry field
-        'entry_est',     # Scanner estimate — lowest priority
+        'actual_open',
+        'scan_price',
+        'entry',
+        'entry_est',
     ]:
         val = signal.get(field)
         if val is not None:
@@ -172,11 +171,6 @@ def _resolve_entry(signal):
                 continue
     return None
 
-
-# ── PNL CALCULATOR ────────────────────────────────────
-# Calculates percentage P&L from entry to outcome price.
-# LONG:  positive if outcome_price > entry
-# SHORT: positive if outcome_price < entry
 
 def _calc_pnl_pct(entry, outcome_price, direction):
     try:
@@ -204,10 +198,8 @@ def _evaluate_signal(signal, holidays):
     det_date  = signal.get('date', '')
     stop_val  = signal.get('stop', None)
 
-    # DI3 FIX — actual_open preferred over scan_price
     entry = _resolve_entry(signal)
-    stop  = float(stop_val) \
-            if stop_val else None
+    stop  = float(stop_val) if stop_val else None
 
     if not sym or not det_date \
             or not entry or not stop:
@@ -216,7 +208,6 @@ def _evaluate_signal(signal, holidays):
               f"entry={entry} stop={stop}")
         return signal
 
-    # Calculate target if not stored
     if not signal.get('target_price'):
         target = _calculate_target(
             entry, stop, direction)
@@ -224,8 +215,7 @@ def _evaluate_signal(signal, holidays):
             signal['target_price'] = target
     else:
         try:
-            target = float(
-                signal['target_price'])
+            target = float(signal['target_price'])
         except Exception:
             target = _calculate_target(
                 entry, stop, direction)
@@ -237,7 +227,6 @@ def _evaluate_signal(signal, holidays):
               f"cannot calculate target")
         return signal
 
-    # Calculate tracking window
     try:
         entry_date   = _get_entry_date(
             det_date, holidays)
@@ -249,7 +238,7 @@ def _evaluate_signal(signal, holidays):
 
     today = date.today()
 
-    # Only set tracking dates once — never overwrite
+    # Set tracking dates once
     if not signal.get('tracking_start'):
         signal['tracking_start'] = \
             entry_date.strftime('%Y-%m-%d')
@@ -257,29 +246,26 @@ def _evaluate_signal(signal, holidays):
         signal['tracking_end'] = \
             tracking_end.strftime('%Y-%m-%d')
 
-    # Window not started yet
     if today < entry_date:
         print(f"[outcome] {sym} — "
-              f"entry date {entry_date} "
-              f"not reached yet")
+              f"entry {entry_date} not reached")
         return signal
 
-    # Fetch OHLC — include tracking_end in window
     fetch_end = min(today, tracking_end)
     ohlc      = _fetch_ohlc(
         sym, entry_date, fetch_end)
 
     if ohlc is None or ohlc.empty:
-        print(f"[outcome] {sym} — "
-              f"no OHLC data")
+        print(f"[outcome] {sym} — no OHLC data")
         return signal
 
     # ── SCAN EACH DAY ─────────────────────────────
-    outcome       = None
-    outcome_date  = None
-    outcome_price = None
-    max_fav       = 0.0
-    max_adv       = 0.0
+    real_exit_outcome = None
+    real_exit_date    = None
+    real_exit_price   = None
+    real_exit_day     = None
+    max_fav           = 0.0
+    max_adv           = 0.0
 
     for ts, row in ohlc.iterrows():
         try:
@@ -289,8 +275,7 @@ def _evaluate_signal(signal, holidays):
         except Exception:
             continue
 
-        # MFE/MAE based on entry (actual_open
-        # preferred per DI3 fix above)
+        # MFE/MAE
         if direction == 'LONG':
             fav = (high  - entry) / entry * 100
             adv = (entry - low)   / entry * 100
@@ -308,89 +293,125 @@ def _evaluate_signal(signal, holidays):
             stop_hit   = high >= stop
             target_hit = low  <= target
 
-        # Same day: STOP wins over TARGET
-        if stop_hit:
-            outcome       = 'STOP_HIT'
-            outcome_date  = ts.date()
-            outcome_price = round(stop, 2)
-            print(f"[outcome] {sym} → "
-                  f"STOP_HIT on {outcome_date}")
+        # Stop hit — definitive, break immediately
+        if stop_hit and real_exit_outcome is None:
+            real_exit_outcome = 'STOP_HIT'
+            real_exit_date    = ts.date()
+            real_exit_price   = round(stop, 2)
+            real_exit_day     = _count_trading_days(
+                entry_date, ts.date(), holidays)
+            print(f"[outcome] {sym} → STOP_HIT "
+                  f"Day {real_exit_day}")
             break
 
-        if target_hit:
-            outcome       = 'TARGET_HIT'
-            outcome_date  = ts.date()
-            outcome_price = round(target, 2)
-            print(f"[outcome] {sym} → "
-                  f"TARGET_HIT on {outcome_date}")
-            break
+        # F1 FIX: Target hit — record but DON'T break
+        # Continue observing for Day 6 shadow data
+        if target_hit and real_exit_outcome is None:
+            real_exit_outcome = 'TARGET_HIT'
+            real_exit_date    = ts.date()
+            real_exit_price   = round(target, 2)
+            real_exit_day     = _count_trading_days(
+                entry_date, ts.date(), holidays)
+            print(f"[outcome] {sym} → TARGET_HIT "
+                  f"Day {real_exit_day} — "
+                  f"continuing for Day 6 shadow")
+            # No break — continue MFE/MAE tracking
+            # and Day 6 data collection
 
-    # ── DAY 6 EXIT ────────────────────────────────
-    # OE4 FIX — use OPEN price not CLOSE
-    # Trading rule: exit at open of Day 6.
-    # Close price would overstate/understate P&L.
-    if outcome is None and today >= tracking_end:
+    # ── DAY 6 EXIT + SHADOW DATA ──────────────────
+    # F2 FIX: Capture day6_open + post_target_move
+    day6_open        = None
+    post_target_move = None
+
+    if today >= tracking_end:
         try:
             day6_ts = pd.Timestamp(tracking_end)
 
             if day6_ts in ohlc.index:
                 # OE4 FIX: Open not Close
-                day6_exit = float(
+                day6_open = float(
                     ohlc.loc[day6_ts, 'Open'])
             else:
-                # Fallback to last available open
-                day6_exit = float(
+                day6_open = float(
                     ohlc['Open'].iloc[-1])
 
-            move_pct = ((day6_exit - entry)
-                        / entry * 100)
-            if direction == 'SHORT':
-                move_pct = -move_pct
+            # F2 FIX: Post target move
+            # How much did price move after target hit
+            # to Day 6 open — shadow data for research
+            if (real_exit_outcome == 'TARGET_HIT'
+                    and day6_open
+                    and real_exit_price):
+                raw_move = (
+                    (day6_open - real_exit_price)
+                    / real_exit_price * 100)
+                post_target_move = round(
+                    raw_move
+                    if direction == 'LONG'
+                    else -raw_move, 2)
+                print(f"[outcome] {sym} → "
+                      f"post_target_move: "
+                      f"{post_target_move:+.1f}% "
+                      f"(Day6 open ₹{day6_open:.2f})")
 
-            if move_pct > FLAT_PCT:
-                outcome = 'DAY6_WIN'
-            elif move_pct < -FLAT_PCT:
-                outcome = 'DAY6_LOSS'
-            else:
-                outcome = 'DAY6_FLAT'
+            # No target/stop hit — Day 6 exit
+            if real_exit_outcome is None and day6_open:
+                move_pct = (
+                    (day6_open - entry)
+                    / entry * 100)
+                if direction == 'SHORT':
+                    move_pct = -move_pct
 
-            outcome_date  = tracking_end
-            outcome_price = round(day6_exit, 2)
+                if move_pct > FLAT_PCT:
+                    real_exit_outcome = 'DAY6_WIN'
+                elif move_pct < -FLAT_PCT:
+                    real_exit_outcome = 'DAY6_LOSS'
+                else:
+                    real_exit_outcome = 'DAY6_FLAT'
 
-            print(f"[outcome] {sym} → "
-                  f"{outcome} "
-                  f"move {move_pct:+.1f}% "
-                  f"(Day6 open ₹{day6_exit:.2f})")
+                real_exit_date  = tracking_end
+                real_exit_price = round(day6_open, 2)
+                real_exit_day   = 6
+
+                print(f"[outcome] {sym} → "
+                      f"{real_exit_outcome} "
+                      f"move {move_pct:+.1f}% "
+                      f"Day6 open ₹{day6_open:.2f}")
 
         except Exception as e:
-            print(f"[outcome] Day6 error "
-                  f"{sym}: {e}")
+            print(f"[outcome] Day6 error {sym}: {e}")
 
     # ── WRITE BACK ────────────────────────────────
-    if outcome:
-        # PNL FIX — calculate pnl_pct from
-        # actual entry vs outcome price
+    if real_exit_outcome:
         pnl_pct = _calc_pnl_pct(
-            entry, outcome_price, direction)
+            entry, real_exit_price, direction)
 
-        signal['outcome']       = outcome
+        signal['outcome']       = real_exit_outcome
         signal['outcome_date']  = str(
-            outcome_date)[:10]
-        signal['outcome_price'] = outcome_price
+            real_exit_date)[:10]
+        signal['outcome_price'] = real_exit_price
         signal['pnl_pct']       = pnl_pct
-        signal['mfe_pct']       = round(
-            max_fav, 2)
-        signal['mae_pct']       = round(
-            max_adv, 2)
-        signal['days_to_outcome'] = \
-            _count_trading_days(
-                entry_date,
-                outcome_date
-                if isinstance(outcome_date, date)
-                else tracking_end,
-                holidays)
+        signal['mfe_pct']       = round(max_fav, 2)
+        signal['mae_pct']       = round(max_adv, 2)
+        signal['exit_type']     = real_exit_outcome
+        signal['exit_day']      = real_exit_day
+
+        # F2 FIX: Shadow fields — always write
+        if day6_open is not None:
+            signal['day6_open'] = round(day6_open, 2)
+        if post_target_move is not None:
+            signal['post_target_move'] = \
+                post_target_move
+
+        days_to = _count_trading_days(
+            entry_date,
+            real_exit_date
+            if isinstance(real_exit_date, date)
+            else tracking_end,
+            holidays)
+        signal['days_to_outcome'] = days_to
+
     else:
-        # Log still-OPEN progress
+        # Still open — log progress
         days_so_far = _count_trading_days(
             entry_date, today, holidays)
         print(f"[outcome] {sym} "
@@ -412,20 +433,17 @@ def run_outcome_evaluation():
 
     holidays = _load_holidays()
     if not holidays:
-        print("[outcome] Warning — no holidays "
-              "loaded, using empty list")
+        print("[outcome] Warning — no holidays loaded")
 
     try:
         with open(HISTORY_FILE, 'r') as f:
             data = json.load(f)
     except Exception as e:
-        print(f"[outcome] Cannot load "
-              f"history: {e}")
+        print(f"[outcome] Cannot load history: {e}")
         return
 
     history = data.get('history', [])
 
-    # Only evaluate PENDING signals with outcome=OPEN
     open_signals = [
         s for s in history
         if s.get('outcome', 'OPEN') == 'OPEN'
@@ -454,30 +472,26 @@ def run_outcome_evaluation():
         updated_sig = _evaluate_signal(
             signal.copy(), holidays)
 
-        after = updated_sig.get(
-            'outcome', 'OPEN')
+        after = updated_sig.get('outcome', 'OPEN')
 
         if sig_id in history_map:
             idx = history_map[sig_id]
             history[idx] = updated_sig
             updated += 1
 
-            if after != 'OPEN' \
-                    and before == 'OPEN':
+            if after != 'OPEN' and before == 'OPEN':
                 resolved += 1
 
                 if after == 'TARGET_HIT':
                     history[idx]['result'] = 'WON'
                 elif after == 'STOP_HIT':
-                    history[idx]['result'] = \
-                        'STOPPED'
+                    history[idx]['result'] = 'STOPPED'
                 elif after in (
                     'DAY6_WIN',
                     'DAY6_LOSS',
-                    'DAY6_FLAT'
+                    'DAY6_FLAT',
                 ):
-                    history[idx]['result'] = \
-                        'EXITED'
+                    history[idx]['result'] = 'EXITED'
 
     if updated > 0:
         data['history'] = history
