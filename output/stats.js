@@ -1,23 +1,15 @@
 // ── stats.js ─────────────────────────────────────────
 // Stats — learning and system understanding screen.
-// Story-based vertical layout, not raw data dump.
 //
-// Section order:
-// 1. Phase progress (always)
-// 2. Win rate (locked until 30)
-// 3. By signal type
-// 4. Score distribution
-// 5. Score bucket performance (NEW — key for Phase 2)
-// 6. By sector
-// 7. Signal funnel (shadow-honest)
-//
-// GEN — generation=0 excluded from win rate
-// SHADOW — funnel honest about shadow mode
+// FIXES THIS PASS:
+// - U1b FIX: sticky header at top of stats tab
+// - SCAN_DAYS FIX: dates now uses tookLive (gen=1 only)
+//   Gen=0 backfill (Apr 1) no longer counts as a scan day.
 // ─────────────────────────────────────────────────────
 (function () {
 
 const RESOLVED_TARGET = 30;
-const BUCKET_MIN_N    = 5;   // min resolved for bucket WR
+const BUCKET_MIN_N    = 5;
 
 const OUTCOME_WIN  = new Set(['TARGET_HIT', 'DAY6_WIN']);
 const OUTCOME_LOSS = new Set(['STOP_HIT', 'DAY6_LOSS']);
@@ -64,8 +56,7 @@ function _bar(label, value, total, color) {
 function _scoreBar(score, count, maxCount) {
   const width = maxCount
     ? Math.max(Math.round((count / maxCount) * 100), 2) : 2;
-  const color = score >= 8 ? '#FFD700'
-    : score >= 7 ? '#FFD700'
+  const color = score >= 7 ? '#FFD700'
     : score >= 5 ? '#00C851'
     : score >= 3 ? '#8b949e'
     : '#555';
@@ -203,7 +194,6 @@ function _analyse(raw) {
     }
   });
 
-  // Score bucket performance — key for Phase 2 mini-scanner learning
   const buckets = [
     { label: '7–8', min: 7, max: 10 },
     { label: '5–6', min: 5, max: 6  },
@@ -211,11 +201,11 @@ function _analyse(raw) {
     { label: '1–2', min: 1, max: 2  },
   ];
   const bucketPerf = buckets.map(b => {
-    const inBucket  = resolvedLive.filter(s => {
+    const inBucket = resolvedLive.filter(s => {
       const sc = parseFloat(s.score) || 0;
       return sc >= b.min && sc <= b.max;
     });
-    const bWins = inBucket.filter(s => OUTCOME_WIN.has(s.outcome));
+    const bWins  = inBucket.filter(s => OUTCOME_WIN.has(s.outcome));
     const pnlArr = inBucket
       .filter(s => s.pnl_pct != null)
       .map(s => parseFloat(s.pnl_pct));
@@ -223,13 +213,13 @@ function _analyse(raw) {
       ? (pnlArr.reduce((a, c) => a + c, 0) / pnlArr.length).toFixed(1)
       : null;
     return {
-      label:    b.label,
-      n:        inBucket.length,
-      wins:     bWins.length,
-      wr:       inBucket.length >= BUCKET_MIN_N
+      label:   b.label,
+      n:       inBucket.length,
+      wins:    bWins.length,
+      wr:      inBucket.length >= BUCKET_MIN_N
         ? _pct(bWins.length, inBucket.length) : null,
       avgPnl,
-      hasData:  inBucket.length >= BUCKET_MIN_N,
+      hasData: inBucket.length >= BUCKET_MIN_N,
     };
   });
 
@@ -240,10 +230,10 @@ function _analyse(raw) {
     ? (pnlArr.reduce((a, b) => a + b, 0) / pnlArr.length).toFixed(2)
     : null;
 
+  // SCAN_DAYS FIX: use tookLive only — excludes gen=0 backfill dates
   const dates = [...new Set(
-    took.map(s => s.date).filter(Boolean))];
+    tookLive.map(s => s.date).filter(Boolean))];
 
-  // Shadow mode detection heuristic
   const shadowModeActive = rej.length === 0 ||
     (tookLive.length > 0 &&
      Math.abs(tookLive.length - rej.length) <= 5);
@@ -327,8 +317,8 @@ function _renderProgress(d) {
     </div>
 
     <div style="display:flex;gap:8px;flex-wrap:wrap;">
-      ${_miniStat('Live Signals', d.totalLive,  '#c9d1d9')}
-      ${_miniStat('Open Now',     d.openLive,   '#FFD700')}
+      ${_miniStat('Live Signals', d.totalLive,    '#c9d1d9')}
+      ${_miniStat('Open Now',     d.openLive,     '#FFD700')}
       ${_miniStat('Resolved',     d.resolvedLive, color)}
       ${_miniStat('Scan Days',    d.dates.length, '#8b949e')}
     </div>
@@ -337,16 +327,16 @@ function _renderProgress(d) {
       ? `<div style="font-size:10px;color:#555;margin-top:8px;
            padding-top:8px;border-top:1px solid #21262d;">
            + ${d.backfillCount} backfill signals (gen=0) tracked
-           but excluded from win rate
+           but excluded from win rate and scan day count
          </div>`
       : ''}`);
 }
 
 // ── 2. WIN RATE ───────────────────────────────────────
 function _renderWinRate(d) {
-  const n      = d.resolvedLive;
-  const ready  = n >= RESOLVED_TARGET;
-  let content  = '';
+  const n     = d.resolvedLive;
+  const ready = n >= RESOLVED_TARGET;
+  let content = '';
 
   if (!ready) {
     content = `
@@ -451,34 +441,28 @@ function _renderScoreDist(d) {
     </div>`);
 }
 
-// ── 5. SCORE BUCKET PERFORMANCE (NEW) ─────────────────
-// Key for Phase 2 mini-scanner rule validation.
-// Shows if higher-scored signals actually outperform lower ones.
-// Locked per bucket until min resolved threshold.
+// ── 5. SCORE BUCKET PERFORMANCE ───────────────────────
 function _renderScoreBucketPerf(d) {
   const hasAnyData = d.bucketPerf.some(b => b.hasData);
 
   let rows = '';
-
   d.bucketPerf.forEach(function(b) {
     if (b.hasData) {
-      const wrColor = b.wr >= 70 ? '#00C851' :
-                      b.wr >= 55 ? '#FFD700' : '#f85149';
+      const wrColor  = b.wr >= 70 ? '#00C851' :
+                       b.wr >= 55 ? '#FFD700' : '#f85149';
       const pnlColor = b.avgPnl != null && parseFloat(b.avgPnl) > 0
         ? '#00C851' : '#f85149';
       rows += `
         <div style="display:flex;align-items:center;
           gap:8px;padding:7px 0;
           border-bottom:1px solid #21262d;font-size:11px;">
-          <span style="color:#ffd700;font-weight:700;
-            min-width:38px;">
+          <span style="color:#ffd700;font-weight:700;min-width:38px;">
             ${b.label}
           </span>
           <span style="color:#555;min-width:70px;">
             ${b.n} resolved
           </span>
-          <span style="color:${wrColor};font-weight:700;
-            min-width:50px;">
+          <span style="color:${wrColor};font-weight:700;min-width:50px;">
             ${b.wr}% WR
           </span>
           <span style="color:${pnlColor};">
@@ -491,10 +475,8 @@ function _renderScoreBucketPerf(d) {
       rows += `
         <div style="display:flex;align-items:center;
           gap:8px;padding:7px 0;
-          border-bottom:1px solid #21262d;font-size:11px;
-          opacity:0.4;">
-          <span style="color:#ffd700;font-weight:700;
-            min-width:38px;">
+          border-bottom:1px solid #21262d;font-size:11px;opacity:0.4;">
+          <span style="color:#ffd700;font-weight:700;min-width:38px;">
             ${b.label}
           </span>
           <span style="color:#555;min-width:70px;">
@@ -507,12 +489,11 @@ function _renderScoreBucketPerf(d) {
     }
   });
 
-  const note = hasAnyData
-    ? ''
-    : `<div style="font-size:10px;color:#555;margin-top:8px;">
-         Data populates as live signals resolve.
-         Used in Phase 2 to validate score-based filtering.
-       </div>`;
+  const note = hasAnyData ? '' : `
+    <div style="font-size:10px;color:#555;margin-top:8px;">
+      Data populates as live signals resolve.
+      Used in Phase 2 to validate score-based filtering.
+    </div>`;
 
   return _section('📐 PERFORMANCE BY SCORE BUCKET', `
     <div style="font-size:10px;color:#555;margin-bottom:10px;">
@@ -532,12 +513,10 @@ function _renderSectors(d) {
       _bar(s, n, d.totalAll, '#58a6ff')).join(''));
 }
 
-// ── 7. SIGNAL FUNNEL (SHADOW-HONEST) ──────────────────
+// ── 7. SIGNAL FUNNEL ──────────────────────────────────
 function _renderFunnel(d) {
-  const total = d.tookCount + d.rejCount;
-
-  const rejLabel   = d.shadowModeActive
-    ? 'Shadow analysis' : 'Mini scanner rejected';
+  const total      = d.tookCount + d.rejCount;
+  const rejLabel   = d.shadowModeActive ? 'Shadow analysis' : 'Mini scanner rejected';
   const rejSubtext = d.shadowModeActive
     ? `${_pct(d.rejCount, total)}% would-be reject`
     : `${_pct(d.rejCount, total)}% reject rate`;
@@ -550,8 +529,7 @@ function _renderFunnel(d) {
          🔍 <b style="color:#8b949e;">Shadow mode active</b>
          — mini scanner is observing only. No signals are
          currently being blocked. Rejection reasons are logged
-         for future analysis. Rules activate one by one as
-         live data validates them.
+         for future analysis.
        </div>`
     : `<div style="background:#0d2a0d;border:1px solid #00C85133;
          border-radius:6px;padding:8px 10px;margin-top:10px;
@@ -567,8 +545,7 @@ function _renderFunnel(d) {
     ${_statRow(rejLabel, d.rejCount, rejSubtext, rejColor)}
 
     ${d.rejCount > 0
-      ? `<div style="margin-top:10px;
-           border-top:1px solid #21262d;
+      ? `<div style="margin-top:10px;border-top:1px solid #21262d;
            padding-top:10px;">
            <div style="font-size:11px;color:#555;
              margin-bottom:8px;letter-spacing:0.5px;">
@@ -585,7 +562,6 @@ function _renderFunnel(d) {
              .join('')}
          </div>`
       : ''}
-
     ${shadowNote}`);
 }
 
@@ -608,13 +584,18 @@ window.renderStats = function(tietiy) {
 
   const d = _analyse(raw);
 
+  // U1b FIX: sticky tab title header
   el.innerHTML = `
-    <div style="padding:12px 16px 80px;">
-      <div style="font-size:11px;color:#555;letter-spacing:1px;
-        margin-bottom:12px;">
+    <div style="position:sticky;top:0;z-index:10;
+      background:#07070f;
+      padding:10px 16px 8px;
+      border-bottom:1px solid #21262d;">
+      <div style="font-size:11px;color:#555;letter-spacing:1px;">
         📈 STATS — PHASE 1 COLLECTION
       </div>
+    </div>
 
+    <div style="padding:12px 16px 80px;">
       ${_renderDataQualityBanner(d)}
       ${_renderProgress(d)}
       ${_renderWinRate(d)}
