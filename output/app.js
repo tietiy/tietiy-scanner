@@ -3,17 +3,18 @@
 // tap panel, conflict detection
 //
 // CHANGES THIS PASS:
-// - Sector filter added to filter bar
+// - U1 FIX: filter bar is now position:sticky;top:0
+// - UI2 FIX: sector filter is a <select> dropdown
 // - Day 5 orange glow, Day 6 red pulse animation
 // - Score breakdown section in tap panel
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
-  UP_TRI:      { color: '#00C851', arrow: '▲',  label: 'UP TRI',        border: '#00C851' },
-  DOWN_TRI:    { color: '#f85149', arrow: '▼',  label: 'DOWN TRI',      border: '#f85149' },
-  BULL_PROXY:  { color: '#58a6ff', arrow: '◆',  label: 'BULL PROXY',    border: '#58a6ff' },
-  UP_TRI_SA:   { color: '#00C851', arrow: '▲▲', label: 'UP TRI 2nd',    border: '#00C851' },
-  DOWN_TRI_SA: { color: '#f85149', arrow: '▼▼', label: 'DOWN TRI 2nd',  border: '#f85149' },
+  UP_TRI:      { color: '#00C851', arrow: '▲',  label: 'UP TRI',       border: '#00C851' },
+  DOWN_TRI:    { color: '#f85149', arrow: '▼',  label: 'DOWN TRI',     border: '#f85149' },
+  BULL_PROXY:  { color: '#58a6ff', arrow: '◆',  label: 'BULL PROXY',   border: '#58a6ff' },
+  UP_TRI_SA:   { color: '#00C851', arrow: '▲▲', label: 'UP TRI 2nd',   border: '#00C851' },
+  DOWN_TRI_SA: { color: '#f85149', arrow: '▼▼', label: 'DOWN TRI 2nd', border: '#f85149' },
 };
 
 const DEFAULT_CAPITAL = 50000;
@@ -137,7 +138,6 @@ function _scoreColor(score) {
 }
 
 // ── SCORE BREAKDOWN ───────────────────────────────────
-// Shows each component that contributed to the score
 function _buildScoreBreakdown(sig) {
   const signal    = sig.signal || '';
   const age       = sig.age || 0;
@@ -151,7 +151,6 @@ function _buildScoreBreakdown(sig) {
 
   const rows = [];
 
-  // Base signal score
   if (signal === 'DOWN_TRI' || signal === 'DOWN_TRI_SA') {
     rows.push({ label: 'DOWN TRI base', pts: 2, active: true });
   } else if (signal === 'UP_TRI' || signal === 'UP_TRI_SA') {
@@ -162,7 +161,6 @@ function _buildScoreBreakdown(sig) {
     rows.push({ label: 'BULL PROXY base', pts: 1, active: true });
   }
 
-  // Regime score
   if (bearBonus) {
     rows.push({ label: 'Bear regime 🔥', pts: 3, active: true });
   } else if (regime === 'Bull' || regime === 'Choppy') {
@@ -171,14 +169,12 @@ function _buildScoreBreakdown(sig) {
     rows.push({ label: 'Regime bonus', pts: 0, active: false });
   }
 
-  // Quality bonuses
-  rows.push({ label: 'Volume confirm',    pts: 1, active: volConf });
-  rows.push({ label: 'Sector leading',    pts: 1, active: secMom === 'Leading' });
+  rows.push({ label: 'Volume confirm',     pts: 1, active: volConf });
+  rows.push({ label: 'Sector leading',     pts: 1, active: secMom === 'Leading' });
   rows.push({ label: 'RS vs Nifty strong', pts: 1, active: rsQ === 'Strong' });
-  rows.push({ label: 'Grade A stock',     pts: 1, active: grade === 'A' });
+  rows.push({ label: 'Grade A stock',      pts: 1, active: grade === 'A' });
 
-  const earned = rows.filter(r => r.active).reduce((s, r) => s + r.pts, 0);
-
+  const earned   = rows.filter(r => r.active).reduce((s, r) => s + r.pts, 0);
   const rowsHtml = rows.map(r => `
     <div style="display:flex;justify-content:space-between;
       align-items:center;padding:3px 0;opacity:${r.active ? 1 : 0.3};">
@@ -222,7 +218,6 @@ function _dayBadge(dayNum, isNew, isBackfill) {
       font-weight:700;">NEW</span>`;
   }
   if (!dayNum) return '';
-
   if (dayNum >= 6) {
     return `<span style="color:#f85149;font-size:10px;
       font-weight:700;animation:pulse 0.8s infinite;">
@@ -251,7 +246,7 @@ function _buildConflictMap(signals) {
   return map;
 }
 
-// ── GET UNIQUE SECTORS ────────────────────────────────
+// ── UNIQUE SECTORS ────────────────────────────────────
 function _getUniqueSectors(signals) {
   const sectors = new Set();
   signals.forEach(s => {
@@ -262,18 +257,18 @@ function _getUniqueSectors(signals) {
 }
 
 function _getSavedFilter() {
-  try {
-    return sessionStorage.getItem('tietiy_filter') || 'top';
-  } catch(e) { return 'top'; }
+  try { return sessionStorage.getItem('tietiy_filter') || 'top'; }
+  catch(e) { return 'top'; }
 }
 
 function _getSavedSector() {
-  try {
-    return sessionStorage.getItem('tietiy_sector') || '';
-  } catch(e) { return ''; }
+  try { return sessionStorage.getItem('tietiy_sector') || ''; }
+  catch(e) { return ''; }
 }
 
 // ── FILTER BAR ────────────────────────────────────────
+// U1 FIX: position:sticky;top:0 keeps bar visible while scrolling
+// UI2 FIX: sector is a <select> dropdown, not a button row
 function _buildFilterBar(signals, currentFilter, currentSector) {
   const counts = {
     all:        signals.length,
@@ -295,38 +290,54 @@ function _buildFilterBar(signals, currentFilter, currentSector) {
     { id: 'SA',         label: `2nd Att (${counts.SA})` },
   ];
 
-  // Sector buttons — only show sectors present in signals
-  const sectors   = _getUniqueSectors(signals);
-  const sectorBtns = sectors.map(sec => {
-    const cnt     = signals.filter(s => s.sector === sec).length;
-    const isActive = currentSector === sec;
-    return `
-      <button
-        class="sector-btn"
-        data-sector="${sec}"
-        onclick="applySector('${sec}', this)"
-        style="background:${isActive ? '#1a2a3a' : '#161b22'};
-          color:${isActive ? '#58a6ff' : '#555'};
-          border:1px solid ${isActive ? '#58a6ff' : '#30363d'};
-          border-radius:6px;padding:5px 10px;
-          font-size:10px;cursor:pointer;white-space:nowrap;">
-        ${sec} (${cnt})
-      </button>`;
-  }).join('');
+  const sectors = _getUniqueSectors(signals);
 
-  // Clear sector button
-  const clearSector = currentSector
-    ? `<button onclick="applySector('', null)"
-        style="background:#1a0a0a;color:#f85149;
-          border:1px solid #f8514944;border-radius:6px;
-          padding:5px 8px;font-size:10px;cursor:pointer;">
-        ✕ ${currentSector}
-      </button>`
-    : '';
+  // Sector dropdown — compact and mobile-friendly
+  const sectorDropdown = sectors.length > 0 ? `
+    <div style="display:flex;align-items:center;gap:8px;
+      padding:4px 14px 8px;border-top:1px solid #161b22;">
+      <span style="color:#555;font-size:10px;
+        white-space:nowrap;flex-shrink:0;">
+        Sector:
+      </span>
+      <select
+        id="sector-select"
+        onchange="applySector(this.value)"
+        style="flex:1;max-width:180px;
+          background:#161b22;
+          color:${currentSector ? '#58a6ff' : '#8b949e'};
+          border:1px solid ${currentSector ? '#58a6ff' : '#30363d'};
+          border-radius:6px;padding:5px 8px;
+          font-size:11px;cursor:pointer;
+          -webkit-appearance:none;
+          appearance:none;">
+        <option value="">All Sectors</option>
+        ${sectors.map(sec => {
+          const cnt = signals.filter(s => s.sector === sec).length;
+          const sel = currentSector === sec ? 'selected' : '';
+          return `<option value="${sec}" ${sel}>${sec} (${cnt})</option>`;
+        }).join('')}
+      </select>
+      ${currentSector
+        ? `<span style="background:#1a2a3a;color:#58a6ff;
+             border-radius:4px;padding:2px 7px;font-size:10px;
+             font-weight:700;">
+             ${currentSector}
+             <span onclick="applySector('')"
+               style="cursor:pointer;margin-left:4px;
+                 color:#f85149;font-size:11px;">✕</span>
+           </span>`
+        : ''}
+    </div>` : '';
 
+  // U1 FIX: sticky so filter stays visible on scroll
   return `
-    <div id="filter-bar" style="background:#0d1117;
-      border-bottom:1px solid #21262d;">
+    <div id="filter-bar"
+      style="background:#0d1117;
+        border-bottom:1px solid #21262d;
+        position:sticky;
+        top:0;
+        z-index:10;">
 
       <!-- Signal type filters -->
       <div style="display:flex;flex-wrap:wrap;gap:4px;
@@ -349,18 +360,7 @@ function _buildFilterBar(signals, currentFilter, currentSector) {
         }).join('')}
       </div>
 
-      <!-- Sector filters — only shown if sectors exist -->
-      ${sectors.length > 0
-        ? `<div style="display:flex;flex-wrap:wrap;gap:4px;
-             padding:4px 14px 8px;border-top:1px solid #161b22;">
-             <span style="color:#333;font-size:10px;
-               align-self:center;padding-right:2px;">
-               Sector:
-             </span>
-             ${clearSector}
-             ${sectorBtns}
-           </div>`
-        : ''}
+      ${sectorDropdown}
     </div>`;
 }
 
@@ -383,18 +383,13 @@ function applyFilter(filterId, btn) {
     renderSignals(window.TIETIY);
 }
 
-function applySector(sector, btn) {
-  document.querySelectorAll('.sector-btn').forEach(b => {
-    b.style.background = '#161b22';
-    b.style.color      = '#555';
-    b.style.border     = '1px solid #30363d';
-  });
-  if (btn && sector) {
-    btn.style.background = '#1a2a3a';
-    btn.style.color      = '#58a6ff';
-    btn.style.border     = '1px solid #58a6ff';
-  }
-  try { sessionStorage.setItem('tietiy_sector', sector); }
+// UI2 FIX: simplified — dropdown handles its own state
+function applySector(sector) {
+  // Sync dropdown display
+  const sel = document.getElementById('sector-select');
+  if (sel) sel.value = sector || '';
+
+  try { sessionStorage.setItem('tietiy_sector', sector || ''); }
   catch(e) {}
   if (typeof renderSignals === 'function')
     renderSignals(window.TIETIY);
@@ -434,7 +429,6 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
   const lowConv = score <= 2;
   const cardOp  = lowConv ? 'opacity:0.6;' : '';
 
-  // Day badge urgency — Day 5 orange glow, Day 6 red pulse
   let borderGlow = '';
   let cardAnim   = '';
   if (dayNum >= 6) {
@@ -732,7 +726,6 @@ function openTapPanel(el) {
          </div>`
       : ''}
 
-    <!-- LTP -->
     <div style="background:#161b22;border-radius:8px;
       padding:12px 14px;margin-bottom:8px;">
       <div style="color:#555;font-size:10px;
@@ -746,7 +739,6 @@ function openTapPanel(el) {
       ${ltpPanelSub}
     </div>
 
-    <!-- Entry / Stop / Target / R:R -->
     <div style="display:grid;grid-template-columns:1fr 1fr;
       gap:6px;margin-bottom:8px;">
       ${_panelStat('ENTRY',  entryPrice ? '₹' + fmt(entryPrice) : '—', '#58a6ff')}
@@ -758,7 +750,6 @@ function openTapPanel(el) {
         rr && parseFloat(rr) >= 1.5 ? '#FFD700' : '#f85149')}
     </div>
 
-    <!-- Position size -->
     ${sizing
       ? `<div style="background:#161b22;border-radius:8px;
            padding:10px 12px;margin-bottom:8px;font-size:11px;">
@@ -783,10 +774,8 @@ function openTapPanel(el) {
          </div>`
       : ''}
 
-    <!-- Score breakdown — NEW -->
     ${_buildScoreBreakdown(sig)}
 
-    <!-- Context -->
     <div style="background:#161b22;border-radius:8px;
       padding:10px 12px;margin-bottom:8px;font-size:11px;line-height:1.9;">
       ${_detailRow('Regime', regime || '—')}
@@ -803,7 +792,6 @@ function openTapPanel(el) {
       ${_detailRow('Signal age',  `${sig.age || 0} days`)}
     </div>
 
-    <!-- Trade window -->
     <div style="background:#0d1117;border:1px solid #21262d;
       border-radius:8px;padding:10px 12px;margin-bottom:8px;
       font-size:11px;">
@@ -827,7 +815,6 @@ function openTapPanel(el) {
       </div>
     </div>
 
-    <!-- Why this trade -->
     ${whyLines
       ? `<div style="background:#0a0d1a;border:1px solid #21262d;
            border-radius:8px;padding:10px 12px;margin-bottom:12px;
@@ -840,7 +827,6 @@ function openTapPanel(el) {
          </div>`
       : ''}
 
-    <!-- Actions -->
     <div style="display:flex;gap:8px;margin-bottom:6px;">
       <a href="${tvUrl}" target="_blank"
         style="flex:1;background:#161b22;border:1px solid #30363d;
@@ -1004,13 +990,11 @@ function renderSignals(data) {
   const olderSignals = _sortSignals(activeSignals.filter(s => s.date !== today));
   let   allSorted    = [...todaySignals, ...olderSignals];
 
-  // Apply sector filter first
   let sectorFiltered = allSorted;
   if (currentSector) {
     sectorFiltered = allSorted.filter(s => s.sector === currentSector);
   }
 
-  // Apply signal filter
   let displaySignals = sectorFiltered;
   let headerLabel    = `ALL ACTIVE SIGNALS (${sectorFiltered.length})`;
   let topTruncated   = 0;
@@ -1051,20 +1035,14 @@ function renderSignals(data) {
     return sum + shares * risk;
   }, 0);
 
-  const riskStr = totalRisk > 0
-    ? ` · Total risk ₹${Math.round(totalRisk).toLocaleString('en-IN')}`
-    : '';
-
-  const sectorLabel = currentSector
-    ? ` · ${currentSector} only`
-    : '';
-
-  const rejected = scanLog ? (scanLog.rejected || []) : [];
+  const riskStr    = totalRisk > 0
+    ? ` · Total risk ₹${Math.round(totalRisk).toLocaleString('en-IN')}` : '';
+  const sectorLabel = currentSector ? ` · ${currentSector} only` : '';
+  const rejected    = scanLog ? (scanLog.rejected || []) : [];
 
   if (!allSorted.length) {
     const meta    = data.meta || {};
     const scanned = meta.universe_size || 0;
-    const regime  = meta.regime || 'Unknown';
     const scanT   = meta.last_scan ? fmtTime(meta.last_scan) : '—';
 
     content.innerHTML = `
