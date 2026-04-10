@@ -7,6 +7,7 @@
 // - _buildConflictMap exported as window helper
 // - Status bar wording refined
 // - P1 FIX: LTP updated_at shown in status bar
+// - V1 FIX: Open validate time shown in status bar
 // ─────────────────────────────────────────────────────
 
 const VAPID_PUBLIC_KEY =
@@ -72,7 +73,6 @@ function fmtTime(utcStr) {
   } catch(e) { return utcStr; }
 }
 
-// IST date helper — prevents UTC bleed after 6:30 PM IST
 function _todayIST() {
   return new Date().toLocaleDateString(
     'en-CA', { timeZone: 'Asia/Kolkata' });
@@ -201,11 +201,16 @@ function _renderStatusBar(meta) {
     : meta.scan_time || null;
   const newToday  = _countTodaySignals();
 
-  // P1 FIX: Read LTP updated_at from stop_alerts.json
+  // P1 FIX: LTP time from stop_alerts.json
   const stopAlerts  = window.TIETIY.stopAlerts;
   const ltpUpdated  = stopAlerts
     ? (stopAlerts.ltp_updated_at || stopAlerts.check_time || null)
     : null;
+
+  // V1 FIX: Open validate time from open_prices.json
+  const openPrices  = window.TIETIY.openPrices;
+  const openValTime = (openPrices && openPrices.fetch_time && openPrices.count > 0)
+    ? openPrices.fetch_time : null;
 
   const activeCount = meta.active_signals_count != null
     ? meta.active_signals_count
@@ -233,14 +238,12 @@ function _renderStatusBar(meta) {
     statusColor = '#FFD700';
   } else {
     statusDot   = '🟢';
-    // P1 FIX: Show scan time + LTP time together
-    if (scanTime && ltpUpdated) {
-      statusText = `Scan ${scanTime} · LTP ${ltpUpdated}`;
-    } else if (scanTime) {
-      statusText = `Scanned ${scanTime}`;
-    } else {
-      statusText = 'Scanned today';
-    }
+    // V1 FIX: Build status line from available timestamps
+    const parts = [];
+    if (scanTime)    parts.push(`Scan ${scanTime}`);
+    if (openValTime) parts.push(`Open ${openValTime}`);
+    if (ltpUpdated)  parts.push(`LTP ${ltpUpdated}`);
+    statusText  = parts.length > 0 ? parts.join(' · ') : 'Scanned today';
     statusColor = '#00C851';
   }
 
