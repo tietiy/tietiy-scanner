@@ -1,4 +1,4 @@
-name: Scan Watchdog 9:00 AM IST
+name: Scan Watchdog
 
 on:
   workflow_dispatch:
@@ -10,8 +10,7 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-
-      - name: Check scan and self-heal if missed
+      - name: Check scan health and retry if needed
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -19,7 +18,8 @@ jobs:
           REPO: tietiy/tietiy-scanner
         run: |
           TODAY=$(TZ='Asia/Kolkata' date '+%Y-%m-%d')
-          echo "Watchdog running — today: $TODAY"
+          IST_HOUR=$(TZ='Asia/Kolkata' date '+%H')
+          echo "Watchdog running — today: $TODAY | IST hour: $IST_HOUR"
 
           META_URL="https://tietiy.github.io/tietiy-scanner/meta.json"
           HTTP_CODE=$(curl -s -o /tmp/meta.json -w "%{http_code}" --max-time 10 "$META_URL" || echo "000")
@@ -34,19 +34,51 @@ jobs:
           except:
               print('error')
           ")
+            SIGNALS_FOUND=$(python3 -c "
+          import json
+          try:
+              data = json.load(open('/tmp/meta.json'))
+              print(data.get('signals_found', -1))
+          except:
+              print(-1)
+          ")
+            IS_TRADING=$(python3 -c "
+          import json
+          try:
+              data = json.load(open('/tmp/meta.json'))
+              print('true' if data.get('is_trading_day', False) else 'false')
+          except:
+              print('false')
+          ")
           else
             SCAN_DATE="unreachable"
+            SIGNALS_FOUND="-1"
+            IS_TRADING="false"
           fi
 
           echo "Last scan date: $SCAN_DATE"
+          echo "Signals found: $SIGNALS_FOUND"
+          echo "Is trading day: $IS_TRADING"
 
-          if [ "$SCAN_DATE" = "$TODAY" ]; then
-            echo "Scan ran today — all good"
+          # ── CASE 1: Scan never ran today ──────────────────────
+          if [ "$SCAN_DATE" != "$TODAY" ]; then
+            echo "Scan missed today — triggering now"
+            REASON="Morning scan missed"
+            TRIGGER=true
+
+          # ── CASE 2: Scan ran but found 0 signals on a trading day ──
+          elif [ "$SIGNALS_FOUND" = "0" ] && [ "$IS_TRADING" = "true" ] && [ "$IST_HOUR" -ge "10" ]; then
+            echo "Scan ran today but 0 signals — data likely not ready at 8:45AM — retrying"
+            REASON="0 signals at 8:45AM — data retry at 10AM"
+            TRIGGER=true
+
+          # ── CASE 3: All good ──────────────────────────────────
+          else
+            echo "Scan healthy — date:$SCAN_DATE signals:$SIGNALS_FOUND"
             exit 0
           fi
 
-          echo "Scan missed — auto-triggering"
-
+          # ── TRIGGER RE-SCAN ───────────────────────────────────
           TRIGGER_RESPONSE=$(curl -s -w "\n%{http_code}" \
             -X POST \
             -H "Accept: application/vnd.github+json" \
@@ -59,9 +91,9 @@ jobs:
           echo "Trigger response: $TRIGGER_HTTP"
 
           if [ "$TRIGGER_HTTP" = "204" ]; then
-            MSG="TIE TIY WATCHDOG%0A%0AMorning scan missed at 8:45 AM%0AAuto-triggered at 9:00 AM%0AScan running now."
+            MSG="TIE TIY WATCHDOG%0A%0AReason: ${REASON}%0AAction: Scan triggered now%0ASignals will arrive shortly."
           else
-            MSG="TIE TIY WATCHDOG%0A%0AMorning scan missed.%0AAuto-trigger FAILED (${TRIGGER_HTTP})%0ARun manually: GitHub Actions"
+            MSG="TIE TIY WATCHDOG%0A%0AReason: ${REASON}%0ATrigger FAILED (${TRIGGER_HTTP})%0ARun manually from GitHub Actions."
           fi
 
           curl -s -X POST \
