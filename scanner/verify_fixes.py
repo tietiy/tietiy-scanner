@@ -7,6 +7,7 @@ from datetime import datetime
 REPO_ROOT          = Path(os.environ.get("GITHUB_WORKSPACE", "."))
 SCANNER_DIR        = REPO_ROOT / "scanner"
 DATA_DIR           = REPO_ROOT / "data"
+OUTPUT_DIR         = REPO_ROOT / "output"
 AI_API_KEY         = os.environ.get("AICREDITS_API_KEY", "")
 AI_BASE_URL        = "https://api.aicredits.in/v1"
 TELEGRAM_BOT_TOKEN = os.environ.get("TELEGRAM_BOT_TOKEN", "")
@@ -24,9 +25,26 @@ ICONS   = {"PASS": "✅", "FAIL": "❌", "WARN": "⚠️", "SKIP": "⏳"}
 
 
 def add_result(check_id, layer, status, finding, risk="none"):
-    results.append({"id": check_id, "layer": layer, "status": status, "finding": finding, "risk": risk})
+    results.append({
+        "id": check_id, "layer": layer,
+        "status": status, "finding": finding, "risk": risk
+    })
     print(f"  [{check_id}] {ICONS.get(status, '?')} {status} — {finding}")
 
+
+# ── HISTORY PATH HELPER ───────────────────────────────
+# AI1 FIX: check both data/ and output/ locations
+def _find_history():
+    for path in [
+        DATA_DIR   / "signal_history.json",
+        OUTPUT_DIR / "signal_history.json",
+    ]:
+        if path.exists():
+            return path
+    return None
+
+
+# ── LAYER 1 CHECKS ────────────────────────────────────
 
 def check_D3_tml_removed():
     csv_path = DATA_DIR / "fno_universe.csv"
@@ -45,9 +63,11 @@ def check_D3_tml_in_workflows():
         return
     for f in wf_dir.glob("*.yml"):
         if "TML.NS" in f.read_text():
-            add_result("D3-WF", "L1", "WARN", f"TML.NS still referenced in {f.name}", "low")
+            add_result("D3-WF", "L1", "WARN",
+                       f"TML.NS still referenced in {f.name}", "low")
             return
-    add_result("D3-WF", "L1", "PASS", "TML.NS not referenced in any workflow YAML")
+    add_result("D3-WF", "L1", "PASS",
+               "TML.NS not referenced in any workflow YAML")
 
 
 def check_F3_price_feed_exists():
@@ -58,66 +78,88 @@ def check_F3_price_feed_exists():
 
 
 def check_F1_no_rejected_records():
-    hist = DATA_DIR / "signal_history.json"
-    if not hist.exists():
-        add_result("F1", "L1", "WARN", "signal_history.json not found — skipping", "low")
+    hist = _find_history()
+    if not hist:
+        add_result("F1", "L1", "WARN",
+                   "signal_history.json not found in data/ or output/", "low")
         return
     try:
         data    = json.loads(hist.read_text())
-        signals = data if isinstance(data, list) else data.get("signals", [])
-        bad     = [s for s in signals if s.get("outcome") == "REJECTED"]
+        records = data.get("history", []) if isinstance(data, dict) else data
+        bad     = [s for s in records if s.get("outcome") == "REJECTED"]
         if bad:
-            add_result("F1", "L1", "FAIL", f"{len(bad)} REJECTED outcome records found", "medium")
+            add_result("F1", "L1", "FAIL",
+                       f"{len(bad)} REJECTED outcome records found", "medium")
         else:
-            add_result("F1", "L1", "PASS", "Zero REJECTED outcome records — clean")
+            add_result("F1", "L1", "PASS",
+                       f"Zero REJECTED outcome records — {len(records)} total")
     except Exception as e:
-        add_result("F1", "L1", "WARN", f"Could not parse signal_history.json: {e}", "low")
+        add_result("F1", "L1", "WARN",
+                   f"Could not parse signal_history.json: {e}", "low")
 
 
 def check_SCHEMA_gen1_keys():
+    # AI1 FIX: keys match actual TIE TIY signal_history schema
     REQUIRED = [
-        "signal_id", "symbol", "signal_type", "signal_date", "entry_date",
-        "entry_price", "target_price", "stop_price", "scan_price",
-        "score", "generation", "outcome", "exit_date",
+        "id", "symbol", "signal", "date", "exit_date",
+        "scan_price", "stop", "score", "generation",
+        "outcome", "result", "action", "layer",
     ]
-    hist = DATA_DIR / "signal_history.json"
-    if not hist.exists():
-        add_result("SCHEMA", "L1", "WARN", "signal_history.json not found — skipping", "low")
+    hist = _find_history()
+    if not hist:
+        add_result("SCHEMA", "L1", "WARN",
+                   "signal_history.json not found — skipping", "low")
         return
     try:
         data    = json.loads(hist.read_text())
-        signals = data if isinstance(data, list) else data.get("signals", [])
-        gen1    = [s for s in signals if s.get("generation") == 1]
+        records = data.get("history", []) if isinstance(data, dict) else data
+        gen1    = [s for s in records if s.get("generation") == 1]
         if not gen1:
-            add_result("SCHEMA", "L1", "WARN", "No gen=1 signals found to validate", "low")
+            add_result("SCHEMA", "L1", "WARN",
+                       f"No gen=1 signals found ({len(records)} total records)", "low")
             return
         missing = {}
         for s in gen1:
-            sid  = s.get("signal_id", "unknown")
+            sid  = s.get("id", "unknown")
             miss = [k for k in REQUIRED if k not in s]
             if miss:
                 missing[sid] = miss
         if missing:
             sample = list(missing.items())[:3]
             detail = " | ".join([f"{sid}: {keys}" for sid, keys in sample])
-            add_result("SCHEMA", "L1", "FAIL", f"{len(missing)} gen=1 signals missing keys — {detail}", "medium")
+            add_result("SCHEMA", "L1", "FAIL",
+                       f"{len(missing)} gen=1 signals missing keys — {detail}",
+                       "medium")
         else:
-            add_result("SCHEMA", "L1", "PASS", f"All {len(gen1)} gen=1 signals have required keys")
+            add_result("SCHEMA", "L1", "PASS",
+                       f"All {len(gen1)} gen=1 signals have required keys")
     except Exception as e:
         add_result("SCHEMA", "L1", "WARN", f"Could not parse: {e}", "low")
 
 
 def check_B1_string_presence():
-    for f in SCANNER_DIR.glob("*.py"):
-        content = f.read_text()
-        if "_assess_exit_due" in content:
-            if "== 1" in content or "==1" in content:
-                add_result("B1-PRE", "L1", "PASS", f"==1 found near _assess_exit_due in {f.name}")
-            else:
-                add_result("B1-PRE", "L1", "WARN", f"_assess_exit_due in {f.name} but ==1 not detected", "medium")
-            return
-    add_result("B1-PRE", "L1", "WARN", "_assess_exit_due not found in scanner files", "medium")
+    # AI1 FIX: check outcome_evaluator.py specifically, not all files
+    # Old code searched all files and matched itself — false pass
+    target_file = SCANNER_DIR / "outcome_evaluator.py"
+    if not target_file.exists():
+        add_result("B1-PRE", "L1", "FAIL",
+                   "outcome_evaluator.py not found", "high")
+        return
+    content = target_file.read_text()
+    if "_assess_exit_due" not in content:
+        add_result("B1-PRE", "L1", "FAIL",
+                   "_assess_exit_due not found in outcome_evaluator.py", "high")
+        return
+    if "== 1" in content or "==1" in content:
+        add_result("B1-PRE", "L1", "PASS",
+                   "==1 found near _assess_exit_due in outcome_evaluator.py")
+    else:
+        add_result("B1-PRE", "L1", "FAIL",
+                   "_assess_exit_due found but ==1 missing — B1 fix not applied",
+                   "high")
 
+
+# ── SNIPPET HELPERS ───────────────────────────────────
 
 def extract_snippet(filename, search_term, lines_after=25):
     fp = SCANNER_DIR / filename
@@ -134,6 +176,9 @@ def extract_snippet(filename, search_term, lines_after=25):
 
 def find_snippet_any(search_term, lines_after=25):
     for f in sorted(SCANNER_DIR.glob("*.py")):
+        # AI1 FIX: skip verify_fixes.py itself to prevent self-matching
+        if f.name == "verify_fixes.py":
+            continue
         snippet, _ = extract_snippet(f.name, search_term, lines_after)
         if snippet:
             return snippet, f.name
@@ -141,13 +186,13 @@ def find_snippet_any(search_term, lines_after=25):
 
 
 def get_history_sample(n=20):
-    hist = DATA_DIR / "signal_history.json"
-    if not hist.exists():
+    hist = _find_history()
+    if not hist:
         return None
     try:
         data    = json.loads(hist.read_text())
-        signals = data if isinstance(data, list) else data.get("signals", [])
-        return [s for s in signals if s.get("generation") == 1][:n]
+        records = data.get("history", []) if isinstance(data, dict) else data
+        return [s for s in records if s.get("generation") == 1][:n]
     except Exception:
         return None
 
@@ -208,7 +253,8 @@ def parse_structured(text):
 def ai_audit(check_id, description, search_term):
     snippet, _ = find_snippet_any(search_term)
     if not snippet:
-        add_result(check_id, "L2", "WARN", f"Snippet not found for '{search_term}'", "low")
+        add_result(check_id, "L2", "WARN",
+                   f"Snippet not found for '{search_term}'", "low")
         return
     prompt = AUDIT_PROMPT.format(
         bug_id=check_id,
@@ -217,7 +263,8 @@ def ai_audit(check_id, description, search_term):
     )
     text, err = call_ai(prompt)
     if err:
-        add_result(check_id, "L2", "WARN", f"AI call failed: {err}", "low")
+        add_result(check_id, "L2", "WARN",
+                   f"AI call failed: {err}", "low")
         return
     status, finding, risk = parse_structured(text)
     add_result(check_id, "L2", status, finding, risk)
@@ -226,7 +273,9 @@ def ai_audit(check_id, description, search_term):
 def ai_audit_B1():
     ai_audit(
         "B1",
-        "EXIT TOMORROW appeared one day early. Fix: changed <=1 to ==1 in _assess_exit_due(). Verify ==1 is placed correctly with no edge cases.",
+        "EXIT TOMORROW appeared one day early. Fix: changed <=1 to ==1 in "
+        "_assess_exit_due() in outcome_evaluator.py. Verify ==1 is placed "
+        "correctly with no edge cases.",
         "_assess_exit_due",
     )
 
@@ -234,7 +283,9 @@ def ai_audit_B1():
 def ai_audit_B2():
     ai_audit(
         "B2",
-        "EOD Telegram showed Resolved: 0 always. Fix: open_count and load_history() result now passed to send_eod_summary(). Verify both args present and used.",
+        "EOD Telegram showed Resolved: 0 always. Fix: open_count and "
+        "load_history() result now passed to send_eod_summary(). Verify "
+        "both args present and used.",
         "send_eod_summary",
     )
 
@@ -242,7 +293,9 @@ def ai_audit_B2():
 def ai_audit_B3():
     ai_audit(
         "B3",
-        "Target hit was never detected. Fix added detection in stop_alert_writer.py. Verify UP signals check price >= target_price, DOWN signals check price <= target_price.",
+        "Target hit was never detected. Fix added detection in "
+        "stop_alert_writer.py. Verify UP signals check price >= target_price, "
+        "DOWN signals check price <= target_price.",
         "target_price",
     )
 
@@ -250,7 +303,9 @@ def ai_audit_B3():
 def ai_audit_D1():
     ai_audit(
         "D1",
-        "Morning scan Telegram showed 0 active signals. Fix: active_signals_count and scan_time injected into market_info dict. Verify both fields populated from real data.",
+        "Morning scan Telegram showed 0 active signals. Fix: "
+        "active_signals_count and scan_time injected into market_info dict. "
+        "Verify both fields populated from real data.",
         "active_signals_count",
     )
 
@@ -258,20 +313,22 @@ def ai_audit_D1():
 def ai_history_anomaly_scan():
     sample = get_history_sample(20)
     if not sample:
-        add_result("HISTORY", "L2", "WARN", "No gen=1 signals available for anomaly scan", "low")
+        add_result("HISTORY", "L2", "WARN",
+                   "No gen=1 signals available for anomaly scan", "low")
         return
     prompt = (
         "You are auditing a live stock scanner signal history for data anomalies.\n\n"
         f"Sample: {len(sample)} gen=1 signals\n"
         f"{json.dumps(sample, indent=2)[:5500]}\n\n"
         "Check for:\n"
-        "1. entry_price, scan_price, or target_price = 0.0 or null\n"
-        "2. stop_price >= entry_price for UP signals\n"
-        "3. target_price <= entry_price for UP signals\n"
+        "1. scan_price, stop, or target_price = 0.0 or null\n"
+        "2. stop >= scan_price for UP_TRI signals\n"
+        "3. target_price <= scan_price for UP_TRI signals\n"
         "4. exit_date on Saturday or Sunday\n"
-        "5. Duplicate signal_ids\n"
-        "6. Outcome OPEN but exit_date already passed\n"
-        "7. Any other data or logic anomaly\n\n"
+        "5. Duplicate ids\n"
+        "6. outcome=OPEN but exit_date already passed\n"
+        "7. generation field missing or not integer\n"
+        "8. Any other data or logic anomaly\n\n"
         "Reply ONLY in this exact format:\n"
         "STATUS: PASS | WARN | FAIL\n"
         "FINDINGS:\n"
@@ -281,7 +338,8 @@ def ai_history_anomaly_scan():
     )
     text, err = call_ai(prompt, max_tokens=500)
     if err:
-        add_result("HISTORY", "L2", "WARN", f"AI call failed: {err}", "low")
+        add_result("HISTORY", "L2", "WARN",
+                   f"AI call failed: {err}", "low")
         return
     status = "WARN"
     risk   = "low"
@@ -310,8 +368,8 @@ def send_telegram_report():
     fail_count  = sum(1 for r in results if r["status"] == "FAIL")
     warn_count  = sum(1 for r in results if r["status"] == "WARN")
     skip_count  = sum(1 for r in results if r["status"] == "SKIP")
-    l1          = [r for r in results if r["layer"] == "L1"]
-    l2          = [r for r in results if r["layer"] == "L2"]
+    l1 = [r for r in results if r["layer"] == "L1"]
+    l2 = [r for r in results if r["layer"] == "L2"]
     lines = [
         "TIE TIY Fix Verifier",
         f"Date: {now}  |  Model: {model_label}",
@@ -323,14 +381,17 @@ def send_telegram_report():
     lines += ["", "--- AI CODE AUDIT ---"]
     if l2:
         for r in l2:
-            risk_tag = f" [{r['risk']} risk]" if r["risk"] not in ("none", "low") else ""
-            lines.append(f"{ICONS[r['status']]} {r['id']} — {r['finding']}{risk_tag}")
+            risk_tag = f" [{r['risk']} risk]" \
+                if r["risk"] not in ("none", "low") else ""
+            lines.append(
+                f"{ICONS[r['status']]} {r['id']} — {r['finding']}{risk_tag}")
     else:
         lines.append("PENDING — add AICREDITS_API_KEY to GitHub Secrets")
     lines += [
         "",
         "----------------------",
-        f"PASS:{pass_count}  FAIL:{fail_count}  WARN:{warn_count}  SKIP:{skip_count}",
+        f"PASS:{pass_count}  FAIL:{fail_count}  "
+        f"WARN:{warn_count}  SKIP:{skip_count}",
     ]
     if fail_count > 0:
         lines.append("FAILs detected — review before next trading day")
@@ -366,9 +427,12 @@ def run_layer2():
         print("  AICREDITS_API_KEY not set — Layer 2 skipped")
         return
     print(f"  Model: {AI_MODEL} ({AI_MODEL_KEY})")
-    critical_fails = [r for r in results if r["status"] == "FAIL" and r["layer"] == "L1"]
+    critical_fails = [r for r in results
+                      if r["status"] == "FAIL" and r["layer"] == "L1"]
     if len(critical_fails) >= 3:
-        add_result("L2-GATE", "L2", "SKIP", f"{len(critical_fails)} L1 failures — fix first, AI audit skipped", "high")
+        add_result("L2-GATE", "L2", "SKIP",
+                   f"{len(critical_fails)} L1 failures — fix first, "
+                   f"AI audit skipped", "high")
         return
     ai_audit_B1()
     ai_audit_B2()
@@ -382,7 +446,8 @@ if __name__ == "__main__":
     print("  TIE TIY Fix Verifier")
     print(f"  {datetime.now().strftime('%Y-%m-%d %H:%M')}")
     print(f"  Model  : {AI_MODEL_KEY} — {AI_MODEL}")
-    print(f"  API Key: {'SET' if AI_API_KEY else 'NOT SET — Layer 2 will skip'}")
+    print(f"  API Key: "
+          f"{'SET' if AI_API_KEY else 'NOT SET — Layer 2 will skip'}")
     print("=" * 55)
     run_layer1()
     run_layer2()
