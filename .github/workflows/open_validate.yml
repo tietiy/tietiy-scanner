@@ -1,4 +1,4 @@
-name: Open Price Validation 9:25 AM IST
+name: Open Price Validation 9:29 AM IST
 
 on:   
   workflow_dispatch:
@@ -17,7 +17,6 @@ jobs:
       contents: write
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -30,7 +29,7 @@ jobs:
 
       - name: Run open validator
         env:
-          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
@@ -42,19 +41,15 @@ jobs:
           git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
 
-          # Stage output files first before any git operations
           git add output/open_prices.json \
                   output/signal_history.json \
                   output/signal_history.backup.json || true
 
-          # Check if there is anything to commit
           git diff --cached --quiet && \
             echo "No changes to commit — exiting cleanly" && exit 0
 
-          # Commit locally first
           git commit -m "Open validation $(date +'%Y-%m-%d %H:%M IST')"
 
-          # Then push with retry
           for i in 1 2 3; do
             git pull --rebase origin main && \
             git push origin HEAD:main && \
@@ -62,3 +57,15 @@ jobs:
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORKFLOW_NAME: "Open Validate"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          pip install requests --quiet
+          python scanner/alert_failure.py
