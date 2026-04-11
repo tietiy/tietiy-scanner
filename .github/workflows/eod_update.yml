@@ -13,7 +13,6 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -58,3 +57,15 @@ jobs:
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORKFLOW_NAME: "EOD Update"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          pip install requests --quiet
+          python scanner/alert_failure.py
