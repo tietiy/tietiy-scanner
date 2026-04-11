@@ -7,7 +7,7 @@
 # 3. Stop alert     — compact, urgent
 # 4. Exit tomorrow  — entry + ltp + % vs entry
 # 5. EOD summary    — signal type + outcome + P&L
-# 6. Heartbeat      — daily alive signal
+# 6. Heartbeat      — daily alive signal + workflow status
 # 7. Workflow fail  — alert on GitHub Action failure
 #
 # CHANGES:
@@ -15,6 +15,8 @@
 # NEW: scan_time + ltp_updated_at shown in morning scan header
 # B1 FIX: send_exit_tomorrow accepts exit_today flag
 # Q2 FIX: send_message has retry with exponential backoff
+# Q3 FIX: send_heartbeat shows workflow status
+# Q4 FIX: send_message auto-chunks messages > 4000 chars
 # ─────────────────────────────────────────────────────
 
 import os
@@ -27,18 +29,82 @@ TELEGRAM_TOKEN   = os.environ.get('TELEGRAM_TOKEN', '')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '8493010921')
 
 
-# ── CORE SEND WITH RETRY ──────────────────────────────
+# ── CORE SEND WITH RETRY + CHUNKING ───────────────────
 def send_message(text: str, max_retries: int = 3) -> bool:
     """
-    Send Telegram message with retry and exponential backoff.
-    Tries MarkdownV2 first, falls back to plain text.
+    Send Telegram message with retry, backoff, and auto-chunking.
     
-    Retry delays: 2s, 4s, 8s (exponential backoff)
+    - Splits messages > 4000 chars into multiple messages
+    - Tries MarkdownV2 first, falls back to plain text
+    - Retry delays: 2s, 4s, 8s (exponential backoff)
     """
     if not TELEGRAM_TOKEN:
         print('[telegram] No TELEGRAM_TOKEN — skipping')
         return False
 
+    # ── Chunk if needed (4096 limit, use 4000 for safety) ──
+    MAX_LENGTH = 4000
+    
+    if len(text) <= MAX_LENGTH:
+        return _send_single_message(text, max_retries)
+    
+    # Split into chunks at newlines
+    chunks = _split_message(text, MAX_LENGTH)
+    print(f'[telegram] Message too long ({len(text)} chars), '
+          f'splitting into {len(chunks)} chunks')
+    
+    success = True
+    for i, chunk in enumerate(chunks):
+        print(f'[telegram] Sending chunk {i + 1}/{len(chunks)} '
+              f'({len(chunk)} chars)')
+        if not _send_single_message(chunk, max_retries):
+            success = False
+        # Small delay between chunks to avoid rate limiting
+        if i < len(chunks) - 1:
+            time.sleep(1)
+    
+    return success
+
+
+def _split_message(text: str, max_length: int) -> list:
+    """
+    Split message into chunks at newline boundaries.
+    Tries to keep logical sections together.
+    """
+    if len(text) <= max_length:
+        return [text]
+    
+    chunks = []
+    current = ""
+    
+    for line in text.split('\n'):
+        # If single line exceeds max, force split
+        if len(line) > max_length:
+            if current:
+                chunks.append(current.rstrip('\n'))
+                current = ""
+            # Split long line at max_length
+            for i in range(0, len(line), max_length - 10):
+                chunks.append(line[i:i + max_length - 10])
+            continue
+        
+        # Check if adding line exceeds max
+        if len(current) + len(line) + 1 > max_length:
+            chunks.append(current.rstrip('\n'))
+            current = line + '\n'
+        else:
+            current += line + '\n'
+    
+    if current.strip():
+        chunks.append(current.rstrip('\n'))
+    
+    return chunks
+
+
+def _send_single_message(text: str, max_retries: int = 3) -> bool:
+    """
+    Send a single message with retry and exponential backoff.
+    """
     url = (f'https://api.telegram.org/'
            f'bot{TELEGRAM_TOKEN}/sendMessage')
 
@@ -59,13 +125,15 @@ def send_message(text: str, max_retries: int = 3) -> bool:
             
             # Rate limited — wait and retry
             if r.status_code == 429:
-                retry_after = r.json().get('parameters', {}).get('retry_after', 5)
+                retry_after = r.json().get(
+                    'parameters', {}).get('retry_after', 5)
                 print(f'[telegram] Rate limited, waiting {retry_after}s')
                 time.sleep(retry_after)
                 continue
             
             # Other error — log and try next attempt
-            print(f'[telegram] Attempt {attempt + 1} failed: {r.status_code} {r.text[:100]}')
+            print(f'[telegram] Attempt {attempt + 1} failed: '
+                  f'{r.status_code} {r.text[:100]}')
             
         except requests.exceptions.Timeout:
             print(f'[telegram] Attempt {attempt + 1} timeout')
@@ -222,10 +290,8 @@ def send_morning_scan(signals: list, meta: dict):
     """
     date_str     = meta.get('market_date', 'today')
     regime       = meta.get('regime', '')
-    # D1 FIX: read active_signals_count properly
     active_count = meta.get('active_signals_count', 0)
     new_count    = len(signals)
-    # Timing info — optional, shown if provided
     scan_time    = meta.get('scan_time', '')
     ltp_time     = meta.get('ltp_updated_at', '')
 
@@ -244,7 +310,6 @@ def send_morning_scan(signals: list, meta: dict):
         f'{_esc(str(new_count))} new signals · '
         f'{_esc(str(active_count))} active')
 
-    # ── Timing line — scan + LTP timestamps ───────────
     timing_parts = []
     if scan_time:
         timing_parts.append(f'Scan {scan_time}')
@@ -443,7 +508,6 @@ def send_exit_tomorrow(signals: list,
     if not signals:
         return
 
-    # B1 FIX: correct header based on exit timing
     header_label = (
         'EXIT TODAY — Sell at 9:15 AM Open'
         if exit_today
@@ -540,8 +604,6 @@ def send_eod_summary(outcomes: list,
     """
     today_str = date.today().strftime('%Y-%m-%d')
 
-    # B2 FIX: filter resolved from full history
-    # outcome != OPEN and outcome is not None
     resolved = [
         o for o in outcomes
         if o.get('outcome')
@@ -655,7 +717,7 @@ def _find_next_exit(outcomes):
         return d.strftime('%b %d')
     except Exception:
         return nearest
-        
+
 
 # ── 6. HEARTBEAT ──────────────────────────────────────
 def send_heartbeat(meta: dict):
@@ -673,7 +735,6 @@ def send_heartbeat(meta: dict):
     is_trading  = meta.get('is_trading_day', True)
     wf_status   = meta.get('workflow_status', '')
     
-    # Format last scan date nicely
     try:
         d = datetime.strptime(last_date, '%Y-%m-%d')
         last_date_fmt = d.strftime('%b %d')
@@ -706,7 +767,6 @@ def send_heartbeat(meta: dict):
     send_message('\n'.join(lines))
 
 
-
 # ── 7. WORKFLOW FAILURE ALERT ─────────────────────────
 def send_workflow_failure(workflow_name: str, 
                           run_url: str = None):
@@ -728,7 +788,8 @@ def send_workflow_failure(workflow_name: str,
     if run_url:
         lines.append('')
         lines.append(
-            _link('View logs', run_url.replace('.', '\\.').replace('-', '\\-')))
+            _link('View logs', 
+                  run_url.replace('.', '\\.').replace('-', '\\-')))
     
     send_message('\n'.join(lines))
 
