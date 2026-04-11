@@ -46,11 +46,12 @@ def run_weekend_summary():
     history = load_history()
     
     # Find signals resolved this week
+    # FIX: Use (s.get('exit_date_actual') or '') to handle None values
     resolved_this_week = [
         s for s in history
         if s.get('result') in ('WON', 'STOPPED', 'EXITED')
         and s.get('action') == 'TOOK'
-        and s.get('exit_date_actual', '') >= week_start_str
+        and (s.get('exit_date_actual') or '') >= week_start_str
     ]
     
     wins   = len([s for s in resolved_this_week if s.get('result') == 'WON'])
@@ -66,7 +67,7 @@ def run_weekend_summary():
     # Next exit dates
     next_exits = []
     for s in active:
-        ed = s.get('exit_date', '')
+        ed = s.get('exit_date') or ''
         if ed and ed > today.isoformat():
             try:
                 d = datetime.strptime(ed, '%Y-%m-%d')
