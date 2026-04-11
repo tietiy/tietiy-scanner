@@ -8,6 +8,8 @@
 #         not just get_open_trades()
 # WEEKEND FIX: Non-trading days now write valid scan_log.json
 #              to prevent health check failures from stale data
+# M4 FIX: Skip if already scanned today (for retry crons)
+# M5 FIX: Auto-sync active count if mismatch detected
 # ─────────────────────────────────────────────────────
 
 import sys
@@ -92,6 +94,43 @@ def _is_shadow_mode():
         return rules.get('shadow_mode', True)
     except Exception:
         return True
+
+
+# ── M4: SKIP-IF-DONE CHECK ────────────────────────────
+def _already_scanned_today():
+    """
+    Returns True if scan_log.json exists with today's date
+    and has signals or explicitly marked complete.
+    Used by retry crons to skip if primary scan succeeded.
+    """
+    scan_log_path = os.path.join(OUTPUT_DIR, 'scan_log.json')
+    today_str = date.today().isoformat()
+    
+    if not os.path.exists(scan_log_path):
+        return False
+    
+    try:
+        with open(scan_log_path, 'r') as f:
+            data = json.load(f)
+        
+        if data.get('date') != today_str:
+            return False
+        
+        if data.get('is_trading_day', True):
+            if 'count' in data:
+                print(f"[main] Already scanned today "
+                      f"({data.get('count', 0)} signals) — skipping")
+                return True
+        else:
+            print("[main] Already processed today "
+                  "(non-trading day) — skipping")
+            return True
+        
+        return False
+        
+    except Exception as e:
+        print(f"[main] Skip check error: {e}")
+        return False
 
 
 # ── MARKET DATA ───────────────────────────────────────
@@ -297,6 +336,10 @@ def write_scan_log(signals, rejected, scan_date, regime,
 
 # ── MORNING SCAN ──────────────────────────────────────
 def run_morning_scan():
+
+    # ── M4: Skip if already scanned today ─────────────
+    if _already_scanned_today():
+        return
 
     # ── STEP 1: Trading day check ──────────────────────
     status = get_market_status()
@@ -556,7 +599,24 @@ def run_morning_scan():
         print(f"[main] Holidays write error: {e}")
 
     # ── STEP 17: Write meta.json — MUST BE LAST ────────
+    # M5 FIX: Verify active count matches reality
     active_now = get_active_signals_count()
+    
+    try:
+        fresh_history = load_history()
+        actual_pending = len([
+            s for s in fresh_history
+            if s.get('result') == 'PENDING'
+            and s.get('action') == 'TOOK'
+        ])
+        if actual_pending != active_now:
+            print(f"[main] M5 FIX: Active count mismatch — "
+                  f"journal says {active_now}, "
+                  f"actual is {actual_pending}")
+            active_now = actual_pending
+    except Exception as e:
+        print(f"[main] M5 count verify error: {e}")
+
     try:
         write_meta(
             output_dir            = OUTPUT_DIR,
