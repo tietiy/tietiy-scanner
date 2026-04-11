@@ -25,6 +25,8 @@ jobs:
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_REPO: ${{ github.repository }}
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: python scanner/heartbeat.py
 
