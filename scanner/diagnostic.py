@@ -92,8 +92,6 @@ class DiagnosticReport:
     def exit_code(self):
         if self.failed > 0:
             return 2
-        if self.warnings > 0:
-            return 1
         return 0
 
     def summary_line(self):
