@@ -49,6 +49,5 @@ _BASE      = os.path.dirname(
 
 DATA_DIR    = os.path.join(_BASE, 'data')
 OUTPUT_DIR  = os.path.join(_BASE, 'output')
-JOURNAL_DIR = os.path.join(_BASE, 'journal')
 
 FO_UNIVERSE_URL = ''
