@@ -1,18 +1,8 @@
-# .github/workflows/diagnostic.yml
-# Automatic + Manual diagnostic check for TIE TIY Scanner
-#
-# Runs: Daily at 8:30 AM IST (before morning scan)
-# Manual: From Actions tab anytime
-# ─────────────────────────────────────────────────────
-
 name: Diagnostic Check
 
 on:
-  # Automatic daily run
   schedule:
-    - cron: '0 3 * * 1-5'  # 8:30 AM IST, Mon-Fri
-
-  # Manual trigger
+    - cron: '0 3 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
@@ -43,8 +33,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install requests
+        run: pip install requests
 
       - name: Run Diagnostic
         env:
@@ -52,8 +41,6 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
-          # For scheduled runs: full + telegram
-          # For manual runs: use inputs
           if [ "${{ github.event_name }}" = "schedule" ]; then
             python scanner/diagnostic.py --telegram
           else
@@ -66,3 +53,15 @@ jobs:
             fi
             python scanner/diagnostic.py $ARGS
           fi
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORKFLOW_NAME: "Diagnostic"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          pip install requests --quiet
+          python scanner/alert_failure.py
