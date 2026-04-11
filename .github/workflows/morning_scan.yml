@@ -12,11 +12,11 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
     permissions:
       contents: write
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
@@ -25,12 +25,14 @@ jobs:
       - name: Set up Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.11'
+          python-version: "3.11"
 
       - name: Install dependencies
-        run: pip install yfinance pandas numpy requests pywebpush cryptography
+        run: |
+          pip install yfinance pandas numpy requests pywebpush cryptography
 
       - name: Run morning scan
+        id: scan
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -40,20 +42,97 @@ jobs:
           VAPID_CLAIM_EMAIL: ${{ secrets.VAPID_CLAIM_EMAIL }}
           PUSH_PIN: ${{ secrets.PUSH_PIN }}
         run: |
-          export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
-          cd $GITHUB_WORKSPACE/scanner && python main.py morning
+          cd "$GITHUB_WORKSPACE/scanner"
+          python main.py morning
+        continue-on-error: true
+
+      - name: Run health check
+        id: health
+        if: always()
+        run: |
+          cd "$GITHUB_WORKSPACE"
+
+          set +e
+          python scanner/health_check.py --quarantine
+          HEALTH_EXIT=$?
+          set -e
+
+          echo "exit_code=$HEALTH_EXIT" >> "$GITHUB_OUTPUT"
+
+          if [ "$HEALTH_EXIT" -eq 0 ]; then
+            echo "status=PASS" >> "$GITHUB_OUTPUT"
+          elif [ "$HEALTH_EXIT" -eq 1 ]; then
+            echo "status=WARNING" >> "$GITHUB_OUTPUT"
+          else
+            echo "status=FAIL" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Send health summary to Telegram
+        if: always()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -n "${TELEGRAM_TOKEN}" ] && [ -n "${TELEGRAM_CHAT_ID}" ]; then
+            MSG="$(python scanner/health_check.py --telegram 2>/dev/null || echo '⚠️ Health check summary unavailable')"
+
+            curl -s -X POST "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+              -d chat_id="${TELEGRAM_CHAT_ID}" \
+              -d text="$MSG" \
+              -d parse_mode="Markdown" >/dev/null || true
+          else
+            echo "Telegram secrets not present, skipping health summary."
+          fi
+
+      - name: Upload health report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: health-report-${{ github.run_number }}
+          path: output/health_report.json
+          retention-days: 30
+          if-no-files-found: ignore
 
       - name: Commit and push outputs
+        if: always()
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
           git config user.name "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-          git add output/ data/
-          git diff --cached --quiet && echo "No changes to commit" && exit 0
-          git commit -m "Scan $(date '+%Y-%m-%d %H:%M') IST"
+
+          git add output/ data/ quarantine/ || true
+
+          if git diff --cached --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+
+          HEALTH_STATUS="${{ steps.health.outputs.status }}"
+
+          if [ "$HEALTH_STATUS" = "FAIL" ]; then
+            COMMIT_MSG="🔴 Scan $(date '+%Y-%m-%d %H:%M') IST [HEALTH: FAIL]"
+          elif [ "$HEALTH_STATUS" = "WARNING" ]; then
+            COMMIT_MSG="🟡 Scan $(date '+%Y-%m-%d %H:%M') IST [HEALTH: WARNING]"
+          else
+            COMMIT_MSG="🟢 Scan $(date '+%Y-%m-%d %H:%M') IST [HEALTH: PASS]"
+          fi
+
+          git commit -m "$COMMIT_MSG"
+
           for i in 1 2 3; do
-            git pull --rebase origin main && git push origin HEAD:main && echo "Push succeeded on attempt $i" && break
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
+
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
+
+      - name: Fail job on critical health issues
+        if: always() && steps.health.outputs.exit_code == '2'
+        run: |
+          echo "❌ CRITICAL health issues detected!"
+          echo "Check output/health_report.json for details."
+          echo "Quarantine backup created if applicable."
+          exit 1
