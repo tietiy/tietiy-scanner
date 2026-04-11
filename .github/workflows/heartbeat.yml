@@ -2,7 +2,7 @@ name: Daily Heartbeat
 
 on:
   schedule:
-    - cron: '0 3 * * 1-5'  # 8:30 AM IST, Mon-Fri
+    - cron: '0 3 * * 1-5'
   workflow_dispatch:
 
 jobs:
@@ -27,3 +27,15 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: python scanner/heartbeat.py
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORKFLOW_NAME: "Heartbeat"
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          pip install requests --quiet
+          python scanner/alert_failure.py
