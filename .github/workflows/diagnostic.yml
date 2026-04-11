@@ -1,0 +1,68 @@
+# .github/workflows/diagnostic.yml
+# Automatic + Manual diagnostic check for TIE TIY Scanner
+#
+# Runs: Daily at 8:30 AM IST (before morning scan)
+# Manual: From Actions tab anytime
+# ─────────────────────────────────────────────────────
+
+name: Diagnostic Check
+
+on:
+  # Automatic daily run
+  schedule:
+    - cron: '0 3 * * 1-5'  # 8:30 AM IST, Mon-Fri
+
+  # Manual trigger
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Check mode'
+        required: true
+        default: 'full'
+        type: choice
+        options:
+          - quick
+          - full
+      telegram:
+        description: 'Send Telegram report'
+        required: true
+        default: true
+        type: boolean
+
+jobs:
+  diagnostic:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install requests
+
+      - name: Run Diagnostic
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          # For scheduled runs: full + telegram
+          # For manual runs: use inputs
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            python scanner/diagnostic.py --telegram
+          else
+            ARGS=""
+            if [ "${{ inputs.mode }}" = "quick" ]; then
+              ARGS="$ARGS --quick"
+            fi
+            if [ "${{ inputs.telegram }}" = "true" ]; then
+              ARGS="$ARGS --telegram"
+            fi
+            python scanner/diagnostic.py $ARGS
+          fi
