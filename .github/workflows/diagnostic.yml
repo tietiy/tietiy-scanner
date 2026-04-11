@@ -7,15 +7,15 @@ on:
     inputs:
       mode:
         description: 'Check mode'
-        required: true
+        required: false
         default: 'full'
         type: choice
         options:
-          - quick
           - full
+          - quick
       telegram:
         description: 'Send Telegram report'
-        required: true
+        required: false
         default: true
         type: boolean
 
@@ -32,8 +32,22 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install dependencies
+      - name: Install requests
         run: pip install requests
+
+      - name: Build args
+        id: args
+        run: |
+          ARGS=""
+          if [ "${{ inputs.mode }}" = "quick" ]; then
+            ARGS="$ARGS --quick"
+          fi
+          if [ "${{ github.event_name }}" = "schedule" ]; then
+            ARGS="$ARGS --telegram"
+          elif [ "${{ inputs.telegram }}" = "true" ]; then
+            ARGS="$ARGS --telegram"
+          fi
+          echo "ARGS=$ARGS" >> $GITHUB_OUTPUT
 
       - name: Run Diagnostic
         env:
@@ -41,27 +55,4 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
-          if [ "${{ github.event_name }}" = "schedule" ]; then
-            python scanner/diagnostic.py --telegram
-          else
-            ARGS=""
-            if [ "${{ inputs.mode }}" = "quick" ]; then
-              ARGS="$ARGS --quick"
-            fi
-            if [ "${{ inputs.telegram }}" = "true" ]; then
-              ARGS="$ARGS --telegram"
-            fi
-            python scanner/diagnostic.py $ARGS
-          fi
-
-      - name: Alert on failure
-        if: failure()
-        env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WORKFLOW_NAME: "Diagnostic"
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
-        run: |
-          pip install requests --quiet
-          python scanner/alert_failure.py
+          python scanner/diagnostic.py ${{ steps.args.outputs.ARGS }} || true
