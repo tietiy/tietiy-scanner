@@ -655,13 +655,13 @@ def _find_next_exit(outcomes):
         return d.strftime('%b %d')
     except Exception:
         return nearest
-
+        
 
 # ── 6. HEARTBEAT ──────────────────────────────────────
 def send_heartbeat(meta: dict):
     """
     Simple alive signal sent before morning scan.
-    Shows system status, regime, active count.
+    Shows system status, regime, active count, workflow status.
     """
     today_str   = date.today().strftime('%Y-%m-%d')
     now_time    = datetime.now().strftime('%I:%M %p')
@@ -671,6 +671,7 @@ def send_heartbeat(meta: dict):
     last_date   = meta.get('market_date', '—')
     last_found  = meta.get('signals_found', 0)
     is_trading  = meta.get('is_trading_day', True)
+    wf_status   = meta.get('workflow_status', '')
     
     # Format last scan date nicely
     try:
@@ -699,7 +700,11 @@ def send_heartbeat(meta: dict):
         f'Last scan: {_esc(last_date_fmt)} · '
         f'{_esc(str(last_found))} signals')
     
+    if wf_status:
+        lines.append(f'Workflows: {wf_status}')
+    
     send_message('\n'.join(lines))
+
 
 
 # ── 7. WORKFLOW FAILURE ALERT ─────────────────────────
