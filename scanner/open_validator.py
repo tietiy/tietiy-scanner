@@ -9,6 +9,8 @@
 #
 # ALSO FIXED: _fetch_open uses 1m intraday bars, first bar Open.
 # Daily bars not available at 9:25 AM (candle not closed yet).
+#
+# TELEGRAM FIX: Now sends open validation results to Telegram.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -25,6 +27,14 @@ from journal import (
     load_history, _save_json,
     _backup_history, HISTORY_FILE
 )
+
+# ── TELEGRAM IMPORT ───────────────────────────────────
+try:
+    from telegram_bot import send_open_validation
+    TELEGRAM_AVAILABLE = True
+except ImportError:
+    TELEGRAM_AVAILABLE = False
+    print("[open_validator] telegram_bot not available")
 
 # ── PATHS ─────────────────────────────────────────────
 _HERE   = os.path.dirname(os.path.abspath(__file__))
@@ -188,6 +198,7 @@ def run_open_validation():
     Fetches actual open price from yfinance 1m bars.
     Updates actual_open in signal_history.json.
     Writes open_prices.json for frontend.
+    Sends results to Telegram.
     """
     print("[open_validator] Starting...")
 
@@ -240,6 +251,14 @@ def run_open_validation():
         print("[open_validator] No signals entering today "
               "— writing empty output")
         _write_open_prices([], today_str, now_ist)
+        
+        # ── TELEGRAM: No entries today ────────────────
+        if TELEGRAM_AVAILABLE:
+            try:
+                send_open_validation([], today_str)
+                print("[open_validator] Telegram sent (0 entries)")
+            except Exception as e:
+                print(f"[open_validator] Telegram error: {e}")
         return
 
     # Log what we're processing
@@ -347,6 +366,14 @@ def run_open_validation():
     print(f"[open_validator] Complete — "
           f"{len(results)} processed | "
           f"OK:{ok} WARNING:{warnings} SKIP:{skipped}")
+
+    # ── TELEGRAM: Send validation results ─────────────
+    if TELEGRAM_AVAILABLE:
+        try:
+            send_open_validation(results, today_str)
+            print("[open_validator] Telegram sent")
+        except Exception as e:
+            print(f"[open_validator] Telegram error: {e}")
 
 
 def _write_open_prices(results, today_str, fetch_time):
