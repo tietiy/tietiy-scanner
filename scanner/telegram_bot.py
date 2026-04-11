@@ -616,6 +616,49 @@ def _find_next_exit(outcomes):
     except Exception:
         return nearest
 
+# ── 6. HEARTBEAT ──────────────────────────────────────
+def send_heartbeat(meta: dict):
+    """
+    Simple alive signal sent before morning scan.
+    Shows system status, regime, active count.
+    """
+    today_str   = date.today().strftime('%Y-%m-%d')
+    now_time    = datetime.now().strftime('%I:%M %p')
+    
+    regime      = meta.get('regime', '—')
+    active      = meta.get('active_signals_count', 0)
+    last_date   = meta.get('market_date', '—')
+    last_found  = meta.get('signals_found', 0)
+    is_trading  = meta.get('is_trading_day', True)
+    
+    # Format last scan date nicely
+    try:
+        d = datetime.strptime(last_date, '%Y-%m-%d')
+        last_date_fmt = d.strftime('%b %d')
+    except Exception:
+        last_date_fmt = last_date
+    
+    lines = []
+    lines.append(
+        f'💓 *{_esc("TIE TIY")} · '
+        f'{_esc(today_str)} · '
+        f'{_esc(now_time)}*')
+    lines.append('')
+    lines.append(f'System: ✅ Online')
+    lines.append(f'Regime: {_esc(regime)}')
+    lines.append(f'Active: {_esc(str(active))} signals')
+    
+    if is_trading:
+        lines.append(f'Next scan: 8:45 AM')
+    else:
+        lines.append(f'Today: Market closed')
+    
+    lines.append('')
+    lines.append(
+        f'Last scan: {_esc(last_date_fmt)} · '
+        f'{_esc(str(last_found))} signals')
+    
+    send_message('\n'.join(lines))
 
 # ── TEST ──────────────────────────────────────────────
 if __name__ == '__main__':
