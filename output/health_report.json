@@ -1,0 +1,33 @@
+{
+  "timestamp": "2026-04-11T05:35:52.460545",
+  "status": "FAIL",
+  "summary": {
+    "checks_run": 15,
+    "checks_passed": 13,
+    "critical": 1,
+    "major": 1,
+    "minor": 0
+  },
+  "quarantine": {
+    "triggered": false,
+    "backup_path": null
+  },
+  "issues": [
+    {
+      "code": "S3",
+      "severity": "CRITICAL",
+      "message": "signals array missing from signal_history.json",
+      "file": "signal_history.json",
+      "field": null,
+      "fix_hint": null
+    },
+    {
+      "code": "S4",
+      "severity": "MAJOR",
+      "message": "scan_log.json missing fields: ['scan_date', 'scan_time', 'market_info']",
+      "file": "scan_log.json",
+      "field": null,
+      "fix_hint": null
+    }
+  ]
+}
