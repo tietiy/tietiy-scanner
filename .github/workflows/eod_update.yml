@@ -2,6 +2,12 @@ name: EOD Update 3:35 PM IST
 
 on:
   workflow_dispatch:
+    inputs:
+      backup_only:
+        description: 'Run backup only (skip EOD logic)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -29,7 +35,13 @@ jobs:
       - name: Create folders
         run: mkdir -p output data output/backups
 
+      - name: Run Backup
+        run: |
+          export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
+          python scanner/backup_manager.py
+
       - name: Run EOD update
+        if: ${{ inputs.backup_only != true }}
         env:
           TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -37,11 +49,6 @@ jobs:
         run: |
           export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
           cd $GITHUB_WORKSPACE/scanner && python main.py eod
-
-      - name: Run Backup
-        run: |
-          export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
-          python scanner/backup_manager.py
 
       - name: Commit and push outputs
         env:
