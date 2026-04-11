@@ -6,6 +6,8 @@
 #         + scan_time before send_morning_scan call
 # B2 FIX: run_eod() passes load_history() to send_eod_summary
 #         not just get_open_trades()
+# WEEKEND FIX: Non-trading days now write valid scan_log.json
+#              to prevent health check failures from stale data
 # ─────────────────────────────────────────────────────
 
 import sys
@@ -218,7 +220,13 @@ def filter_duplicate_pending(signals, history_signals):
 
 
 # ── SCAN LOG ──────────────────────────────────────────
-def write_scan_log(signals, rejected, scan_date, regime):
+def write_scan_log(signals, rejected, scan_date, regime,
+                   is_trading_day=True):
+    """
+    Writes scan_log.json.
+    WEEKEND FIX: Now accepts is_trading_day flag to write
+    valid but empty scan_log on non-trading days.
+    """
     os.makedirs(OUTPUT_DIR, exist_ok=True)
     log_path = os.path.join(OUTPUT_DIR, 'scan_log.json')
 
@@ -268,11 +276,14 @@ def write_scan_log(signals, rejected, scan_date, regime):
         }
 
     data = {
-        'date':     scan_date,
-        'regime':   regime,
-        'count':    len(signals),
-        'signals':  [_fmt(s) for s in signals],
-        'rejected': [_fmt(s) for s in rejected],
+        'date':           scan_date,
+        'scan_date':      scan_date,
+        'scan_time':      datetime.utcnow().strftime('%H:%M UTC'),
+        'regime':         regime,
+        'count':          len(signals),
+        'is_trading_day': is_trading_day,
+        'signals':        [_fmt(s) for s in signals],
+        'rejected':       [_fmt(s) for s in rejected],
     }
 
     with open(log_path, 'w') as f:
@@ -280,7 +291,8 @@ def write_scan_log(signals, rejected, scan_date, regime):
 
     print(f"[main] scan_log.json written → "
           f"{len(signals)} signals, "
-          f"{len(rejected)} rejected")
+          f"{len(rejected)} rejected, "
+          f"trading_day={is_trading_day}")
 
 
 # ── MORNING SCAN ──────────────────────────────────────
@@ -298,6 +310,18 @@ def run_morning_scan():
             print(f"[main] Archive init: {e}")
 
         write_holidays(OUTPUT_DIR)
+
+        # ── WEEKEND FIX: Write valid scan_log.json ─────
+        # This prevents health check failures from stale data
+        scan_date = date.today().isoformat()
+        write_scan_log(
+            signals=[],
+            rejected=[],
+            scan_date=scan_date,
+            regime=market_info['regime'],
+            is_trading_day=False
+        )
+
         write_meta(
             output_dir           = OUTPUT_DIR,
             market_date          = date.today().isoformat(),
@@ -311,6 +335,10 @@ def run_morning_scan():
             history_record_count = get_history_count(),
         )
         build_html()
+
+        # ── Telegram: Non-trading day notification ─────
+        print(f"[main] Non-trading day complete — "
+              f"{status['reason']}")
         return
 
     print("[main] Trading day confirmed — starting morning scan")
@@ -450,7 +478,10 @@ def run_morning_scan():
 
     # ── STEP 11: Write scan_log.json ──────────────────
     scan_date = date.today().isoformat()
-    write_scan_log(mini_signals, rejected, scan_date, regime)
+    write_scan_log(
+        mini_signals, rejected, scan_date, regime,
+        is_trading_day=True
+    )
 
     # ── STEP 12-13: Write mini + rejected logs ─────────
     write_mini_log(mini_signals)
