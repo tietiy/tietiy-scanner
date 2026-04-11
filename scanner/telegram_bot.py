@@ -7,15 +7,19 @@
 # 3. Stop alert     — compact, urgent
 # 4. Exit tomorrow  — entry + ltp + % vs entry
 # 5. EOD summary    — signal type + outcome + P&L
+# 6. Heartbeat      — daily alive signal
+# 7. Workflow fail  — alert on GitHub Action failure
 #
 # CHANGES:
 # D1 FIX: send_morning_scan reads active_signals_count from meta
 # NEW: scan_time + ltp_updated_at shown in morning scan header
 # B1 FIX: send_exit_tomorrow accepts exit_today flag
+# Q2 FIX: send_message has retry with exponential backoff
 # ─────────────────────────────────────────────────────
 
 import os
 import re
+import time
 import requests
 from datetime import date, datetime
 
@@ -23,42 +27,78 @@ TELEGRAM_TOKEN   = os.environ.get('TELEGRAM_TOKEN', '')
 TELEGRAM_CHAT_ID = os.environ.get('TELEGRAM_CHAT_ID', '8493010921')
 
 
-# ── CORE SEND ─────────────────────────────────────────
-def send_message(text: str) -> bool:
+# ── CORE SEND WITH RETRY ──────────────────────────────
+def send_message(text: str, max_retries: int = 3) -> bool:
+    """
+    Send Telegram message with retry and exponential backoff.
+    Tries MarkdownV2 first, falls back to plain text.
+    
+    Retry delays: 2s, 4s, 8s (exponential backoff)
+    """
     if not TELEGRAM_TOKEN:
         print('[telegram] No TELEGRAM_TOKEN — skipping')
         return False
 
-    url     = (f'https://api.telegram.org/'
-               f'bot{TELEGRAM_TOKEN}/sendMessage')
-    payload = {
-        'chat_id':                  TELEGRAM_CHAT_ID,
-        'text':                     text,
-        'parse_mode':               'MarkdownV2',
-        'disable_web_page_preview': True,
-    }
-    try:
-        r = requests.post(url, json=payload, timeout=10)
-        r.raise_for_status()
-        print(f'[telegram] Sent OK ({r.status_code})')
-        return True
-    except Exception as e:
-        print(f'[telegram] MarkdownV2 error: {e}')
+    url = (f'https://api.telegram.org/'
+           f'bot{TELEGRAM_TOKEN}/sendMessage')
+
+    # ── Attempt 1: MarkdownV2 with retries ────────────
+    for attempt in range(max_retries):
         try:
-            plain = _strip_markdown(text)
-            payload2 = {
-                'chat_id':    TELEGRAM_CHAT_ID,
-                'text':       plain,
-                'parse_mode': '',
+            payload = {
+                'chat_id':                  TELEGRAM_CHAT_ID,
+                'text':                     text,
+                'parse_mode':               'MarkdownV2',
+                'disable_web_page_preview': True,
             }
-            r2 = requests.post(
-                url, json=payload2, timeout=10)
-            r2.raise_for_status()
-            print('[telegram] Sent OK plain fallback')
+            r = requests.post(url, json=payload, timeout=15)
+            
+            if r.status_code == 200:
+                print(f'[telegram] Sent OK (attempt {attempt + 1})')
+                return True
+            
+            # Rate limited — wait and retry
+            if r.status_code == 429:
+                retry_after = r.json().get('parameters', {}).get('retry_after', 5)
+                print(f'[telegram] Rate limited, waiting {retry_after}s')
+                time.sleep(retry_after)
+                continue
+            
+            # Other error — log and try next attempt
+            print(f'[telegram] Attempt {attempt + 1} failed: {r.status_code} {r.text[:100]}')
+            
+        except requests.exceptions.Timeout:
+            print(f'[telegram] Attempt {attempt + 1} timeout')
+        except Exception as e:
+            print(f'[telegram] Attempt {attempt + 1} error: {e}')
+        
+        # Exponential backoff: 2s, 4s, 8s
+        if attempt < max_retries - 1:
+            delay = 2 ** (attempt + 1)
+            print(f'[telegram] Retrying in {delay}s...')
+            time.sleep(delay)
+
+    # ── Attempt 2: Plain text fallback ────────────────
+    print('[telegram] MarkdownV2 failed, trying plain text fallback')
+    try:
+        plain = _strip_markdown(text)
+        payload = {
+            'chat_id':                  TELEGRAM_CHAT_ID,
+            'text':                     plain,
+            'disable_web_page_preview': True,
+        }
+        r = requests.post(url, json=payload, timeout=15)
+        
+        if r.status_code == 200:
+            print('[telegram] Sent OK (plain fallback)')
             return True
-        except Exception as e2:
-            print(f'[telegram] Plain fallback error: {e2}')
-            return False
+        
+        print(f'[telegram] Plain fallback failed: {r.status_code}')
+        return False
+        
+    except Exception as e:
+        print(f'[telegram] Plain fallback error: {e}')
+        return False
 
 
 def _strip_markdown(text):
@@ -285,7 +325,7 @@ def send_morning_scan(signals: list, meta: dict):
 def send_open_validation(confirmed: list,
                          rejected: list):
     lines = []
-    lines.append('📋 *Open Prices · 9:25 AM*')
+    lines.append('📋 *Open Prices · 9:29 AM*')
     lines.append('')
 
     all_results = confirmed + rejected
@@ -616,6 +656,7 @@ def _find_next_exit(outcomes):
     except Exception:
         return nearest
 
+
 # ── 6. HEARTBEAT ──────────────────────────────────────
 def send_heartbeat(meta: dict):
     """
@@ -660,6 +701,7 @@ def send_heartbeat(meta: dict):
     
     send_message('\n'.join(lines))
 
+
 # ── 7. WORKFLOW FAILURE ALERT ─────────────────────────
 def send_workflow_failure(workflow_name: str, 
                           run_url: str = None):
@@ -680,7 +722,8 @@ def send_workflow_failure(workflow_name: str,
     
     if run_url:
         lines.append('')
-        lines.append(_link('View logs', _esc(run_url)))
+        lines.append(
+            _link('View logs', run_url.replace('.', '\\.').replace('-', '\\-')))
     
     send_message('\n'.join(lines))
 
