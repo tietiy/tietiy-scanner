@@ -1,16 +1,18 @@
 # scanner/open_validator.py
-# Fetches actual open prices at 9:25 AM IST
+# Fetches actual open prices at 9:27 AM IST
 # for PENDING signals whose ENTRY DATE is today.
 #
 # KEY FIX: signals are dated the detection day (e.g. Apr 7).
 # Entry is the next trading day (e.g. Apr 8).
-# This validator runs at 9:25 AM on the ENTRY date.
+# This validator runs at 9:27 AM on the ENTRY date.
 # So filter by entry_date == today, not signal_date == today.
 #
 # ALSO FIXED: _fetch_open uses 1m intraday bars, first bar Open.
-# Daily bars not available at 9:25 AM (candle not closed yet).
+# Daily bars not available at 9:27 AM (candle not closed yet).
 #
 # TELEGRAM FIX: Now sends open validation results to Telegram.
+#
+# S1 FIX: Skip if already validated today (for retry crons).
 # ─────────────────────────────────────────────────────
 
 import os
@@ -72,12 +74,51 @@ def _next_trading_day(from_date, holidays):
     return cur
 
 
+# ── SKIP-IF-DONE CHECK ────────────────────────────────
+def _already_validated_today():
+    """
+    Returns True if open_prices.json exists with today's date
+    and has at least one result OR explicitly marked complete.
+    Used by retry crons to skip if primary run succeeded.
+    """
+    today_str = date.today().isoformat()
+    
+    if not os.path.exists(OPEN_PRICES_FILE):
+        return False
+    
+    try:
+        with open(OPEN_PRICES_FILE, 'r') as f:
+            data = json.load(f)
+        
+        if data.get('date') != today_str:
+            return False
+        
+        # Has results OR marked as "no entries today"
+        results = data.get('results', [])
+        if len(results) > 0:
+            print(f"[open_validator] Already validated today "
+                  f"({len(results)} signals) — skipping")
+            return True
+        
+        # Check if it was a "no entries" day
+        if data.get('count') == 0:
+            print("[open_validator] Already ran today "
+                  "(0 entries) — skipping")
+            return True
+        
+        return False
+        
+    except Exception as e:
+        print(f"[open_validator] Error checking existing: {e}")
+        return False
+
+
 # ── FETCH OPEN PRICE ──────────────────────────────────
 def _fetch_open(symbol, retries=3):
     """
     Fetches actual 9:15 AM open price using 1-minute bars.
     Takes the FIRST bar of today's session = market open price.
-    Daily bars are NOT used — daily candle not closed at 9:25 AM.
+    Daily bars are NOT used — daily candle not closed at 9:27 AM.
     """
     for attempt in range(retries):
         try:
@@ -189,7 +230,7 @@ def _gap_status(gap_pct):
 # ── MAIN FUNCTION ─────────────────────────────────────
 def run_open_validation():
     """
-    Runs at 9:25 AM IST on each trading day.
+    Runs at 9:27 AM IST on each trading day.
 
     Finds PENDING signals whose ENTRY DATE is today.
     Entry date = next trading day after signal detection date.
@@ -199,8 +240,14 @@ def run_open_validation():
     Updates actual_open in signal_history.json.
     Writes open_prices.json for frontend.
     Sends results to Telegram.
+    
+    S1 FIX: Skips if already validated today (for retry crons).
     """
     print("[open_validator] Starting...")
+
+    # ── S1: Skip if already done today ────────────────
+    if _already_validated_today():
+        return
 
     today     = date.today()
     today_str = today.strftime('%Y-%m-%d')
