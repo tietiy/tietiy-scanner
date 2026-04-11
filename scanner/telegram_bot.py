@@ -793,6 +793,59 @@ def send_workflow_failure(workflow_name: str,
     
     send_message('\n'.join(lines))
 
+# ── 8. WEEKEND SUMMARY ────────────────────────────────
+def send_weekend_summary(stats: dict):
+    """
+    Weekly recap sent Saturday morning.
+    Shows week's resolved signals, W/L, and upcoming exits.
+    """
+    today_str = date.today().strftime('%Y-%m-%d')
+    
+    resolved   = stats.get('resolved', 0)
+    wins       = stats.get('wins', 0)
+    losses     = stats.get('losses', 0)
+    flats      = stats.get('flats', 0)
+    win_rate   = stats.get('win_rate', 0)
+    active     = stats.get('active', 0)
+    next_exits = stats.get('next_exits', [])
+    top_winner = stats.get('top_winner', None)
+    top_loser  = stats.get('top_loser', None)
+    
+    lines = []
+    lines.append(f'📅 *WEEKLY RECAP · {_esc(today_str)}*')
+    lines.append('')
+    
+    if resolved == 0:
+        lines.append('No signals resolved this week\\.')
+    else:
+        lines.append(f'Resolved: {_esc(str(resolved))}')
+        lines.append(f'W:{_esc(str(wins))} L:{_esc(str(losses))} F:{_esc(str(flats))}')
+        lines.append(f'Win Rate: {_esc(str(win_rate))}%')
+    
+    lines.append('')
+    lines.append(f'Active: {_esc(str(active))} signals')
+    
+    if next_exits:
+        exits_str = ', '.join(next_exits[:3])
+        lines.append(f'Next exits: {_esc(exits_str)}')
+    
+    if top_winner:
+        sym = top_winner.get('symbol', '').replace('.NS', '')
+        pnl = top_winner.get('pnl_pct', 0)
+        lines.append('')
+        lines.append(f'🏆 Top: {_esc(sym)} {_esc(f"+{pnl:.1f}%")}')
+    
+    if top_loser:
+        sym = top_loser.get('symbol', '').replace('.NS', '')
+        pnl = top_loser.get('pnl_pct', 0)
+        lines.append(f'📉 Worst: {_esc(sym)} {_esc(f"{pnl:.1f}%")}')
+    
+    lines.append('')
+    lines.append('Good trading next week\\! 📈')
+    
+    send_message('\n'.join(lines))
+
+
 
 # ── TEST ──────────────────────────────────────────────
 if __name__ == '__main__':
