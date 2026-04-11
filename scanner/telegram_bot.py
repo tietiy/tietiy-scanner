@@ -660,6 +660,31 @@ def send_heartbeat(meta: dict):
     
     send_message('\n'.join(lines))
 
+# ── 7. WORKFLOW FAILURE ALERT ─────────────────────────
+def send_workflow_failure(workflow_name: str, 
+                          run_url: str = None):
+    """
+    Alert when a GitHub Action workflow fails.
+    Called from workflow YAML on failure condition.
+    """
+    today_str = date.today().strftime('%Y-%m-%d')
+    now_time  = datetime.now().strftime('%I:%M %p')
+    
+    lines = []
+    lines.append(f'🚨 *WORKFLOW FAILED*')
+    lines.append('')
+    lines.append(f'*{_esc(workflow_name)}*')
+    lines.append(f'{_esc(today_str)} · {_esc(now_time)}')
+    lines.append('')
+    lines.append('Check GitHub Actions immediately\\.')
+    
+    if run_url:
+        lines.append('')
+        lines.append(_link('View logs', _esc(run_url)))
+    
+    send_message('\n'.join(lines))
+
+
 # ── TEST ──────────────────────────────────────────────
 if __name__ == '__main__':
     send_message(
