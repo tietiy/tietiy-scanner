@@ -2,6 +2,7 @@
 # Simple daily heartbeat — runs at 8:30 AM IST
 # Shows system status + recent workflow results
 # S2: Skips on weekends and NSE holidays
+# M6: Reminds to update holidays in December
 # ─────────────────────────────────────────────────────
 
 import os
@@ -12,7 +13,7 @@ from datetime import date
 
 sys.path.insert(0, os.path.dirname(__file__))
 
-from telegram_bot import send_heartbeat
+from telegram_bot import send_heartbeat, send_message, _esc
 
 _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
@@ -29,9 +30,9 @@ def _load_holidays():
     """Load NSE holidays list."""
     try:
         with open(HOLIDAYS_FILE, 'r') as f:
-            return json.load(f).get('holidays', [])
+            return json.load(f)
     except Exception:
-        return []
+        return {'holidays': [], 'valid_until': ''}
 
 
 def _is_trading_day():
@@ -43,11 +44,49 @@ def _is_trading_day():
         return False
     
     # Holiday check
-    holidays = _load_holidays()
+    holidays_data = _load_holidays()
+    holidays = holidays_data.get('holidays', [])
     if today.strftime('%Y-%m-%d') in holidays:
         return False
     
     return True
+
+
+def _check_holiday_reminder():
+    """
+    M6: Check if holidays need updating.
+    Sends reminder in December if holidays expire this year.
+    """
+    today = date.today()
+    
+    # Only remind in December
+    if today.month != 12:
+        return
+    
+    # Only remind once (on Dec 1st)
+    if today.day != 1:
+        return
+    
+    holidays_data = _load_holidays()
+    valid_until = holidays_data.get('valid_until', '')
+    
+    # Check if holidays expire this year
+    if valid_until and valid_until.startswith(str(today.year)):
+        try:
+            lines = []
+            lines.append('📅 *HOLIDAY UPDATE REMINDER*')
+            lines.append('')
+            lines.append(f'NSE holidays valid until: {_esc(valid_until)}')
+            lines.append('')
+            lines.append('Please update holidays for next year:')
+            lines.append('1\\. Check nseindia\\.com for 2027 holidays')
+            lines.append('2\\. Update scanner/meta\\_writer\\.py')
+            lines.append('3\\. Commit and push')
+            
+            send_message('\n'.join(lines))
+            print("[heartbeat] Holiday reminder sent")
+        except Exception as e:
+            print(f"[heartbeat] Holiday reminder error: {e}")
 
 
 def _get_workflow_status():
@@ -104,6 +143,9 @@ def run_heartbeat():
     if not _is_trading_day():
         print(f"[heartbeat] Non-trading day ({date.today()}) — skipping")
         return
+
+    # ── M6: Holiday reminder in December ──────────────
+    _check_holiday_reminder()
 
     # Load meta.json
     meta = {}
