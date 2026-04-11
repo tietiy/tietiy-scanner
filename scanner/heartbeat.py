@@ -1,12 +1,14 @@
 # scanner/heartbeat.py
 # Simple daily heartbeat — runs at 8:30 AM IST
 # Shows system status + recent workflow results
+# S2: Skips on weekends and NSE holidays
 # ─────────────────────────────────────────────────────
 
 import os
 import sys
 import json
 import requests
+from datetime import date
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -16,10 +18,36 @@ _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
 _OUTPUT = os.path.join(_ROOT, 'output')
 
-META_FILE = os.path.join(OUTPUT, 'meta.json')
+META_FILE     = os.path.join(_OUTPUT, 'meta.json')
+HOLIDAYS_FILE = os.path.join(_OUTPUT, 'nse_holidays.json')
 
 GH_TOKEN = os.environ.get('GH_TOKEN', '')
 GH_REPO  = os.environ.get('GH_REPO', 'tietiy/tietiy-scanner')
+
+
+def _load_holidays():
+    """Load NSE holidays list."""
+    try:
+        with open(HOLIDAYS_FILE, 'r') as f:
+            return json.load(f).get('holidays', [])
+    except Exception:
+        return []
+
+
+def _is_trading_day():
+    """Returns True if today is a trading day."""
+    today = date.today()
+    
+    # Weekend check
+    if today.weekday() >= 5:
+        return False
+    
+    # Holiday check
+    holidays = _load_holidays()
+    if today.strftime('%Y-%m-%d') in holidays:
+        return False
+    
+    return True
 
 
 def _get_workflow_status():
@@ -72,6 +100,11 @@ def _get_workflow_status():
 def run_heartbeat():
     print("[heartbeat] Starting...")
 
+    # ── S2: Skip on non-trading days ──────────────────
+    if not _is_trading_day():
+        print(f"[heartbeat] Non-trading day ({date.today()}) — skipping")
+        return
+
     # Load meta.json
     meta = {}
     try:
@@ -86,6 +119,9 @@ def run_heartbeat():
     if workflow_status:
         meta['workflow_status'] = workflow_status
         print(f"[heartbeat] Workflow status: {workflow_status}")
+
+    # Mark as trading day for message
+    meta['is_trading_day'] = True
 
     # Send heartbeat
     try:
