@@ -251,11 +251,11 @@ def run_open_validation():
         print("[open_validator] No signals entering today "
               "— writing empty output")
         _write_open_prices([], today_str, now_ist)
-        
+
         # ── TELEGRAM: No entries today ────────────────
         if TELEGRAM_AVAILABLE:
             try:
-                send_open_validation([], today_str)
+                send_open_validation([], [])
                 print("[open_validator] Telegram sent (0 entries)")
             except Exception as e:
                 print(f"[open_validator] Telegram error: {e}")
@@ -370,7 +370,9 @@ def run_open_validation():
     # ── TELEGRAM: Send validation results ─────────────
     if TELEGRAM_AVAILABLE:
         try:
-            send_open_validation(results, today_str)
+            ok_warn = [r for r in results if r.get('gap_status') != 'SKIP']
+            skipped_list = [r for r in results if r.get('gap_status') == 'SKIP']
+            send_open_validation(ok_warn, skipped_list)
             print("[open_validator] Telegram sent")
         except Exception as e:
             print(f"[open_validator] Telegram error: {e}")
