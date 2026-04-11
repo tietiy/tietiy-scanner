@@ -6,6 +6,8 @@
 # Daily bars during market hours = yesterday's close (stale).
 # 1m bars = current intraday price (~15 min delay yfinance).
 #
+# S3 FIX: Alert if LTP data is stale (>30 min old).
+#
 # Schema:
 #   {
 #     "date": "2026-04-07",
@@ -31,6 +33,13 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(__file__))
 from journal import load_history
 
+# ── TELEGRAM IMPORT ───────────────────────────────────
+try:
+    from telegram_bot import send_message, _esc
+    TELEGRAM_AVAILABLE = True
+except ImportError:
+    TELEGRAM_AVAILABLE = False
+
 # ── PATHS ─────────────────────────────────────────────
 _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
@@ -41,10 +50,98 @@ LTP_FILE = os.path.join(_OUTPUT, 'ltp_prices.json')
 # IST = UTC + 5:30
 _IST = timedelta(hours=5, minutes=30)
 
+# S3: Stale threshold
+STALE_MINUTES = 30
+
+
+def _ist_now():
+    """Returns current IST datetime."""
+    return datetime.utcnow() + _IST
+
 
 def _ist_now_str():
     """Returns current IST time as HH:MM AM/PM."""
-    return (datetime.utcnow() + _IST).strftime('%I:%M %p')
+    return _ist_now().strftime('%I:%M %p')
+
+
+def _is_market_hours():
+    """Returns True if currently in NSE market hours (9:15 AM - 3:30 PM IST)."""
+    now = _ist_now()
+    market_open = now.replace(hour=9, minute=15, second=0, microsecond=0)
+    market_close = now.replace(hour=15, minute=30, second=0, microsecond=0)
+    return market_open <= now <= market_close
+
+
+def _parse_fetch_time(fetch_time_str, date_str):
+    """Parse fetch_time like '11:02 AM' with date into datetime."""
+    try:
+        dt_str = f"{date_str} {fetch_time_str}"
+        return datetime.strptime(dt_str, '%Y-%m-%d %I:%M %p')
+    except Exception:
+        return None
+
+
+# ── S3: STALE CHECK ───────────────────────────────────
+def _check_stale_ltp():
+    """
+    Check if existing LTP data is stale (>30 min old).
+    Only alerts during market hours.
+    Returns True if stale warning was sent.
+    """
+    if not _is_market_hours():
+        return False
+    
+    if not os.path.exists(LTP_FILE):
+        return False
+    
+    try:
+        with open(LTP_FILE, 'r') as f:
+            data = json.load(f)
+        
+        file_date = data.get('date', '')
+        fetch_time = data.get('fetch_time', '')
+        
+        if not file_date or not fetch_time:
+            return False
+        
+        last_fetch = _parse_fetch_time(fetch_time, file_date)
+        if not last_fetch:
+            return False
+        
+        now = _ist_now()
+        age_minutes = (now - last_fetch).total_seconds() / 60
+        
+        if age_minutes > STALE_MINUTES:
+            print(f"[ltp] WARNING: Data is {age_minutes:.0f} min old")
+            _send_stale_warning(age_minutes, fetch_time)
+            return True
+        
+        return False
+        
+    except Exception as e:
+        print(f"[ltp] Stale check error: {e}")
+        return False
+
+
+def _send_stale_warning(age_minutes, last_fetch_time):
+    """Send Telegram alert for stale LTP data."""
+    if not TELEGRAM_AVAILABLE:
+        return
+    
+    try:
+        lines = []
+        lines.append('⚠️ *LTP DATA STALE*')
+        lines.append('')
+        lines.append(f'Last update: {_esc(last_fetch_time)}')
+        lines.append(f'Age: {_esc(f"{age_minutes:.0f}")} minutes')
+        lines.append('')
+        lines.append('Stop alerts may be delayed\\.')
+        lines.append('Check ltp\\_updater workflow\\.')
+        
+        send_message('\n'.join(lines))
+        print("[ltp] Stale warning sent to Telegram")
+    except Exception as e:
+        print(f"[ltp] Stale warning send error: {e}")
 
 
 # ── FETCH LTP ─────────────────────────────────────────
@@ -142,6 +239,9 @@ def run_ltp_update():
     """
     print("[ltp] Starting LTP update...")
 
+    # ── S3: Check for stale data before update ────────
+    _check_stale_ltp()
+
     today_str  = date.today().isoformat()
     fetch_time = _ist_now_str()
 
@@ -206,6 +306,33 @@ def run_ltp_update():
           f"success:{success} "
           f"failed:{failed} "
           f"time:{fetch_time}")
+
+    # ── S3: Alert if high failure rate ────────────────
+    total = success + failed
+    if total > 0 and failed > 0:
+        fail_pct = (failed / total) * 100
+        if fail_pct >= 50:
+            _send_high_failure_warning(failed, total, fetch_time)
+
+
+def _send_high_failure_warning(failed, total, fetch_time):
+    """Alert if >50% of LTP fetches failed."""
+    if not TELEGRAM_AVAILABLE:
+        return
+    
+    try:
+        lines = []
+        lines.append('⚠️ *LTP FETCH ISSUES*')
+        lines.append('')
+        lines.append(f'Failed: {_esc(str(failed))}/{_esc(str(total))} symbols')
+        lines.append(f'Time: {_esc(fetch_time)}')
+        lines.append('')
+        lines.append('yfinance may be rate limited\\.')
+        
+        send_message('\n'.join(lines))
+        print("[ltp] High failure warning sent")
+    except Exception as e:
+        print(f"[ltp] Warning send error: {e}")
 
 
 # ── WRITE ltp_prices.json ─────────────────────────────
