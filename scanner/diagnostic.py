@@ -18,6 +18,8 @@
 # - M13 : attempt_self_heal() — safe auto-fixes:
 #         schema V5 migration, generation backfill,
 #         target price backfill. --heal CLI flag.
+# BUG FIX: to_telegram() strips divider lines that
+#          contain raw dashes breaking MarkdownV2
 # ─────────────────────────────────────────────────────
 
 import os
@@ -86,11 +88,9 @@ VALID_RESULTS  = [
     'PENDING', 'WON', 'STOPPED',
     'EXITED', 'REJECTED',
 ]
-SCHEMA_VERSION = 5     # M8/R1: updated from 4
+SCHEMA_VERSION = 5
 
 # ── M8: STALENESS THRESHOLDS ──────────────────────────
-# Each entry: (filename, max_age_hours, trading_day_only)
-# trading_day_only=True → only flag stale on trading days
 _STALENESS_RULES = [
     ('meta.json',             8,   True),
     ('scan_log.json',         8,   True),
@@ -101,9 +101,8 @@ _STALENESS_RULES = [
     ('stop_alerts.json',      6,   True),
 ]
 
-# Market hours window IST (UTC+5:30)
-_MARKET_OPEN_UTC_H  = 3    # 8:30 AM IST
-_MARKET_CLOSE_UTC_H = 10   # 3:30 PM IST
+_MARKET_OPEN_UTC_H  = 3
+_MARKET_CLOSE_UTC_H = 10
 
 
 # ── REPORT BUILDER ────────────────────────────────────
@@ -113,7 +112,7 @@ class DiagnosticReport:
         self.passed     = 0
         self.warnings   = 0
         self.failed     = 0
-        self.heals      = []   # M13: heal log
+        self.heals      = []
         self.start_time = datetime.now()
 
     def add(self, name, status, detail=None):
@@ -130,7 +129,6 @@ class DiagnosticReport:
             self.failed   += 1
 
     def add_heal(self, action, success, detail=None):
-        """M13: record a self-heal attempt."""
         self.heals.append({
             'action':  action,
             'success': success,
@@ -227,7 +225,6 @@ class DiagnosticReport:
                     f"  \\+ {len(warns) - 5} more")
             lines.append('')
 
-        # M13: heal results section
         if self.heals:
             healed_ok  = [h for h in self.heals
                           if h['success']]
@@ -256,7 +253,17 @@ class DiagnosticReport:
             lines.append(
                 f'✅ {_esc(self.summary_line())}')
 
-        return '\n'.join(lines)
+        # BUG FIX: strip raw divider lines that contain
+        # unescaped dashes — breaks MarkdownV2 parser.
+        # to_console() uses these for formatting but
+        # to_telegram() must not emit them raw.
+        cleaned = [
+            l for l in lines
+            if not (l.strip().startswith('──') or
+                    l.strip().startswith('--') or
+                    l.strip().startswith('=='))
+        ]
+        return '\n'.join(cleaned)
 
 
 def _esc(text):
@@ -284,10 +291,6 @@ def _load_json(filename):
 
 
 def _file_age_hours(filename):
-    """
-    Returns age of file in hours, or None if missing.
-    Uses file mtime.
-    """
     path = os.path.join(_OUTPUT, filename)
     if not os.path.exists(path):
         return None
@@ -309,10 +312,6 @@ def _is_today_trading_day():
 
 
 def _is_market_hours_now():
-    """
-    True if current UTC time is within NSE market window.
-    Approximate: 3:00–10:30 UTC (8:30–16:00 IST).
-    """
     now_utc_h = datetime.utcnow().hour
     return _MARKET_OPEN_UTC_H <= now_utc_h <= _MARKET_CLOSE_UTC_H
 
@@ -352,13 +351,7 @@ def check_files(report):
                    f"{len(missing_optional)} missing")
 
 
-# ── M8: STALENESS CHECK ───────────────────────────────
 def check_staleness(report):
-    """
-    M8: Per-file freshness check.
-    Uses file mtime as primary signal.
-    Also cross-checks content date fields where available.
-    """
     is_trading  = _is_today_trading_day()
     in_market   = _is_market_hours_now()
     today_str   = date.today().isoformat()
@@ -366,11 +359,9 @@ def check_staleness(report):
     for filename, max_age_h, trading_only in _STALENESS_RULES:
         path = os.path.join(_OUTPUT, filename)
 
-        # skip if file doesn't exist — check_files handles it
         if not os.path.exists(path):
             continue
 
-        # skip non-trading-day checks on weekends/holidays
         if trading_only and not is_trading:
             continue
 
@@ -380,7 +371,6 @@ def check_staleness(report):
                        "Cannot read mtime")
             continue
 
-        # ltp_prices: only flag during/after market hours
         if filename == 'ltp_prices.json' and not in_market:
             continue
 
@@ -393,7 +383,6 @@ def check_staleness(report):
             report.add(f"ST: {filename}", "PASS",
                        f"{age_h:.1f}h old")
 
-    # Cross-check meta.json content date on trading days
     if is_trading:
         meta, err = _load_json('meta.json')
         if meta and not err:
@@ -412,7 +401,6 @@ def check_staleness(report):
                 report.add("ST: meta content date",
                            "PASS", "Today's data")
 
-        # Cross-check scan_log content date
         scan, err = _load_json('scan_log.json')
         if scan and not err:
             scan_date = scan.get('date') or \
@@ -425,7 +413,6 @@ def check_staleness(report):
                 report.add("ST: scan_log content date",
                            "PASS")
 
-        # ltp freshness from content timestamp
         ltp, err = _load_json('ltp_prices.json')
         if ltp and not err and in_market:
             ltp_ts = (ltp.get('updated_at') or
@@ -525,7 +512,6 @@ def check_signal_fields(report, history_data):
         if gen is not None and gen not in [0, 1]:
             invalid_generation += 1
 
-        # M8: V5 field presence check
         missing = [f for f in V5_FIELDS if f not in sig]
         if missing:
             missing_v5_fields += 1
@@ -560,7 +546,6 @@ def check_signal_fields(report, history_data):
     else:
         report.add("D: generation values", "PASS")
 
-    # M8: V5 field coverage
     if missing_v5_fields > 0:
         report.add("D: V5 fields", "WARN",
                    f"{missing_v5_fields} records missing "
@@ -680,7 +665,6 @@ def check_trading_logic(report, history_data):
     else:
         report.add("T: Missing targets", "PASS")
 
-    # M8: check for REJECTED records with outcome=OPEN
     bad_rejected = len([
         s for s in history
         if s.get('result') == 'REJECTED'
@@ -693,7 +677,6 @@ def check_trading_logic(report, history_data):
     else:
         report.add("T: Rejected outcome", "PASS")
 
-    # M8: check vol_confirm string leakage
     bad_vc = len([
         s for s in history
         if isinstance(s.get('vol_confirm'), str)
@@ -735,19 +718,6 @@ def check_data_dir(report):
 
 # ── M13: SELF-HEAL ────────────────────────────────────
 def attempt_self_heal(report):
-    """
-    M13: Safe auto-fix pass. Runs after diagnostic checks.
-    Only touches signal_history.json via journal functions.
-    Does NOT trigger GitHub Actions (requires external token).
-    Does NOT delete or archive records.
-
-    Heals attempted:
-    1. Schema V5 migration (adds missing V5 fields)
-    2. Generation backfill (gen flags + vol_confirm + outcome)
-    3. Target price backfill (missing target_price on PENDING)
-
-    Each heal is idempotent — safe to run multiple times.
-    """
     if not JOURNAL_AVAILABLE:
         report.add_heal(
             "Journal import",
@@ -757,7 +727,6 @@ def attempt_self_heal(report):
 
     print("[diagnostic] Running self-heal pass...")
 
-    # ── Heal 1: Schema V5 migration ──────────────────
     try:
         _journal.backfill_schema_v5()
         report.add_heal(
@@ -767,7 +736,6 @@ def attempt_self_heal(report):
         report.add_heal(
             "Schema V5 migration", False, str(e))
 
-    # ── Heal 2: Generation flags + vol_confirm + outcome
     try:
         _journal.backfill_generation_flags()
         report.add_heal(
@@ -778,7 +746,6 @@ def attempt_self_heal(report):
             "Generation + vol_confirm backfill",
             False, str(e))
 
-    # ── Heal 3: Target price backfill ────────────────
     try:
         _journal.backfill_target_prices()
         report.add_heal(
@@ -788,7 +755,6 @@ def attempt_self_heal(report):
         report.add_heal(
             "Target price backfill", False, str(e))
 
-    # ── What cannot be auto-healed (log for visibility) ─
     stale_fails = [
         c for c in report.checks
         if c['status'] == 'FAIL'
@@ -830,14 +796,13 @@ def run_diagnostic(quick=False,
     history_data = check_signal_history_schema(report)
 
     if not quick:
-        check_staleness(report)        # M8
+        check_staleness(report)
         check_signal_fields(report, history_data)
         check_scan_log(report)
         check_meta(report, history_data)
         check_trading_logic(report, history_data)
         check_data_dir(report)
 
-    # M13: self-heal if requested or if failures found
     if heal or (not quick and report.failed > 0):
         attempt_self_heal(report)
 
