@@ -1,0 +1,122 @@
+# .github/workflows/deep_debugger.yml
+# Deep signal forensics — manual dispatch only
+# Modes: --audit, --signal, --lifecycle,
+#        --sa-check, --regime-audit
+
+name: Deep Debugger
+
+on:
+  workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Debug mode'
+        required: true
+        default: 'audit'
+        type: choice
+        options:
+          - audit
+          - sa-check
+          - regime-audit
+      symbol:
+        description: 'Symbol for --signal or --lifecycle (e.g. TATASTEEL)'
+        required: false
+        default: ''
+      date:
+        description: 'Date for --signal or --lifecycle (YYYY-MM-DD)'
+        required: false
+        default: ''
+      signal_type:
+        description: 'Signal type for --regime-audit (e.g. UP_TRI)'
+        required: false
+        default: 'UP_TRI'
+      regime:
+        description: 'Regime for --regime-audit (Bear/Bull/Choppy)'
+        required: false
+        default: 'Bear'
+      telegram:
+        description: 'Send results to Telegram'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests pandas numpy yfinance
+
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
+
+      - name: Run Deep Debugger
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          MODE="${{ github.event.inputs.mode }}"
+          SYM="${{ github.event.inputs.symbol }}"
+          DT="${{ github.event.inputs.date }}"
+          SIG="${{ github.event.inputs.signal_type }}"
+          REG="${{ github.event.inputs.regime }}"
+          TG="${{ github.event.inputs.telegram }}"
+
+          ARGS=""
+          [ "$TG" = "true" ] && ARGS="$ARGS --telegram"
+
+          if [ "$MODE" = "audit" ]; then
+            python scanner/deep_debugger.py \
+              --audit $ARGS
+
+          elif [ "$MODE" = "sa-check" ]; then
+            python scanner/deep_debugger.py \
+              --sa-check $ARGS
+
+          elif [ "$MODE" = "regime-audit" ]; then
+            python scanner/deep_debugger.py \
+              --regime-audit "$SIG" "$REG" $ARGS
+
+          elif [ "$MODE" = "signal" ] \
+               && [ -n "$SYM" ] \
+               && [ -n "$DT" ]; then
+            python scanner/deep_debugger.py \
+              --signal "$SYM" "$DT" $ARGS
+
+          elif [ "$MODE" = "lifecycle" ] \
+               && [ -n "$SYM" ] \
+               && [ -n "$DT" ]; then
+            python scanner/deep_debugger.py \
+              --lifecycle "$SYM" "$DT" $ARGS
+
+          else
+            echo "Missing symbol or date for $MODE mode"
+            exit 1
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('deep_debugger', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
