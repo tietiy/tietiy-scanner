@@ -2,6 +2,7 @@
 # System diagnostic — manual dispatch or daily post-market
 # M8: stale data detection
 # M13: self-healing triggers + commit healed files
+# BUG FIX: set +e so EXIT code is captured correctly
 # BUG FIX: exit code 1 (warnings) no longer fails workflow
 
 name: Diagnostic Check
@@ -80,10 +81,11 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
+          set +e
           python scanner/diagnostic.py ${{ steps.args.outputs.ARGS }}
           EXIT=$?
-          # BUG FIX: exit 0=PASS, 1=WARN (acceptable),
-          # 2=FAIL (real error). Only fail workflow on 2.
+          set -e
+          # 0=PASS 1=WARN (ok) 2=FAIL (real error)
           [ $EXIT -le 1 ] || exit $EXIT
 
       - name: Commit healed files if changed
