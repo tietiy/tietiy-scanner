@@ -1,0 +1,59 @@
+# .github/workflows/colab_sync.yml
+# Exports signal_history.json as Colab-ready JSON
+# R9: creates colab_export.json in output/
+# Colab reads from GitHub Pages URL directly
+
+name: Colab Sync
+
+on:
+  schedule:
+    # Daily 10:45 AM UTC = 4:15 PM IST (after EOD)
+    - cron: '45 10 * * 1-5'
+  workflow_dispatch:
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
+
+      - name: Run colab sync
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: python scanner/colab_sync.py
+
+      - name: Commit export
+        run: |
+          git config --global user.email "scanner@tietiy"
+          git config --global user.name  "TIE TIY Scanner"
+          git add output/colab_export.json 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No export changes"
+          else
+            git commit -m "chore: colab export $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('colab_sync', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
