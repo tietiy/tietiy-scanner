@@ -14,6 +14,12 @@
 #         and post_target_move as shadow data.
 # F2 FIX: post_target_move, day6_open, exit_day,
 #         exit_type fields added to schema.
+#
+# V1 BUG FIX: Skip signals with entry_valid=False
+#   Gap too large at open = trade never entered.
+#   outcome_evaluator was assigning fake outcomes
+#   using actual_open as entry even when flagged
+#   invalid — producing nonsense P&L values.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -305,7 +311,6 @@ def _evaluate_signal(signal, holidays):
             break
 
         # F1 FIX: Target hit — record but DON'T break
-        # Continue observing for Day 6 shadow data
         if target_hit and real_exit_outcome is None:
             real_exit_outcome = 'TARGET_HIT'
             real_exit_date    = ts.date()
@@ -315,11 +320,8 @@ def _evaluate_signal(signal, holidays):
             print(f"[outcome] {sym} → TARGET_HIT "
                   f"Day {real_exit_day} — "
                   f"continuing for Day 6 shadow")
-            # No break — continue MFE/MAE tracking
-            # and Day 6 data collection
 
     # ── DAY 6 EXIT + SHADOW DATA ──────────────────
-    # F2 FIX: Capture day6_open + post_target_move
     day6_open        = None
     post_target_move = None
 
@@ -328,16 +330,12 @@ def _evaluate_signal(signal, holidays):
             day6_ts = pd.Timestamp(tracking_end)
 
             if day6_ts in ohlc.index:
-                # OE4 FIX: Open not Close
                 day6_open = float(
                     ohlc.loc[day6_ts, 'Open'])
             else:
                 day6_open = float(
                     ohlc['Open'].iloc[-1])
 
-            # F2 FIX: Post target move
-            # How much did price move after target hit
-            # to Day 6 open — shadow data for research
             if (real_exit_outcome == 'TARGET_HIT'
                     and day6_open
                     and real_exit_price):
@@ -353,7 +351,6 @@ def _evaluate_signal(signal, holidays):
                       f"{post_target_move:+.1f}% "
                       f"(Day6 open ₹{day6_open:.2f})")
 
-            # No target/stop hit — Day 6 exit
             if real_exit_outcome is None and day6_open:
                 move_pct = (
                     (day6_open - entry)
@@ -395,7 +392,6 @@ def _evaluate_signal(signal, holidays):
         signal['exit_type']     = real_exit_outcome
         signal['exit_day']      = real_exit_day
 
-        # F2 FIX: Shadow fields — always write
         if day6_open is not None:
             signal['day6_open'] = round(day6_open, 2)
         if post_target_move is not None:
@@ -411,7 +407,6 @@ def _evaluate_signal(signal, holidays):
         signal['days_to_outcome'] = days_to
 
     else:
-        # Still open — log progress
         days_so_far = _count_trading_days(
             entry_date, today, holidays)
         print(f"[outcome] {sym} "
@@ -444,11 +439,28 @@ def run_outcome_evaluation():
 
     history = data.get('history', [])
 
+    # V1 BUG FIX: exclude entry_valid=False signals
+    # These had gap too large at open — trade was never
+    # entered. outcome_evaluator must not assign outcomes
+    # to signals the trader could not have taken.
     open_signals = [
         s for s in history
         if s.get('outcome', 'OPEN') == 'OPEN'
         and s.get('result') == 'PENDING'
+        and s.get('entry_valid') is not False
     ]
+
+    # Log how many were skipped due to invalid entry
+    invalid_skipped = len([
+        s for s in history
+        if s.get('outcome', 'OPEN') == 'OPEN'
+        and s.get('result') == 'PENDING'
+        and s.get('entry_valid') is False
+    ])
+    if invalid_skipped > 0:
+        print(f"[outcome] Skipping {invalid_skipped} "
+              f"signals with entry_valid=False "
+              f"(gap too large at open)")
 
     if not open_signals:
         print("[outcome] No open signals")
