@@ -15,6 +15,9 @@
 #
 # BUG FIX: _send() uses plain text — audit output is
 #   data-heavy with special chars that break MarkdownV2
+# BUG FIX: run_audit() gen0/gen1 display count —
+#   (generation or 1) was treating 0 as falsy,
+#   counting gen0 signals as gen1 in display only.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -95,12 +98,6 @@ def _esc(text):
 
 # ── PLAIN TEXT STRIP ──────────────────────────────────
 def _plain(text):
-    """
-    Strip all MarkdownV2 formatting for plain
-    text Telegram send. Audit output contains
-    raw special chars that break MarkdownV2
-    even after escaping — plain text is safer.
-    """
     import re
     text = re.sub(r'\|\|(.+?)\|\|', r'\1',
                   text, flags=re.DOTALL)
@@ -169,14 +166,8 @@ def _age_str(date_str):
         return date_str
 
 
-# ── BUG FIX: PLAIN TEXT SEND ──────────────────────────
+# ── PLAIN TEXT SEND ───────────────────────────────────
 def _send(lines, send_tg):
-    """
-    Print to console + send to Telegram as plain text.
-    Plain text avoids MarkdownV2 parse errors on
-    audit output which contains raw special chars
-    (stock names, prices, dates with dashes etc).
-    """
     text = '\n'.join(lines)
     print(text)
 
@@ -190,12 +181,10 @@ def _send(lines, send_tg):
         print("[debugger] No Telegram credentials")
         return
 
-    # Strip markdown formatting for plain send
-    plain = _plain(text)
-
-    # Chunk if needed
+    plain   = _plain(text)
     MAX_LEN = 4000
     chunks  = []
+
     if len(plain) <= MAX_LEN:
         chunks = [plain]
     else:
@@ -341,18 +330,22 @@ def run_audit(history, send_tg=False):
                 f"has pnl_pct but outcome "
                 f"not resolved")
 
-    live = [s for s in history
-            if (s.get('generation', 1) or 1) >= 1]
-    gen0 = len(history) - len(live)
+    # BUG FIX: generation=0 is falsy in Python.
+    # (s.get('generation', 1) or 1) returns 1 for gen=0
+    # because `0 or 1 = 1`. Use explicit None check.
+    gen1 = [s for s in history
+            if s.get('generation') is not None
+            and s.get('generation') >= 1]
+    gen0 = [s for s in history
+            if s.get('generation') == 0]
 
-    # Plain text output — no MarkdownV2
     lines = []
     lines.append('DEEP AUDIT')
     lines.append(date.today().isoformat())
     lines.append('')
     lines.append(
         f'Checked: {len(history)} signals '
-        f'(gen1={len(live)} gen0={gen0})')
+        f'(gen1={len(gen1)} gen0={len(gen0)})')
     lines.append('')
 
     if not issues:
@@ -548,7 +541,8 @@ def run_lifecycle(history, symbol,
         if valid is False:
             lines.append(
                 '  WARNING: Entry invalid — '
-                'gap too large')
+                'gap too large — '
+                'outcome_evaluator will skip')
     else:
         _missing('Open validation',
                  'open_validator not yet run')
@@ -717,7 +711,9 @@ def run_regime_audit(history, signal_type,
             .upper() == regime.upper()
         )
         and s.get('action') == 'TOOK'
-        and (s.get('generation', 1) or 1) >= 1
+        # BUG FIX: explicit None check for generation
+        and s.get('generation') is not None
+        and s.get('generation') >= 1
     ]
 
     lines = []
