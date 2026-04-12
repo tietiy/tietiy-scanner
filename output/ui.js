@@ -2,12 +2,20 @@
 // Master controller for TIE TIY Scanner frontend
 // Loads first — all other JS files depend on this
 //
-// Changes in this pass:
-// - Default filter is now 'top' (was 'all')
+// V1 FIXES APPLIED:
+// - L5  : _seedDefaultTook() — pre-selects TOOK for all
+//         undecided signals before journal renders
+// - L7  : switchTab() closes signal detail modal
+// - R3  : Offline banner — online/offline listeners,
+//         auto-retry on reconnect
+// - R8  : _isSA() + _renderSABadge() global helpers
+//         for use by app.js signal cards
+//
+// PRIOR FIXES RETAINED:
+// - Default filter is 'top'
 // - _buildConflictMap exported as window helper
-// - Status bar wording refined
-// - P1 FIX: LTP updated_at shown in status bar
-// - V1 FIX: Open validate time shown in status bar
+// - P1: LTP updated_at in status bar
+// - V1: Open validate time in status bar
 // ─────────────────────────────────────────────────────
 
 const VAPID_PUBLIC_KEY =
@@ -89,6 +97,63 @@ function _safeGet(url) {
       return r.json();
     })
     .catch(function() { return null; });
+}
+
+// ── R8: SA GLOBAL HELPERS ─────────────────────────────
+// Defined here so app.js and any other consumer can use
+// without redefining. _isSA checks signal type string.
+// _renderSABadge returns inline HTML badge.
+window._isSA = function(signalType) {
+  return (signalType || '').toUpperCase().endsWith('_SA');
+};
+
+window._renderSABadge = function() {
+  return `<span style="background:#1a1a0a;color:#ffd700;
+    font-size:9px;font-weight:700;
+    border:1px solid #ffd70033;border-radius:3px;
+    padding:1px 5px;white-space:nowrap;">2ND</span>`;
+};
+
+// ── L5: SEED DEFAULT TOOK ─────────────────────────────
+// Called before renderJournal. Seeds tietiy_ud with
+// TOOK for every undecided non-backfill MINI/TOOK signal.
+// Never overwrites an existing TOOK or SKIPPED decision.
+function _seedDefaultTook() {
+  const hist = window.TIETIY.history;
+  if (!hist || !hist.history) return;
+
+  let store;
+  try {
+    store = JSON.parse(
+      localStorage.getItem('tietiy_ud') || '{}');
+  } catch(e) { store = {}; }
+
+  let changed = false;
+
+  hist.history.forEach(function(s) {
+    // only non-backfill MINI TOOK signals
+    if (s.layer    !== 'MINI')   return;
+    if (s.action   !== 'TOOK')   return;
+    if ((s.generation === 0))    return;
+
+    // build same cardId as journal.js
+    const sym    = (s.symbol || '').replace('.NS', '');
+    const cardId = (s.id ||
+      (sym + '-' + (s.signal || '') + '-' + (s.date || '')))
+      .replace(/[^a-zA-Z0-9-]/g, '-');
+
+    if (!store[cardId]) {
+      store[cardId] = 'TOOK';
+      changed = true;
+    }
+  });
+
+  if (changed) {
+    try {
+      localStorage.setItem(
+        'tietiy_ud', JSON.stringify(store));
+    } catch(e) {}
+  }
 }
 
 // ── FETCH ALL DATA ────────────────────────────────────
@@ -175,6 +240,77 @@ function _countTodaySignals() {
   ).length;
 }
 
+// ── R3: OFFLINE BANNER ────────────────────────────────
+function _ensureOfflineBannerEl() {
+  let el = document.getElementById('offline-banner');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'offline-banner';
+    el.style.cssText = [
+      'position:fixed',
+      'top:0',
+      'left:50%',
+      'transform:translateX(-50%)',
+      'width:100%',
+      'max-width:min(960px,100vw)',
+      'z-index:999',
+      'display:none',
+    ].join(';');
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+function _showOfflineBanner() {
+  const el = _ensureOfflineBannerEl();
+  el.innerHTML = `
+    <div style="background:#2a0808;
+      border-bottom:2px solid #f85149;
+      padding:8px 14px;font-size:12px;
+      color:#f85149;font-weight:700;
+      display:flex;justify-content:space-between;
+      align-items:center;">
+      <span>📵 Offline — showing cached data</span>
+      <span style="color:#555;font-size:10px;
+        font-weight:400;">
+        Reconnecting…
+      </span>
+    </div>`;
+  el.style.display = 'block';
+}
+
+function _hideOfflineBanner() {
+  const el = document.getElementById('offline-banner');
+  if (!el) return;
+  // brief "back online" flash before hiding
+  el.innerHTML = `
+    <div style="background:#0d2a0d;
+      border-bottom:2px solid #00C851;
+      padding:8px 14px;font-size:12px;
+      color:#00C851;font-weight:700;">
+      ✓ Back online
+    </div>`;
+  el.style.display = 'block';
+  setTimeout(function() {
+    el.style.display = 'none';
+  }, 2000);
+}
+
+// R3: event listeners
+window.addEventListener('offline', function() {
+  _showOfflineBanner();
+});
+
+window.addEventListener('online', function() {
+  _hideOfflineBanner();
+  // auto-refresh data on reconnect
+  setTimeout(function() {
+    if (window.TIETIY.loaded) {
+      refreshData();
+    }
+  }, 1000);
+});
+
 // ── STATUS BAR ────────────────────────────────────────
 function _renderStatusBar(meta) {
   const el = document.getElementById('status-bar');
@@ -204,12 +340,14 @@ function _renderStatusBar(meta) {
   // P1 FIX: LTP time from stop_alerts.json
   const stopAlerts  = window.TIETIY.stopAlerts;
   const ltpUpdated  = stopAlerts
-    ? (stopAlerts.ltp_updated_at || stopAlerts.check_time || null)
+    ? (stopAlerts.ltp_updated_at ||
+       stopAlerts.check_time || null)
     : null;
 
   // V1 FIX: Open validate time from open_prices.json
   const openPrices  = window.TIETIY.openPrices;
-  const openValTime = (openPrices && openPrices.fetch_time && openPrices.count > 0)
+  const openValTime = (openPrices &&
+    openPrices.fetch_time && openPrices.count > 0)
     ? openPrices.fetch_time : null;
 
   const activeCount = meta.active_signals_count != null
@@ -238,12 +376,12 @@ function _renderStatusBar(meta) {
     statusColor = '#FFD700';
   } else {
     statusDot   = '🟢';
-    // V1 FIX: Build status line from available timestamps
     const parts = [];
     if (scanTime)    parts.push(`Scan ${scanTime}`);
     if (openValTime) parts.push(`Open ${openValTime}`);
     if (ltpUpdated)  parts.push(`LTP ${ltpUpdated}`);
-    statusText  = parts.length > 0 ? parts.join(' · ') : 'Scanned today';
+    statusText  = parts.length > 0
+      ? parts.join(' · ') : 'Scanned today';
     statusColor = '#00C851';
   }
 
@@ -259,7 +397,8 @@ function _renderStatusBar(meta) {
     warnings.push(`${banned.length} stocks in F&O ban`);
 
   const warningHtml = warnings.length > 0
-    ? `<div style="font-size:10px;color:#FFD700;margin-top:4px;">
+    ? `<div style="font-size:10px;color:#FFD700;
+         margin-top:4px;">
          ⚠️ ${warnings.join(' · ')}
        </div>`
     : '';
@@ -280,8 +419,10 @@ function _renderStatusBar(meta) {
       <div style="display:flex;
         justify-content:space-between;
         align-items:center;margin-bottom:4px;">
-        <div style="display:flex;align-items:center;gap:8px;">
-          <span style="color:#ffd700;font-size:17px;font-weight:700;">
+        <div style="display:flex;
+          align-items:center;gap:8px;">
+          <span style="color:#ffd700;font-size:17px;
+            font-weight:700;">
             🎯 TIE TIY
           </span>
           <span style="background:${rc};color:#000;
@@ -290,18 +431,25 @@ function _renderStatusBar(meta) {
             ${regime}
           </span>
         </div>
-        <div style="display:flex;align-items:center;gap:8px;">
+        <div style="display:flex;
+          align-items:center;gap:8px;">
           <button onclick="refreshData()"
             id="refresh-btn"
-            style="background:none;border:1px solid #30363d;
-              border-radius:6px;color:#8b949e;font-size:11px;
-              padding:3px 8px;cursor:pointer;">
+            style="background:none;
+              border:1px solid #30363d;
+              border-radius:6px;color:#8b949e;
+              font-size:11px;padding:3px 8px;
+              cursor:pointer;
+              -webkit-tap-highlight-color:transparent;">
             🔄 Refresh
           </button>
           <button onclick="showHelp()"
-            style="background:none;border:1px solid #30363d;
-              border-radius:50%;color:#8b949e;font-size:13px;
-              width:26px;height:26px;cursor:pointer;line-height:1;">
+            style="background:none;
+              border:1px solid #30363d;
+              border-radius:50%;color:#8b949e;
+              font-size:13px;width:26px;height:26px;
+              cursor:pointer;line-height:1;
+              -webkit-tap-highlight-color:transparent;">
             ?
           </button>
         </div>
@@ -336,7 +484,8 @@ function _renderAlertBanner(stopAlerts) {
   }
 
   const alerts = (stopAlerts.alerts || []).filter(
-    a => ['BREACHED','AT','NEAR'].includes(a.alert_level));
+    a => ['BREACHED','AT','NEAR'].includes(
+      a.alert_level));
 
   if (!alerts.length) { el.innerHTML = ''; return; }
 
@@ -355,7 +504,7 @@ function _renderAlertBanner(stopAlerts) {
   }
 
   const names = alerts.slice(0, 3)
-    .map(a => a.symbol.replace('.NS',''))
+    .map(a => a.symbol.replace('.NS', ''))
     .join(', ');
   const more = alerts.length > 3
     ? ` +${alerts.length - 3} more` : '';
@@ -399,7 +548,8 @@ function _renderNav(activeTab) {
             style="flex:1;background:none;border:none;
               padding:10px 0 8px;cursor:pointer;
               display:flex;flex-direction:column;
-              align-items:center;gap:2px;">
+              align-items:center;gap:2px;
+              -webkit-tap-highlight-color:transparent;">
             <span style="font-size:18px;
               opacity:${active ? 1 : 0.4};">
               ${t.icon}
@@ -416,6 +566,11 @@ function _renderNav(activeTab) {
 
 // ── TAB SWITCHING ─────────────────────────────────────
 function switchTab(tabId) {
+  // L7: close signal detail modal on any tab switch
+  if (typeof window._closeSignalModal === 'function') {
+    window._closeSignalModal();
+  }
+
   window.TIETIY.activeTab = tabId;
   _renderNav(tabId);
   const content = document.getElementById('tab-content');
@@ -424,22 +579,30 @@ function switchTab(tabId) {
   if (tabId === 'signals') {
     if (typeof renderSignals === 'function')
       renderSignals(window.TIETIY);
+
   } else if (tabId === 'journal') {
+    // L5: seed TOOK default before journal renders
+    _seedDefaultTook();
     if (typeof renderJournal === 'function')
       renderJournal(window.TIETIY);
+
   } else if (tabId === 'stats') {
     if (typeof renderStats === 'function')
       renderStats(window.TIETIY);
   }
 
-  try { sessionStorage.setItem('tietiy_tab', tabId); }
-  catch(e) {}
+  try {
+    sessionStorage.setItem('tietiy_tab', tabId);
+  } catch(e) {}
 }
 
 // ── REFRESH ───────────────────────────────────────────
 async function refreshData() {
   const btn = document.getElementById('refresh-btn');
-  if (btn) { btn.textContent = '⏳'; btn.disabled = true; }
+  if (btn) {
+    btn.textContent = '⏳';
+    btn.disabled    = true;
+  }
 
   try {
     await _fetchAll();
@@ -470,22 +633,28 @@ function showHelp() {
     <div style="max-width:600px;margin:0 auto;
       padding:16px 16px 80px;">
 
-      <div style="display:flex;justify-content:space-between;
-        align-items:center;margin-bottom:20px;padding-bottom:12px;
+      <div style="display:flex;
+        justify-content:space-between;
+        align-items:center;margin-bottom:20px;
+        padding-bottom:12px;
         border-bottom:1px solid #21262d;">
-        <span style="color:#ffd700;font-size:18px;font-weight:700;">
+        <span style="color:#ffd700;font-size:18px;
+          font-weight:700;">
           ℹ️ How To Use TIE TIY
         </span>
         <button onclick="hideHelp()"
           style="background:none;border:none;
-            color:#8b949e;font-size:22px;cursor:pointer;">
+            color:#8b949e;font-size:22px;
+            cursor:pointer;
+            -webkit-tap-highlight-color:transparent;">
           ✕
         </button>
       </div>
 
       <div style="margin-bottom:20px;">
-        <div style="color:#ffd700;font-size:12px;font-weight:700;
-          margin-bottom:10px;letter-spacing:1px;">
+        <div style="color:#ffd700;font-size:12px;
+          font-weight:700;margin-bottom:10px;
+          letter-spacing:1px;">
           ☀️ 60-SECOND MORNING ROUTINE
         </div>
         ${_helpStep('1','Check status bar',
@@ -503,8 +672,9 @@ function showHelp() {
       </div>
 
       <div style="margin-bottom:20px;">
-        <div style="color:#ffd700;font-size:12px;font-weight:700;
-          margin-bottom:10px;letter-spacing:1px;">
+        <div style="color:#ffd700;font-size:12px;
+          font-weight:700;margin-bottom:10px;
+          letter-spacing:1px;">
           📐 SIGNAL TYPES
         </div>
         ${_helpSignal('UP TRI ▲','#00C851',
@@ -519,19 +689,25 @@ function showHelp() {
       </div>
 
       <div style="margin-bottom:20px;">
-        <div style="color:#ffd700;font-size:12px;font-weight:700;
-          margin-bottom:10px;letter-spacing:1px;">
+        <div style="color:#ffd700;font-size:12px;
+          font-weight:700;margin-bottom:10px;
+          letter-spacing:1px;">
           🎯 SCORE SYSTEM
         </div>
-        ${_helpTerm('7–8 / 10 (gold)','Best setups. High conviction.')}
-        ${_helpTerm('5–6 / 10 (green)','Good setups. Worth entering.')}
-        ${_helpTerm('3–4 / 10 (grey)','Weaker. Consider carefully.')}
-        ${_helpTerm('1–2 / 10 (dim)','Low conviction. Skip or reduce size.')}
+        ${_helpTerm('7–8 / 10 (gold)',
+          'Best setups. High conviction.')}
+        ${_helpTerm('5–6 / 10 (green)',
+          'Good setups. Worth entering.')}
+        ${_helpTerm('3–4 / 10 (grey)',
+          'Weaker. Consider carefully.')}
+        ${_helpTerm('1–2 / 10 (dim)',
+          'Low conviction. Skip or reduce size.')}
       </div>
 
       <div style="margin-bottom:20px;">
-        <div style="color:#ffd700;font-size:12px;font-weight:700;
-          margin-bottom:10px;letter-spacing:1px;">
+        <div style="color:#ffd700;font-size:12px;
+          font-weight:700;margin-bottom:10px;
+          letter-spacing:1px;">
           ⚠️ RISK RULES — NON NEGOTIABLE
         </div>
         ${_helpRule('Max 5% capital per trade')}
@@ -545,25 +721,31 @@ function showHelp() {
       </div>
 
       <div style="margin-bottom:20px;">
-        <div style="color:#ffd700;font-size:12px;font-weight:700;
-          margin-bottom:10px;letter-spacing:1px;">
+        <div style="color:#ffd700;font-size:12px;
+          font-weight:700;margin-bottom:10px;
+          letter-spacing:1px;">
           🔔 PUSH NOTIFICATIONS
         </div>
         <div style="background:#0d1117;border-radius:8px;
-          padding:12px;font-size:12px;color:#8b949e;line-height:1.6;">
+          padding:12px;font-size:12px;color:#8b949e;
+          line-height:1.6;">
           Get notified at 8:50 AM every trading day.<br><br>
           <strong style="color:#c9d1d9;">iOS users:</strong>
-          Add to Home Screen first, then open from home screen
-          icon to enable notifications.<br><br>
+          Add to Home Screen first, then open from home
+          screen icon to enable notifications.<br><br>
           <button onclick="requestNotifications()"
             id="notif-btn"
-            style="background:#21262d;border:1px solid #30363d;
-              color:#c9d1d9;border-radius:6px;padding:8px 16px;
-              font-size:12px;cursor:pointer;margin-top:4px;">
+            style="background:#21262d;
+              border:1px solid #30363d;
+              color:#c9d1d9;border-radius:6px;
+              padding:8px 16px;font-size:12px;
+              cursor:pointer;margin-top:4px;
+              -webkit-tap-highlight-color:transparent;">
             Enable Notifications
           </button>
           <div id="notif-status"
-            style="margin-top:8px;font-size:11px;color:#555;">
+            style="margin-top:8px;font-size:11px;
+              color:#555;">
           </div>
         </div>
       </div>
@@ -572,7 +754,8 @@ function showHelp() {
         style="width:100%;background:#21262d;
           border:1px solid #30363d;color:#c9d1d9;
           border-radius:8px;padding:12px;
-          font-size:14px;cursor:pointer;">
+          font-size:14px;cursor:pointer;
+          -webkit-tap-highlight-color:transparent;">
         Close
       </button>
     </div>`;
@@ -586,45 +769,44 @@ function hideHelp() {
 function _helpStep(num, title, desc) {
   return `
     <div style="display:flex;gap:10px;margin-bottom:10px;">
-      <div style="background:#ffd700;color:#000;border-radius:50%;
-        width:20px;height:20px;min-width:20px;font-size:11px;
-        font-weight:700;display:flex;align-items:center;
+      <div style="background:#ffd700;color:#000;
+        border-radius:50%;width:20px;height:20px;
+        min-width:20px;font-size:11px;font-weight:700;
+        display:flex;align-items:center;
         justify-content:center;">${num}</div>
       <div>
-        <div style="color:#c9d1d9;font-size:12px;font-weight:700;">
-          ${title}
-        </div>
-        <div style="color:#666;font-size:11px;margin-top:2px;
-          line-height:1.5;">
-          ${desc}
-        </div>
+        <div style="color:#c9d1d9;font-size:12px;
+          font-weight:700;">${title}</div>
+        <div style="color:#666;font-size:11px;
+          margin-top:2px;line-height:1.5;">${desc}</div>
       </div>
     </div>`;
 }
 
 function _helpSignal(name, color, subtitle, desc) {
   return `
-    <div style="background:#0d1117;border-left:3px solid ${color};
-      border-radius:0 6px 6px 0;padding:8px 10px;margin-bottom:8px;">
-      <div style="color:${color};font-size:12px;font-weight:700;">
-        ${name}
-      </div>
-      <div style="color:#c9d1d9;font-size:11px;margin:2px 0;">
-        ${subtitle}
-      </div>
-      <div style="color:#666;font-size:11px;line-height:1.5;">
-        ${desc}
-      </div>
+    <div style="background:#0d1117;
+      border-left:3px solid ${color};
+      border-radius:0 6px 6px 0;
+      padding:8px 10px;margin-bottom:8px;">
+      <div style="color:${color};font-size:12px;
+        font-weight:700;">${name}</div>
+      <div style="color:#c9d1d9;font-size:11px;
+        margin:2px 0;">${subtitle}</div>
+      <div style="color:#666;font-size:11px;
+        line-height:1.5;">${desc}</div>
     </div>`;
 }
 
 function _helpTerm(term, desc) {
   return `
-    <div style="display:flex;gap:8px;margin-bottom:8px;font-size:11px;">
-      <div style="color:#ffd700;font-weight:700;min-width:120px;">
-        ${term}
+    <div style="display:flex;gap:8px;margin-bottom:8px;
+      font-size:11px;">
+      <div style="color:#ffd700;font-weight:700;
+        min-width:120px;">${term}</div>
+      <div style="color:#8b949e;line-height:1.5;">
+        ${desc}
       </div>
-      <div style="color:#8b949e;line-height:1.5;">${desc}</div>
     </div>`;
 }
 
@@ -638,13 +820,14 @@ function _helpRule(rule) {
 
 // ── PUSH NOTIFICATIONS ────────────────────────────────
 async function requestNotifications() {
-  const statusEl = document.getElementById('notif-status');
-  const btn      = document.getElementById('notif-btn');
+  const statusEl =
+    document.getElementById('notif-status');
+  const btn = document.getElementById('notif-btn');
 
   if (!('serviceWorker' in navigator) ||
       !('PushManager' in window)) {
     if (statusEl) statusEl.textContent =
-      'Push not supported. Install as PWA from home screen first.';
+      'Push not supported. Install as PWA first.';
     return;
   }
 
@@ -676,8 +859,8 @@ async function requestNotifications() {
           VAPID_PUBLIC_KEY),
       });
 
-    const subJson  = subscription.toJSON();
-    const payload  = {
+    const subJson = subscription.toJSON();
+    const payload = {
       endpoint:      subJson.endpoint,
       keys:          subJson.keys,
       pin_verified:  true,
@@ -689,8 +872,8 @@ async function requestNotifications() {
       'tietiy_push_sub', JSON.stringify(payload));
 
     if (statusEl) statusEl.innerHTML =
-      '<span style="color:#00C851;">✓ Subscribed!</span> ' +
-      'Alerts at 8:50 AM IST.';
+      '<span style="color:#00C851;">✓ Subscribed!</span>' +
+      ' Alerts at 8:50 AM IST.';
     if (btn) btn.textContent = '✓ Subscribed';
 
   } catch(e) {
@@ -790,6 +973,9 @@ async function initApp() {
   const appRoot   = document.getElementById('app-root');
   const loaderMsg = document.getElementById('loader-msg');
 
+  // R3: ensure offline banner element exists early
+  _ensureOfflineBannerEl();
+
   _restoreSession();
 
   try {
@@ -812,6 +998,9 @@ async function initApp() {
     _renderAlertBanner(window.TIETIY.stopAlerts);
     _renderNav(window.TIETIY.activeTab);
     switchTab(window.TIETIY.activeTab);
+
+    // R3: show banner immediately if already offline
+    if (!navigator.onLine) _showOfflineBanner();
 
   } catch(e) {
     console.error('[ui] Init error:', e);
