@@ -2,6 +2,8 @@
 # Deep signal forensics — manual dispatch only
 # Modes: --audit, --signal, --lifecycle,
 #        --sa-check, --regime-audit
+# BUG FIX: set +e so exit code 1 (issues found)
+#          does not fail the workflow
 
 name: Deep Debugger
 
@@ -17,20 +19,22 @@ on:
           - audit
           - sa-check
           - regime-audit
+          - signal
+          - lifecycle
       symbol:
-        description: 'Symbol for --signal or --lifecycle (e.g. TATASTEEL)'
+        description: 'Symbol for signal/lifecycle (e.g. TATASTEEL)'
         required: false
         default: ''
       date:
-        description: 'Date for --signal or --lifecycle (YYYY-MM-DD)'
+        description: 'Date for signal/lifecycle (YYYY-MM-DD)'
         required: false
         default: ''
       signal_type:
-        description: 'Signal type for --regime-audit (e.g. UP_TRI)'
+        description: 'Signal type for regime-audit (e.g. UP_TRI)'
         required: false
         default: 'UP_TRI'
       regime:
-        description: 'Regime for --regime-audit (Bear/Bull/Choppy)'
+        description: 'Regime for regime-audit (Bear/Bull/Choppy)'
         required: false
         default: 'Bear'
       telegram:
@@ -79,6 +83,8 @@ jobs:
           ARGS=""
           [ "$TG" = "true" ] && ARGS="$ARGS --telegram"
 
+          set +e
+
           if [ "$MODE" = "audit" ]; then
             python scanner/deep_debugger.py \
               --audit $ARGS
@@ -107,6 +113,11 @@ jobs:
             echo "Missing symbol or date for $MODE mode"
             exit 1
           fi
+
+          EXIT=$?
+          set -e
+          # 0=clean 1=issues found (ok) 2=error
+          [ $EXIT -le 1 ] || exit $EXIT
 
       - name: Notify on failure
         if: failure()
