@@ -1,0 +1,773 @@
+<!DOCTYPE html>
+<!-- ── health.html ──────────────────────────────────
+     TIE TIY System Health Dashboard
+     Served from GitHub Pages alongside main PWA.
+     Bookmark this separately for quick status checks.
+     Auto-refreshes every 60 seconds.
+     M9 fix: standalone health dashboard
+     ─────────────────────────────────────────────── -->
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport"
+  content="width=device-width,initial-scale=1,
+           viewport-fit=cover">
+<title>TIE TIY — Health</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: #07070f;
+    color: #c9d1d9;
+    font-family: -apple-system, BlinkMacSystemFont,
+                 'Segoe UI', sans-serif;
+    min-height: 100vh;
+    padding: 16px 16px
+             calc(16px + env(safe-area-inset-bottom));
+    max-width: 480px;
+    margin: 0 auto;
+  }
+
+  h1 {
+    font-size: 15px;
+    color: #ffd700;
+    font-weight: 700;
+    letter-spacing: 1px;
+    margin-bottom: 4px;
+  }
+
+  .subtitle {
+    font-size: 10px;
+    color: #555;
+    margin-bottom: 16px;
+  }
+
+  .card {
+    background: #161b22;
+    border: 1px solid #21262d;
+    border-radius: 8px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+  }
+
+  .card-title {
+    font-size: 10px;
+    color: #555;
+    letter-spacing: 1px;
+    font-weight: 700;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+  }
+
+  .row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 5px 0;
+    border-bottom: 1px solid #0d1117;
+    font-size: 12px;
+  }
+  .row:last-child { border-bottom: none; }
+
+  .label { color: #8b949e; }
+
+  .val-ok     { color: #00C851; font-weight: 700; }
+  .val-warn   { color: #FFD700; font-weight: 700; }
+  .val-fail   { color: #f85149; font-weight: 700; }
+  .val-dim    { color: #555; }
+  .val-normal { color: #c9d1d9; font-weight: 700; }
+
+  .dot {
+    display: inline-block;
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    margin-right: 6px;
+    flex-shrink: 0;
+  }
+  .dot-ok   { background: #00C851; }
+  .dot-warn { background: #FFD700;
+              animation: pulse 1.5s infinite; }
+  .dot-fail { background: #f85149;
+              animation: pulse 0.8s infinite; }
+  .dot-dim  { background: #30363d; }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1;   }
+    50%       { opacity: 0.3; }
+  }
+
+  .overall-banner {
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .banner-ok   {
+    background: #0d2a0d;
+    border: 1px solid #00C85144;
+  }
+  .banner-warn {
+    background: #1a1a0a;
+    border: 1px solid #FFD70044;
+  }
+  .banner-fail {
+    background: #2a0a0a;
+    border: 1px solid #f8514944;
+  }
+
+  .banner-icon { font-size: 28px; flex-shrink: 0; }
+  .banner-text-title {
+    font-size: 14px;
+    font-weight: 700;
+    margin-bottom: 2px;
+  }
+  .banner-text-sub {
+    font-size: 11px;
+    color: #8b949e;
+  }
+
+  button {
+    -webkit-tap-highlight-color: transparent;
+    cursor: pointer;
+  }
+
+  .btn-refresh {
+    width: 100%;
+    background: #21262d;
+    border: 1px solid #30363d;
+    color: #c9d1d9;
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .btn-refresh:active { opacity: 0.7; }
+
+  .btn-diagnostic {
+    width: 100%;
+    background: #1a0a00;
+    border: 1px solid #FF8C0066;
+    color: #FF8C00;
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 13px;
+    margin-bottom: 8px;
+  }
+  .btn-diagnostic:active { opacity: 0.7; }
+
+  .btn-pwa {
+    width: 100%;
+    background: #0a1a0a;
+    border: 1px solid #00C85144;
+    color: #00C851;
+    border-radius: 8px;
+    padding: 11px;
+    font-size: 13px;
+    margin-bottom: 16px;
+    text-align: center;
+    text-decoration: none;
+    display: block;
+  }
+
+  .footer {
+    font-size: 10px;
+    color: #333;
+    text-align: center;
+    margin-top: 8px;
+  }
+
+  #loader {
+    text-align: center;
+    padding: 48px 16px;
+    color: #555;
+    font-size: 13px;
+  }
+
+  #diag-status {
+    font-size: 11px;
+    color: #555;
+    text-align: center;
+    margin-bottom: 8px;
+    min-height: 16px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🏥 TIE TIY HEALTH</h1>
+<div class="subtitle" id="last-refresh">
+  Loading…
+</div>
+
+<div id="loader">⏳ Fetching system data…</div>
+<div id="dashboard" style="display:none;"></div>
+
+<div id="actions" style="display:none;">
+  <button class="btn-refresh" onclick="loadAll()">
+    🔄 Refresh Now
+  </button>
+  <div id="diag-status"></div>
+  <button class="btn-diagnostic"
+          onclick="triggerDiagnostic()">
+    🔧 Run Diagnostic → Telegram
+  </button>
+  <a class="btn-pwa"
+     href="/tietiy-scanner/"
+     target="_blank">
+    📊 Open TIE TIY Scanner
+  </a>
+</div>
+
+<div class="footer" id="footer-note">
+  Auto-refreshes every 60s
+</div>
+
+<script>
+// ── CONFIG ────────────────────────────────────────────
+const BASE    = '/tietiy-scanner/';
+const GH_REPO = 'tietiy/tietiy-scanner';
+// Workflow file name for diagnostic dispatch
+const DIAG_WF = 'diagnostic.yml';
+
+// ── BUST CACHE ────────────────────────────────────────
+function _bust(url) {
+  return url + '?t=' + Date.now();
+}
+
+async function _safeGet(url) {
+  try {
+    const r = await fetch(_bust(url));
+    if (!r.ok) return null;
+    return await r.json();
+  } catch(e) { return null; }
+}
+
+// ── STALENESS CHECK ───────────────────────────────────
+// Returns age in minutes from an ISO timestamp string
+function _ageMinutes(isoStr) {
+  if (!isoStr) return null;
+  try {
+    const d = new Date(isoStr);
+    return Math.round(
+      (Date.now() - d.getTime()) / 60000);
+  } catch(e) { return null; }
+}
+
+function _isToday(dateStr) {
+  if (!dateStr) return false;
+  const today = new Date().toLocaleDateString(
+    'en-CA', { timeZone: 'Asia/Kolkata' });
+  return dateStr.startsWith(today);
+}
+
+function _isTradingHours() {
+  const now    = new Date();
+  const utcH   = now.getUTCHours();
+  const utcM   = now.getUTCMinutes();
+  const utcTot = utcH * 60 + utcM;
+  // 3:00–10:30 UTC = 8:30–16:00 IST approx
+  return utcTot >= 180 && utcTot <= 630;
+}
+
+function _isWeekend() {
+  const day = new Date().getDay();
+  return day === 0 || day === 6;
+}
+
+// ── STATUS HELPERS ────────────────────────────────────
+function _dot(cls) {
+  return `<span class="dot ${cls}"></span>`;
+}
+
+function _row(label, valHtml, cls) {
+  return `
+    <div class="row">
+      <span class="label">${label}</span>
+      <span class="${cls || 'val-normal'}">
+        ${valHtml}
+      </span>
+    </div>`;
+}
+
+function _statusRow(label, dotCls, text, valueCls) {
+  return `
+    <div class="row">
+      <span class="label">${label}</span>
+      <span class="${valueCls || 'val-normal'}">
+        ${_dot(dotCls)}${text}
+      </span>
+    </div>`;
+}
+
+// ── OVERALL STATUS ────────────────────────────────────
+function _overallBanner(fails, warns) {
+  if (fails > 0) {
+    return `
+      <div class="overall-banner banner-fail">
+        <div class="banner-icon">🚨</div>
+        <div>
+          <div class="banner-text-title"
+               style="color:#f85149;">
+            ${fails} Critical Issue${fails > 1 ? 's' : ''}
+          </div>
+          <div class="banner-text-sub">
+            ${warns > 0
+              ? warns + ' warning' +
+                (warns > 1 ? 's' : '') + ' also present'
+              : 'Action required'}
+          </div>
+        </div>
+      </div>`;
+  }
+  if (warns > 0) {
+    return `
+      <div class="overall-banner banner-warn">
+        <div class="banner-icon">⚠️</div>
+        <div>
+          <div class="banner-text-title"
+               style="color:#FFD700;">
+            ${warns} Warning${warns > 1 ? 's' : ''}
+          </div>
+          <div class="banner-text-sub">
+            System running, attention needed
+          </div>
+        </div>
+      </div>`;
+  }
+  return `
+    <div class="overall-banner banner-ok">
+      <div class="banner-icon">✅</div>
+      <div>
+        <div class="banner-text-title"
+             style="color:#00C851;">
+          All Systems OK
+        </div>
+        <div class="banner-text-sub">
+          Scanner operating normally
+        </div>
+      </div>
+    </div>`;
+}
+
+// ── MAIN LOAD ─────────────────────────────────────────
+async function loadAll() {
+  document.getElementById('last-refresh')
+    .textContent = 'Refreshing…';
+
+  const [meta, hist] = await Promise.all([
+    _safeGet(BASE + 'meta.json'),
+    _safeGet(BASE + 'signal_history.json'),
+  ]);
+
+  document.getElementById('loader')
+    .style.display = 'none';
+  document.getElementById('actions')
+    .style.display = 'block';
+
+  const now = new Date().toLocaleTimeString(
+    'en-IN', {
+      hour:     '2-digit',
+      minute:   '2-digit',
+      timeZone: 'Asia/Kolkata',
+    });
+  document.getElementById('last-refresh')
+    .textContent = `Last checked: ${now} IST`;
+
+  if (!meta) {
+    document.getElementById('dashboard')
+      .style.display = 'block';
+    document.getElementById('dashboard')
+      .innerHTML = `
+        <div class="overall-banner banner-fail">
+          <div class="banner-icon">🚨</div>
+          <div>
+            <div class="banner-text-title"
+                 style="color:#f85149;">
+              Cannot Load Data
+            </div>
+            <div class="banner-text-sub">
+              meta.json unreachable —
+              check GitHub Pages deployment
+            </div>
+          </div>
+        </div>`;
+    return;
+  }
+
+  // ── DERIVE STATUS ─────────────────────────────────
+  let fails = 0;
+  let warns  = 0;
+
+  const isTrading  = !_isWeekend() &&
+    (meta.is_trading_day !== false);
+  const inMarket   = _isTradingHours();
+
+  // Scan freshness
+  const marketDate   = meta.market_date || '';
+  const scanIsToday  = _isToday(marketDate);
+  let   scanDot, scanText, scanCls;
+  if (!isTrading) {
+    scanDot  = 'dot-dim';
+    scanText = `${marketDate} · Market closed`;
+    scanCls  = 'val-dim';
+  } else if (scanIsToday) {
+    scanDot  = 'dot-ok';
+    scanText = `${marketDate} ✓`;
+    scanCls  = 'val-ok';
+  } else {
+    scanDot  = 'dot-fail';
+    scanText = `${marketDate} — NOT TODAY`;
+    scanCls  = 'val-fail';
+    fails++;
+  }
+
+  // LTP freshness
+  const ltpUpdated = meta.ltp_updated_at || '';
+  let   ltpDot, ltpText, ltpCls;
+  const ltpAge     = _ageMinutes(ltpUpdated);
+  if (!isTrading || !inMarket) {
+    ltpDot  = 'dot-dim';
+    ltpText = ltpUpdated || 'Outside market hours';
+    ltpCls  = 'val-dim';
+  } else if (ltpAge === null) {
+    ltpDot  = 'dot-warn';
+    ltpText = 'No timestamp';
+    ltpCls  = 'val-warn';
+    warns++;
+  } else if (ltpAge <= 10) {
+    ltpDot  = 'dot-ok';
+    ltpText = `${ltpUpdated} · ${ltpAge}m ago ✓`;
+    ltpCls  = 'val-ok';
+  } else if (ltpAge <= 30) {
+    ltpDot  = 'dot-warn';
+    ltpText = `${ltpUpdated} · ${ltpAge}m ago`;
+    ltpCls  = 'val-warn';
+    warns++;
+  } else {
+    ltpDot  = 'dot-fail';
+    ltpText = `${ltpUpdated} · ${ltpAge}m ago ⚠️`;
+    ltpCls  = 'val-fail';
+    if (inMarket) fails++;
+  }
+
+  // Active signals
+  const active = meta.active_signals_count != null
+    ? meta.active_signals_count
+    : (meta.signals_found || 0);
+
+  // Regime
+  const regime    = meta.regime || '—';
+  const regimeCls =
+    regime === 'Bear' ? 'val-fail' :
+    regime === 'Bull' ? 'val-ok'   : 'val-warn';
+
+  // Schema version
+  const schemaV    = meta.schema_version || '—';
+  const schemaDot  = schemaV >= 5
+    ? 'dot-ok' : 'dot-warn';
+  const schemaCls  = schemaV >= 5
+    ? 'val-ok' : 'val-warn';
+  if (schemaV < 5) warns++;
+
+  // Scan time
+  const scanTime   = meta.scan_time || '—';
+
+  // History stats
+  let histTotal    = 0;
+  let histPending  = 0;
+  let histResolved = 0;
+  let histGen0     = 0;
+  let histGen1     = 0;
+  let histDot      = 'dot-dim';
+  let histCls      = 'val-dim';
+
+  if (hist && hist.history) {
+    const h        = hist.history;
+    histTotal      = h.length;
+    histPending    = h.filter(
+      s => s.result === 'PENDING' &&
+           s.action === 'TOOK').length;
+    histResolved   = h.filter(
+      s => s.result !== 'PENDING' &&
+           s.action === 'TOOK' &&
+           (s.generation || 0) >= 1).length;
+    histGen0       = h.filter(
+      s => s.generation === 0).length;
+    histGen1       = h.filter(
+      s => (s.generation || 0) >= 1).length;
+    histDot        = histTotal > 0
+      ? 'dot-ok' : 'dot-warn';
+    histCls        = histTotal > 0
+      ? 'val-ok' : 'val-warn';
+    if (histTotal === 0) warns++;
+  } else {
+    warns++;
+    histDot = 'dot-warn';
+  }
+
+  // Warnings from meta
+  const fetchFailed = (meta.fetch_failed || []).length;
+  const caSkip      =
+    (meta.corporate_action_skip || []).length;
+  const wfStatus    = meta.workflow_status || '';
+
+  if (fetchFailed > 0) warns++;
+
+  let wfDot, wfText, wfCls;
+  if (!wfStatus || wfStatus === '—') {
+    wfDot  = 'dot-dim';
+    wfText = 'No data';
+    wfCls  = 'val-dim';
+  } else if (
+    wfStatus.includes('FAIL') ||
+    wfStatus.includes('ERROR')) {
+    wfDot  = 'dot-fail';
+    wfText = wfStatus;
+    wfCls  = 'val-fail';
+    fails++;
+  } else {
+    wfDot  = 'dot-ok';
+    wfText = wfStatus;
+    wfCls  = 'val-ok';
+  }
+
+  // Universe size
+  const univSize = meta.universe_size || 0;
+
+  // ── BUILD HTML ────────────────────────────────────
+  const html = `
+    ${_overallBanner(fails, warns)}
+
+    <!-- SCANNER STATUS -->
+    <div class="card">
+      <div class="card-title">📡 Scanner Status</div>
+      ${_statusRow('Last scan date',
+          scanDot, scanText, scanCls)}
+      ${_statusRow('Scan time',
+          scanIsToday && isTrading
+            ? 'dot-ok' : 'dot-dim',
+          scanTime,
+          scanIsToday && isTrading
+            ? 'val-ok' : 'val-dim')}
+      ${_statusRow('LTP updated',
+          ltpDot, ltpText, ltpCls)}
+      ${_statusRow('Workflows',
+          wfDot, wfText, wfCls)}
+    </div>
+
+    <!-- SIGNAL HEALTH -->
+    <div class="card">
+      <div class="card-title">📊 Signal Health</div>
+      ${_statusRow('Active signals',
+          active > 0 ? 'dot-ok' : 'dot-warn',
+          String(active),
+          active > 0 ? 'val-ok' : 'val-warn')}
+      ${_statusRow('History total',
+          histDot,
+          histTotal > 0
+            ? `${histTotal} records` : 'Empty',
+          histCls)}
+      ${_row('Pending (open)',
+          String(histPending), 'val-normal')}
+      ${_row('Live resolved (gen=1)',
+          `${histResolved} / 30 target`,
+          histResolved >= 30
+            ? 'val-ok' : 'val-warn')}
+      ${_row('Gen split',
+          `gen0=${histGen0} · gen1=${histGen1}`,
+          'val-dim')}
+    </div>
+
+    <!-- MARKET CONTEXT -->
+    <div class="card">
+      <div class="card-title">
+        🌡️ Market Context
+      </div>
+      ${_statusRow('Regime',
+          regime === 'Bear' ? 'dot-fail' :
+          regime === 'Bull' ? 'dot-ok' : 'dot-warn',
+          regime, regimeCls)}
+      ${_row('Universe', `${univSize} stocks`,
+          'val-normal')}
+      ${_row('Schema version',
+          `v${schemaV}`,
+          schemaCls)}
+      ${fetchFailed > 0
+        ? _statusRow('Fetch failures',
+            'dot-warn',
+            `${fetchFailed} stocks failed`,
+            'val-warn')
+        : _statusRow('Fetch failures',
+            'dot-ok', 'None', 'val-ok')}
+      ${caSkip > 0
+        ? _row('CA skips',
+            `${caSkip} stocks`, 'val-warn')
+        : ''}
+    </div>
+
+    <!-- PHASE PROGRESS -->
+    <div class="card">
+      <div class="card-title">
+        🔬 Phase 1 Progress
+      </div>
+      ${(function() {
+          const n      = histResolved;
+          const target = 30;
+          const pct    = Math.min(
+            Math.round(n / target * 100), 100);
+          const color  = pct >= 100
+            ? '#00C851'
+            : pct >= 50 ? '#FFD700' : '#58a6ff';
+          const left   = Math.max(target - n, 0);
+          return `
+            <div style="margin-bottom:8px;">
+              <div style="display:flex;
+                justify-content:space-between;
+                font-size:11px;color:#8b949e;
+                margin-bottom:5px;">
+                <span>Live resolved signals</span>
+                <span style="color:${color};
+                  font-weight:700;">
+                  ${n} / ${target}
+                </span>
+              </div>
+              <div style="background:#21262d;
+                border-radius:4px;height:8px;
+                overflow:hidden;">
+                <div style="background:${color};
+                  height:8px;width:${pct}%;
+                  border-radius:4px;
+                  transition:width 0.3s ease;">
+                </div>
+              </div>
+              <div style="font-size:10px;
+                color:#555;margin-top:5px;">
+                ${n === 0
+                  ? 'Collecting first outcomes…'
+                  : left > 0
+                    ? `${left} more needed to unlock Phase 2`
+                    : '✅ Phase 2 unlocked — stats valid'}
+              </div>
+            </div>`;
+        })()}
+      ${_statusRow('Mini scanner',
+          'dot-dim',
+          'Shadow mode — observing',
+          'val-dim')}
+    </div>`;
+
+  const dash = document.getElementById('dashboard');
+  dash.style.display = 'block';
+  dash.innerHTML     = html;
+}
+
+// ── TRIGGER DIAGNOSTIC ────────────────────────────────
+// Dispatches diagnostic.yml workflow via GitHub API.
+// Requires GH_TOKEN in localStorage (set once manually).
+async function triggerDiagnostic() {
+  const diagEl =
+    document.getElementById('diag-status');
+
+  // Get or prompt for token
+  let token = '';
+  try {
+    token = localStorage.getItem('tietiy_gh_token')
+      || '';
+  } catch(e) {}
+
+  if (!token) {
+    token = prompt(
+      'Enter GitHub Personal Access Token\n' +
+      '(needs workflow scope — saved locally):');
+    if (!token) {
+      diagEl.textContent =
+        'Cancelled — no token provided.';
+      return;
+    }
+    try {
+      localStorage.setItem(
+        'tietiy_gh_token', token);
+    } catch(e) {}
+  }
+
+  diagEl.textContent = '⏳ Dispatching workflow…';
+
+  try {
+    const r = await fetch(
+      `https://api.github.com/repos/` +
+      `${GH_REPO}/actions/workflows/` +
+      `${DIAG_WF}/dispatches`,
+      {
+        method: 'POST',
+        headers: {
+          'Authorization': `token ${token}`,
+          'Accept':
+            'application/vnd.github.v3+json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          ref: 'main',
+          inputs: {
+            mode: 'full',
+            telegram: 'true',
+          },
+        }),
+      }
+    );
+
+    if (r.status === 204) {
+      diagEl.innerHTML =
+        '<span style="color:#00C851;">' +
+        '✓ Workflow dispatched — ' +
+        'check Telegram in ~60s' +
+        '</span>';
+    } else if (r.status === 401) {
+      diagEl.innerHTML =
+        '<span style="color:#f85149;">' +
+        '✕ Token invalid or expired — ' +
+        '<span style="cursor:pointer;' +
+        'text-decoration:underline;" ' +
+        'onclick="localStorage.removeItem(' +
+        "'tietiy_gh_token'" +
+        ');this.parentElement.textContent=' +
+        "'Token cleared — retry';"  +
+        '">clear token</span>' +
+        '</span>';
+    } else {
+      diagEl.innerHTML =
+        `<span style="color:#f85149;">` +
+        `✕ GitHub API returned ${r.status}` +
+        `</span>`;
+    }
+  } catch(e) {
+    diagEl.innerHTML =
+      `<span style="color:#f85149;">` +
+      `✕ Network error: ${e.message}` +
+      `</span>`;
+  }
+}
+
+// ── AUTO REFRESH ──────────────────────────────────────
+loadAll();
+setInterval(loadAll, 60000);
+
+// Update refresh countdown
+let _countdown = 60;
+setInterval(function() {
+  _countdown--;
+  if (_countdown <= 0) {
+    _countdown = 60;
+  }
+  const footer =
+    document.getElementById('footer-note');
+  if (footer) {
+    footer.textContent =
+      `Auto-refreshes every 60s · ` +
+      `Next in ${_countdown}s`;
+  }
+}, 1000);
+</script>
+</body>
+</html>
