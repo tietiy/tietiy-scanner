@@ -1,0 +1,342 @@
+# .github/workflows/master_check.yml
+# Runtime validation of all scanner Python files
+# Run this after any batch of edits before deploying
+#
+# Tier 1: syntax check (py_compile) — all .py files
+# Tier 2: import check — all scanner modules
+# Tier 3: safe execution — scripts in read-only mode
+# Single Telegram report at end
+#
+# Trigger: manual dispatch only
+
+name: Master Check
+
+on:
+  workflow_dispatch:
+    inputs:
+      telegram:
+        description: 'Send Telegram report'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  master-check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests pandas numpy yfinance
+
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
+
+      - name: Run master check
+        id: master
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+          SEND_TG:          ${{ github.event.inputs.telegram }}
+        run: |
+          python - << 'PYEOF'
+          import os
+          import sys
+          import json
+          import subprocess
+          from datetime import datetime
+
+          SCANNER_DIR = 'scanner'
+          SEND_TG     = os.environ.get('SEND_TG', 'true') == 'true'
+
+          # ── All scanner Python files ───────────────
+          PY_FILES = [
+              'scanner/main.py',
+              'scanner/scanner_core.py',
+              'scanner/journal.py',
+              'scanner/outcome_evaluator.py',
+              'scanner/scorer.py',
+              'scanner/mini_scanner.py',
+              'scanner/config.py',
+              'scanner/meta_writer.py',
+              'scanner/html_builder.py',
+              'scanner/push_sender.py',
+              'scanner/eod_prices_writer.py',
+              'scanner/stop_alert_writer.py',
+              'scanner/open_validator.py',
+              'scanner/ltp_writer.py',
+              'scanner/telegram_bot.py',
+              'scanner/calendar_utils.py',
+              'scanner/universe.py',
+              'scanner/price_feed.py',
+              'scanner/ban_fetcher.py',
+              'scanner/diagnostic.py',
+              'scanner/backup_manager.py',
+              'scanner/colab_sync.py',
+              'scanner/gap_report.py',
+              'scanner/weekend_summary.py',
+              'scanner/deep_debugger.py',
+          ]
+
+          # Only check files that exist
+          PY_FILES = [f for f in PY_FILES
+                      if os.path.exists(f)]
+
+          results = []   # (tier, name, ok, detail)
+          fails   = 0
+          warns   = 0
+
+          def add(tier, name, ok, detail=''):
+              nonlocal fails, warns
+              results.append((tier, name, ok, detail))
+              if not ok:
+                  fails += 1
+              print(f"  {'OK  ' if ok else 'FAIL'} "
+                    f"[T{tier}] {name}"
+                    + (f" — {detail}" if detail else ''))
+
+          print('=' * 55)
+          print('MASTER CHECK')
+          print(datetime.now().strftime(
+              '%Y-%m-%d %H:%M:%S'))
+          print('=' * 55)
+
+          # ── TIER 1: SYNTAX CHECK ──────────────────
+          print(f'\nTIER 1 — Syntax ({len(PY_FILES)} files)')
+          for fpath in PY_FILES:
+              r = subprocess.run(
+                  [sys.executable, '-m',
+                   'py_compile', fpath],
+                  capture_output=True, text=True)
+              ok     = r.returncode == 0
+              detail = r.stderr.strip()[:120] \
+                       if not ok else ''
+              add(1, fpath.replace('scanner/', ''),
+                  ok, detail)
+
+          # ── TIER 2: IMPORT CHECK ──────────────────
+          IMPORTABLE = [
+              'config',
+              'calendar_utils',
+              'telegram_bot',
+              'journal',
+              'scorer',
+              'mini_scanner',
+              'universe',
+              'price_feed',
+              'ban_fetcher',
+              'diagnostic',
+              'backup_manager',
+              'colab_sync',
+              'gap_report',
+              'weekend_summary',
+              'deep_debugger',
+          ]
+
+          print(f'\nTIER 2 — Imports '
+                f'({len(IMPORTABLE)} modules)')
+          for mod in IMPORTABLE:
+              r = subprocess.run(
+                  [sys.executable, '-c',
+                   f'import sys; '
+                   f'sys.path.insert(0,"scanner"); '
+                   f'import {mod}'],
+                  capture_output=True, text=True,
+                  env={**os.environ,
+                       'PYTHONPATH':
+                       'scanner:' + os.getcwd()})
+              ok     = r.returncode == 0
+              detail = ''
+              if not ok:
+                  # grab last meaningful error line
+                  lines = [l.strip() for l in
+                           r.stderr.strip().split('\n')
+                           if l.strip()]
+                  detail = lines[-1][:120] if lines else ''
+              add(2, mod, ok, detail)
+
+          # ── TIER 3: SAFE EXECUTION ────────────────
+          SAFE_RUNS = [
+              {
+                  'name':  'diagnostic --quick',
+                  'cmd':   [sys.executable,
+                            'scanner/diagnostic.py',
+                            '--quick'],
+                  'expect': [0, 1],   # 0=pass 1=warn ok
+              },
+              {
+                  'name':  'backup_manager --list',
+                  'cmd':   [sys.executable,
+                            'scanner/backup_manager.py',
+                            '--list'],
+                  'expect': [0],
+              },
+              {
+                  'name':  'colab_sync',
+                  'cmd':   [sys.executable,
+                            'scanner/colab_sync.py'],
+                  'expect': [0],
+              },
+              {
+                  'name':  'gap_report',
+                  'cmd':   [sys.executable,
+                            'scanner/gap_report.py'],
+                  'expect': [0],
+              },
+              {
+                  'name':  'weekend_summary '
+                           '(Saturday gate)',
+                  'cmd':   [sys.executable,
+                            'scanner/weekend_summary.py'],
+                  'expect': [0],   # exits cleanly if not Sat
+              },
+              {
+                  'name':  'deep_debugger --audit',
+                  'cmd':   [sys.executable,
+                            'scanner/deep_debugger.py',
+                            '--audit'],
+                  'expect': [0, 1],
+              },
+          ]
+
+          print(f'\nTIER 3 — Safe execution '
+                f'({len(SAFE_RUNS)} scripts)')
+          for run in SAFE_RUNS:
+              r = subprocess.run(
+                  run['cmd'],
+                  capture_output=True, text=True,
+                  env={**os.environ,
+                       'PYTHONPATH':
+                       os.getcwd() + ':' +
+                       os.path.join(os.getcwd(),
+                                    'scanner')})
+              ok = r.returncode in run['expect']
+              detail = ''
+              if not ok:
+                  lines = [l.strip() for l in
+                           (r.stdout + r.stderr)
+                           .strip().split('\n')
+                           if l.strip()]
+                  detail = lines[-1][:120] if lines else \
+                           f'exit {r.returncode}'
+              add(3, run['name'], ok, detail)
+
+          # ── SUMMARY ───────────────────────────────
+          total  = len(results)
+          passed = sum(1 for r in results if r[2])
+          print(f'\n{"=" * 55}')
+          if fails == 0:
+              print(f'PASS — {passed}/{total} checks OK')
+          else:
+              print(f'FAIL — {fails} failed, '
+                    f'{passed} passed')
+          print('=' * 55)
+
+          # ── TELEGRAM REPORT ───────────────────────
+          if SEND_TG:
+              try:
+                  sys.path.insert(0, 'scanner')
+                  from telegram_bot import send_message
+
+                  def esc(t):
+                      t = str(t or '')
+                      for ch in r'\_*[]()~`>#+-=|{}.!':
+                          t = t.replace(ch, f'\\{ch}')
+                      return t
+
+                  today = datetime.now().strftime(
+                      '%Y-%m-%d')
+                  tlines = []
+                  tlines.append(
+                      f'🔍 *MASTER CHECK · {esc(today)}*')
+                  tlines.append('')
+
+                  if fails == 0:
+                      tlines.append(
+                          f'✅ All {esc(str(total))} '
+                          f'checks passed')
+                  else:
+                      tlines.append(
+                          f'❌ *{esc(str(fails))} '
+                          f'failed · '
+                          f'{esc(str(passed))} passed*')
+                      tlines.append('')
+
+                      # Group failures by tier
+                      for tier in [1, 2, 3]:
+                          tier_fails = [
+                              r for r in results
+                              if r[0] == tier
+                              and not r[2]]
+                          if not tier_fails:
+                              continue
+                          tier_name = (
+                              'Syntax'  if tier == 1 else
+                              'Imports' if tier == 2 else
+                              'Runtime')
+                          tlines.append(
+                              f'*T{tier} {tier_name}:*')
+                          for _, name, _, detail \
+                                  in tier_fails[:5]:
+                              d = (f' \\- {esc(detail)}'
+                                   if detail else '')
+                              tlines.append(
+                                  f'  • {esc(name)}{d}')
+                          tlines.append('')
+
+                  # Tier summary
+                  for tier in [1, 2, 3]:
+                      tier_res   = [r for r in results
+                                    if r[0] == tier]
+                      tier_ok    = sum(1 for r in
+                                       tier_res if r[2])
+                      tier_total = len(tier_res)
+                      tier_name  = (
+                          'Syntax'  if tier == 1 else
+                          'Imports' if tier == 2 else
+                          'Runtime')
+                      icon = '✅' \
+                             if tier_ok == tier_total \
+                             else '❌'
+                      n_ok  = esc(str(tier_ok))
+                      n_tot = esc(str(tier_total))
+                      tlines.append(
+                          f'{icon} T{tier} {tier_name}: '
+                          f'{n_ok}/{n_tot}')
+
+                  send_message('\n'.join(tlines))
+                  print('[master_check] Telegram sent')
+              except Exception as e:
+                  print(f'[master_check] '
+                        f'Telegram error: {e}')
+
+          # Exit non-zero only on real failures
+          sys.exit(0 if fails == 0 else 1)
+
+          PYEOF
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('master_check', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
