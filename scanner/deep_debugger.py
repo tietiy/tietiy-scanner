@@ -12,6 +12,9 @@
 #
 # All modes can add --telegram to send results to Telegram.
 # Exit codes: 0=clean, 1=issues found, 2=error
+#
+# BUG FIX: _send() uses plain text — audit output is
+#   data-heavy with special chars that break MarkdownV2
 # ─────────────────────────────────────────────────────
 
 import os
@@ -52,7 +55,6 @@ VALID_SIGNALS = {
     'UP_TRI_SA', 'DOWN_TRI_SA',
 }
 
-# Field type expectations for per-signal audit
 _FIELD_TYPES = {
     'id':             str,
     'date':           str,
@@ -72,14 +74,13 @@ _FIELD_TYPES = {
     'sec_leading':    bool,
 }
 
-# V5 fields that must exist
 _V5_FIELDS = [
     'user_action', 'is_sa', 'sa_parent_id',
     'sa_parent_outcome', 'rs_strong',
     'grade_A', 'sec_leading',
 ]
 
-MAX_TELEGRAM_LINES = 40   # safety cap per message
+MAX_TELEGRAM_LINES = 40
 
 
 # ── TELEGRAM ESCAPE ───────────────────────────────────
@@ -89,6 +90,24 @@ def _esc(text):
     text = str(text)
     for ch in r'\_*[]()~`>#+-=|{}.!':
         text = text.replace(ch, f'\\{ch}')
+    return text
+
+
+# ── PLAIN TEXT STRIP ──────────────────────────────────
+def _plain(text):
+    """
+    Strip all MarkdownV2 formatting for plain
+    text Telegram send. Audit output contains
+    raw special chars that break MarkdownV2
+    even after escaping — plain text is safer.
+    """
+    import re
+    text = re.sub(r'\|\|(.+?)\|\|', r'\1',
+                  text, flags=re.DOTALL)
+    text = re.sub(r'\*(.+?)\*', r'\1', text)
+    text = re.sub(r'\[(.+?)\]\((.+?)\)',
+                  r'\1 \2', text)
+    text = re.sub(r'\\(.)', r'\1', text)
     return text
 
 
@@ -121,7 +140,6 @@ def _sym(s):
 
 
 def _find_signal(history, symbol, sig_date):
-    """Find a signal record by stock symbol + date."""
     sym_clean = symbol.upper().replace('.NS', '')
     matches = [
         r for r in history
@@ -143,31 +161,82 @@ def _age_str(date_str):
     if not date_str:
         return '—'
     try:
-        d = datetime.strptime(date_str, '%Y-%m-%d').date()
+        d = datetime.strptime(
+            date_str, '%Y-%m-%d').date()
         delta = (date.today() - d).days
         return f'{delta}d ago'
     except Exception:
         return date_str
 
 
+# ── BUG FIX: PLAIN TEXT SEND ──────────────────────────
 def _send(lines, send_tg):
+    """
+    Print to console + send to Telegram as plain text.
+    Plain text avoids MarkdownV2 parse errors on
+    audit output which contains raw special chars
+    (stock names, prices, dates with dashes etc).
+    """
     text = '\n'.join(lines)
     print(text)
-    if send_tg and TELEGRAM_AVAILABLE:
-        # chunk if needed
+
+    if not send_tg:
+        return
+
+    token   = os.environ.get('TELEGRAM_TOKEN', '')
+    chat_id = os.environ.get('TELEGRAM_CHAT_ID', '')
+
+    if not token or not chat_id:
+        print("[debugger] No Telegram credentials")
+        return
+
+    # Strip markdown formatting for plain send
+    plain = _plain(text)
+
+    # Chunk if needed
+    MAX_LEN = 4000
+    chunks  = []
+    if len(plain) <= MAX_LEN:
+        chunks = [plain]
+    else:
+        lines_split = plain.split('\n')
+        current     = ''
+        for line in lines_split:
+            if len(current) + len(line) + 1 > MAX_LEN:
+                chunks.append(current.rstrip('\n'))
+                current = line + '\n'
+            else:
+                current += line + '\n'
+        if current.strip():
+            chunks.append(current.rstrip('\n'))
+
+    import requests as _req
+    url = (f'https://api.telegram.org/'
+           f'bot{token}/sendMessage')
+
+    for i, chunk in enumerate(chunks):
         try:
-            send_message(text)
+            r = _req.post(url, json={
+                'chat_id':                  chat_id,
+                'text':                     chunk,
+                'disable_web_page_preview': True,
+            }, timeout=15)
+            if r.status_code == 200:
+                print(f'[debugger] Telegram chunk '
+                      f'{i+1}/{len(chunks)} sent')
+            else:
+                print(f'[debugger] Telegram failed: '
+                      f'{r.status_code}')
         except Exception as e:
-            print(f"[debugger] Telegram error: {e}")
+            print(f'[debugger] Telegram error: {e}')
+
+        if i < len(chunks) - 1:
+            import time
+            time.sleep(1)
 
 
 # ── MODE 1: FULL AUDIT ────────────────────────────────
 def run_audit(history, send_tg=False):
-    """
-    Scans all signals for data integrity issues.
-    Checks: type mismatches, logical errors,
-    missing V5 fields, duplicate IDs, bad outcomes.
-    """
     print("[debugger] Running full audit...")
 
     issues   = []
@@ -179,7 +248,6 @@ def run_audit(history, send_tg=False):
         dt   = sig.get('date', '?')
         tag  = f"{sym}/{dt}"
 
-        # ── Duplicate ID ──────────────────────────────
         if sid in seen_ids:
             issues.append(
                 f"DUP_ID  {tag} — id={sid} "
@@ -187,13 +255,11 @@ def run_audit(history, send_tg=False):
         else:
             seen_ids[sid] = i
 
-        # ── Unknown signal type ───────────────────────
         stype = sig.get('signal', '')
         if stype not in VALID_SIGNALS:
             issues.append(
                 f"BAD_SIG {tag} — signal='{stype}'")
 
-        # ── Field type mismatches ─────────────────────
         for field, expected in _FIELD_TYPES.items():
             val = sig.get(field)
             if val is None:
@@ -204,7 +270,6 @@ def run_audit(history, send_tg=False):
                     f"{field}={repr(val)} "
                     f"(expected {expected})")
 
-        # ── Missing V5 fields ─────────────────────────
         missing_v5 = [f for f in _V5_FIELDS
                       if f not in sig]
         if missing_v5:
@@ -212,97 +277,95 @@ def run_audit(history, send_tg=False):
                 f"NO_V5   {tag} — "
                 f"missing: {', '.join(missing_v5)}")
 
-        # ── TOOK signals: logical price checks ────────
         if sig.get('action') == 'TOOK':
             entry  = float(sig.get('entry')  or 0)
             stop   = float(sig.get('stop')   or 0)
-            target = float(sig.get('target_price') or 0)
+            target = float(
+                sig.get('target_price') or 0)
             dirn   = sig.get('direction', 'LONG')
 
             if entry > 0 and stop > 0:
                 if dirn == 'LONG' and stop >= entry:
                     issues.append(
                         f"STOP_ERR {tag} — "
-                        f"stop {stop} >= entry {entry} "
-                        f"(LONG)")
+                        f"stop {stop} >= entry "
+                        f"{entry} (LONG)")
                 if dirn == 'SHORT' and stop <= entry:
                     issues.append(
                         f"STOP_ERR {tag} — "
-                        f"stop {stop} <= entry {entry} "
-                        f"(SHORT)")
+                        f"stop {stop} <= entry "
+                        f"{entry} (SHORT)")
 
             if entry > 0 and target > 0:
                 if dirn == 'LONG' and target <= entry:
                     issues.append(
                         f"TGT_ERR  {tag} — "
-                        f"target {target} <= entry {entry}")
+                        f"target {target} <= "
+                        f"entry {entry}")
                 if dirn == 'SHORT' and target >= entry:
                     issues.append(
                         f"TGT_ERR  {tag} — "
-                        f"target {target} >= entry {entry}")
+                        f"target {target} >= "
+                        f"entry {entry}")
 
-            # exit_date before entry date
             sig_date  = sig.get('date', '')
             exit_date = sig.get('exit_date', '')
-            if sig_date and exit_date and exit_date <= sig_date:
+            if (sig_date and exit_date
+                    and exit_date <= sig_date):
                 issues.append(
                     f"DATE_ERR {tag} — "
                     f"exit_date {exit_date} <= "
                     f"signal_date {sig_date}")
 
-        # ── Outcome inconsistencies ───────────────────
         outcome = sig.get('outcome') or ''
         result  = sig.get('result',  '')
         action  = sig.get('action',  '')
 
-        # REJECTED with outcome=OPEN
         if result == 'REJECTED' and outcome == 'OPEN':
             issues.append(
                 f"BAD_OUT  {tag} — "
                 f"REJECTED but outcome=OPEN")
 
-        # PENDING with outcome=DONE
         if (result == 'PENDING'
                 and outcome in OUTCOME_DONE):
             issues.append(
                 f"STUCK    {tag} — "
-                f"outcome={outcome} but result=PENDING")
+                f"outcome={outcome} but "
+                f"result=PENDING")
 
-        # TOOK with pnl but no outcome
         if (action == 'TOOK'
                 and sig.get('pnl_pct') is not None
                 and outcome not in OUTCOME_DONE):
             issues.append(
                 f"PNL_OPEN {tag} — "
-                f"has pnl_pct but outcome not resolved")
+                f"has pnl_pct but outcome "
+                f"not resolved")
 
-    # ── Summary ───────────────────────────────────────
     live = [s for s in history
             if (s.get('generation', 1) or 1) >= 1]
     gen0 = len(history) - len(live)
 
+    # Plain text output — no MarkdownV2
     lines = []
-    lines.append('🔍 *DEEP AUDIT*')
-    lines.append(f'{date.today().isoformat()}')
+    lines.append('DEEP AUDIT')
+    lines.append(date.today().isoformat())
     lines.append('')
     lines.append(
-        f'Checked: {_esc(str(len(history)))} signals '
-        f'\\(gen1={_esc(str(len(live)))} '
-        f'gen0={_esc(str(gen0))}\\)')
+        f'Checked: {len(history)} signals '
+        f'(gen1={len(live)} gen0={gen0})')
     lines.append('')
 
     if not issues:
-        lines.append('✅ No issues found\\.')
+        lines.append('No issues found.')
     else:
         lines.append(
-            f'❌ *{_esc(str(len(issues)))} issues found:*')
+            f'{len(issues)} issues found:')
         lines.append('')
         for iss in issues[:MAX_TELEGRAM_LINES]:
-            lines.append(f'  • {_esc(iss)}')
+            lines.append(f'  {iss}')
         if len(issues) > MAX_TELEGRAM_LINES:
-            lines.append(
-                f'  \\.\\.\\. '
-                f'+{len(issues) - MAX_TELEGRAM_LINES} more')
+            extra = len(issues) - MAX_TELEGRAM_LINES
+            lines.append(f'  ... +{extra} more')
 
     _send(lines, send_tg)
     return len(issues)
@@ -311,26 +374,21 @@ def run_audit(history, send_tg=False):
 # ── MODE 2: SINGLE SIGNAL INSPECT ────────────────────
 def run_signal_inspect(history, symbol,
                        sig_date, send_tg=False):
-    """
-    Full field-by-field dump of a specific signal.
-    Flags suspicious values inline.
-    """
     matches = _find_signal(history, symbol, sig_date)
 
     lines = []
     lines.append(
-        f'🔬 *SIGNAL INSPECT · '
-        f'{_esc(symbol.upper())} · '
-        f'{_esc(sig_date)}*')
+        f'SIGNAL INSPECT: '
+        f'{symbol.upper()} / {sig_date}')
     lines.append('')
 
     if not matches:
         lines.append(
             f'No TOOK signal found for '
-            f'{_esc(symbol)} on {_esc(sig_date)}\\.')
+            f'{symbol} on {sig_date}.')
         lines.append(
-            'Check symbol spelling and date format '
-            '\\(YYYY\\-MM\\-DD\\)\\.')
+            'Check symbol spelling and date '
+            'format (YYYY-MM-DD).')
         _send(lines, send_tg)
         return 1
 
@@ -338,120 +396,102 @@ def run_signal_inspect(history, symbol,
         stype = sig.get('signal', '?')
         score = sig.get('score', 0)
         lines.append(
-            f'*{_esc(stype)}* · '
-            f'{_esc(str(score))}/10 · '
-            f'gen={_esc(str(sig.get("generation")))}')
+            f'{stype} | {score}/10 | '
+            f'gen={sig.get("generation")}')
         lines.append('')
 
-        # ── Core identity ─────────────────────────────
-        lines.append('*IDENTITY*')
+        lines.append('IDENTITY')
         lines.append(
-            f'  id: {_esc(sig.get("id", "—"))}')
+            f'  id: {sig.get("id", "—")}')
         lines.append(
             f'  schema_v: '
-            f'{_esc(str(sig.get("schema_version")))}')
+            f'{sig.get("schema_version")}')
         lines.append(
-            f'  layer: {_esc(sig.get("layer"))} · '
-            f'action: {_esc(sig.get("action"))}')
+            f'  layer: {sig.get("layer")} | '
+            f'action: {sig.get("action")}')
         lines.append('')
 
-        # ── Trade levels ──────────────────────────────
         entry  = sig.get('entry')
         stop   = sig.get('stop')
         target = sig.get('target_price')
         dirn   = sig.get('direction', 'LONG')
 
-        lines.append('*TRADE LEVELS*')
+        lines.append('TRADE LEVELS')
         lines.append(
-            f'  entry:  {_esc(str(entry))} '
-            f'stop: {_esc(str(stop))} '
-            f'target: {_esc(str(target))}')
+            f'  entry: {entry} | '
+            f'stop: {stop} | '
+            f'target: {target}')
 
-        # flag bad levels inline
         if entry and stop:
             e, s = float(entry), float(stop)
             if dirn == 'LONG' and s >= e:
                 lines.append(
-                    '  ⚠️ Stop >= entry on LONG')
+                    '  WARNING: Stop >= entry on LONG')
             if dirn == 'SHORT' and s <= e:
                 lines.append(
-                    '  ⚠️ Stop <= entry on SHORT')
+                    '  WARNING: Stop <= entry on SHORT')
         if not target:
             lines.append(
-                '  ⚠️ target\\_price is None')
+                '  WARNING: target_price is None')
         lines.append('')
 
-        # ── Context ───────────────────────────────────
-        lines.append('*CONTEXT*')
+        lines.append('CONTEXT')
         lines.append(
-            f'  regime: {_esc(sig.get("regime"))} · '
-            f'stock\\_regime: '
-            f'{_esc(sig.get("stock_regime"))}')
+            f'  regime: {sig.get("regime")} | '
+            f'stock_regime: '
+            f'{sig.get("stock_regime")}')
         lines.append(
-            f'  age: {_esc(str(sig.get("age")))} · '
-            f'sector: {_esc(sig.get("sector"))}')
+            f'  age: {sig.get("age")} | '
+            f'sector: {sig.get("sector")}')
         lines.append(
-            f'  bear\\_bonus: '
-            f'{_esc(str(sig.get("bear_bonus")))} · '
-            f'vol\\_confirm: '
-            f'{_esc(str(sig.get("vol_confirm")))}')
+            f'  bear_bonus: {sig.get("bear_bonus")} | '
+            f'vol_confirm: {sig.get("vol_confirm")}')
         lines.append(
-            f'  rs\\_strong: '
-            f'{_esc(str(sig.get("rs_strong")))} · '
-            f'sec\\_leading: '
-            f'{_esc(str(sig.get("sec_leading")))} · '
-            f'grade\\_A: '
-            f'{_esc(str(sig.get("grade_A")))}')
+            f'  rs_strong: {sig.get("rs_strong")} | '
+            f'sec_leading: {sig.get("sec_leading")} | '
+            f'grade_A: {sig.get("grade_A")}')
         lines.append('')
 
-        # ── SA tracking ───────────────────────────────
         if sig.get('is_sa'):
-            lines.append('*SA TRACKING*')
+            lines.append('SA TRACKING')
             lines.append(
-                f'  is\\_sa: True · '
-                f'parent: '
-                f'{_esc(sig.get("sa_parent_id"))}')
+                f'  is_sa: True | '
+                f'parent: {sig.get("sa_parent_id")}')
             lines.append(
-                f'  parent\\_outcome: '
-                f'{_esc(sig.get("sa_parent_outcome"))}')
+                f'  parent_outcome: '
+                f'{sig.get("sa_parent_outcome")}')
             if sig.get('sa_parent_outcome') is None:
                 lines.append(
-                    '  ⚠️ parent outcome not yet '
-                    'populated')
+                    '  WARNING: parent outcome '
+                    'not yet populated')
             lines.append('')
 
-        # ── Outcome ───────────────────────────────────
-        lines.append('*OUTCOME*')
+        lines.append('OUTCOME')
         lines.append(
-            f'  outcome: '
-            f'{_esc(sig.get("outcome"))} · '
-            f'result: {_esc(sig.get("result"))}')
+            f'  outcome: {sig.get("outcome")} | '
+            f'result: {sig.get("result")}')
         lines.append(
-            f'  pnl\\_pct: '
-            f'{_esc(_pnl_str(sig.get("pnl_pct")))} · '
-            f'outcome\\_date: '
-            f'{_esc(sig.get("outcome_date"))}')
+            f'  pnl_pct: '
+            f'{_pnl_str(sig.get("pnl_pct"))} | '
+            f'outcome_date: '
+            f'{sig.get("outcome_date")}')
         lines.append(
-            f'  mfe: '
-            f'{_esc(str(sig.get("mfe_pct")))}% · '
-            f'mae: '
-            f'{_esc(str(sig.get("mae_pct")))}%')
+            f'  mfe: {sig.get("mfe_pct")}% | '
+            f'mae: {sig.get("mae_pct")}%')
         lines.append(
-            f'  exit\\_date: '
-            f'{_esc(sig.get("exit_date"))} · '
+            f'  exit_date: {sig.get("exit_date")} | '
             f'actual: '
-            f'{_esc(sig.get("exit_date_actual"))}')
+            f'{sig.get("exit_date_actual")}')
         lines.append('')
 
-        # ── V5 field check ────────────────────────────
         missing_v5 = [f for f in _V5_FIELDS
                       if f not in sig]
         if missing_v5:
             lines.append(
-                f'⚠️ Missing V5 fields: '
-                f'{_esc(", ".join(missing_v5))}')
+                f'MISSING V5: '
+                f'{", ".join(missing_v5)}')
         else:
-            lines.append('✅ All V5 fields present')
+            lines.append('All V5 fields present.')
 
     _send(lines, send_tg)
     return 0
@@ -460,46 +500,37 @@ def run_signal_inspect(history, symbol,
 # ── MODE 3: LIFECYCLE TRACE ───────────────────────────
 def run_lifecycle(history, symbol,
                   sig_date, send_tg=False):
-    """
-    Traces a signal through its full lifecycle:
-    logged → open_validated → ltp_tracked →
-    outcome_evaluated.
-    Shows what happened at each step and what's missing.
-    """
     matches = _find_signal(history, symbol, sig_date)
 
     lines = []
     lines.append(
-        f'🔄 *LIFECYCLE · '
-        f'{_esc(symbol.upper())} · '
-        f'{_esc(sig_date)}*')
+        f'LIFECYCLE: {symbol.upper()} / {sig_date}')
     lines.append('')
 
     if not matches:
         lines.append(
             f'No signal found for '
-            f'{_esc(symbol)} on {_esc(sig_date)}\\.')
+            f'{symbol} on {sig_date}.')
         _send(lines, send_tg)
         return 1
 
     sig = matches[0]
 
     def _step(icon, name, value, note=None):
-        line = f'{icon} *{_esc(name)}*: {_esc(str(value))}'
+        line = f'{icon} {name}: {value}'
         if note:
-            line += f' — {_esc(note)}'
+            line += f' | {note}'
         lines.append(line)
 
     def _missing(name, why):
-        lines.append(
-            f'❓ *{_esc(name)}*: not yet — {_esc(why)}')
+        lines.append(f'? {name}: not yet | {why}')
 
-    # Step 1: Logged
-    _step('1️⃣', 'Logged',
+    _step('1', 'Logged',
           sig.get('date', '?'),
           f'scan_time: {sig.get("scan_time", "?")}')
     _step('  ', 'Signal',
-          f'{sig.get("signal")} score={sig.get("score")} '
+          f'{sig.get("signal")} '
+          f'score={sig.get("score")} '
           f'age={sig.get("age")}')
     _step('  ', 'Levels',
           f'entry={sig.get("entry")} '
@@ -507,74 +538,66 @@ def run_lifecycle(history, symbol,
           f'target={sig.get("target_price")}')
     lines.append('')
 
-    # Step 2: Open validation
     actual_open = sig.get('actual_open')
     if actual_open is not None:
-        gap = sig.get('gap_pct')
+        gap   = sig.get('gap_pct')
         valid = sig.get('entry_valid')
-        _step('2️⃣', 'Open validated',
-              f'₹{actual_open}',
+        _step('2', 'Open validated',
+              f'Rs.{actual_open}',
               f'gap={gap}% valid={valid}')
         if valid is False:
             lines.append(
-                '  ⚠️ Entry marked invalid — '
+                '  WARNING: Entry invalid — '
                 'gap too large')
     else:
         _missing('Open validation',
-                 'open_validator not yet run '
-                 'or signal date is today')
+                 'open_validator not yet run')
     lines.append('')
 
-    # Step 3: LTP tracking
     ltp_data = _load_json_file('ltp_prices.json')
     ltp_val  = None
     if ltp_data:
-        prices = ltp_data.get('prices', {})
+        prices  = ltp_data.get('prices', {})
         sym_key = sig.get('symbol', '')
         ltp_val = (prices.get(sym_key) or
                    prices.get(
                        sym_key.replace('.NS', '')))
 
     if ltp_val:
-        _step('3️⃣', 'LTP tracking',
-              f'₹{ltp_val}',
+        _step('3', 'LTP tracking',
+              f'Rs.{ltp_val}',
               ltp_data.get('ltp_updated_at', ''))
     else:
         outcome = sig.get('outcome') or ''
         if outcome in OUTCOME_DONE:
-            _step('3️⃣', 'LTP tracking',
+            _step('3', 'LTP tracking',
                   'Resolved — no active LTP')
         else:
             _missing('LTP tracking',
-                     'not in ltp_prices.json — '
-                     'may be outside market hours')
+                     'not in ltp_prices.json')
     lines.append('')
 
-    # Step 4: Stop alerts
     stop_data   = _load_json_file('stop_alerts.json')
     stop_alerts = []
     if stop_data:
-        sym_key = sig.get('symbol', '')
-        all_a   = stop_data.get('alerts', [])
+        sym_key     = sig.get('symbol', '')
+        all_a       = stop_data.get('alerts', [])
         stop_alerts = [
             a for a in all_a
-            if a.get('symbol') == sym_key
-        ]
+            if a.get('symbol') == sym_key]
 
     if stop_alerts:
         for a in stop_alerts:
-            _step('⚠️', 'Stop alert',
+            _step('!', 'Stop alert',
                   a.get('alert_level', '?'),
-                  f'check_time={a.get("check_time")}')
+                  f'time={a.get("check_time")}')
     else:
-        lines.append('4️⃣ *Stop alerts*: none active')
+        lines.append('4. Stop alerts: none active')
     lines.append('')
 
-    # Step 5: Outcome evaluation
     outcome = sig.get('outcome') or ''
     if outcome in OUTCOME_DONE:
-        icon = '✅' if outcome in OUTCOME_WIN else '❌'
-        _step('5️⃣', 'Outcome resolved',
+        _step('5', 'Outcome resolved',
               outcome,
               f'pnl={_pnl_str(sig.get("pnl_pct"))} '
               f'date={sig.get("outcome_date")}')
@@ -582,21 +605,18 @@ def run_lifecycle(history, symbol,
         mae = sig.get('mae_pct')
         if mfe is not None or mae is not None:
             lines.append(
-                f'  MFE: {mfe}% · MAE: {mae}%')
+                f'  MFE: {mfe}% | MAE: {mae}%')
     elif outcome == 'OPEN':
         exit_date = sig.get('exit_date', '?')
         _missing('Outcome',
-                 f'signal still open · '
-                 f'exit_date={exit_date}')
+                 f'still open | exit={exit_date}')
     else:
         _missing('Outcome',
-                 f'outcome={outcome} — '
-                 f'unexpected state')
+                 f'outcome={outcome} unexpected')
 
     lines.append('')
     lines.append(
-        f'user\\_action: '
-        f'{_esc(str(sig.get("user_action")))}')
+        f'user_action: {sig.get("user_action")}')
 
     _send(lines, send_tg)
     return 0
@@ -604,12 +624,6 @@ def run_lifecycle(history, symbol,
 
 # ── MODE 4: SA CHAIN VALIDATOR ────────────────────────
 def run_sa_check(history, send_tg=False):
-    """
-    For every SA signal, validates:
-    - Parent signal exists in history
-    - Parent has resolved outcome
-    - sa_parent_outcome field is populated
-    """
     sa_signals = [
         s for s in history
         if s.get('is_sa') is True
@@ -617,22 +631,19 @@ def run_sa_check(history, send_tg=False):
     ]
 
     lines = []
-    lines.append('🔗 *SA CHAIN VALIDATOR*')
-    lines.append(f'{date.today().isoformat()}')
+    lines.append('SA CHAIN VALIDATOR')
+    lines.append(date.today().isoformat())
     lines.append('')
     lines.append(
-        f'SA signals found: '
-        f'{_esc(str(len(sa_signals)))}')
+        f'SA signals found: {len(sa_signals)}')
     lines.append('')
 
     if not sa_signals:
-        lines.append(
-            'No SA signals in history yet\\.')
+        lines.append('No SA signals in history yet.')
         _send(lines, send_tg)
         return 0
 
-    all_ids   = {s.get('id') for s in history}
-    issues    = 0
+    issues = 0
 
     for sig in sa_signals:
         sym       = _sym(sig.get('symbol', '?'))
@@ -640,25 +651,22 @@ def run_sa_check(history, send_tg=False):
         stype     = sig.get('signal', '?')
         parent_id = sig.get('sa_parent_id')
         p_outcome = sig.get('sa_parent_outcome')
-
-        tag = f'{_esc(sym)}/{_esc(dt)}'
+        tag       = f'{sym}/{dt}'
 
         if not parent_id:
             lines.append(
-                f'⚠️ {tag} — '
-                f'no sa\\_parent\\_id set')
+                f'WARN {tag} — no sa_parent_id set')
             issues += 1
             continue
 
-        # Find parent in history
         parent = next(
             (s for s in history
              if s.get('id') == parent_id), None)
 
         if not parent:
             lines.append(
-                f'❌ {tag} — parent not found: '
-                f'{_esc(parent_id)}')
+                f'FAIL {tag} — parent not found: '
+                f'{parent_id}')
             issues += 1
             continue
 
@@ -667,36 +675,30 @@ def run_sa_check(history, send_tg=False):
         if parent_outcome in OUTCOME_DONE:
             if p_outcome is None:
                 lines.append(
-                    f'⚠️ {tag} — parent resolved '
-                    f'\\({_esc(parent_outcome)}\\) '
-                    f'but sa\\_parent\\_outcome '
-                    f'not propagated')
+                    f'WARN {tag} — parent resolved '
+                    f'({parent_outcome}) but '
+                    f'sa_parent_outcome not propagated')
                 issues += 1
             elif p_outcome != parent_outcome:
                 lines.append(
-                    f'⚠️ {tag} — '
-                    f'sa\\_parent\\_outcome='
-                    f'{_esc(p_outcome)} but '
-                    f'parent actual='
-                    f'{_esc(parent_outcome)}')
+                    f'WARN {tag} — mismatch: '
+                    f'stored={p_outcome} '
+                    f'actual={parent_outcome}')
                 issues += 1
             else:
                 lines.append(
-                    f'✅ {tag} — '
-                    f'{_esc(stype)} · parent '
-                    f'{_esc(parent_outcome)} ✓')
+                    f'OK   {tag} — {stype} | '
+                    f'parent {parent_outcome}')
         else:
             lines.append(
-                f'⏳ {tag} — '
-                f'parent still open')
+                f'WAIT {tag} — parent still open')
 
     lines.append('')
     if issues == 0:
-        lines.append('✅ All SA chains valid\\.')
+        lines.append('All SA chains valid.')
     else:
         lines.append(
-            f'❌ {_esc(str(issues))} '
-            f'SA chain issues found\\.')
+            f'{issues} SA chain issues found.')
 
     _send(lines, send_tg)
     return issues
@@ -705,12 +707,6 @@ def run_sa_check(history, send_tg=False):
 # ── MODE 5: REGIME AUDIT ──────────────────────────────
 def run_regime_audit(history, signal_type,
                      regime, send_tg=False):
-    """
-    Shows all signals of a given type + regime
-    with their outcomes in a compact table.
-    Useful for validating backtest expectations
-    against live data.
-    """
     filtered = [
         s for s in history
         if (s.get('signal') or '').upper() ==
@@ -726,18 +722,16 @@ def run_regime_audit(history, signal_type,
 
     lines = []
     lines.append(
-        f'🌡️ *REGIME AUDIT · '
-        f'{_esc(signal_type.upper())} · '
-        f'{_esc(regime.upper())}*')
-    lines.append(f'{date.today().isoformat()}')
+        f'REGIME AUDIT: '
+        f'{signal_type.upper()} / {regime.upper()}')
+    lines.append(date.today().isoformat())
     lines.append('')
     lines.append(
-        f'Signals found: '
-        f'{_esc(str(len(filtered)))}')
+        f'Signals found: {len(filtered)}')
     lines.append('')
 
     if not filtered:
-        lines.append('No signals match this filter\\.')
+        lines.append('No signals match this filter.')
         _send(lines, send_tg)
         return 0
 
@@ -752,17 +746,17 @@ def run_regime_audit(history, signal_type,
 
     wr_str = '—'
     if len(resolved) >= 3:
-        wr = round(len(wins) / len(resolved) * 100)
+        wr     = round(
+            len(wins) / len(resolved) * 100)
         wr_str = f'{wr}%'
 
     lines.append(
-        f'Resolved: {_esc(str(len(resolved)))} · '
-        f'WR: {_esc(wr_str)}')
+        f'Resolved: {len(resolved)} | WR: {wr_str}')
     lines.append('')
 
-    # Table: sym | score | outcome | pnl
     filtered.sort(
-        key=lambda x: x.get('date', ''), reverse=True)
+        key=lambda x: x.get('date', ''),
+        reverse=True)
 
     for s in filtered[:MAX_TELEGRAM_LINES]:
         sym     = _sym(s.get('symbol', '?'))
@@ -771,30 +765,25 @@ def run_regime_audit(history, signal_type,
         pnl     = _pnl_str(s.get('pnl_pct'))
         dt      = s.get('date', '?')
         age     = s.get('age', '?')
-        bb      = '🔥' if s.get('bear_bonus') else ''
+        bb      = 'BEAR' if s.get('bear_bonus') else ''
 
         icon = (
-            '🎯' if outcome == 'TARGET_HIT' else
-            '✅' if outcome == 'DAY6_WIN'   else
-            '🛑' if outcome == 'STOP_HIT'   else
-            '❌' if outcome == 'DAY6_LOSS'  else
-            '〰️' if outcome == 'DAY6_FLAT'  else
-            '⏳'
+            'TGT' if outcome == 'TARGET_HIT' else
+            'WIN' if outcome == 'DAY6_WIN'   else
+            'STP' if outcome == 'STOP_HIT'   else
+            'LOS' if outcome == 'DAY6_LOSS'  else
+            'FLT' if outcome == 'DAY6_FLAT'  else
+            'OPN'
         )
 
         lines.append(
-            f'{icon} *{_esc(sym)}* '
-            f'{_esc(dt)} '
-            f'sc={_esc(str(score))} '
-            f'age={_esc(str(age))} '
-            f'{bb} '
-            f'{_esc(pnl)}')
+            f'{icon} {sym} {dt} '
+            f'sc={score} age={age} '
+            f'{bb} {pnl}')
 
     if len(filtered) > MAX_TELEGRAM_LINES:
-        lines.append(
-            f'\\.\\.\\. '
-            f'+{len(filtered) - MAX_TELEGRAM_LINES}'
-            f' more not shown')
+        extra = (len(filtered) - MAX_TELEGRAM_LINES)
+        lines.append(f'... +{extra} more not shown')
 
     _send(lines, send_tg)
     return 0
@@ -810,28 +799,24 @@ def main():
     parser.add_argument(
         '--signal', nargs=2,
         metavar=('SYMBOL', 'DATE'),
-        help='Inspect a specific signal: '
-             '--signal TATASTEEL 2026-04-06')
+        help='Inspect a specific signal')
     parser.add_argument(
         '--lifecycle', nargs=2,
         metavar=('SYMBOL', 'DATE'),
-        help='Trace signal lifecycle: '
-             '--lifecycle TATASTEEL 2026-04-06')
+        help='Trace signal lifecycle')
     parser.add_argument(
         '--sa-check', action='store_true',
         help='Validate all SA parent chains')
     parser.add_argument(
         '--regime-audit', nargs=2,
         metavar=('SIGNAL_TYPE', 'REGIME'),
-        help='Regime audit: '
-             '--regime-audit UP_TRI Bear')
+        help='Regime audit: --regime-audit UP_TRI Bear')
     parser.add_argument(
         '--telegram', action='store_true',
         help='Send results to Telegram')
 
     args = parser.parse_args()
 
-    # Must specify at least one mode
     if not any([
         args.audit, args.signal,
         args.lifecycle, args.sa_check,
