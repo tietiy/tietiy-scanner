@@ -1,6 +1,13 @@
+# .github/workflows/weekend_summary.yml
+# Sends weekly Telegram recap every Saturday morning
+# W1: aligned with weekend_summary.py outcome-based stats
+
 name: Weekend Summary
 
 on:
+  schedule:
+    # Saturday 3:30 AM UTC = 9:00 AM IST
+    - cron: '30 3 * * 6'
   workflow_dispatch:
 
 jobs:
@@ -16,12 +23,30 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install requests
-        run: pip install requests
+      - name: Install dependencies
+        run: pip install requests pandas numpy
+
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
 
       - name: Run Weekend Summary
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: python scanner/weekend_summary.py
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('weekend_summary', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
