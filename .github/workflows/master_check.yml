@@ -7,7 +7,9 @@
 # Tier 3: safe execution — scripts in read-only mode
 # Single Telegram report at end
 #
-# Trigger: manual dispatch only
+# BUG FIX: nonlocal → global for fails/warns
+# (nonlocal requires enclosing function scope;
+#  top-level script variables need global)
 
 name: Master Check
 
@@ -52,17 +54,14 @@ jobs:
           PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
           SEND_TG:          ${{ github.event.inputs.telegram }}
         run: |
-          python - << 'PYEOF'
+          cat > /tmp/master_check.py << 'PYEOF'
           import os
           import sys
-          import json
           import subprocess
           from datetime import datetime
 
-          SCANNER_DIR = 'scanner'
-          SEND_TG     = os.environ.get('SEND_TG', 'true') == 'true'
+          SEND_TG = os.environ.get('SEND_TG', 'true') == 'true'
 
-          # ── All scanner Python files ───────────────
           PY_FILES = [
               'scanner/main.py',
               'scanner/scanner_core.py',
@@ -91,43 +90,42 @@ jobs:
               'scanner/deep_debugger.py',
           ]
 
-          # Only check files that exist
           PY_FILES = [f for f in PY_FILES
                       if os.path.exists(f)]
 
-          results = []   # (tier, name, ok, detail)
+          results = []
           fails   = 0
           warns   = 0
 
           def add(tier, name, ok, detail=''):
-              nonlocal fails, warns
+              # BUG FIX: global not nonlocal —
+              # these are module-level variables
+              global fails, warns
               results.append((tier, name, ok, detail))
               if not ok:
                   fails += 1
-              print(f"  {'OK  ' if ok else 'FAIL'} "
-                    f"[T{tier}] {name}"
-                    + (f" — {detail}" if detail else ''))
+              status = 'OK  ' if ok else 'FAIL'
+              line   = f"  {status} [T{tier}] {name}"
+              if detail:
+                  line += f" — {detail}"
+              print(line)
 
           print('=' * 55)
           print('MASTER CHECK')
-          print(datetime.now().strftime(
-              '%Y-%m-%d %H:%M:%S'))
+          print(datetime.now().strftime('%Y-%m-%d %H:%M:%S'))
           print('=' * 55)
 
-          # ── TIER 1: SYNTAX CHECK ──────────────────
+          # ── TIER 1: SYNTAX ────────────────────────
           print(f'\nTIER 1 — Syntax ({len(PY_FILES)} files)')
           for fpath in PY_FILES:
               r = subprocess.run(
-                  [sys.executable, '-m',
-                   'py_compile', fpath],
+                  [sys.executable, '-m', 'py_compile', fpath],
                   capture_output=True, text=True)
               ok     = r.returncode == 0
-              detail = r.stderr.strip()[:120] \
-                       if not ok else ''
-              add(1, fpath.replace('scanner/', ''),
-                  ok, detail)
+              detail = r.stderr.strip()[:120] if not ok else ''
+              add(1, fpath.replace('scanner/', ''), ok, detail)
 
-          # ── TIER 2: IMPORT CHECK ──────────────────
+          # ── TIER 2: IMPORTS ───────────────────────
           IMPORTABLE = [
               'config',
               'calendar_utils',
@@ -146,22 +144,24 @@ jobs:
               'deep_debugger',
           ]
 
-          print(f'\nTIER 2 — Imports '
-                f'({len(IMPORTABLE)} modules)')
+          print(f'\nTIER 2 — Imports ({len(IMPORTABLE)} modules)')
+          env_t2 = {
+              **os.environ,
+              'PYTHONPATH': 'scanner:' + os.getcwd()
+          }
           for mod in IMPORTABLE:
+              cmd = (
+                  f'import sys; '
+                  f'sys.path.insert(0, "scanner"); '
+                  f'import {mod}'
+              )
               r = subprocess.run(
-                  [sys.executable, '-c',
-                   f'import sys; '
-                   f'sys.path.insert(0,"scanner"); '
-                   f'import {mod}'],
+                  [sys.executable, '-c', cmd],
                   capture_output=True, text=True,
-                  env={**os.environ,
-                       'PYTHONPATH':
-                       'scanner:' + os.getcwd()})
-              ok     = r.returncode == 0
+                  env=env_t2)
+              ok = r.returncode == 0
               detail = ''
               if not ok:
-                  # grab last meaningful error line
                   lines = [l.strip() for l in
                            r.stderr.strip().split('\n')
                            if l.strip()]
@@ -171,58 +171,59 @@ jobs:
           # ── TIER 3: SAFE EXECUTION ────────────────
           SAFE_RUNS = [
               {
-                  'name':  'diagnostic --quick',
-                  'cmd':   [sys.executable,
-                            'scanner/diagnostic.py',
-                            '--quick'],
-                  'expect': [0, 1],   # 0=pass 1=warn ok
+                  'name':   'diagnostic --quick',
+                  'cmd':    [sys.executable,
+                             'scanner/diagnostic.py',
+                             '--quick'],
+                  'expect': [0, 1],
               },
               {
-                  'name':  'backup_manager --list',
-                  'cmd':   [sys.executable,
-                            'scanner/backup_manager.py',
-                            '--list'],
+                  'name':   'backup_manager --list',
+                  'cmd':    [sys.executable,
+                             'scanner/backup_manager.py',
+                             '--list'],
                   'expect': [0],
               },
               {
-                  'name':  'colab_sync',
-                  'cmd':   [sys.executable,
-                            'scanner/colab_sync.py'],
+                  'name':   'colab_sync',
+                  'cmd':    [sys.executable,
+                             'scanner/colab_sync.py'],
                   'expect': [0],
               },
               {
-                  'name':  'gap_report',
-                  'cmd':   [sys.executable,
-                            'scanner/gap_report.py'],
+                  'name':   'gap_report',
+                  'cmd':    [sys.executable,
+                             'scanner/gap_report.py'],
                   'expect': [0],
               },
               {
-                  'name':  'weekend_summary '
-                           '(Saturday gate)',
-                  'cmd':   [sys.executable,
-                            'scanner/weekend_summary.py'],
-                  'expect': [0],   # exits cleanly if not Sat
+                  'name':   'weekend_summary (Saturday gate)',
+                  'cmd':    [sys.executable,
+                             'scanner/weekend_summary.py'],
+                  'expect': [0],
               },
               {
-                  'name':  'deep_debugger --audit',
-                  'cmd':   [sys.executable,
-                            'scanner/deep_debugger.py',
-                            '--audit'],
+                  'name':   'deep_debugger --audit',
+                  'cmd':    [sys.executable,
+                             'scanner/deep_debugger.py',
+                             '--audit'],
                   'expect': [0, 1],
               },
           ]
 
-          print(f'\nTIER 3 — Safe execution '
-                f'({len(SAFE_RUNS)} scripts)')
+          env_t3 = {
+              **os.environ,
+              'PYTHONPATH': (
+                  os.getcwd() + ':' +
+                  os.path.join(os.getcwd(), 'scanner'))
+          }
+
+          print(f'\nTIER 3 — Safe execution ({len(SAFE_RUNS)} scripts)')
           for run in SAFE_RUNS:
               r = subprocess.run(
                   run['cmd'],
                   capture_output=True, text=True,
-                  env={**os.environ,
-                       'PYTHONPATH':
-                       os.getcwd() + ':' +
-                       os.path.join(os.getcwd(),
-                                    'scanner')})
+                  env=env_t3)
               ok = r.returncode in run['expect']
               detail = ''
               if not ok:
@@ -230,8 +231,8 @@ jobs:
                            (r.stdout + r.stderr)
                            .strip().split('\n')
                            if l.strip()]
-                  detail = lines[-1][:120] if lines else \
-                           f'exit {r.returncode}'
+                  detail = (lines[-1][:120] if lines
+                            else f'exit {r.returncode}')
               add(3, run['name'], ok, detail)
 
           # ── SUMMARY ───────────────────────────────
@@ -241,11 +242,10 @@ jobs:
           if fails == 0:
               print(f'PASS — {passed}/{total} checks OK')
           else:
-              print(f'FAIL — {fails} failed, '
-                    f'{passed} passed')
+              print(f'FAIL — {fails} failed, {passed} passed')
           print('=' * 55)
 
-          # ── TELEGRAM REPORT ───────────────────────
+          # ── TELEGRAM ──────────────────────────────
           if SEND_TG:
               try:
                   sys.path.insert(0, 'scanner')
@@ -257,8 +257,7 @@ jobs:
                           t = t.replace(ch, f'\\{ch}')
                       return t
 
-                  today = datetime.now().strftime(
-                      '%Y-%m-%d')
+                  today  = datetime.now().strftime('%Y-%m-%d')
                   tlines = []
                   tlines.append(
                       f'🔍 *MASTER CHECK · {esc(today)}*')
@@ -270,17 +269,13 @@ jobs:
                           f'checks passed')
                   else:
                       tlines.append(
-                          f'❌ *{esc(str(fails))} '
-                          f'failed · '
+                          f'❌ *{esc(str(fails))} failed · '
                           f'{esc(str(passed))} passed*')
                       tlines.append('')
-
-                      # Group failures by tier
                       for tier in [1, 2, 3]:
                           tier_fails = [
                               r for r in results
-                              if r[0] == tier
-                              and not r[2]]
+                              if r[0] == tier and not r[2]]
                           if not tier_fails:
                               continue
                           tier_name = (
@@ -297,20 +292,18 @@ jobs:
                                   f'  • {esc(name)}{d}')
                           tlines.append('')
 
-                  # Tier summary
                   for tier in [1, 2, 3]:
                       tier_res   = [r for r in results
                                     if r[0] == tier]
-                      tier_ok    = sum(1 for r in
-                                       tier_res if r[2])
+                      tier_ok    = sum(1 for r in tier_res
+                                       if r[2])
                       tier_total = len(tier_res)
                       tier_name  = (
                           'Syntax'  if tier == 1 else
                           'Imports' if tier == 2 else
                           'Runtime')
-                      icon = '✅' \
-                             if tier_ok == tier_total \
-                             else '❌'
+                      icon  = ('✅' if tier_ok == tier_total
+                               else '❌')
                       n_ok  = esc(str(tier_ok))
                       n_tot = esc(str(tier_total))
                       tlines.append(
@@ -320,13 +313,11 @@ jobs:
                   send_message('\n'.join(tlines))
                   print('[master_check] Telegram sent')
               except Exception as e:
-                  print(f'[master_check] '
-                        f'Telegram error: {e}')
+                  print(f'[master_check] Telegram error: {e}')
 
-          # Exit non-zero only on real failures
           sys.exit(0 if fails == 0 else 1)
-
           PYEOF
+          python /tmp/master_check.py
 
       - name: Notify on failure
         if: failure()
