@@ -6,6 +6,19 @@
 #        stock_regime field on every signal dict
 # S3 FIX: vol_confirm cast to bool() — prevents numpy
 #         bool_ being serialised as string "True"/"False"
+#
+# V1 FIXES APPLIED:
+# - R1  : V5 fields added to all signal dicts
+#         rs_strong  = bool(rs_q == 'Strong')
+#         sec_leading = bool(sec_mom == 'Leading')
+#         is_sa       = False on all regular signals
+#         sa_parent_id, sa_parent_outcome = None
+#         (grade_A left for scorer.py — grade not
+#          computed here)
+# - R6  : SA signal dicts now explicitly set:
+#         is_sa=True, sa_parent_id (actual parent
+#         record ID), sa_parent_outcome=None,
+#         rs_strong, sec_leading
 # ─────────────────────────────────────────────────────
 
 import numpy as np
@@ -257,7 +270,7 @@ def detect_signals(df, symbol, sector,
         vol_q   = ('High'    if vr > 1.5 else
                    'Thin'    if vr < 0.7 else
                    'Average')
-        # ── S3 FIX: cast to bool() ────────────────
+        # S3 FIX: cast to bool()
         vol_confirm = bool(vr >= 1.2)
         rs_q = 'Neutral'
         if pb >= 20 and nifty_close is not None:
@@ -296,27 +309,37 @@ def detect_signals(df, symbol, sector,
         if stop >= entry_est:
             continue
         vq, vc, rq = get_vol_rs(pb)
+        # R1: derive V5 boolean fields
+        sec_mom_val = sector_momentum.get(
+            sector, 'Neutral')
         signals.append({
-            'symbol':        symbol,
-            'sector':        sector,
-            'signal':        'UP_TRI',
-            'direction':     'LONG',
-            'age':           age,
-            'pivot_date':    df.index[pb].strftime(
-                                 '%Y-%m-%d'),
-            'pivot_price':   round(pivot_px, 2),
-            'entry_est':     round(entry_est, 2),
-            'stop':          stop,
-            'atr':           round(atr, 2),
-            'regime':        regime,
-            'regime_score':  regime_score,
-            'vol_q':         vq,
-            'vol_confirm':   vc,
-            'rs_q':          rq,
-            'sec_mom':       sector_momentum.get(
-                                 sector, 'Neutral'),
-            'bear_bonus':    bool(regime == 'Bear'),
-            'stock_regime':  stock_regime,
+            'symbol':           symbol,
+            'sector':           sector,
+            'signal':           'UP_TRI',
+            'direction':        'LONG',
+            'age':              age,
+            'pivot_date':       df.index[pb].strftime(
+                                    '%Y-%m-%d'),
+            'pivot_price':      round(pivot_px, 2),
+            'entry_est':        round(entry_est, 2),
+            'stop':             stop,
+            'atr':              round(atr, 2),
+            'regime':           regime,
+            'regime_score':     regime_score,
+            'vol_q':            vq,
+            'vol_confirm':      vc,
+            'rs_q':             rq,
+            'rs_strong':        bool(rq == 'Strong'),
+            'sec_mom':          sec_mom_val,
+            'sec_leading':      bool(
+                                    sec_mom_val ==
+                                    'Leading'),
+            'bear_bonus':       bool(regime == 'Bear'),
+            'stock_regime':     stock_regime,
+            # R1: V5 SA fields — not SA, set defaults
+            'is_sa':            False,
+            'sa_parent_id':     None,
+            'sa_parent_outcome': None,
         })
 
     # ── DOWN TRIANGLE — age 0 only ────────────────
@@ -330,31 +353,41 @@ def detect_signals(df, symbol, sector,
                 pivot_px + STOP_MULT * atr, 2)
             if stop > entry_est:
                 vq, vc, rq = get_vol_rs(pb)
+                # R1: derive V5 boolean fields
+                sec_mom_val = sector_momentum.get(
+                    sector, 'Neutral')
                 signals.append({
-                    'symbol':        symbol,
-                    'sector':        sector,
-                    'signal':        'DOWN_TRI',
-                    'direction':     'SHORT',
-                    'age':           0,
-                    'pivot_date':    df.index[pb]
-                                     .strftime(
-                                         '%Y-%m-%d'),
-                    'pivot_price':   round(
-                                         pivot_px, 2),
-                    'entry_est':     round(
-                                         entry_est, 2),
-                    'stop':          stop,
-                    'atr':           round(atr, 2),
-                    'regime':        regime,
-                    'regime_score':  regime_score,
-                    'vol_q':         vq,
-                    'vol_confirm':   vc,
-                    'rs_q':          rq,
-                    'sec_mom':       sector_momentum
-                                     .get(sector,
-                                          'Neutral'),
-                    'bear_bonus':    False,
-                    'stock_regime':  stock_regime,
+                    'symbol':           symbol,
+                    'sector':           sector,
+                    'signal':           'DOWN_TRI',
+                    'direction':        'SHORT',
+                    'age':              0,
+                    'pivot_date':       df.index[pb]
+                                        .strftime(
+                                            '%Y-%m-%d'),
+                    'pivot_price':      round(
+                                            pivot_px, 2),
+                    'entry_est':        round(
+                                            entry_est, 2),
+                    'stop':             stop,
+                    'atr':              round(atr, 2),
+                    'regime':           regime,
+                    'regime_score':     regime_score,
+                    'vol_q':            vq,
+                    'vol_confirm':      vc,
+                    'rs_q':             rq,
+                    'rs_strong':        bool(
+                                            rq == 'Strong'),
+                    'sec_mom':          sec_mom_val,
+                    'sec_leading':      bool(
+                                            sec_mom_val ==
+                                            'Leading'),
+                    'bear_bonus':       False,
+                    'stock_regime':     stock_regime,
+                    # R1: V5 SA fields — defaults
+                    'is_sa':            False,
+                    'sa_parent_id':     None,
+                    'sa_parent_outcome': None,
                 })
 
     # ── BULL PROXY — ages 0-1, trend required ─────
@@ -390,28 +423,38 @@ def detect_signals(df, symbol, sector,
         if stop_z >= closes[last_bar]:
             continue
         vq, vc, rq = get_vol_rs(i)
+        # R1: derive V5 boolean fields
+        sec_mom_val = sector_momentum.get(
+            sector, 'Neutral')
         signals.append({
-            'symbol':        symbol,
-            'sector':        sector,
-            'signal':        'BULL_PROXY',
-            'direction':     'LONG',
-            'age':           age,
-            'pivot_date':    df.index[i].strftime(
-                                 '%Y-%m-%d'),
-            'pivot_price':   round(lows[i], 2),
-            'entry_est':     round(
-                                 closes[last_bar], 2),
-            'stop':          stop_z,
-            'atr':           round(atr, 2),
-            'regime':        regime,
-            'regime_score':  regime_score,
-            'vol_q':         vq,
-            'vol_confirm':   vc,
-            'rs_q':          rq,
-            'sec_mom':       sector_momentum.get(
-                                 sector, 'Neutral'),
-            'bear_bonus':    False,
-            'stock_regime':  stock_regime,
+            'symbol':           symbol,
+            'sector':           sector,
+            'signal':           'BULL_PROXY',
+            'direction':        'LONG',
+            'age':              age,
+            'pivot_date':       df.index[i].strftime(
+                                    '%Y-%m-%d'),
+            'pivot_price':      round(lows[i], 2),
+            'entry_est':        round(
+                                    closes[last_bar], 2),
+            'stop':             stop_z,
+            'atr':              round(atr, 2),
+            'regime':           regime,
+            'regime_score':     regime_score,
+            'vol_q':            vq,
+            'vol_confirm':      vc,
+            'rs_q':             rq,
+            'rs_strong':        bool(rq == 'Strong'),
+            'sec_mom':          sec_mom_val,
+            'sec_leading':      bool(
+                                    sec_mom_val ==
+                                    'Leading'),
+            'bear_bonus':       False,
+            'stock_regime':     stock_regime,
+            # R1: V5 SA fields — defaults
+            'is_sa':            False,
+            'sa_parent_id':     None,
+            'sa_parent_outcome': None,
         })
 
     return signals
@@ -526,6 +569,10 @@ def detect_second_attempt(df, symbol, sector,
     if np.isnan(current_atr) or current_atr <= 0:
         return sa_signals
 
+    # R1: common V5 fields for all SA signals
+    sec_mom_val = sector_momentum.get(
+        sector, 'Neutral')
+
     # ── UP_TRI SECOND ATTEMPT ─────────────────────
     if parent_signal == 'UP_TRI':
 
@@ -564,40 +611,48 @@ def detect_second_attempt(df, symbol, sector,
             vol_q   = ('High'    if vr > 1.5 else
                        'Thin'    if vr < 0.7 else
                        'Average')
-            # ── S3 FIX: cast to bool() ────────────
+            # S3 FIX: cast to bool()
             vol_confirm = bool(vr >= 1.2)
         except Exception:
             vol_q       = 'Average'
             vol_confirm = False
 
         sa_signals.append({
-            'symbol':           symbol,
-            'sector':           sector,
-            'signal':           'UP_TRI_SA',
-            'direction':        'LONG',
-            'age':              0,
-            'attempt_number':   2,
-            'parent_signal_id': parent_id,
-            'parent_signal':    'UP_TRI',
-            'parent_date':      parent_date,
-            'parent_result':    parent_result,
-            'pivot_date':       parent_date,
-            'pivot_price':      round(
-                                    parent_pivot, 2),
-            'entry_est':        round(
-                                    current_price, 2),
-            'stop':             stop,
-            'atr':              round(
-                                    current_atr, 2),
-            'regime':           regime,
-            'regime_score':     regime_score,
-            'vol_q':            vol_q,
-            'vol_confirm':      vol_confirm,
-            'rs_q':             'Neutral',
-            'sec_mom':          sector_momentum.get(
-                                    sector, 'Neutral'),
-            'bear_bonus':       bool(regime == 'Bear'),
-            'stock_regime':     stock_regime,
+            'symbol':            symbol,
+            'sector':            sector,
+            'signal':            'UP_TRI_SA',
+            'direction':         'LONG',
+            'age':               0,
+            'attempt_number':    2,
+            'parent_signal_id':  parent_id,
+            'parent_signal':     'UP_TRI',
+            'parent_date':       parent_date,
+            'parent_result':     parent_result,
+            'pivot_date':        parent_date,
+            'pivot_price':       round(
+                                     parent_pivot, 2),
+            'entry_est':         round(
+                                     current_price, 2),
+            'stop':              stop,
+            'atr':               round(
+                                     current_atr, 2),
+            'regime':            regime,
+            'regime_score':      regime_score,
+            'vol_q':             vol_q,
+            'vol_confirm':       vol_confirm,
+            'rs_q':              'Neutral',
+            # R1: V5 boolean fields
+            'rs_strong':         False,
+            'sec_mom':           sec_mom_val,
+            'sec_leading':       bool(
+                                     sec_mom_val ==
+                                     'Leading'),
+            'bear_bonus':        bool(regime == 'Bear'),
+            'stock_regime':      stock_regime,
+            # R6: explicit SA tracking fields
+            'is_sa':             True,
+            'sa_parent_id':      parent_id,
+            'sa_parent_outcome': None,
         })
 
     # ── DOWN_TRI SECOND ATTEMPT ───────────────────
@@ -638,40 +693,48 @@ def detect_second_attempt(df, symbol, sector,
             vol_q   = ('High'    if vr > 1.5 else
                        'Thin'    if vr < 0.7 else
                        'Average')
-            # ── S3 FIX: cast to bool() ────────────
+            # S3 FIX: cast to bool()
             vol_confirm = bool(vr >= 1.2)
         except Exception:
             vol_q       = 'Average'
             vol_confirm = False
 
         sa_signals.append({
-            'symbol':           symbol,
-            'sector':           sector,
-            'signal':           'DOWN_TRI_SA',
-            'direction':        'SHORT',
-            'age':              0,
-            'attempt_number':   2,
-            'parent_signal_id': parent_id,
-            'parent_signal':    'DOWN_TRI',
-            'parent_date':      parent_date,
-            'parent_result':    parent_result,
-            'pivot_date':       parent_date,
-            'pivot_price':      round(
-                                    parent_pivot, 2),
-            'entry_est':        round(
-                                    current_price, 2),
-            'stop':             stop,
-            'atr':              round(
-                                    current_atr, 2),
-            'regime':           regime,
-            'regime_score':     regime_score,
-            'vol_q':            vol_q,
-            'vol_confirm':      vol_confirm,
-            'rs_q':             'Neutral',
-            'sec_mom':          sector_momentum.get(
-                                    sector, 'Neutral'),
-            'bear_bonus':       False,
-            'stock_regime':     stock_regime,
+            'symbol':            symbol,
+            'sector':            sector,
+            'signal':            'DOWN_TRI_SA',
+            'direction':         'SHORT',
+            'age':               0,
+            'attempt_number':    2,
+            'parent_signal_id':  parent_id,
+            'parent_signal':     'DOWN_TRI',
+            'parent_date':       parent_date,
+            'parent_result':     parent_result,
+            'pivot_date':        parent_date,
+            'pivot_price':       round(
+                                     parent_pivot, 2),
+            'entry_est':         round(
+                                     current_price, 2),
+            'stop':              stop,
+            'atr':               round(
+                                     current_atr, 2),
+            'regime':            regime,
+            'regime_score':      regime_score,
+            'vol_q':             vol_q,
+            'vol_confirm':       vol_confirm,
+            'rs_q':              'Neutral',
+            # R1: V5 boolean fields
+            'rs_strong':         False,
+            'sec_mom':           sec_mom_val,
+            'sec_leading':       bool(
+                                     sec_mom_val ==
+                                     'Leading'),
+            'bear_bonus':        False,
+            'stock_regime':      stock_regime,
+            # R6: explicit SA tracking fields
+            'is_sa':             True,
+            'sa_parent_id':      parent_id,
+            'sa_parent_outcome': None,
         })
 
     return sa_signals
