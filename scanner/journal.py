@@ -2,20 +2,26 @@
 # Owns signal_history.json and signal_archive.json
 # ONLY this file writes these two files
 #
-# BUG 3 FIX: backfill_generation_flags() now also
-#   normalizes vol_confirm from string → boolean.
-#   "True"/"true" → True, "False"/"false" → False
+# BUG 3 FIX: backfill_generation_flags() normalizes
+#   vol_confirm from string → boolean.
 #
-# BUG 4 FIX: exit_date now computed using proper
-#   trading-day calculation (skip weekends). Previously
-#   used timedelta(days=8) which was calendar days only.
+# BUG 4 FIX: exit_date uses trading-day calculation.
 #
-# BUG 5 FIX: log_rejected() now sets outcome=None
-#   (not "OPEN"). Rejected signals have no trade.
-#   This prevents outcome_evaluator from processing them.
+# BUG 5 FIX: log_rejected() sets outcome=None.
 #
-# BUG 6 FIX: scan_time now stored as UTC explicitly.
-#   Was labeled "IST" but stored UTC value.
+# BUG 6 FIX: scan_time stored as UTC explicitly.
+#
+# V1 FIXES APPLIED:
+# - L5  : user_action field + update_user_action()
+#         Lets frontend persist Took/Skip to record
+# - R1  : schema_version 4 → 5
+#         New fields: user_action, is_sa,
+#         rs_strong, grade_A, sec_leading
+#         backfill_schema_v5() migration function
+# - R6  : SA signal tracking
+#         is_sa flag, sa_parent_id, sa_parent_outcome
+#         update_sa_parent_outcome()
+#         get_sa_signals()
 #
 # Key rules:
 # 1. Dedup on every write — same id never written twice
@@ -25,7 +31,7 @@
 # 5. Older records move to signal_archive.json
 # 6. Lifelong data preserved in archive — never deleted
 # 7. Auto-TOOK default — every signal recorded
-# 8. schema_version = 4 on all records
+# 8. schema_version = 5 on all new records
 
 import json
 import os
@@ -45,14 +51,25 @@ ARCHIVE_FILE = os.path.join(_OUTPUT_DIR, 'signal_archive.json')
 BACKUP_FILE  = os.path.join(
     _OUTPUT_DIR, 'signal_history.backup.json')
 
-SCHEMA_VERSION = 4
+SCHEMA_VERSION = 5          # R1: bumped from 4
 ACTIVE_DAYS    = 90
 ARCHIVE_DAYS   = 9999
 
 # ── LIVE START DATE ───────────────────────────────────
-# Signals before this date = generation=0 (backfill)
-# Signals from this date = generation=1 (live)
 LIVE_START_DATE = "2026-04-06"
+
+# ── V5 DEFAULT VALUES ─────────────────────────────────
+# Used by backfill_schema_v5() and new records.
+# Keeps migration and record creation in sync.
+_V5_DEFAULTS = {
+    "user_action":      None,   # L5: None/TOOK/SKIPPED
+    "is_sa":            False,  # R6: second attempt flag
+    "sa_parent_id":     None,   # R6: parent signal id
+    "sa_parent_outcome": None,  # R6: filled on parent resolve
+    "rs_strong":        False,  # quality flag (was missing)
+    "grade_A":          False,  # quality flag (was missing)
+    "sec_leading":      False,  # quality flag (was missing)
+}
 
 
 # ── HELPERS ───────────────────────────────────────────
@@ -122,25 +139,34 @@ def _trading_day_cutoff(days_back):
 
 
 def _get_generation(signal_date_str):
-    """
-    Returns (generation, data_quality).
-    generation=0 = pre-live backfill data
-    generation=1 = live scanner data
-    """
     if signal_date_str and signal_date_str >= LIVE_START_DATE:
         return 1, 'live'
     return 0, 'backfill'
 
 
+# ── R6: SA HELPERS ────────────────────────────────────
+def _is_sa(signal_type: str) -> bool:
+    """True if signal type ends with _SA (second attempt)."""
+    return (signal_type or '').upper().endswith('_SA')
+
+
+def _sa_parent_id(signal_date, symbol,
+                  signal_type, parent_date=None):
+    """
+    Derive the parent signal id from an SA signal.
+    Parent signal type = SA type with _SA stripped.
+    Parent date = parent_date if provided, else signal_date.
+    """
+    base_type  = (signal_type or '').upper()
+    if base_type.endswith('_SA'):
+        base_type = base_type[:-3]
+    sym_clean  = symbol.replace('.NS', '')
+    date_str   = parent_date or signal_date
+    return f"{date_str}-{sym_clean}-{base_type}"
+
+
 # ── BUG 4 FIX: TRADING DAY EXIT DATE ─────────────────
 def _add_trading_days(start_date, n):
-    """
-    Returns the date that is n trading days after
-    start_date, skipping weekends.
-    Holidays not available in journal context —
-    weekend skip only. calendar_utils handles holidays
-    for outcome_evaluator which uses a separate function.
-    """
     if isinstance(start_date, str):
         start_date = datetime.strptime(
             start_date, '%Y-%m-%d').date()
@@ -148,30 +174,19 @@ def _add_trading_days(start_date, n):
     cur   = start_date
     while count < n:
         cur += timedelta(days=1)
-        if cur.weekday() < 5:   # 0=Mon … 4=Fri
+        if cur.weekday() < 5:
             count += 1
     return cur
 
 
 def _get_exit_date(signal_date_str):
-    """
-    Computes the exit date: entry is next trading day
-    after signal date, exit is 6 trading days after entry.
-    Total = 7 trading days after signal date (entry + 5
-    more trading days = day 6 at open).
-    Uses _add_trading_days which skips weekends.
-    """
     try:
-        sig_date = datetime.strptime(
+        sig_date   = datetime.strptime(
             signal_date_str, '%Y-%m-%d').date()
-        # Entry = next trading day after signal
         entry_date = _add_trading_days(sig_date, 1)
-        # Exit = 5 trading days after entry
-        # (trade days 1-5, exit at open of day 6)
         exit_date  = _add_trading_days(entry_date, 5)
         return exit_date.isoformat()
     except Exception:
-        # Fallback to approximate
         try:
             sig_dt = datetime.strptime(
                 signal_date_str, '%Y-%m-%d').date()
@@ -210,6 +225,17 @@ def _resolve_scan_price(sig):
     return None
 
 
+# ── QUALITY FLAG NORMALISER ───────────────────────────
+def _bool_flag(sig, field):
+    """Safely extract a boolean quality flag from signal."""
+    v = sig.get(field, False)
+    if isinstance(v, bool):
+        return v
+    if isinstance(v, str):
+        return v.strip().lower() == 'true'
+    return bool(v)
+
+
 # ── CORE PUBLIC FUNCTIONS ─────────────────────────────
 def load_history():
     data = _load_json(HISTORY_FILE, _empty_history)
@@ -227,16 +253,11 @@ def get_history_count():
 
 
 def ensure_archive_exists():
-    """
-    Creates an empty signal_archive.json if it does not
-    exist. Called on startup.
-    """
     _ensure_output_dir()
     if not os.path.exists(ARCHIVE_FILE):
         try:
             _save_json(ARCHIVE_FILE, _empty_archive())
-            print("[journal] signal_archive.json "
-                  "created (empty)")
+            print("[journal] signal_archive.json created (empty)")
         except Exception as e:
             print(f"[journal] Archive init failed: {e}")
 
@@ -259,7 +280,6 @@ def log_signal(sig, layer='MINI'):
         print(f"[journal] Duplicate skipped: {record_id}")
         return
 
-    # BUG 4 FIX: use trading-day exit date
     exit_date    = _get_exit_date(today)
     scan_price   = _resolve_scan_price(sig)
     entry_est    = sig.get('entry_est', None)
@@ -268,20 +288,27 @@ def log_signal(sig, layer='MINI'):
         scan_price or entry_est, stop, direction)
 
     generation, data_quality = _get_generation(today)
-
-    # BUG 6 FIX: label as UTC (was labeled IST but stored UTC)
     scan_time_utc = datetime.utcnow().strftime('%H:%M UTC')
 
-    # Normalize vol_confirm on incoming signal
     vc = sig.get('vol_confirm', False)
     if isinstance(vc, str):
         vc = vc.strip().lower() == 'true'
 
+    # R6: SA detection
+    sa_flag     = _is_sa(signal_t)
+    parent_date = sig.get('parent_date', None)
+    parent_id   = (
+        _sa_parent_id(today, symbol, signal_t, parent_date)
+        if sa_flag else None
+    )
+
     record = {
+        # ── identity ──────────────────────────────────
         "id":               record_id,
         "schema_version":   SCHEMA_VERSION,
         "generation":       generation,
         "data_quality":     data_quality,
+        # ── signal context ────────────────────────────
         "date":             today,
         "symbol":           symbol,
         "sector":           sig.get('sector', ''),
@@ -292,12 +319,17 @@ def log_signal(sig, layer='MINI'):
         "score":            sig.get('score', 0),
         "regime":           sig.get('regime', ''),
         "regime_score":     sig.get('regime_score', 0),
-        "vol_q":            sig.get('vol_q', ''),
-        "vol_confirm":      vc,        # always boolean
-        "rs_q":             sig.get('rs_q', ''),
-        "sec_mom":          sig.get('sec_mom', ''),
-        "bear_bonus":       bool(sig.get('bear_bonus', False)),
         "stock_regime":     sig.get('stock_regime', ''),
+        # ── quality flags ─────────────────────────────
+        "vol_q":            sig.get('vol_q', ''),
+        "vol_confirm":      vc,
+        "rs_q":             sig.get('rs_q', ''),
+        "rs_strong":        _bool_flag(sig, 'rs_strong'),
+        "sec_mom":          sig.get('sec_mom', ''),
+        "sec_leading":      _bool_flag(sig, 'sec_leading'),
+        "bear_bonus":       bool(sig.get('bear_bonus', False)),
+        "grade_A":          (sig.get('grade', 'C') == 'A'),
+        # ── price / trade levels ──────────────────────
         "scan_price":       scan_price,
         "scan_time":        scan_time_utc,
         "pivot_price":      sig.get('pivot_price', None),
@@ -307,10 +339,12 @@ def log_signal(sig, layer='MINI'):
         "atr":              sig.get('atr', None),
         "exit_date":        exit_date,
         "target_price":     target_price,
+        # ── open validation (filled by open_validator) ─
         "actual_open":      None,
         "adjusted_rr":      None,
         "entry_valid":      None,
         "gap_pct":          None,
+        # ── outcome tracking ──────────────────────────
         "outcome":          "OPEN",
         "outcome_date":     None,
         "outcome_price":    None,
@@ -324,13 +358,22 @@ def log_signal(sig, layer='MINI'):
         "exit_date_actual": None,
         "pnl_pct":          None,
         "pnl_rs":           None,
+        # ── status ────────────────────────────────────
         "result":           "PENDING",
         "action":           "TOOK",
+        # ── L5: user decision ─────────────────────────
+        "user_action":      None,
+        # ── R6: SA tracking ───────────────────────────
+        "is_sa":            sa_flag,
+        "sa_parent_id":     parent_id,
+        "sa_parent_outcome": None,
+        # ── lineage ───────────────────────────────────
         "attempt_number":   attempt,
         "parent_signal_id": sig.get('parent_signal_id', None),
         "parent_signal":    sig.get('parent_signal', None),
-        "parent_date":      sig.get('parent_date', None),
+        "parent_date":      parent_date,
         "parent_result":    sig.get('parent_result', None),
+        # ── meta ──────────────────────────────────────
         "layer":            layer,
         "rejection_reason": None,
         "scanner_version":  sig.get('scanner_version', 'v2.0'),
@@ -345,7 +388,8 @@ def log_signal(sig, layer='MINI'):
         print(f"[journal] Logged: {record_id} "
               f"target={target_price} "
               f"scan_price={scan_price} "
-              f"gen={generation}")
+              f"gen={generation} "
+              f"is_sa={sa_flag}")
     except RuntimeError as e:
         print(f"[journal] CRITICAL write failed: {e}")
 
@@ -374,20 +418,21 @@ def log_rejected(sig, rejection_reason,
         scan_price, stop, direction)
 
     generation, data_quality = _get_generation(today)
-
-    # BUG 6 FIX: label as UTC
     scan_time_utc = datetime.utcnow().strftime('%H:%M UTC')
 
-    # Normalize vol_confirm
     vc = sig.get('vol_confirm', False)
     if isinstance(vc, str):
         vc = vc.strip().lower() == 'true'
 
+    sa_flag = _is_sa(signal_t)
+
     record = {
+        # ── identity ──────────────────────────────────
         "id":                  record_id,
         "schema_version":      SCHEMA_VERSION,
         "generation":          generation,
         "data_quality":        data_quality,
+        # ── signal context ────────────────────────────
         "date":                today,
         "symbol":              symbol,
         "sector":              sig.get('sector', ''),
@@ -398,13 +443,17 @@ def log_rejected(sig, rejection_reason,
         "score":               sig.get('score', 0),
         "regime":              sig.get('regime', ''),
         "regime_score":        sig.get('regime_score', 0),
-        "vol_q":               sig.get('vol_q', ''),
-        "vol_confirm":         vc,     # always boolean
-        "rs_q":                sig.get('rs_q', ''),
-        "sec_mom":             sig.get('sec_mom', ''),
-        "bear_bonus":          bool(
-                                   sig.get('bear_bonus', False)),
         "stock_regime":        sig.get('stock_regime', ''),
+        # ── quality flags ─────────────────────────────
+        "vol_q":               sig.get('vol_q', ''),
+        "vol_confirm":         vc,
+        "rs_q":                sig.get('rs_q', ''),
+        "rs_strong":           _bool_flag(sig, 'rs_strong'),
+        "sec_mom":             sig.get('sec_mom', ''),
+        "sec_leading":         _bool_flag(sig, 'sec_leading'),
+        "bear_bonus":          bool(sig.get('bear_bonus', False)),
+        "grade_A":             (sig.get('grade', 'C') == 'A'),
+        # ── price ─────────────────────────────────────
         "scan_price":          scan_price,
         "scan_time":           scan_time_utc,
         "entry":               scan_price,
@@ -416,10 +465,7 @@ def log_rejected(sig, rejection_reason,
         "adjusted_rr":         None,
         "entry_valid":         None,
         "gap_pct":             None,
-        # BUG 5 FIX: rejected signals have no trade,
-        # outcome must be None — NOT "OPEN".
-        # "OPEN" caused outcome_evaluator to attempt
-        # tracking on rejected signals.
+        # BUG 5 FIX: rejected = no trade, outcome = None
         "outcome":             None,
         "outcome_date":        None,
         "outcome_price":       None,
@@ -433,14 +479,23 @@ def log_rejected(sig, rejection_reason,
         "exit_date_actual":    None,
         "pnl_pct":             None,
         "pnl_rs":              None,
+        # ── status ────────────────────────────────────
         "result":              "REJECTED",
         "action":              "REJECTED",
+        # ── L5 ────────────────────────────────────────
+        "user_action":         None,
+        # ── R6 ────────────────────────────────────────
+        "is_sa":               sa_flag,
+        "sa_parent_id":        None,
+        "sa_parent_outcome":   None,
+        # ── lineage ───────────────────────────────────
         "attempt_number":      sig.get('attempt_number', 1),
         "parent_signal_id":    sig.get(
                                    'parent_signal_id', None),
         "parent_signal":       sig.get('parent_signal', None),
         "parent_date":         sig.get('parent_date', None),
         "parent_result":       None,
+        # ── meta ──────────────────────────────────────
         "layer":               "ALPHA",
         "rejection_reason":    rejection_reason,
         "rejection_filter":    rejection_filter,
@@ -457,6 +512,81 @@ def log_rejected(sig, rejection_reason,
         _save_json(HISTORY_FILE, data)
     except RuntimeError as e:
         print(f"[journal] Rejected log failed: {e}")
+
+
+# ── L5: UPDATE USER ACTION ────────────────────────────
+def update_user_action(record_id: str, action: str):
+    """
+    Persist frontend Took/Skip decision to record.
+    action: 'TOOK' | 'SKIPPED' | None (to clear)
+    Called when user taps a button and frontend
+    wants server-side persistence (optional path).
+    Safe to call repeatedly — idempotent.
+    """
+    valid = {'TOOK', 'SKIPPED', None}
+    if action not in valid:
+        print(f"[journal] Invalid user_action: {action}")
+        return False
+
+    data    = _load_json(HISTORY_FILE, _empty_history)
+    history = data.get('history', [])
+    updated = False
+
+    for record in history:
+        if record.get('id') == record_id:
+            record['user_action'] = action
+            updated = True
+            break
+
+    if not updated:
+        print(f"[journal] update_user_action: "
+              f"id not found: {record_id}")
+        return False
+
+    _backup_history()
+    data['history'] = history
+    try:
+        _save_json(HISTORY_FILE, data)
+        print(f"[journal] user_action={action} "
+              f"set on {record_id}")
+        return True
+    except RuntimeError as e:
+        print(f"[journal] update_user_action failed: {e}")
+        return False
+
+
+# ── R6: UPDATE SA PARENT OUTCOME ─────────────────────
+def update_sa_parent_outcome(parent_id: str,
+                             parent_outcome: str):
+    """
+    When a parent signal resolves, propagate its outcome
+    to all open SA child signals referencing it.
+    Called from outcome_evaluator after a signal closes.
+    """
+    data    = _load_json(HISTORY_FILE, _empty_history)
+    history = data.get('history', [])
+    updated = 0
+
+    for record in history:
+        if (record.get('is_sa')
+                and record.get('sa_parent_id') == parent_id
+                and record.get('sa_parent_outcome') is None):
+            record['sa_parent_outcome'] = parent_outcome
+            updated += 1
+
+    if not updated:
+        return
+
+    _backup_history()
+    data['history'] = history
+    try:
+        _save_json(HISTORY_FILE, data)
+        print(f"[journal] SA parent outcome propagated: "
+              f"parent={parent_id} "
+              f"outcome={parent_outcome} "
+              f"children_updated={updated}")
+    except RuntimeError as e:
+        print(f"[journal] SA propagation failed: {e}")
 
 
 def update_open_price(symbol, signal_date,
@@ -608,8 +738,8 @@ def backfill_target_prices():
                      record.get('scan_price'))
         stop      = record.get('stop')
         direction = record.get('direction', 'LONG')
-
-        target = _calculate_target(entry, stop, direction)
+        target    = _calculate_target(
+            entry, stop, direction)
 
         if target is not None:
             record['target_price'] = target
@@ -628,19 +758,67 @@ def backfill_target_prices():
         print("[journal] S5 backfill: nothing to fix")
 
 
-# ── GENERATION BACKFILL + VOL_CONFIRM NORMALIZE ───────
+# ── R1: SCHEMA V5 MIGRATION ───────────────────────────
+def backfill_schema_v5():
+    """
+    Adds V5 fields to all existing records that lack them.
+    Idempotent — only touches records missing the fields.
+    Fields added: user_action, is_sa, sa_parent_id,
+    sa_parent_outcome, rs_strong, grade_A, sec_leading.
+    Also bumps schema_version to 5 on each record.
+    """
+    data    = _load_json(HISTORY_FILE, _empty_history)
+    history = data.get('history', [])
+    fixed   = 0
+
+    for record in history:
+        changed = False
+
+        # bump record-level schema version
+        if record.get('schema_version', 0) < 5:
+            record['schema_version'] = SCHEMA_VERSION
+            changed = True
+
+        # add any missing V5 fields
+        for field, default in _V5_DEFAULTS.items():
+            if field not in record:
+                # special case: derive is_sa from signal type
+                if field == 'is_sa':
+                    record['is_sa'] = _is_sa(
+                        record.get('signal', ''))
+                # grade_A: derive from grade field
+                elif field == 'grade_A':
+                    record['grade_A'] = (
+                        record.get('grade', 'C') == 'A')
+                else:
+                    record[field] = default
+                changed = True
+
+        if changed:
+            fixed += 1
+
+    if fixed > 0:
+        _backup_history()
+        data['history']       = history
+        data['schema_version'] = SCHEMA_VERSION
+        try:
+            _save_json(HISTORY_FILE, data)
+            print(f"[journal] Schema V5 migration: "
+                  f"{fixed} records updated")
+        except RuntimeError as e:
+            print(f"[journal] V5 migration failed: {e}")
+    else:
+        print("[journal] Schema V5: all records current")
+
+
+# ── GENERATION BACKFILL + ALL NORMALISATION ───────────
 def backfill_generation_flags():
     """
-    1. Sets generation=0 for pre-live signals,
-       generation=1 for live signals. Idempotent.
-    2. BUG 3 FIX: Normalizes vol_confirm from
-       string "True"/"False" to boolean True/False.
-       Early records were stored as strings due to
-       numpy bool_ serialization before S3 fix.
-    3. BUG 5 FIX: Ensures REJECTED records have
-       outcome=None (not "OPEN").
-    4. BUG 6 FIX: Scan times already labeled correctly
-       going forward. Old records left as-is (minor).
+    Master backfill — runs all normalisation passes:
+    1. generation / data_quality flags
+    2. vol_confirm string → boolean  (BUG 3)
+    3. REJECTED outcome → None       (BUG 5)
+    4. Schema V5 fields              (R1)
     """
     data    = _load_json(HISTORY_FILE, _empty_history)
     history = data.get('history', [])
@@ -651,17 +829,17 @@ def backfill_generation_flags():
     any_change = False
 
     for record in history:
-        # Generation flag
+        # 1. Generation flag
         if record.get('generation') is None:
             sig_date = record.get('date', '')
             generation, data_quality = \
                 _get_generation(sig_date)
             record['generation']   = generation
             record['data_quality'] = data_quality
-            gen_fixed += 1
-            any_change = True
+            gen_fixed  += 1
+            any_change  = True
 
-        # BUG 3 FIX: vol_confirm string → boolean
+        # 2. vol_confirm string → boolean
         vc = record.get('vol_confirm')
         if isinstance(vc, str):
             record['vol_confirm'] = \
@@ -669,8 +847,7 @@ def backfill_generation_flags():
             vol_fixed  += 1
             any_change  = True
 
-        # BUG 5 FIX: REJECTED records should have
-        # outcome=None, not "OPEN"
+        # 3. REJECTED records → outcome = None
         if (record.get('result') == 'REJECTED'
                 and record.get('outcome') == 'OPEN'):
             record['outcome'] = None
@@ -682,20 +859,23 @@ def backfill_generation_flags():
         data['history'] = history
         try:
             _save_json(HISTORY_FILE, data)
-            print(f"[journal] Backfill complete: "
+            print(f"[journal] Backfill: "
                   f"gen={gen_fixed} | "
                   f"vol_confirm={vol_fixed} | "
                   f"outcome_fixed={out_fixed}")
         except RuntimeError as e:
             print(f"[journal] Backfill failed: {e}")
+            return
     else:
         print("[journal] Backfill: nothing to fix")
+
+    # 4. Schema V5 — always run as second pass
+    backfill_schema_v5()
 
 
 # ── QUERY FUNCTIONS ───────────────────────────────────
 def get_open_trades():
     history = load_history()
-    # ONLY return PENDING TOOK signals — not REJECTED
     return [
         r for r in history
         if r.get('result')  == 'PENDING'
@@ -704,10 +884,6 @@ def get_open_trades():
 
 
 def get_active_signals_count():
-    """
-    Returns count of PENDING TOOK signals.
-    Used by meta_writer for status bar display.
-    """
     return len(get_open_trades())
 
 
@@ -719,6 +895,20 @@ def get_recent_closed(n=10):
     ]
     closed.sort(key=lambda x: x.get('date', ''))
     return closed[-n:]
+
+
+# ── R6: SA QUERY ──────────────────────────────────────
+def get_sa_signals(open_only=False):
+    """
+    Returns all SA signals from history.
+    open_only=True → only PENDING SA signals.
+    """
+    history = load_history()
+    sa = [r for r in history if r.get('is_sa')]
+    if open_only:
+        sa = [r for r in sa
+              if r.get('result') == 'PENDING']
+    return sa
 
 
 def get_system_health():
