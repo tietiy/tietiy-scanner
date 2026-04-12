@@ -1,0 +1,85 @@
+# .github/workflows/backup_manager.yml
+# Daily rolling backup of signal_history.json
+# M7: keeps last 7 days, auto-cleans older
+# Runs after EOD update completes
+
+name: Backup Manager
+
+on:
+  schedule:
+    # Daily 10:30 AM UTC = 4:00 PM IST (after EOD)
+    - cron: '30 10 * * 1-5'
+    # Saturday backup before weekend summary
+    - cron: '0 3 * * 6'
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: false
+        default: 'backup'
+        type: choice
+        options:
+          - backup
+          - list
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
+
+      - name: Run backup
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          ACTION="${{ github.event.inputs.action || 'backup' }}"
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from backup_manager import run_backup, _list_backups
+          action = '$ACTION'
+          if action == 'list':
+              backups = _list_backups()
+              print(f'Backups found: {len(backups)}')
+              for b in backups:
+                  print(f'  {b}')
+          else:
+              run_backup()
+          "
+
+      - name: Commit backup files
+        run: |
+          git config --global user.email "scanner@tietiy"
+          git config --global user.name  "TIE TIY Scanner"
+          git add output/backups/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No backup changes to commit"
+          else
+            git commit -m "chore: daily backup $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('backup_manager', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
