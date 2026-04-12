@@ -1,8 +1,14 @@
+# .github/workflows/diagnostic.yml
+# System diagnostic — manual dispatch or daily post-market
+# M8: stale data detection
+# M13: self-healing triggers + commit healed files
+
 name: Diagnostic Check
 
 on:
   schedule:
-    - cron: '0 3 * * 1-5'
+    # Daily 11:00 AM UTC = 4:30 PM IST (post-market)
+    - cron: '0 11 * * 1-5'
   workflow_dispatch:
     inputs:
       mode:
@@ -13,6 +19,14 @@ on:
         options:
           - full
           - quick
+      heal:
+        description: 'Run self-heal after check'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
       telegram:
         description: 'Send Telegram report'
         required: false
@@ -32,8 +46,13 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install requests
-        run: pip install requests
+      - name: Install dependencies
+        run: pip install requests pandas numpy
+
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
 
       - name: Build args
         id: args
@@ -42,17 +61,52 @@ jobs:
           if [ "${{ inputs.mode }}" = "quick" ]; then
             ARGS="$ARGS --quick"
           fi
+          # --heal: on by default for schedule,
+          # follows input for manual dispatch
           if [ "${{ github.event_name }}" = "schedule" ]; then
-            ARGS="$ARGS --telegram"
-          elif [ "${{ inputs.telegram }}" = "true" ]; then
-            ARGS="$ARGS --telegram"
+            ARGS="$ARGS --heal --telegram"
+          else
+            if [ "${{ inputs.heal }}" = "true" ]; then
+              ARGS="$ARGS --heal"
+            fi
+            if [ "${{ inputs.telegram }}" = "true" ]; then
+              ARGS="$ARGS --telegram"
+            fi
           fi
           echo "ARGS=$ARGS" >> $GITHUB_OUTPUT
 
       - name: Run Diagnostic
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
-          python scanner/diagnostic.py ${{ steps.args.outputs.ARGS }} || true
+          python scanner/diagnostic.py ${{ steps.args.outputs.ARGS }}
+          echo "DIAG_EXIT=$?" >> $GITHUB_ENV
+
+      - name: Commit healed files if changed
+        run: |
+          git config --global user.email "scanner@tietiy"
+          git config --global user.name  "TIE TIY Scanner"
+          git add output/signal_history.json \
+                  output/signal_history.backup.json \
+                  2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No heal changes to commit"
+          else
+            git commit -m "chore: diagnostic self-heal $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('diagnostic', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
