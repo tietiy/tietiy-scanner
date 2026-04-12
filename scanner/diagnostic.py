@@ -189,12 +189,13 @@ class DiagnosticReport:
         lines.append("-" * 50)
 
         return "\n".join(lines)
-
+        
     def to_telegram(self):
         lines = []
         lines.append('🔧 *DIAGNOSTIC REPORT*')
-        lines.append(f'{date.today().isoformat()}')
+        lines.append(_esc(date.today().isoformat()))
         lines.append('')
+
 
         fails = [c for c in self.checks
                  if c['status'] == 'FAIL']
