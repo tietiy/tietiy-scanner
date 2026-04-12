@@ -1,0 +1,66 @@
+# .github/workflows/gap_report.yml
+# Weekly gap risk analysis report
+# Phase 4 prep: identifies stocks with frequent
+# large gap opens that increase entry risk
+# Runs Monday morning before scan
+
+name: Gap Report
+
+on:
+  schedule:
+    # Monday 3:00 AM UTC = 8:30 AM IST
+    - cron: '0 3 * * 1'
+  workflow_dispatch:
+    inputs:
+      telegram:
+        description: 'Send report to Telegram'
+        required: false
+        default: 'true'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  gap-report:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install yfinance pandas numpy requests
+
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
+
+      - name: Run gap report
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          TG="${{ github.event.inputs.telegram || 'true' }}"
+          ARGS=""
+          [ "$TG" = "true" ] && ARGS="--telegram"
+          python scanner/gap_report.py $ARGS
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('gap_report', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
