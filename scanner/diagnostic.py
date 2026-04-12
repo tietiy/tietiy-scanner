@@ -6,9 +6,18 @@
 #   python scanner/diagnostic.py              # Full check
 #   python scanner/diagnostic.py --quick      # Quick check
 #   python scanner/diagnostic.py --telegram   # Send report
+#   python scanner/diagnostic.py --heal       # Check + heal
+#   python scanner/diagnostic.py --heal --telegram
 #
 # Exit codes:
 #   0 = PASS, 1 = WARNING, 2 = FAIL
+#
+# V1 FIXES APPLIED:
+# - M8  : check_staleness() — per-file mtime + content
+#         date freshness checks with specific thresholds
+# - M13 : attempt_self_heal() — safe auto-fixes:
+#         schema V5 migration, generation backfill,
+#         target price backfill. --heal CLI flag.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -38,6 +47,12 @@ try:
 except ImportError:
     CALENDAR_AVAILABLE = False
 
+try:
+    import journal as _journal
+    JOURNAL_AVAILABLE = True
+except ImportError:
+    JOURNAL_AVAILABLE = False
+
 
 # ── CONSTANTS ─────────────────────────────────────────
 REQUIRED_FILES = [
@@ -63,59 +78,112 @@ HISTORY_REQUIRED_FIELDS = [
     'entry', 'stop', 'score', 'result',
 ]
 
-VALID_SIGNALS = ['UP_TRI', 'DOWN_TRI', 'BULL_PROXY', 'UP_TRI_SA', 'DOWN_TRI_SA']
-VALID_RESULTS = ['PENDING', 'WON', 'STOPPED', 'EXITED', 'REJECTED']
+VALID_SIGNALS  = [
+    'UP_TRI', 'DOWN_TRI', 'BULL_PROXY',
+    'UP_TRI_SA', 'DOWN_TRI_SA',
+]
+VALID_RESULTS  = [
+    'PENDING', 'WON', 'STOPPED',
+    'EXITED', 'REJECTED',
+]
+SCHEMA_VERSION = 5     # M8/R1: updated from 4
+
+# ── M8: STALENESS THRESHOLDS ──────────────────────────
+# Each entry: (filename, max_age_hours, trading_day_only)
+# trading_day_only=True → only flag stale on trading days
+_STALENESS_RULES = [
+    ('meta.json',             8,   True),
+    ('scan_log.json',         8,   True),
+    ('signal_history.json',   48,  False),
+    ('ltp_prices.json',       2,   True),
+    ('open_prices.json',      8,   True),
+    ('eod_prices.json',       8,   True),
+    ('stop_alerts.json',      6,   True),
+]
+
+# Market hours window IST (UTC+5:30)
+_MARKET_OPEN_UTC_H  = 3    # 8:30 AM IST
+_MARKET_CLOSE_UTC_H = 10   # 3:30 PM IST
 
 
 # ── REPORT BUILDER ────────────────────────────────────
 class DiagnosticReport:
     def __init__(self):
-        self.checks = []
-        self.passed = 0
-        self.warnings = 0
-        self.failed = 0
+        self.checks     = []
+        self.passed     = 0
+        self.warnings   = 0
+        self.failed     = 0
+        self.heals      = []   # M13: heal log
         self.start_time = datetime.now()
 
     def add(self, name, status, detail=None):
         self.checks.append({
-            'name': name,
+            'name':   name,
             'status': status,
             'detail': detail,
         })
         if status == 'PASS':
-            self.passed += 1
+            self.passed   += 1
         elif status == 'WARN':
             self.warnings += 1
         else:
-            self.failed += 1
+            self.failed   += 1
+
+    def add_heal(self, action, success, detail=None):
+        """M13: record a self-heal attempt."""
+        self.heals.append({
+            'action':  action,
+            'success': success,
+            'detail':  detail,
+        })
 
     def exit_code(self):
         if self.failed > 0:
             return 2
+        if self.warnings > 0:
+            return 1
         return 0
 
     def summary_line(self):
         total = self.passed + self.warnings + self.failed
         if self.failed > 0:
-            return f"FAIL: {self.failed} critical, {self.warnings} warnings, {self.passed} passed"
+            return (f"FAIL: {self.failed} critical, "
+                    f"{self.warnings} warnings, "
+                    f"{self.passed} passed")
         if self.warnings > 0:
-            return f"WARNING: {self.warnings} warnings, {self.passed} passed"
+            return (f"WARNING: {self.warnings} warnings, "
+                    f"{self.passed} passed")
         return f"PASS: {total} checks passed"
 
     def to_console(self):
         lines = []
         lines.append("=" * 50)
         lines.append("TIE TIY DIAGNOSTIC REPORT")
-        lines.append(f"Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
+        lines.append(
+            f"Time: {self.start_time.strftime('%Y-%m-%d %H:%M:%S')}")
         lines.append("=" * 50)
         lines.append("")
 
         for check in self.checks:
-            icon = 'OK' if check['status'] == 'PASS' else 'WARN' if check['status'] == 'WARN' else 'FAIL'
+            icon = (
+                'OK'   if check['status'] == 'PASS' else
+                'WARN' if check['status'] == 'WARN' else
+                'FAIL'
+            )
             line = f"[{icon}] {check['name']}"
             if check['detail']:
                 line += f" - {check['detail']}"
             lines.append(line)
+
+        if self.heals:
+            lines.append("")
+            lines.append("── SELF-HEAL RESULTS ──")
+            for h in self.heals:
+                icon = 'HEALED' if h['success'] else 'FAILED'
+                line = f"[{icon}] {h['action']}"
+                if h['detail']:
+                    line += f" - {h['detail']}"
+                lines.append(line)
 
         lines.append("")
         lines.append("-" * 50)
@@ -130,33 +198,63 @@ class DiagnosticReport:
         lines.append(f'{date.today().isoformat()}')
         lines.append('')
 
-        fails = [c for c in self.checks if c['status'] == 'FAIL']
-        warns = [c for c in self.checks if c['status'] == 'WARN']
+        fails = [c for c in self.checks
+                 if c['status'] == 'FAIL']
+        warns = [c for c in self.checks
+                 if c['status'] == 'WARN']
 
         if fails:
             lines.append('❌ *CRITICAL:*')
             for c in fails[:5]:
-                detail = f" \\- {_esc(c['detail'])}" if c['detail'] else ""
-                lines.append(f"  • {_esc(c['name'])}{detail}")
+                detail = (f" \\- {_esc(c['detail'])}"
+                          if c['detail'] else "")
+                lines.append(
+                    f"  • {_esc(c['name'])}{detail}")
             if len(fails) > 5:
-                lines.append(f"  \\+ {len(fails) - 5} more")
+                lines.append(
+                    f"  \\+ {len(fails) - 5} more")
             lines.append('')
 
         if warns:
             lines.append('⚠️ *WARNINGS:*')
             for c in warns[:5]:
-                detail = f" \\- {_esc(c['detail'])}" if c['detail'] else ""
-                lines.append(f"  • {_esc(c['name'])}{detail}")
+                detail = (f" \\- {_esc(c['detail'])}"
+                          if c['detail'] else "")
+                lines.append(
+                    f"  • {_esc(c['name'])}{detail}")
             if len(warns) > 5:
-                lines.append(f"  \\+ {len(warns) - 5} more")
+                lines.append(
+                    f"  \\+ {len(warns) - 5} more")
+            lines.append('')
+
+        # M13: heal results section
+        if self.heals:
+            healed_ok  = [h for h in self.heals
+                          if h['success']]
+            healed_bad = [h for h in self.heals
+                          if not h['success']]
+            lines.append('🔧 *AUTO\\-HEAL:*')
+            for h in healed_ok:
+                detail = (f" \\- {_esc(h['detail'])}"
+                          if h['detail'] else "")
+                lines.append(
+                    f"  ✓ {_esc(h['action'])}{detail}")
+            for h in healed_bad:
+                detail = (f" \\- {_esc(h['detail'])}"
+                          if h['detail'] else "")
+                lines.append(
+                    f"  ✕ {_esc(h['action'])}{detail}")
             lines.append('')
 
         if self.failed > 0:
-            lines.append(f'❌ {_esc(self.summary_line())}')
+            lines.append(
+                f'❌ {_esc(self.summary_line())}')
         elif self.warnings > 0:
-            lines.append(f'⚠️ {_esc(self.summary_line())}')
+            lines.append(
+                f'⚠️ {_esc(self.summary_line())}')
         else:
-            lines.append(f'✅ {_esc(self.summary_line())}')
+            lines.append(
+                f'✅ {_esc(self.summary_line())}')
 
         return '\n'.join(lines)
 
@@ -185,6 +283,22 @@ def _load_json(filename):
         return None, f"Read error: {e}"
 
 
+def _file_age_hours(filename):
+    """
+    Returns age of file in hours, or None if missing.
+    Uses file mtime.
+    """
+    path = os.path.join(_OUTPUT, filename)
+    if not os.path.exists(path):
+        return None
+    try:
+        mtime = os.path.getmtime(path)
+        age_s = (datetime.now().timestamp() - mtime)
+        return age_s / 3600.0
+    except Exception:
+        return None
+
+
 def _is_today_trading_day():
     if CALENDAR_AVAILABLE:
         try:
@@ -194,11 +308,21 @@ def _is_today_trading_day():
     return date.today().weekday() < 5
 
 
+def _is_market_hours_now():
+    """
+    True if current UTC time is within NSE market window.
+    Approximate: 3:00–10:30 UTC (8:30–16:00 IST).
+    """
+    now_utc_h = datetime.utcnow().hour
+    return _MARKET_OPEN_UTC_H <= now_utc_h <= _MARKET_CLOSE_UTC_H
+
+
 def _parse_date(date_str):
     if not date_str:
         return None
     try:
-        return datetime.strptime(date_str[:10], '%Y-%m-%d').date()
+        return datetime.strptime(
+            date_str[:10], '%Y-%m-%d').date()
     except Exception:
         return None
 
@@ -211,20 +335,120 @@ def check_files(report):
         if os.path.exists(path):
             size = os.path.getsize(path)
             if size < 10:
-                report.add(f"F: {filename}", "WARN", f"File too small ({size} bytes)")
+                report.add(f"F: {filename}", "WARN",
+                           f"File too small ({size} bytes)")
             else:
                 report.add(f"F: {filename}", "PASS")
         else:
-            report.add(f"F: {filename}", "FAIL", "Missing required file")
+            report.add(f"F: {filename}", "FAIL",
+                       "Missing required file")
 
-    missing_optional = []
-    for filename in OPTIONAL_FILES:
-        path = os.path.join(_OUTPUT, filename)
-        if not os.path.exists(path):
-            missing_optional.append(filename)
-
+    missing_optional = [
+        f for f in OPTIONAL_FILES
+        if not os.path.exists(os.path.join(_OUTPUT, f))
+    ]
     if missing_optional:
-        report.add("F: Optional files", "WARN", f"{len(missing_optional)} missing")
+        report.add("F: Optional files", "WARN",
+                   f"{len(missing_optional)} missing")
+
+
+# ── M8: STALENESS CHECK ───────────────────────────────
+def check_staleness(report):
+    """
+    M8: Per-file freshness check.
+    Uses file mtime as primary signal.
+    Also cross-checks content date fields where available.
+    """
+    is_trading  = _is_today_trading_day()
+    in_market   = _is_market_hours_now()
+    today_str   = date.today().isoformat()
+
+    for filename, max_age_h, trading_only in _STALENESS_RULES:
+        path = os.path.join(_OUTPUT, filename)
+
+        # skip if file doesn't exist — check_files handles it
+        if not os.path.exists(path):
+            continue
+
+        # skip non-trading-day checks on weekends/holidays
+        if trading_only and not is_trading:
+            continue
+
+        age_h = _file_age_hours(filename)
+        if age_h is None:
+            report.add(f"ST: {filename}", "WARN",
+                       "Cannot read mtime")
+            continue
+
+        # ltp_prices: only flag during/after market hours
+        if filename == 'ltp_prices.json' and not in_market:
+            continue
+
+        if age_h > max_age_h:
+            hrs = f"{age_h:.1f}h"
+            report.add(
+                f"ST: {filename}", "WARN",
+                f"Stale — {hrs} old (max {max_age_h}h)")
+        else:
+            report.add(f"ST: {filename}", "PASS",
+                       f"{age_h:.1f}h old")
+
+    # Cross-check meta.json content date on trading days
+    if is_trading:
+        meta, err = _load_json('meta.json')
+        if meta and not err:
+            meta_date = meta.get('market_date', '')
+            if meta_date and meta_date < today_str:
+                days_old = (
+                    date.today() -
+                    _parse_date(meta_date)
+                ).days if _parse_date(meta_date) else '?'
+                report.add(
+                    "ST: meta content date",
+                    "FAIL" if days_old != 1 else "WARN",
+                    f"market_date={meta_date} "
+                    f"({days_old}d old)")
+            elif meta_date == today_str:
+                report.add("ST: meta content date",
+                           "PASS", "Today's data")
+
+        # Cross-check scan_log content date
+        scan, err = _load_json('scan_log.json')
+        if scan and not err:
+            scan_date = scan.get('date') or \
+                        scan.get('scan_date', '')
+            if scan_date and scan_date < today_str:
+                report.add("ST: scan_log content date",
+                           "WARN",
+                           f"scan_date={scan_date}")
+            elif scan_date == today_str:
+                report.add("ST: scan_log content date",
+                           "PASS")
+
+        # ltp freshness from content timestamp
+        ltp, err = _load_json('ltp_prices.json')
+        if ltp and not err and in_market:
+            ltp_ts = (ltp.get('updated_at') or
+                      ltp.get('ltp_updated_at') or '')
+            if ltp_ts:
+                try:
+                    ltp_dt = datetime.fromisoformat(
+                        ltp_ts.replace('Z', '+00:00'))
+                    age_min = int(
+                        (datetime.now().astimezone() -
+                         ltp_dt).total_seconds() / 60)
+                    if age_min > 15:
+                        report.add(
+                            "ST: ltp content age",
+                            "WARN",
+                            f"{age_min}m since last LTP")
+                    else:
+                        report.add(
+                            "ST: ltp content age",
+                            "PASS",
+                            f"{age_min}m ago")
+                except Exception:
+                    pass
 
 
 def check_signal_history_schema(report):
@@ -234,21 +458,26 @@ def check_signal_history_schema(report):
         return None
 
     if 'history' not in data:
-        report.add("S: history key", "FAIL", "Missing 'history' array")
+        report.add("S: history key", "FAIL",
+                   "Missing 'history' array")
         return None
     report.add("S: history key", "PASS")
 
-    if data.get('schema_version') != 4:
-        report.add("S: schema_version", "WARN", f"Expected 4, got {data.get('schema_version')}")
+    sv = data.get('schema_version')
+    if sv != SCHEMA_VERSION:
+        report.add("S: schema_version", "WARN",
+                   f"Expected {SCHEMA_VERSION}, got {sv}")
     else:
         report.add("S: schema_version", "PASS")
 
     history = data.get('history', [])
     if not history:
-        report.add("S: history array", "WARN", "Empty history")
+        report.add("S: history array", "WARN",
+                   "Empty history")
         return data
 
-    report.add("S: history array", "PASS", f"{len(history)} signals")
+    report.add("S: history array", "PASS",
+               f"{len(history)} signals")
     return data
 
 
@@ -260,13 +489,21 @@ def check_signal_fields(report, history_data):
     if not history:
         return
 
-    sample = history[:20] + history[-10:] if len(history) > 30 else history
+    sample = (history[:20] + history[-10:]
+              if len(history) > 30 else history)
 
-    missing_required = 0
-    invalid_signal_type = 0
-    invalid_result = 0
+    missing_required     = 0
+    invalid_signal_type  = 0
+    invalid_result       = 0
     vol_confirm_not_bool = 0
-    invalid_generation = 0
+    invalid_generation   = 0
+    missing_v5_fields    = 0
+
+    V5_FIELDS = [
+        'user_action', 'is_sa',
+        'sa_parent_id', 'rs_strong',
+        'grade_A', 'sec_leading',
+    ]
 
     for sig in sample:
         for field in HISTORY_REQUIRED_FIELDS:
@@ -288,30 +525,48 @@ def check_signal_fields(report, history_data):
         if gen is not None and gen not in [0, 1]:
             invalid_generation += 1
 
+        # M8: V5 field presence check
+        missing = [f for f in V5_FIELDS if f not in sig]
+        if missing:
+            missing_v5_fields += 1
+
     if missing_required > 0:
-        report.add("D: Required fields", "FAIL", f"{missing_required} signals missing fields")
+        report.add("D: Required fields", "FAIL",
+                   f"{missing_required} signals missing fields")
     else:
         report.add("D: Required fields", "PASS")
 
     if invalid_signal_type > 0:
-        report.add("D: Signal types", "WARN", f"{invalid_signal_type} invalid")
+        report.add("D: Signal types", "WARN",
+                   f"{invalid_signal_type} invalid")
     else:
         report.add("D: Signal types", "PASS")
 
     if invalid_result > 0:
-        report.add("D: Result values", "WARN", f"{invalid_result} invalid")
+        report.add("D: Result values", "WARN",
+                   f"{invalid_result} invalid")
     else:
         report.add("D: Result values", "PASS")
 
     if vol_confirm_not_bool > 0:
-        report.add("D: vol_confirm type", "WARN", f"{vol_confirm_not_bool} not boolean")
+        report.add("D: vol_confirm type", "WARN",
+                   f"{vol_confirm_not_bool} not boolean")
     else:
         report.add("D: vol_confirm type", "PASS")
 
     if invalid_generation > 0:
-        report.add("D: generation values", "WARN", f"{invalid_generation} invalid")
+        report.add("D: generation values", "WARN",
+                   f"{invalid_generation} invalid")
     else:
         report.add("D: generation values", "PASS")
+
+    # M8: V5 field coverage
+    if missing_v5_fields > 0:
+        report.add("D: V5 fields", "WARN",
+                   f"{missing_v5_fields} records missing "
+                   f"V5 fields — run --heal")
+    else:
+        report.add("D: V5 fields", "PASS")
 
 
 def check_scan_log(report):
@@ -321,26 +576,32 @@ def check_scan_log(report):
         return None
 
     required = ['date', 'regime', 'signals']
-    missing = [f for f in required if f not in data]
+    missing  = [f for f in required if f not in data]
     if missing:
-        report.add("L: scan_log fields", "FAIL", f"Missing: {missing}")
+        report.add("L: scan_log fields", "FAIL",
+                   f"Missing: {missing}")
         return data
 
     report.add("L: scan_log fields", "PASS")
 
-    scan_date = _parse_date(data.get('date') or data.get('scan_date'))
-    today = date.today()
+    scan_date  = _parse_date(
+        data.get('date') or data.get('scan_date'))
+    today      = date.today()
     is_trading = _is_today_trading_day()
 
     if is_trading:
         if scan_date == today:
-            report.add("L: scan_log date", "PASS", "Today's scan")
+            report.add("L: scan_log date", "PASS",
+                       "Today's scan")
         elif scan_date and (today - scan_date).days == 1:
-            report.add("L: scan_log date", "WARN", "Yesterday's data")
+            report.add("L: scan_log date", "WARN",
+                       "Yesterday's data")
         else:
-            report.add("L: scan_log date", "FAIL", f"Stale data: {scan_date}")
+            report.add("L: scan_log date", "FAIL",
+                       f"Stale data: {scan_date}")
     else:
-        report.add("L: scan_log date", "PASS", "Non-trading day")
+        report.add("L: scan_log date", "PASS",
+                   "Non-trading day")
 
     return data
 
@@ -352,9 +613,10 @@ def check_meta(report, history_data):
         return
 
     required = ['market_date', 'regime', 'scanner_version']
-    missing = [f for f in required if f not in data]
+    missing  = [f for f in required if f not in data]
     if missing:
-        report.add("M: meta fields", "WARN", f"Missing: {missing}")
+        report.add("M: meta fields", "WARN",
+                   f"Missing: {missing}")
     else:
         report.add("M: meta fields", "PASS")
 
@@ -368,10 +630,12 @@ def check_meta(report, history_data):
         meta_count = data.get('active_signals_count', 0)
 
         if actual_pending == meta_count:
-            report.add("M: active count", "PASS", f"{actual_pending} active")
+            report.add("M: active count", "PASS",
+                       f"{actual_pending} active")
         else:
             report.add("M: active count", "WARN",
-                       f"meta says {meta_count}, actual {actual_pending}")
+                       f"meta says {meta_count}, "
+                       f"actual {actual_pending}")
 
 
 def check_trading_logic(report, history_data):
@@ -379,7 +643,7 @@ def check_trading_logic(report, history_data):
         return
 
     history = history_data.get('history', [])
-    today = date.today()
+    today   = date.today()
 
     overdue = 0
     for sig in history:
@@ -387,19 +651,22 @@ def check_trading_logic(report, history_data):
             continue
         if sig.get('action') != 'TOOK':
             continue
-
         exit_date = _parse_date(sig.get('exit_date'))
         if exit_date and exit_date < today:
             overdue += 1
 
     if overdue > 0:
-        report.add("T: Overdue signals", "WARN", f"{overdue} past exit_date but PENDING")
+        report.add("T: Overdue signals", "WARN",
+                   f"{overdue} past exit_date but PENDING")
     else:
         report.add("T: Overdue signals", "PASS")
 
-    gen0 = len([s for s in history if s.get('generation') == 0])
-    gen1 = len([s for s in history if s.get('generation') == 1])
-    report.add("T: Generation split", "PASS", f"gen0={gen0}, gen1={gen1}")
+    gen0 = len([s for s in history
+                if s.get('generation') == 0])
+    gen1 = len([s for s in history
+                if s.get('generation') == 1])
+    report.add("T: Generation split", "PASS",
+               f"gen0={gen0}, gen1={gen1}")
 
     missing_target = len([
         s for s in history
@@ -407,9 +674,35 @@ def check_trading_logic(report, history_data):
         and s.get('target_price') is None
     ])
     if missing_target > 0:
-        report.add("T: Missing targets", "WARN", f"{missing_target} signals without target_price")
+        report.add("T: Missing targets", "WARN",
+                   f"{missing_target} signals without "
+                   f"target_price")
     else:
         report.add("T: Missing targets", "PASS")
+
+    # M8: check for REJECTED records with outcome=OPEN
+    bad_rejected = len([
+        s for s in history
+        if s.get('result') == 'REJECTED'
+        and s.get('outcome') == 'OPEN'
+    ])
+    if bad_rejected > 0:
+        report.add("T: Rejected outcome", "WARN",
+                   f"{bad_rejected} REJECTED with "
+                   f"outcome=OPEN — run --heal")
+    else:
+        report.add("T: Rejected outcome", "PASS")
+
+    # M8: check vol_confirm string leakage
+    bad_vc = len([
+        s for s in history
+        if isinstance(s.get('vol_confirm'), str)
+    ])
+    if bad_vc > 0:
+        report.add("T: vol_confirm strings", "WARN",
+                   f"{bad_vc} not boolean — run --heal")
+    else:
+        report.add("T: vol_confirm strings", "PASS")
 
 
 def check_data_dir(report):
@@ -417,26 +710,118 @@ def check_data_dir(report):
     if os.path.exists(universe_path):
         with open(universe_path, 'r') as f:
             lines = len(f.readlines())
-        report.add("C: fno_universe.csv", "PASS", f"{lines} lines")
+        report.add("C: fno_universe.csv", "PASS",
+                   f"{lines} lines")
     else:
-        report.add("C: fno_universe.csv", "FAIL", "Missing universe file")
+        report.add("C: fno_universe.csv", "FAIL",
+                   "Missing universe file")
 
-    rules_path = os.path.join(_DATA, 'mini_scanner_rules.json')
+    rules_path = os.path.join(
+        _DATA, 'mini_scanner_rules.json')
     if os.path.exists(rules_path):
         try:
             with open(rules_path, 'r') as f:
                 rules = json.load(f)
             shadow = rules.get('shadow_mode', 'unknown')
-            report.add("C: mini_scanner_rules", "PASS", f"shadow_mode={shadow}")
+            report.add("C: mini_scanner_rules", "PASS",
+                       f"shadow_mode={shadow}")
         except Exception as e:
-            report.add("C: mini_scanner_rules", "WARN", f"Parse error: {e}")
+            report.add("C: mini_scanner_rules", "WARN",
+                       f"Parse error: {e}")
     else:
-        report.add("C: mini_scanner_rules", "WARN", "Missing rules file")
+        report.add("C: mini_scanner_rules", "WARN",
+                   "Missing rules file")
+
+
+# ── M13: SELF-HEAL ────────────────────────────────────
+def attempt_self_heal(report):
+    """
+    M13: Safe auto-fix pass. Runs after diagnostic checks.
+    Only touches signal_history.json via journal functions.
+    Does NOT trigger GitHub Actions (requires external token).
+    Does NOT delete or archive records.
+
+    Heals attempted:
+    1. Schema V5 migration (adds missing V5 fields)
+    2. Generation backfill (gen flags + vol_confirm + outcome)
+    3. Target price backfill (missing target_price on PENDING)
+
+    Each heal is idempotent — safe to run multiple times.
+    """
+    if not JOURNAL_AVAILABLE:
+        report.add_heal(
+            "Journal import",
+            False,
+            "journal.py not importable — skipping all heals")
+        return
+
+    print("[diagnostic] Running self-heal pass...")
+
+    # ── Heal 1: Schema V5 migration ──────────────────
+    try:
+        _journal.backfill_schema_v5()
+        report.add_heal(
+            "Schema V5 migration", True,
+            "backfill_schema_v5() completed")
+    except Exception as e:
+        report.add_heal(
+            "Schema V5 migration", False, str(e))
+
+    # ── Heal 2: Generation flags + vol_confirm + outcome
+    try:
+        _journal.backfill_generation_flags()
+        report.add_heal(
+            "Generation + vol_confirm backfill", True,
+            "backfill_generation_flags() completed")
+    except Exception as e:
+        report.add_heal(
+            "Generation + vol_confirm backfill",
+            False, str(e))
+
+    # ── Heal 3: Target price backfill ────────────────
+    try:
+        _journal.backfill_target_prices()
+        report.add_heal(
+            "Target price backfill", True,
+            "backfill_target_prices() completed")
+    except Exception as e:
+        report.add_heal(
+            "Target price backfill", False, str(e))
+
+    # ── What cannot be auto-healed (log for visibility) ─
+    stale_fails = [
+        c for c in report.checks
+        if c['status'] == 'FAIL'
+        and c['name'].startswith('ST:')
+    ]
+    if stale_fails:
+        for sf in stale_fails:
+            report.add_heal(
+                f"Stale file: {sf['name']}", False,
+                "Cannot auto-heal — requires scanner rerun. "
+                "Trigger morning_scan workflow manually.")
+
+    overdue_warn = next(
+        (c for c in report.checks
+         if 'Overdue' in c['name']
+         and c['status'] == 'WARN'), None)
+    if overdue_warn:
+        report.add_heal(
+            "Overdue signals", False,
+            "Cannot auto-heal — requires outcome_evaluator "
+            "rerun. Trigger eod_update workflow manually.")
+
+    print(f"[diagnostic] Self-heal complete: "
+          f"{sum(1 for h in report.heals if h['success'])} "
+          f"succeeded, "
+          f"{sum(1 for h in report.heals if not h['success'])} "
+          f"skipped/failed")
 
 
 # ── MAIN RUNNER ───────────────────────────────────────
-
-def run_diagnostic(quick=False, send_telegram=False):
+def run_diagnostic(quick=False,
+                   send_telegram=False,
+                   heal=False):
     report = DiagnosticReport()
 
     print("[diagnostic] Starting system check...")
@@ -445,11 +830,16 @@ def run_diagnostic(quick=False, send_telegram=False):
     history_data = check_signal_history_schema(report)
 
     if not quick:
+        check_staleness(report)        # M8
         check_signal_fields(report, history_data)
         check_scan_log(report)
         check_meta(report, history_data)
         check_trading_logic(report, history_data)
         check_data_dir(report)
+
+    # M13: self-heal if requested or if failures found
+    if heal or (not quick and report.failed > 0):
+        attempt_self_heal(report)
 
     print(report.to_console())
 
@@ -464,20 +854,25 @@ def run_diagnostic(quick=False, send_telegram=False):
 
 
 # ── CLI ───────────────────────────────────────────────
-
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(
         description='TIE TIY Scanner Diagnostic Tool')
-    parser.add_argument('--quick', action='store_true',
-                        help='Quick check (files + schema only)')
-    parser.add_argument('--telegram', action='store_true',
-                        help='Send report to Telegram')
+    parser.add_argument(
+        '--quick', action='store_true',
+        help='Quick check (files + schema only)')
+    parser.add_argument(
+        '--telegram', action='store_true',
+        help='Send report to Telegram')
+    parser.add_argument(
+        '--heal', action='store_true',
+        help='Attempt safe auto-fixes after check')
 
     args = parser.parse_args()
 
     exit_code = run_diagnostic(
-        quick=args.quick,
-        send_telegram=args.telegram
+        quick         = args.quick,
+        send_telegram = args.telegram,
+        heal          = args.heal,
     )
 
     sys.exit(exit_code)
