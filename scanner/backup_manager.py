@@ -9,6 +9,10 @@
 #   vs previous day (data loss indicator)
 # - Telegram notification on success + size info
 # - --verify CLI flag to audit existing backups
+#
+# BUG FIX: f-string backslash syntax error fixed
+#   in _send_backup_summary — dict access extracted
+#   to variables before f-string (Python 3.11 compat)
 # ─────────────────────────────────────────────────────
 
 import os
@@ -84,13 +88,13 @@ def _backup_file(source_path, prefix, today_str,
     Backs up a single file. Returns result dict.
     """
     result = {
-        'prefix':    prefix,
-        'ok':        False,
-        'size_kb':   0,
-        'records':   0,
-        'shrink':    False,
+        'prefix':     prefix,
+        'ok':         False,
+        'size_kb':    0,
+        'records':    0,
+        'shrink':     False,
         'shrink_pct': 0,
-        'error':     None,
+        'error':      None,
     }
 
     if not os.path.exists(source_path):
@@ -118,7 +122,6 @@ def _backup_file(source_path, prefix, today_str,
         result['error'] = f'Integrity fail: {err}'
         print(f"[backup] {prefix}: integrity check "
               f"FAILED — {err}")
-        # Remove corrupt backup
         try:
             os.remove(backup_path)
         except Exception:
@@ -133,12 +136,12 @@ def _backup_file(source_path, prefix, today_str,
         if shrink_pct > SHRINK_WARN_PCT:
             result['shrink']     = True
             result['shrink_pct'] = round(shrink_pct, 1)
-            print(f"[backup] {prefix}: ⚠️ shrink "
+            print(f"[backup] {prefix}: shrink "
                   f"{result['shrink_pct']}% "
                   f"({prev_size:.1f} → {size_kb:.1f} KB)")
 
     result['ok'] = True
-    print(f"[backup] {prefix}: ✓ {backup_name} "
+    print(f"[backup] {prefix}: {backup_name} "
           f"({size_kb:.1f} KB · {count} records)")
     return result
 
@@ -156,7 +159,6 @@ def run_backup(send_tg=False):
 
     today_str = date.today().strftime('%Y-%m-%d')
 
-    # Back up both files
     hist_result = _backup_file(
         HISTORY_FILE, 'signal_history',
         today_str, send_tg)
@@ -164,25 +166,21 @@ def run_backup(send_tg=False):
         ARCHIVE_FILE, 'signal_archive',
         today_str, send_tg)
 
-    # Cleanup old backups
     cleanup_count = _cleanup_old_backups()
     if cleanup_count > 0:
         print(f"[backup] Cleaned {cleanup_count} "
               f"old backups")
 
-    # List current backups
     backups = _list_backups()
     print(f"[backup] Total backups: {len(backups)}")
 
-    # M7: Telegram notification
     if send_tg and TELEGRAM_AVAILABLE:
         _send_backup_summary(
             hist_result, arch_result,
             len(backups), today_str)
 
-    # Summary
     if not hist_result['ok']:
-        print(f"[backup] ❌ History backup FAILED: "
+        print(f"[backup] History backup FAILED: "
               f"{hist_result['error']}")
         return False
 
@@ -194,51 +192,69 @@ def run_backup(send_tg=False):
 def _send_backup_summary(hist, arch,
                          backup_count, today_str):
     def _esc(t):
-        if t is None: return '—'
+        if t is None:
+            return '—'
         t = str(t)
         for ch in r'\_*[]()~`>#+-=|{}.!':
             t = t.replace(ch, f'\\{ch}')
         return t
 
     lines = []
-    lines.append(
-        f'💾 *BACKUP · {_esc(today_str)}*')
+    today_esc = _esc(today_str)
+    lines.append(f'💾 *BACKUP · {today_esc}*')
     lines.append('')
+
+    # BUG FIX: extract all dict access + formatting
+    # to plain variables before f-strings.
+    # Python 3.11 forbids backslashes inside f-string
+    # {} expressions — e.g. f"{d[\"key\"]}" fails.
 
     # History
     if hist['ok']:
-        shrink_note = (
-            f' ⚠️ shrunk {hist["shrink_pct"]}%'
-            if hist['shrink'] else '')
+        hist_size    = f"{hist['size_kb']:.1f}"
+        hist_records = str(hist['records'])
+        if hist['shrink']:
+            shrink_pct  = str(hist['shrink_pct'])
+            shrink_note = f" shrunk {shrink_pct}%"
+        else:
+            shrink_note = ''
+        hist_size_esc    = _esc(hist_size)
+        hist_records_esc = _esc(hist_records)
+        shrink_esc       = _esc(shrink_note)
         lines.append(
             f'✅ signal\\_history: '
-            f'{_esc(f"{hist[\"size_kb\"]:.1f}")} KB '
-            f'· {_esc(str(hist["records"]))} records'
-            f'{_esc(shrink_note)}')
+            f'{hist_size_esc} KB '
+            f'· {hist_records_esc} records'
+            f'{shrink_esc}')
     else:
+        hist_err = _esc(str(hist['error']))
         lines.append(
-            f'❌ signal\\_history: '
-            f'{_esc(hist["error"])}')
+            f'❌ signal\\_history: {hist_err}')
 
     # Archive
     if arch['ok']:
+        arch_size        = f"{arch['size_kb']:.1f}"
+        arch_records     = str(arch['records'])
+        arch_size_esc    = _esc(arch_size)
+        arch_records_esc = _esc(arch_records)
         lines.append(
             f'✅ signal\\_archive: '
-            f'{_esc(f"{arch[\"size_kb\"]:.1f}")} KB '
-            f'· {_esc(str(arch["records"]))} records')
+            f'{arch_size_esc} KB '
+            f'· {arch_records_esc} records')
     elif arch['error'] == 'Source not found':
         lines.append(
             '○ signal\\_archive: not yet created')
     else:
+        arch_err = _esc(str(arch['error']))
         lines.append(
-            f'⚠️ signal\\_archive: '
-            f'{_esc(arch["error"])}')
+            f'⚠️ signal\\_archive: {arch_err}')
 
     lines.append('')
+    bc_esc  = _esc(str(backup_count))
+    ret_esc = _esc(str(RETENTION_DAYS))
     lines.append(
-        f'Keeping {_esc(str(backup_count))} '
-        f'backups · {_esc(str(RETENTION_DAYS))}d '
-        f'retention')
+        f'Keeping {bc_esc} backups · '
+        f'{ret_esc}d retention')
 
     try:
         send_message('\n'.join(lines))
@@ -263,7 +279,6 @@ def _cleanup_old_backups():
              or filename.startswith('signal_archive.')):
             continue
         try:
-            # signal_history.2026-04-12.json
             parts     = filename.rsplit('.', 2)
             date_part = parts[-2]
             file_date = datetime.strptime(
@@ -308,15 +323,14 @@ def verify_backups():
     fail_count = 0
 
     for filename in backups:
-        path           = os.path.join(
-            BACKUP_DIR, filename)
+        path = os.path.join(BACKUP_DIR, filename)
         ok, count, size_kb, err = _verify_json(path)
         if ok:
-            print(f"  ✓ {filename} "
+            print(f"  ok {filename} "
                   f"({size_kb:.1f} KB · {count} records)")
             ok_count += 1
         else:
-            print(f"  ✕ {filename} — {err}")
+            print(f"  fail {filename} — {err}")
             fail_count += 1
 
     print(f"[backup] Verify complete: "
@@ -337,7 +351,6 @@ def restore_backup(date_str: str):
         print(f"[backup] Not found: {backup_name}")
         return False
 
-    # Validate backup before restoring
     ok, count, size_kb, err = _verify_json(backup_path)
     if not ok:
         print(f"[backup] Backup invalid: {err} — "
@@ -347,7 +360,6 @@ def restore_backup(date_str: str):
     print(f"[backup] Restoring from {backup_name} "
           f"({count} records)...")
 
-    # Safety backup of current
     if os.path.exists(HISTORY_FILE):
         safety = HISTORY_FILE + '.pre-restore'
         shutil.copy2(HISTORY_FILE, safety)
@@ -355,7 +367,7 @@ def restore_backup(date_str: str):
 
     try:
         shutil.copy2(backup_path, HISTORY_FILE)
-        print(f"[backup] ✓ Restored successfully")
+        print(f"[backup] Restored successfully")
         return True
     except Exception as e:
         print(f"[backup] Restore failed: {e}")
@@ -391,7 +403,7 @@ if __name__ == '__main__':
         for b in backups:
             path = os.path.join(BACKUP_DIR, b)
             ok, count, size_kb, _ = _verify_json(path)
-            status = '✓' if ok else '✕'
+            status = 'ok' if ok else 'fail'
             print(f"  {status} {b} "
                   f"({size_kb:.1f} KB · {count} records)")
     else:
