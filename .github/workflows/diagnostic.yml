@@ -2,6 +2,7 @@
 # System diagnostic — manual dispatch or daily post-market
 # M8: stale data detection
 # M13: self-healing triggers + commit healed files
+# BUG FIX: exit code 1 (warnings) no longer fails workflow
 
 name: Diagnostic Check
 
@@ -61,8 +62,6 @@ jobs:
           if [ "${{ inputs.mode }}" = "quick" ]; then
             ARGS="$ARGS --quick"
           fi
-          # --heal: on by default for schedule,
-          # follows input for manual dispatch
           if [ "${{ github.event_name }}" = "schedule" ]; then
             ARGS="$ARGS --heal --telegram"
           else
@@ -82,7 +81,10 @@ jobs:
           PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           python scanner/diagnostic.py ${{ steps.args.outputs.ARGS }}
-          echo "DIAG_EXIT=$?" >> $GITHUB_ENV
+          EXIT=$?
+          # BUG FIX: exit 0=PASS, 1=WARN (acceptable),
+          # 2=FAIL (real error). Only fail workflow on 2.
+          [ $EXIT -le 1 ] || exit $EXIT
 
       - name: Commit healed files if changed
         run: |
