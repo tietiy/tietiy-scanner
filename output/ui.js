@@ -3,23 +3,19 @@
 // Loads first — all other JS files depend on this
 //
 // V1 FIXES APPLIED:
-// - L5  : _seedDefaultTook() — pre-selects TOOK for all
-//         undecided signals before journal renders
+// - L5  : _seedDefaultTook()
 // - L7  : switchTab() closes signal detail modal
-// - R3  : Offline banner — online/offline listeners,
-//         auto-retry on reconnect
+// - R3  : Offline banner
 // - R8  : _isSA() + _renderSABadge() global helpers
-//         for use by app.js signal cards
 //
 // V1.1 FIXES:
 // - H9  : Stale warning suppressed before 9 AM IST
-//         and on weekends/holidays — only fires red
-//         after 9 AM on a trading day with no fresh data
-// - M8  : Market regime note added to status bar
-// - S1  : Responsive CSS moved to index.html —
-//         _injectResponsiveStyles() removed.
-//         body max-width breakpoints now in HTML.
-// - S4  : Tab bar targets in index.html media query
+// - M8  : Market regime note in status bar
+// - S1  : _enforceTabletWidth() — JS-based width
+//         enforcement for iPad PWA standalone mode.
+//         CSS media queries unreliable in iOS PWA.
+//         Runs at init + on orientationchange.
+// - S4  : Tab bar sizing via _enforceTabletWidth
 //
 // PRIOR FIXES RETAINED:
 // - Default filter is 'top'
@@ -280,7 +276,7 @@ function _ensureOfflineBannerEl() {
       'left:50%',
       'transform:translateX(-50%)',
       'width:100%',
-      'max-width:min(680px,100vw)',
+      'max-width:720px',
       'z-index:999',
       'display:none',
     ].join(';');
@@ -330,6 +326,73 @@ window.addEventListener('online', function() {
   setTimeout(function() {
     if (window.TIETIY.loaded) refreshData();
   }, 1000);
+});
+
+// ── S1: TABLET WIDTH ENFORCEMENT ─────────────────────
+// CSS media queries are unreliable in iOS PWA
+// standalone mode on iPad Pro. JavaScript directly
+// sets body and element widths — immediate and
+// guaranteed to apply regardless of PWA quirks.
+//
+// iPad Pro 12.9" = 1024px viewport in portrait.
+// Cap at 720px centered — readable, not too narrow.
+function _enforceTabletWidth() {
+  const vw = window.innerWidth
+    || document.documentElement.clientWidth
+    || 375;
+
+  // Only apply on tablet+ screens
+  if (vw < 768) {
+    console.log('[ui] Phone width: ' + vw + 'px — no cap');
+    return;
+  }
+
+  // iPad Pro 12.9" portrait = 1024px → use 720px
+  // Smaller tablets → use 680px
+  const cap = vw >= 1024 ? '720px' : '680px';
+  const capPx = vw >= 1024 ? 720 : 680;
+
+  // Force body
+  document.body.style.maxWidth  = cap;
+  document.body.style.margin    = '0 auto';
+  document.body.style.overflowX = 'hidden';
+
+  // Force tap panel width
+  const tapPanel =
+    document.getElementById('tap-panel');
+  if (tapPanel) {
+    tapPanel.style.maxWidth = cap;
+  }
+
+  // Force help overlay to match
+  const helpOverlay =
+    document.getElementById('help-overlay');
+  if (helpOverlay) {
+    helpOverlay.style.maxWidth = cap;
+    helpOverlay.style.left     = '50%';
+    helpOverlay.style.transform = 'translateX(-50%)';
+    helpOverlay.style.position  = 'fixed';
+  }
+
+  console.log('[ui] Tablet width enforced: '
+    + cap + ' (viewport: ' + vw + 'px)');
+}
+
+// Re-apply on orientation change
+window.addEventListener('orientationchange',
+  function() {
+    setTimeout(function() {
+      _enforceTabletWidth();
+      if (window.TIETIY && window.TIETIY.activeTab) {
+        _renderNav(window.TIETIY.activeTab);
+      }
+    }, 350);
+  }
+);
+
+// Also re-apply on resize (covers split-screen)
+window.addEventListener('resize', function() {
+  _enforceTabletWidth();
 });
 
 // ── STATUS BAR ────────────────────────────────────────
@@ -384,8 +447,6 @@ function _renderStatusBar(meta) {
   let borderColor = '#21262d';
 
   if (!isToday) {
-    // H9 FIX: suppress false red on holidays/weekends
-    // and before 9 AM on trading days
     const hour           = _istHour();
     const todayIsTrading = _isTodayTradingDay();
     const nextDay        = _getNextTradingDay();
@@ -454,7 +515,6 @@ function _renderStatusBar(meta) {
        </span>`
     : '';
 
-  // M8 FIX: market regime vs stock regime note
   const regimeNote = isToday && isTrading
     ? `<div style="font-size:9px;color:#444;
          margin-top:3px;">
@@ -595,33 +655,44 @@ function _renderNav(activeTab) {
     { id: 'stats',   icon: '📈', label: 'Stats'   },
   ];
 
-  // S4: tab sizing handled by index.html media query
+  // Width matches _enforceTabletWidth cap
+  const vw  = window.innerWidth || 375;
+  const cap = vw >= 1024
+    ? 'min(720px,100vw)'
+    : vw >= 768
+      ? 'min(680px,100vw)'
+      : '100%';
+
   el.innerHTML = `
     <div style="position:fixed;bottom:0;left:50%;
       transform:translateX(-50%);
-      width:100%;max-width:min(680px,100vw);
+      width:100%;max-width:${cap};
       background:#0d1117;
       border-top:1px solid #21262d;
       display:flex;z-index:50;
       padding-bottom:env(safe-area-inset-bottom);">
       ${tabs.map(t => {
         const active = t.id === activeTab;
+        // S4: larger targets on tablet
+        const iconSize  = vw >= 768 ? '22px' : '18px';
+        const labelSize = vw >= 768 ? '11px' : '10px';
+        const padTop    = vw >= 768 ? '12px' : '10px';
         return `
           <button onclick="switchTab('${t.id}')"
             style="flex:1;background:none;
               border:none;
-              padding:10px 0 8px;cursor:pointer;
+              padding:${padTop} 0 8px;
+              cursor:pointer;
               display:flex;flex-direction:column;
               align-items:center;gap:2px;
               -webkit-tap-highlight-color:transparent;">
-            <span style="font-size:18px;
+            <span style="font-size:${iconSize};
               opacity:${active ? 1 : 0.4};">
               ${t.icon}
             </span>
-            <span style="font-size:10px;
+            <span style="font-size:${labelSize};
               color:${active ? '#ffd700' : '#555'};
-              font-weight:${active
-                ? '700' : '400'};">
+              font-weight:${active ? '700' : '400'};">
               ${t.label}
             </span>
           </button>`;
@@ -1088,7 +1159,9 @@ async function initApp() {
   const loaderMsg =
     document.getElementById('loader-msg');
 
-  // S1: responsive CSS now in index.html — no inject
+  // S1: enforce tablet width via JS immediately
+  // Runs before any render so layout is correct
+  _enforceTabletWidth();
 
   // R3: ensure offline banner exists early
   _ensureOfflineBannerEl();
@@ -1112,6 +1185,9 @@ async function initApp() {
 
     if (loader)  loader.style.display  = 'none';
     if (appRoot) appRoot.style.display = 'block';
+
+    // Re-enforce after app-root becomes visible
+    _enforceTabletWidth();
 
     _renderStatusBar(window.TIETIY.meta);
     _renderAlertBanner(window.TIETIY.stopAlerts);
