@@ -1,6 +1,12 @@
 name: EOD Update 3:35 PM IST
+# V1.1 FIX H8: EOD commit scope expanded —
+# signal_archive.json + colab_export.json now
+# committed alongside signal_history.json
 
 on:
+  schedule:
+    # Daily 10:05 AM UTC = 3:35 PM IST
+    - cron: '5 10 * * 1-5'
   workflow_dispatch:
     inputs:
       backup_only:
@@ -56,7 +62,15 @@ jobs:
         run: |
           git config user.name "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-          git add output/eod_prices.json output/signal_history.json output/signal_history.backup.json output/meta.json output/backups/
+          git add \
+            output/eod_prices.json \
+            output/signal_history.json \
+            output/signal_history.backup.json \
+            output/signal_archive.json \
+            output/colab_export.json \
+            output/meta.json \
+            output/backups/ \
+            2>/dev/null || true
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "EOD update $(date '+%Y-%m-%d') IST"
           for i in 1 2 3; do
