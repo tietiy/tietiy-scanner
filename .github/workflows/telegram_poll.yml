@@ -1,0 +1,76 @@
+name: Telegram Command Responder
+
+on:
+  schedule:
+    # Every 30 minutes all day every day
+    - cron: '*/30 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  poll:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Poll and respond
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
+          python - <<'EOF'
+import os, sys, json
+sys.path.insert(0, 'scanner')
+
+from telegram_bot import poll_and_respond
+
+# Load meta
+meta = {}
+try:
+    with open('output/meta.json', 'r') as f:
+        meta = json.load(f)
+except Exception:
+    pass
+
+# Load history
+history = []
+try:
+    with open('output/signal_history.json', 'r') as f:
+        data = json.load(f)
+        history = data.get('history', [])
+except Exception:
+    pass
+
+# Load LTP prices
+ltp_prices = {}
+try:
+    with open('output/ltp_prices.json', 'r') as f:
+        ltp_prices = json.load(f)
+except Exception:
+    pass
+
+count = poll_and_respond(
+    meta=meta,
+    history=history,
+    ltp_prices=ltp_prices,
+    window_minutes=35
+)
+print(f'[poll] Commands processed: {count}')
+EOF
