@@ -23,7 +23,7 @@
 // Fetch success after failure → broadcast ONLINE
 // ─────────────────────────────────────────────────────
 
-const CACHE_NAME = 'tietiy-shell-v2';
+const CACHE_NAME = 'tietiy-shell-v3';
 // Bumped v1→v2: JS files now included in cache scope
 
 const SHELL_FILES = [
