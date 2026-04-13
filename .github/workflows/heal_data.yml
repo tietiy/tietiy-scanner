@@ -18,6 +18,11 @@ on:
         required: false
         default: false
         type: boolean
+      verify_weekend_summary:
+        description: 'TR5 — Test weekend summary with --force (sends Telegram message)'
+        required: false
+        default: false
+        type: boolean
 
 permissions:
   contents: write
@@ -96,6 +101,16 @@ jobs:
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
+
+      - name: TR5 — Verify weekend summary
+        if: ${{ inputs.verify_weekend_summary == true }}
+        env:
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "=== TR5 WEEKEND SUMMARY TEST ==="
+          python scanner/weekend_summary.py --force
 
       - name: Alert on failure
         if: failure()
