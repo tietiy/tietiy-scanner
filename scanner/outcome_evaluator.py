@@ -17,9 +17,19 @@
 #
 # V1 BUG FIX: Skip signals with entry_valid=False
 #   Gap too large at open = trade never entered.
-#   outcome_evaluator was assigning fake outcomes
-#   using actual_open as entry even when flagged
-#   invalid — producing nonsense P&L values.
+#
+# V1.1 FIXES:
+#   TR3: _next_trading_day() + effective_tracking_end
+#        Day 6 open rolls forward if tracking_end
+#        falls on holiday — prevents wrong P&L from
+#        using last-available-bar as Day 6 price.
+#   HC5: update_sa_parent_outcome() called when
+#        parent signal resolves — propagates outcome
+#        to all SA child signals automatically.
+#   H12: _classify_failure_reason() — rule-based
+#        classifier writes failure_reason field at
+#        resolution time for every resolved signal.
+#   H13: failure_reason field added to schema.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -62,6 +72,21 @@ def _is_trading_day(date_obj, holidays):
         return False
     return date_obj.strftime(
         '%Y-%m-%d') not in holidays
+
+
+def _next_trading_day(d, holidays):
+    """
+    TR3 FIX: Roll forward to nearest trading day.
+    Used when tracking_end falls on a holiday —
+    ensures Day 6 open is fetched from a real
+    market day, not a closed day.
+    """
+    cur = d
+    for _ in range(14):
+        if _is_trading_day(cur, holidays):
+            return cur
+        cur += timedelta(days=1)
+    return cur
 
 
 def _get_entry_date(detection_date_str, holidays):
@@ -196,6 +221,108 @@ def _calc_pnl_pct(entry, outcome_price, direction):
         return None
 
 
+# ── H12/H13: FAILURE REASON CLASSIFIER ───────────────
+
+def _classify_failure_reason(signal, outcome,
+                              exit_day, mae_pct):
+    """
+    H12 FIX: Rule-based classifier for failure and
+    win reasons. Runs at resolution time. Returns a
+    plain-language string stored as failure_reason
+    on the signal record.
+
+    Used by journal.js to show traders WHY a signal
+    succeeded or failed — not just the outcome badge.
+    """
+    age         = int(signal.get('age', 0) or 0)
+    vol_confirm = signal.get('vol_confirm', False)
+    sec_leading = signal.get('sec_leading', False)
+    rs_strong   = signal.get('rs_strong', False)
+    bear_bonus  = signal.get('bear_bonus', False)
+    stock_regime= (signal.get('stock_regime') or '')
+    mkt_regime  = (signal.get('regime') or '')
+    entry_valid = signal.get('entry_valid')
+    gap_pct     = abs(float(
+        signal.get('gap_pct') or 0))
+    mae         = float(mae_pct or 0)
+    sig_type    = (signal.get('signal') or '')
+
+    # ── WINS ──────────────────────────────────────
+    if outcome == 'TARGET_HIT':
+        if bear_bonus and age == 0:
+            return ('Bear regime fresh breakout '
+                    '— highest conviction setup')
+        elif vol_confirm and sec_leading:
+            return ('Volume confirmed + sector '
+                    'leading — strong alignment')
+        elif vol_confirm and rs_strong:
+            return ('Volume confirmed + strong RS '
+                    '— momentum behind move')
+        elif vol_confirm:
+            return ('Volume confirmed breakout '
+                    '— clean directional move')
+        else:
+            return 'Price reached target in 6 days'
+
+    if outcome == 'DAY6_WIN':
+        if bear_bonus:
+            return ('Bear regime — gradual move '
+                    'held through 6 days')
+        return ('Gradual move to target '
+                '— held through full window')
+
+    # ── STOP HITS ─────────────────────────────────
+    if outcome == 'STOP_HIT':
+        if entry_valid is False:
+            return ('Gap at open invalidated entry '
+                    '— trade was not taken')
+        if exit_day == 1 and gap_pct > 2.0:
+            return ('Gapped through stop at open '
+                    '— Day 1 gap risk')
+        if mae > 10:
+            return ('Heavy move against position '
+                    '— event or regime shock')
+        if mae > 5:
+            return ('Strong directional move '
+                    'against — stop correctly hit')
+        if mae < 2.5:
+            return ('Stop hit by normal volatility '
+                    '— stop may be too tight')
+        return 'Directional move against — stop hit'
+
+    # ── DAY 6 LOSSES ──────────────────────────────
+    if outcome == 'DAY6_LOSS':
+        if not vol_confirm:
+            return ('Breakout without volume '
+                    '— weak setup, no follow-through')
+        if age > 1:
+            return ('Late entry — breakout momentum '
+                    'was already stale')
+        if (stock_regime and mkt_regime
+                and stock_regime.upper()
+                != mkt_regime.upper()):
+            return ('Stock and market regime '
+                    'misaligned — no confirmation')
+        if 'DOWN_TRI' in sig_type:
+            return ('Short setup failed to follow '
+                    'through in 6 days')
+        return ('No directional move in 6 days '
+                '— setup did not trigger')
+
+    # ── DAY 6 FLATS ───────────────────────────────
+    if outcome == 'DAY6_FLAT':
+        if not vol_confirm:
+            return ('Price moved without volume '
+                    '— false breakout absorbed')
+        if age > 0:
+            return ('Aged setup — edge reduced '
+                    'by time at entry')
+        return ('Market absorbed the breakout '
+                '— no net direction in 6 days')
+
+    return None
+
+
 # ── EVALUATE SINGLE SIGNAL ────────────────────────────
 
 def _evaluate_signal(signal, holidays):
@@ -242,6 +369,17 @@ def _evaluate_signal(signal, holidays):
         print(f"[outcome] Date error {sym}: {e}")
         return signal
 
+    # TR3 FIX: Roll tracking_end forward if it falls
+    # on a holiday. Prevents using wrong OHLC bar
+    # (last available) as the Day 6 open price.
+    effective_tracking_end = _next_trading_day(
+        tracking_end, holidays)
+
+    if effective_tracking_end != tracking_end:
+        print(f"[outcome] {sym} — tracking_end "
+              f"{tracking_end} is holiday, "
+              f"rolling to {effective_tracking_end}")
+
     today = date.today()
 
     # Set tracking dates once
@@ -252,12 +390,19 @@ def _evaluate_signal(signal, holidays):
         signal['tracking_end'] = \
             tracking_end.strftime('%Y-%m-%d')
 
+    # Always store effective exit date
+    signal['effective_exit_date'] = \
+        effective_tracking_end.strftime('%Y-%m-%d')
+
     if today < entry_date:
         print(f"[outcome] {sym} — "
               f"entry {entry_date} not reached")
         return signal
 
-    fetch_end = min(today, tracking_end)
+    # TR3 FIX: Fetch up to effective_tracking_end
+    # so Day 6 open data is available even when
+    # original tracking_end was a holiday.
+    fetch_end = min(today, effective_tracking_end)
     ohlc      = _fetch_ohlc(
         sym, entry_date, fetch_end)
 
@@ -273,7 +418,15 @@ def _evaluate_signal(signal, holidays):
     max_fav           = 0.0
     max_adv           = 0.0
 
+    # Only scan up to tracking_end (original)
+    # not effective — stop/target only valid
+    # during the 6 trading-day window
+    scan_end_ts = pd.Timestamp(tracking_end)
+
     for ts, row in ohlc.iterrows():
+        # Stop scanning after original tracking_end
+        if ts > scan_end_ts:
+            break
         try:
             high  = float(row['High'])
             low   = float(row['Low'])
@@ -325,72 +478,95 @@ def _evaluate_signal(signal, holidays):
     day6_open        = None
     post_target_move = None
 
-    if today >= tracking_end:
+    # TR3 FIX: Use effective_tracking_end for Day 6
+    # open price — correctly handles holiday rollover
+    if today >= effective_tracking_end:
         try:
-            day6_ts = pd.Timestamp(tracking_end)
+            # First try effective (rolled) date
+            day6_ts = pd.Timestamp(
+                effective_tracking_end)
 
             if day6_ts in ohlc.index:
                 day6_open = float(
                     ohlc.loc[day6_ts, 'Open'])
             else:
-                day6_open = float(
-                    ohlc['Open'].iloc[-1])
+                # Data not yet available — will
+                # retry on next EOD run
+                print(f"[outcome] {sym} — "
+                      f"Day 6 open data not yet "
+                      f"available for "
+                      f"{effective_tracking_end}")
+                day6_open = None
 
-            if (real_exit_outcome == 'TARGET_HIT'
-                    and day6_open
-                    and real_exit_price):
-                raw_move = (
-                    (day6_open - real_exit_price)
-                    / real_exit_price * 100)
-                post_target_move = round(
-                    raw_move
-                    if direction == 'LONG'
-                    else -raw_move, 2)
-                print(f"[outcome] {sym} → "
-                      f"post_target_move: "
-                      f"{post_target_move:+.1f}% "
-                      f"(Day6 open ₹{day6_open:.2f})")
+            if day6_open is not None:
+                if (real_exit_outcome == 'TARGET_HIT'
+                        and real_exit_price):
+                    raw_move = (
+                        (day6_open - real_exit_price)
+                        / real_exit_price * 100)
+                    post_target_move = round(
+                        raw_move
+                        if direction == 'LONG'
+                        else -raw_move, 2)
+                    print(f"[outcome] {sym} → "
+                          f"post_target_move: "
+                          f"{post_target_move:+.1f}%"
+                          f" (Day6 open "
+                          f"₹{day6_open:.2f})")
 
-            if real_exit_outcome is None and day6_open:
-                move_pct = (
-                    (day6_open - entry)
-                    / entry * 100)
-                if direction == 'SHORT':
-                    move_pct = -move_pct
+                if (real_exit_outcome is None
+                        and day6_open):
+                    move_pct = (
+                        (day6_open - entry)
+                        / entry * 100)
+                    if direction == 'SHORT':
+                        move_pct = -move_pct
 
-                if move_pct > FLAT_PCT:
-                    real_exit_outcome = 'DAY6_WIN'
-                elif move_pct < -FLAT_PCT:
-                    real_exit_outcome = 'DAY6_LOSS'
-                else:
-                    real_exit_outcome = 'DAY6_FLAT'
+                    if move_pct > FLAT_PCT:
+                        real_exit_outcome = 'DAY6_WIN'
+                    elif move_pct < -FLAT_PCT:
+                        real_exit_outcome = 'DAY6_LOSS'
+                    else:
+                        real_exit_outcome = 'DAY6_FLAT'
 
-                real_exit_date  = tracking_end
-                real_exit_price = round(day6_open, 2)
-                real_exit_day   = 6
+                    real_exit_date  = \
+                        effective_tracking_end
+                    real_exit_price = round(
+                        day6_open, 2)
+                    real_exit_day   = 6
 
-                print(f"[outcome] {sym} → "
-                      f"{real_exit_outcome} "
-                      f"move {move_pct:+.1f}% "
-                      f"Day6 open ₹{day6_open:.2f}")
+                    print(f"[outcome] {sym} → "
+                          f"{real_exit_outcome} "
+                          f"move {move_pct:+.1f}% "
+                          f"Day6 open "
+                          f"₹{day6_open:.2f}")
 
         except Exception as e:
-            print(f"[outcome] Day6 error {sym}: {e}")
+            print(f"[outcome] Day6 error "
+                  f"{sym}: {e}")
 
     # ── WRITE BACK ────────────────────────────────
     if real_exit_outcome:
         pnl_pct = _calc_pnl_pct(
             entry, real_exit_price, direction)
 
-        signal['outcome']       = real_exit_outcome
-        signal['outcome_date']  = str(
+        # H13: failure_reason field
+        failure_reason = _classify_failure_reason(
+            signal        = signal,
+            outcome       = real_exit_outcome,
+            exit_day      = real_exit_day,
+            mae_pct       = round(max_adv, 2))
+
+        signal['outcome']        = real_exit_outcome
+        signal['outcome_date']   = str(
             real_exit_date)[:10]
-        signal['outcome_price'] = real_exit_price
-        signal['pnl_pct']       = pnl_pct
-        signal['mfe_pct']       = round(max_fav, 2)
-        signal['mae_pct']       = round(max_adv, 2)
-        signal['exit_type']     = real_exit_outcome
-        signal['exit_day']      = real_exit_day
+        signal['outcome_price']  = real_exit_price
+        signal['pnl_pct']        = pnl_pct
+        signal['mfe_pct']        = round(max_fav, 2)
+        signal['mae_pct']        = round(max_adv, 2)
+        signal['exit_type']      = real_exit_outcome
+        signal['exit_day']       = real_exit_day
+        signal['failure_reason'] = failure_reason
 
         if day6_open is not None:
             signal['day6_open'] = round(day6_open, 2)
@@ -402,7 +578,7 @@ def _evaluate_signal(signal, holidays):
             entry_date,
             real_exit_date
             if isinstance(real_exit_date, date)
-            else tracking_end,
+            else effective_tracking_end,
             holidays)
         signal['days_to_outcome'] = days_to
 
@@ -419,6 +595,33 @@ def _evaluate_signal(signal, holidays):
             signal['mae_pct'] = round(max_adv, 2)
 
     return signal
+
+
+# ── HC5: SA PARENT OUTCOME PROPAGATION ───────────────
+
+def _propagate_sa_outcome(history, parent_id,
+                          parent_outcome):
+    """
+    HC5 FIX: When a parent signal resolves, find all
+    SA child signals pointing to it and update their
+    sa_parent_outcome field.
+
+    Called from run_outcome_evaluation() immediately
+    after a signal is resolved.
+    """
+    updated = 0
+    for sig in history:
+        if sig.get('sa_parent_id') == parent_id:
+            if sig.get('sa_parent_outcome') \
+                    != parent_outcome:
+                sig['sa_parent_outcome'] = \
+                    parent_outcome
+                updated += 1
+                print(f"[outcome] SA propagate: "
+                      f"{sig.get('symbol','')} "
+                      f"sa_parent_outcome="
+                      f"{parent_outcome}")
+    return updated
 
 
 # ── MAIN FUNCTION ─────────────────────────────────────
@@ -440,9 +643,6 @@ def run_outcome_evaluation():
     history = data.get('history', [])
 
     # V1 BUG FIX: exclude entry_valid=False signals
-    # These had gap too large at open — trade was never
-    # entered. outcome_evaluator must not assign outcomes
-    # to signals the trader could not have taken.
     open_signals = [
         s for s in history
         if s.get('outcome', 'OPEN') == 'OPEN'
@@ -450,7 +650,6 @@ def run_outcome_evaluation():
         and s.get('entry_valid') is not False
     ]
 
-    # Log how many were skipped due to invalid entry
     invalid_skipped = len([
         s for s in history
         if s.get('outcome', 'OPEN') == 'OPEN'
@@ -458,8 +657,9 @@ def run_outcome_evaluation():
         and s.get('entry_valid') is False
     ])
     if invalid_skipped > 0:
-        print(f"[outcome] Skipping {invalid_skipped} "
-              f"signals with entry_valid=False "
+        print(f"[outcome] Skipping "
+              f"{invalid_skipped} signals with "
+              f"entry_valid=False "
               f"(gap too large at open)")
 
     if not open_signals:
@@ -469,8 +669,9 @@ def run_outcome_evaluation():
     print(f"[outcome] Evaluating "
           f"{len(open_signals)} signals...")
 
-    resolved = 0
-    updated  = 0
+    resolved     = 0
+    updated      = 0
+    sa_propagated = 0
 
     history_map = {
         s.get('id'): i
@@ -505,6 +706,13 @@ def run_outcome_evaluation():
                 ):
                     history[idx]['result'] = 'EXITED'
 
+                # HC5 FIX: Propagate outcome to
+                # any SA children pointing to this
+                # signal as their parent
+                n = _propagate_sa_outcome(
+                    history, sig_id, after)
+                sa_propagated += n
+
     if updated > 0:
         data['history'] = history
         _backup_history()
@@ -512,7 +720,8 @@ def run_outcome_evaluation():
             _save_json(HISTORY_FILE, data)
             print(f"[outcome] Done — "
                   f"resolved:{resolved} "
-                  f"updated:{updated}")
+                  f"updated:{updated} "
+                  f"sa_propagated:{sa_propagated}")
         except Exception as e:
             print(f"[outcome] Save failed: {e}")
     else:
