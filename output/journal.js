@@ -9,27 +9,24 @@
 // - R8   : SA (Second Attempt) tracking display
 //
 // V1.1 FIXES:
-// - H3   : Stop proximity traffic light on cards —
-//          green/amber/red dot from LTP vs stop
-// - H4   : Unrealized P&L on open journal cards —
-//          LTP vs actual_open entry price
-// - H5   : Capital at risk in portfolio summary —
-//          X positions × 5% = Y% deployed
-// - H6   : R:R shows gap-adjusted actual —
-//          uses actual_open not scan entry
-// - H7   : Open Chart wires to TradingView
-//          NSE:SYMBOL basic chart
+// - H3   : Stop proximity traffic light on cards
+// - H4   : Unrealized P&L on open journal cards
+// - H5   : Capital at risk in portfolio summary
+// - H6   : R:R shows gap-adjusted actual
+// - H7   : Open Chart wires to TradingView NSE:SYMBOL
 // - H14  : Failure reason tag on resolved cards
 // - H15  : Win reason tag on resolved cards
 // - M2   : Day X/6 shown alongside exit date on cards
-// - M6   : Rejection reason summary at top of
-//          Rejected tab — "Score: 37, Regime: 6"
-// - MC4  : Why this trade in plain language per
-//          signal type — no jargon
+// - M6   : Rejection reason summary at top of tab
+// - MC4  : Why this trade in plain language
 // - LC3  : Full failure reason shown in modal
-//          for resolved signals
 // - D6-6 : Day 6 open price shown in modal
-//          when sig.day6_open is available
+// - J1   : Resolved tab — WR, wins, losses, avg P&L
+// - J2   : TradingView link fixed for iOS PWA —
+//          window.open() replaces target="_blank"
+// - TR1  : Duplicate signal same stock same date
+//          grouped — shows ×N count badge, keeps
+//          highest score signal as primary card
 // ──────────────────────────────────────────────────────
 (function () {
 
@@ -159,8 +156,6 @@ function _fmtD(str) {
   } catch(e) { return str; }
 }
 
-// H6 FIX: use actual_open if available
-// so R:R reflects what trader actually got
 function _rr(sig) {
   const e = parseFloat(
     sig.actual_open || sig.entry || 0);
@@ -252,7 +247,7 @@ function _outcomeBadge(sig) {
   return _badge('#1a1a0a','#555','OPEN');
 }
 
-// ── L7: QUALITY FLAGS ─────────────────────────────────
+// ── QUALITY FLAGS ─────────────────────────────────────
 function _qualityFlags(sig) {
   const flags = [];
   if (sig.vol_confirm === true
@@ -277,12 +272,11 @@ function _qualityFlags(sig) {
 // ── H3: STOP PROXIMITY ────────────────────────────────
 function _getLTP(sig, ltpPrices) {
   if (!ltpPrices) return null;
-  const prices = ltpPrices.prices || ltpPrices || {};
-  const symKey = sig.symbol || '';
+  const prices   = ltpPrices.prices || ltpPrices || {};
+  const symKey   = sig.symbol || '';
   const symClean = _sym(symKey);
   const val = prices[symKey] || prices[symClean];
   if (!val) return null;
-  // ltp may be object {ltp:..} or number
   if (typeof val === 'object' && val.ltp)
     return parseFloat(val.ltp);
   return parseFloat(val);
@@ -298,23 +292,19 @@ function _stopProximityDot(sig, ltpPrices) {
     ? (ltp - stop) / stop * 100
     : (stop - ltp) / stop * 100;
 
-  const color = buf < 0      ? '#f85149' : // breached
-                buf < 2      ? '#f85149' : // danger
-                buf < 5      ? '#FF8C00' : // caution
-                               '#00C851';  // safe
+  const color = buf < 0 ? '#f85149' :
+                buf < 2 ? '#f85149' :
+                buf < 5 ? '#FF8C00' : '#00C851';
   const title = buf < 0
     ? 'Stop breached'
     : `${buf.toFixed(1)}% above stop`;
 
   return `<span title="${title}"
     style="display:inline-block;
-      width:7px;height:7px;
-      border-radius:50%;
-      background:${color};
-      margin-left:4px;
-      vertical-align:middle;
-      flex-shrink:0;"
-  ></span>`;
+      width:7px;height:7px;border-radius:50%;
+      background:${color};margin-left:4px;
+      vertical-align:middle;flex-shrink:0;">
+  </span>`;
 }
 
 // ── H4: UNREALIZED P&L ────────────────────────────────
@@ -347,19 +337,17 @@ function _reasonTag(sig) {
     </div>`;
 }
 
-// ── MC4: WHY THIS TRADE (plain language) ──────────────
+// ── MC4: WHY THIS TRADE ───────────────────────────────
 function _whyThisTrade(sig) {
-  const stype   = (sig.signal || '').toUpperCase();
-  const regime  = (sig.stock_regime
-    || sig.regime || '').toUpperCase();
-  const bear    = sig.bear_bonus === true
+  const stype  = (sig.signal || '').toUpperCase();
+  const bear   = sig.bear_bonus === true
     || sig.bear_bonus === 'true';
-  const vol     = sig.vol_confirm === true
+  const vol    = sig.vol_confirm === true
     || sig.vol_confirm === 'true';
-  const sec     = sig.sec_leading === true
+  const sec    = sig.sec_leading === true
     || sig.sec_leading === 'true';
-  const age     = parseInt(sig.age || 0);
-  const lines   = [];
+  const age    = parseInt(sig.age || 0);
+  const lines  = [];
 
   if (stype.includes('UP_TRI')) {
     lines.push(
@@ -371,12 +359,8 @@ function _whyThisTrade(sig) {
         + 'haven\'t seen it yet');
     if (bear)
       lines.push(
-        'Market is falling but this stock '
-        + 'is pushing up — strongest signal type 🔥');
-    else if (regime === 'BULL' || regime === 'BULL')
-      lines.push(
-        'Market trend is in your favour — '
-        + 'tailwind behind the move');
+        'Market is falling but this stock is '
+        + 'pushing up — strongest signal type 🔥');
     if (vol)
       lines.push(
         'High volume confirms the breakout — '
@@ -421,15 +405,15 @@ function _whyThisTrade(sig) {
   return lines;
 }
 
-// ── POST-TARGET TRACKING DISPLAY ──────────────────────
+// ── POST-TARGET TRACKING ──────────────────────────────
 function _buildPostTargetSection(sig) {
   if (sig.outcome !== 'TARGET_HIT') return '';
 
-  const day6Open   = sig.day6_open != null
+  const day6Open = sig.day6_open != null
     ? parseFloat(sig.day6_open) : null;
-  const postMove   = sig.post_target_move != null
+  const postMove = sig.post_target_move != null
     ? parseFloat(sig.post_target_move) : null;
-  const exitDay    = sig.exit_day || '—';
+  const exitDay  = sig.exit_day || '—';
 
   if (day6Open === null && postMove === null) {
     return `
@@ -451,7 +435,7 @@ function _buildPostTargetSection(sig) {
       : postMove < 0
         ? `▼ ${postMove.toFixed(1)}% reversed`
         : '~ Flat';
-  const insight   = postMove === null ? '' :
+  const insight = postMove === null ? '' :
     postMove > 1
       ? 'Holding past target would have gained more'
       : postMove < -1
@@ -473,19 +457,13 @@ function _buildPostTargetSection(sig) {
         gap:8px;margin-bottom:6px;">
         <div>
           <div style="font-size:9px;color:#555;
-            margin-bottom:2px;">
-            Target hit Day
-          </div>
+            margin-bottom:2px;">Target hit Day</div>
           <div style="font-size:13px;font-weight:700;
-            color:#ffd700;">
-            Day ${exitDay}
-          </div>
+            color:#ffd700;">Day ${exitDay}</div>
         </div>
         <div>
           <div style="font-size:9px;color:#555;
-            margin-bottom:2px;">
-            Day 6 open price
-          </div>
+            margin-bottom:2px;">Day 6 open price</div>
           <div style="font-size:13px;font-weight:700;
             color:#c9d1d9;">
             ${day6Open !== null
@@ -499,9 +477,7 @@ function _buildPostTargetSection(sig) {
             Move from target → Day 6
           </div>
           <div style="font-size:13px;font-weight:700;
-            color:${moveColor};">
-            ${moveLabel}
-          </div>
+            color:${moveColor};">${moveLabel}</div>
         </div>
       </div>
       ${insight
@@ -514,7 +490,9 @@ function _buildPostTargetSection(sig) {
     </div>`;
 }
 
-// ── L7: SIGNAL DETAIL MODAL ───────────────────────────
+// ── J2: SIGNAL DETAIL MODAL ───────────────────────────
+// J2 FIX: window.open() replaces target="_blank"
+// target="_blank" is blocked in iOS PWA standalone mode
 function _buildModalHTML(sig) {
   const sym      = _sym(sig.symbol || sig.stock || '?');
   const stype    = sig.signal    || '?';
@@ -528,16 +506,16 @@ function _buildModalHTML(sig) {
     ? getDayNumber(sig.date) : null;
   const isResolved = OUTCOME_DONE.has(outcome);
 
-  const regime   = sig.stock_regime
+  const regime = sig.stock_regime
     || sig.regime || '—';
-  const age      = sig.age != null
+  const age    = sig.age != null
     ? String(sig.age) : '—';
 
-  const entry    = sig.entry
+  const entry  = sig.entry
     ? parseFloat(sig.entry).toFixed(2)        : null;
-  const stop     = sig.stop
+  const stop   = sig.stop
     ? parseFloat(sig.stop).toFixed(2)         : null;
-  const target   = sig.target_price
+  const target = sig.target_price
     ? parseFloat(sig.target_price).toFixed(2) : null;
 
   const mfe = sig.mfe_pct != null
@@ -548,9 +526,8 @@ function _buildModalHTML(sig) {
   const actOpen = sig.actual_open != null
     ? parseFloat(sig.actual_open) : null;
   const gapPct  = sig.gap_pct != null
-    ? parseFloat(sig.gap_pct)     : null;
+    ? parseFloat(sig.gap_pct) : null;
 
-  // D6-6: Day 6 open price
   const day6Open = sig.day6_open != null
     ? parseFloat(sig.day6_open) : null;
 
@@ -565,16 +542,12 @@ function _buildModalHTML(sig) {
     (regime === 'BULL' || regime === 'Bull')
       ? '#00C851' : '#FFD700';
 
-  // H7: TradingView URL
+  // J2 FIX: use window.open — works in iOS PWA
   const tvURL = 'https://www.tradingview.com/chart/'
     + '?symbol=NSE:' + sym;
 
-  // MC4: why this trade lines
-  const whyLines = _whyThisTrade(sig);
-
-  // LC3: failure/win reason for resolved signals
-  const failureReason = isResolved
-    && sig.failure_reason
+  const whyLines     = _whyThisTrade(sig);
+  const failureReason = isResolved && sig.failure_reason
     ? sig.failure_reason : null;
 
   return `
@@ -651,10 +624,8 @@ function _buildModalHTML(sig) {
           </span>
           ${rr
             ? `<span style="color:#58a6ff;
-                 font-size:11px;
-                 background:#0d1117;
-                 border-radius:4px;
-                 padding:2px 8px;">
+                 font-size:11px;background:#0d1117;
+                 border-radius:4px;padding:2px 8px;">
                  R:R ${rr}×
                </span>`
             : ''}
@@ -666,12 +637,13 @@ function _buildModalHTML(sig) {
                  P&amp;L:&nbsp;${
                    parseFloat(sig.pnl_pct) >= 0
                      ? '+' : ''}${
-                   parseFloat(sig.pnl_pct).toFixed(1)}%
+                   parseFloat(sig.pnl_pct)
+                     .toFixed(1)}%
                </span>`
             : ''}
         </div>
 
-        <!-- LC3: FAILURE REASON for resolved signals -->
+        <!-- LC3: FAILURE REASON -->
         ${failureReason
           ? `<div style="background:#1c2128;
                border:1px solid #30363d;
@@ -743,11 +715,13 @@ function _buildModalHTML(sig) {
 
           <div style="font-size:10px;color:#555;
             line-height:1.8;margin-top:4px;">
-            Entry: <b style="color:#8b949e;">
+            Entry:
+            <b style="color:#8b949e;">
               ${_fmtD(sig.date)}
             </b>
             &nbsp;·&nbsp;
-            Exit: <b style="color:#8b949e;">
+            Exit:
+            <b style="color:#8b949e;">
               ${exitDateStr}
             </b>
             ${dayNum !== null
@@ -784,8 +758,7 @@ function _buildModalHTML(sig) {
                </div>`
             : ''}
 
-          ${/* D6-6: Day 6 open in modal */
-            day6Open !== null
+          ${day6Open !== null
             ? `<div style="font-size:11px;
                  color:#8b949e;margin-top:6px;">
                  Day 6 open:
@@ -852,7 +825,8 @@ function _buildModalHTML(sig) {
                    `<span style="background:#1c2128;
                       color:${f.color};
                       border:1px solid ${f.color}44;
-                      border-radius:4px;padding:3px 8px;
+                      border-radius:4px;
+                      padding:3px 8px;
                       font-size:10px;font-weight:700;">
                       ${f.label}
                     </span>`
@@ -870,8 +844,7 @@ function _buildModalHTML(sig) {
                  <b style="color:#ffd700;">
                    2nd Attempt
                  </b> —
-                 re-test of the same pattern after a
-                 prior signal.
+                 re-test of the same pattern.
                  ${stype.toUpperCase()
                    .startsWith('DOWN')
                    ? 'Age-0 only. If missed at the '
@@ -882,7 +855,7 @@ function _buildModalHTML(sig) {
             : ''}
         </div>
 
-        <!-- MC4: WHY THIS TRADE (plain language) -->
+        <!-- MC4: WHY THIS TRADE -->
         ${whyLines.length > 0
           ? `<div style="background:#161b22;
                border:1px solid #21262d;
@@ -919,7 +892,8 @@ function _buildModalHTML(sig) {
                </div>
                <div style="display:flex;gap:20px;
                  font-size:12px;">
-                 <span style="color:#555;">Peak gain:
+                 <span style="color:#555;">
+                   Peak gain:
                    <b style="color:${mfe !== null
                      && mfe > 0
                      ? '#00C851' : '#555'};">
@@ -942,20 +916,20 @@ function _buildModalHTML(sig) {
              </div>`
           : ''}
 
-        <!-- H7: OPEN CHART button -->
+        <!-- J2 FIX: window.open() for iOS PWA -->
         <div style="display:flex;gap:8px;
           margin-bottom:10px;">
-          <a href="${tvURL}" target="_blank"
-            rel="noopener noreferrer"
+          <button
+            onclick="window.open('${tvURL}','_blank')"
             style="flex:1;text-align:center;
               background:#1c2128;
               border:1px solid #30363d;
               color:#8b949e;font-size:11px;
               border-radius:6px;padding:8px 0;
-              text-decoration:none;
+              cursor:pointer;
               -webkit-tap-highlight-color:transparent;">
             📈 Open Chart
-          </a>
+          </button>
           <button onclick="
             const t = '${sym} ${stype} '
               + 'Entry: ${entry || '—'} '
@@ -1166,16 +1140,14 @@ function _renderRejectionSummary(rej) {
       vol_too_low:           'Volume too low',
       rr_too_low:            'R:R too low',
     };
-    const label = map[r]
-      || r.replace(/_/g,' ');
-    const pct = Math.round(n / rej.length * 100);
+    const label = map[r] || r.replace(/_/g,' ');
+    const pct   = Math.round(n / rej.length * 100);
     const width = Math.max(pct, 3);
     return `
       <div style="margin-bottom:7px;">
         <div style="display:flex;
           justify-content:space-between;
-          font-size:10px;color:#555;
-          margin-bottom:3px;">
+          font-size:10px;color:#555;margin-bottom:3px;">
           <span>${label}</span>
           <span style="color:#c9d1d9;">
             ${n}
@@ -1194,8 +1166,7 @@ function _renderRejectionSummary(rej) {
   return `
     <div style="margin:0 16px 12px;
       background:#161b22;border-radius:8px;
-      border:1px solid #21262d;
-      padding:10px 12px;">
+      border:1px solid #21262d;padding:10px 12px;">
       <div style="font-size:10px;color:#555;
         letter-spacing:1px;margin-bottom:10px;">
         REJECTION REASONS
@@ -1204,14 +1175,13 @@ function _renderRejectionSummary(rej) {
     </div>`;
 }
 
-// ── H5: CAPITAL AT RISK ───────────────────────────────
+// ── H5: CAPITAL AT RISK / PORTFOLIO SUMMARY ───────────
 function _buildPnlSummary(took, ltpPrices) {
   const open     = took.filter(
     s => s.outcome === 'OPEN' || !s.outcome);
   const resolved = took.filter(
     s => s.outcome && s.outcome !== 'OPEN');
 
-  // H4: unrealized P&L from LTP
   const openWithPnl = open.filter(
     s => _unrealizedPnl(s, ltpPrices) !== null);
   const totalUnreal = openWithPnl.reduce(
@@ -1257,12 +1227,10 @@ function _buildPnlSummary(took, ltpPrices) {
   }).length;
 
   const unrealColor = avgUnreal === null ? '#555' :
-                      avgUnreal > 0      ? '#00C851' :
-                      avgUnreal < 0      ? '#f85149'
-                                         : '#FFD700';
+    avgUnreal > 0 ? '#00C851' :
+    avgUnreal < 0 ? '#f85149' : '#FFD700';
 
-  // H5: capital at risk — max 5% per trade
-  const capitalPct = open.length * 5;
+  const capitalPct  = open.length * 5;
   const capitalNote = open.length > 0
     ? `<div style="font-size:10px;color:#555;
          margin-top:3px;">
@@ -1306,13 +1274,9 @@ function _buildPnlSummary(took, ltpPrices) {
         grid-template-columns:1fr 1fr;gap:10px;">
         <div>
           <div style="font-size:10px;color:#555;
-            margin-bottom:4px;">
-            Open positions
-          </div>
+            margin-bottom:4px;">Open positions</div>
           <div style="font-size:20px;font-weight:700;
-            color:#c9d1d9;">
-            ${open.length}
-          </div>
+            color:#c9d1d9;">${open.length}</div>
           <div style="font-size:11px;color:#555;
             margin-top:2px;">
             Avg P&amp;L:
@@ -1329,13 +1293,11 @@ function _buildPnlSummary(took, ltpPrices) {
         </div>
         <div>
           <div style="font-size:10px;color:#555;
-            margin-bottom:4px;">
-            Resolved
-          </div>
+            margin-bottom:4px;">Resolved</div>
           <div style="display:flex;
             align-items:baseline;gap:6px;">
-            <span style="font-size:20px;font-weight:700;
-              color:#c9d1d9;">
+            <span style="font-size:20px;
+              font-weight:700;color:#c9d1d9;">
               ${resolved.length}
             </span>
             ${winRate !== null
@@ -1377,23 +1339,149 @@ function _buildPnlSummary(took, ltpPrices) {
     </div>`;
 }
 
+// ── J1: RESOLVED SUMMARY HEADER ───────────────────────
+function _buildResolvedSummary(resolved) {
+  const wins   = resolved.filter(
+    s => OUTCOME_WIN.has(s.outcome));
+  const losses = resolved.filter(
+    s => OUTCOME_LOSS.has(s.outcome));
+  const flats  = resolved.filter(
+    s => s.outcome === 'DAY6_FLAT');
+
+  const winPnlArr  = wins.filter(
+    s => s.pnl_pct != null)
+    .map(s => parseFloat(s.pnl_pct));
+  const lossPnlArr = losses.filter(
+    s => s.pnl_pct != null)
+    .map(s => parseFloat(s.pnl_pct));
+
+  const avgWin = winPnlArr.length
+    ? (winPnlArr.reduce((a,b)=>a+b,0)
+       / winPnlArr.length).toFixed(1)
+    : null;
+  const avgLoss = lossPnlArr.length
+    ? (lossPnlArr.reduce((a,b)=>a+b,0)
+       / lossPnlArr.length).toFixed(1)
+    : null;
+
+  const wr = resolved.length
+    ? Math.round(wins.length / resolved.length * 100)
+    : 0;
+  const wrColor = wr >= 60 ? '#00C851'
+    : wr >= 40 ? '#FFD700' : '#f85149';
+
+  return `
+    <div style="margin:0 16px 12px;
+      background:#161b22;border-radius:8px;
+      border:1px solid #21262d;padding:12px 14px;">
+      <div style="font-size:10px;color:#555;
+        letter-spacing:1px;margin-bottom:10px;">
+        RESOLVED SUMMARY
+      </div>
+      <div style="display:flex;gap:8px;
+        flex-wrap:wrap;margin-bottom:8px;">
+        <div style="flex:1;background:#0d1117;
+          border-radius:6px;padding:8px;
+          text-align:center;min-width:55px;">
+          <div style="color:${wrColor};
+            font-size:18px;font-weight:700;">
+            ${wr}%
+          </div>
+          <div style="color:#555;font-size:9px;
+            margin-top:2px;">WR</div>
+        </div>
+        <div style="flex:1;background:#0d1117;
+          border-radius:6px;padding:8px;
+          text-align:center;min-width:55px;">
+          <div style="color:#00C851;font-size:18px;
+            font-weight:700;">${wins.length}</div>
+          <div style="color:#555;font-size:9px;
+            margin-top:2px;">
+            Wins${avgWin !== null
+              ? ' +' + avgWin + '%' : ''}
+          </div>
+        </div>
+        <div style="flex:1;background:#0d1117;
+          border-radius:6px;padding:8px;
+          text-align:center;min-width:55px;">
+          <div style="color:#f85149;font-size:18px;
+            font-weight:700;">${losses.length}</div>
+          <div style="color:#555;font-size:9px;
+            margin-top:2px;">
+            Losses${avgLoss !== null
+              ? ' ' + avgLoss + '%' : ''}
+          </div>
+        </div>
+        <div style="flex:1;background:#0d1117;
+          border-radius:6px;padding:8px;
+          text-align:center;min-width:55px;">
+          <div style="color:#FFD700;font-size:18px;
+            font-weight:700;">${flats.length}</div>
+          <div style="color:#555;font-size:9px;
+            margin-top:2px;">Flat</div>
+        </div>
+      </div>
+      ${resolved.length < 5
+        ? `<div style="font-size:10px;color:#555;">
+             ${5 - resolved.length} more signals
+             needed for statistical significance.
+           </div>`
+        : ''}
+    </div>`;
+}
+
+// ── TR1: DEDUPLICATE SAME STOCK ───────────────────────
+// Same symbol + same date + same direction = duplicates.
+// Keep highest score signal as primary card.
+// Show ×N count badge if duplicates found.
+function _deduplicateSignals(signals) {
+  const keyMap = {};
+
+  signals.forEach(function(sig) {
+    const sym  = _sym(sig.symbol || '');
+    const date = sig.date || '';
+    const dirn = sig.direction || 'LONG';
+    const key  = sym + '|' + date + '|' + dirn;
+
+    if (!keyMap[key]) {
+      keyMap[key] = { primary: sig, count: 1 };
+    } else {
+      keyMap[key].count++;
+      // Keep highest score as primary
+      const existScore = parseFloat(
+        keyMap[key].primary.score || 0);
+      const newScore   = parseFloat(
+        sig.score || 0);
+      if (newScore > existScore) {
+        keyMap[key].primary = sig;
+      }
+    }
+  });
+
+  return Object.values(keyMap).map(function(v) {
+    return { sig: v.primary, count: v.count };
+  });
+}
+
 // ── COMPACT CARD ──────────────────────────────────────
-function _compactCard(sig, isRejView, ltpPrices) {
-  const sym        = _sym(sig.symbol
+function _compactCard(sig, isRejView,
+                      ltpPrices, dupCount) {
+  const sym       = _sym(sig.symbol
     || sig.stock || '?');
-  const stype      = sig.signal    || '?';
-  const sigColor   = _sigColor(stype);
-  const score      = sig.score     || 0;
-  const direction  = sig.direction === 'SHORT'
+  const stype     = sig.signal    || '?';
+  const sigColor  = _sigColor(stype);
+  const score     = sig.score     || 0;
+  const direction = sig.direction === 'SHORT'
     ? '↓ SHORT' : '↑ LONG';
-  const sector     = sig.sector    || '';
-  const grade      = sig.grade     || '';
-  const bearBonus  = sig.bear_bonus === true
+  const sector    = sig.sector    || '';
+  const grade     = sig.grade     || '';
+  const bearBonus = sig.bear_bonus === true
     || sig.bear_bonus === 'true';
   const stkRegime  = sig.stock_regime || null;
   const isBackfill = sig.generation === 0;
   const isSA_sig   = _isSA(stype);
-  const isResolved = OUTCOME_DONE.has(sig.outcome || '');
+  const isResolved = OUTCOME_DONE.has(
+    sig.outcome || '');
   const isOpen     = !isResolved;
 
   const entry  = sig.entry
@@ -1401,18 +1489,17 @@ function _compactCard(sig, isRejView, ltpPrices) {
   const stop   = sig.stop
     ? '₹' + parseFloat(sig.stop).toFixed(2)  : '—';
   const target = sig.target_price
-    ? '₹' + parseFloat(sig.target_price).toFixed(2)
-    : '—';
+    ? '₹' + parseFloat(
+        sig.target_price).toFixed(2)          : '—';
 
-  const exitStr  = sig.exit_date
+  const exitStr = sig.exit_date
     ? _fmtD(sig.exit_date) : null;
-  const dayNum   = typeof getDayNumber === 'function'
+  const dayNum  = typeof getDayNumber === 'function'
     ? getDayNumber(sig.date) : null;
 
-  const rr    = _rr(sig);
+  const rr     = _rr(sig);
   const cardId = (sig.id ||
-    (sym + '-' + stype + '-'
-     + (sig.date || '')))
+    (sym + '-' + stype + '-' + (sig.date || '')))
     .replace(/[^a-zA-Z0-9-]/g, '-');
 
   const rejReason = isRejView && sig.rejection_reason
@@ -1421,11 +1508,9 @@ function _compactCard(sig, isRejView, ltpPrices) {
     && sig.rejection_threshold != null
     ? ` (min: ${sig.rejection_threshold})` : '';
 
-  // H3: stop proximity dot (open positions only)
   const stopDot = isOpen && !isRejView
     ? _stopProximityDot(sig, ltpPrices) : '';
 
-  // H4: unrealized P&L from LTP
   const unreal = isOpen && !isRejView
     ? _unrealizedPnl(sig, ltpPrices) : null;
   const unrealStr = unreal !== null
@@ -1436,11 +1521,21 @@ function _compactCard(sig, isRejView, ltpPrices) {
     unreal > 0 ? '#00C851' :
     unreal < 0 ? '#f85149' : '#FFD700';
 
-  // H14/H15: failure/win reason for resolved
   const reasonHtml = isResolved
     ? _reasonTag(sig) : '';
 
-  // register in signal map for L7 modal
+  // TR1: duplicate count badge
+  const dupBadge = (dupCount && dupCount > 1)
+    ? `<span style="background:#1a1a0a;
+         color:#ffd700;font-size:9px;
+         font-weight:700;
+         border:1px solid #ffd70033;
+         border-radius:3px;
+         padding:1px 5px;white-space:nowrap;">
+         ×${dupCount}
+       </span>`
+    : '';
+
   window._jSigMap[cardId] = sig;
 
   return `
@@ -1464,8 +1559,7 @@ function _compactCard(sig, isRejView, ltpPrices) {
             ${sector}
           </span>
           ${grade
-            ? `<span style="color:${
-                 _gradeColor(grade)};
+            ? `<span style="color:${_gradeColor(grade)};
                  font-size:10px;font-weight:700;
                  border:1px solid ${
                    _gradeColor(grade)}44;
@@ -1484,10 +1578,11 @@ function _compactCard(sig, isRejView, ltpPrices) {
                  border-radius:3px;
                  padding:1px 5px;">2ND</span>`
             : ''}
+          ${dupBadge}
           ${stkRegime
             ? `<span style="font-size:9px;color:#555;
-                 background:#1c2128;
-                 border-radius:3px;padding:1px 4px;">
+                 background:#1c2128;border-radius:3px;
+                 padding:1px 4px;">
                  stk:${stkRegime}
                </span>`
             : ''}
@@ -1518,12 +1613,13 @@ function _compactCard(sig, isRejView, ltpPrices) {
         </div>
       </div>
 
-      <!-- ROW 2: signal type + score + unreal P&L -->
+      <!-- ROW 2: signal type + score + P&L -->
       <div style="display:flex;align-items:center;
         gap:6px;flex-wrap:wrap;margin-bottom:6px;
         font-size:11px;">
         <span style="color:${sigColor};font-weight:700;">
-          ${_sigEmoji(stype)} ${stype.replace(/_/g,' ')}
+          ${_sigEmoji(stype)}
+          ${stype.replace(/_/g,' ')}
         </span>
         <span style="color:${_scoreColor(score)};
           font-weight:700;">
@@ -1540,15 +1636,14 @@ function _compactCard(sig, isRejView, ltpPrices) {
         ${unrealStr !== null
           ? `<span style="color:${unrealColor};
                font-weight:700;font-size:10px;
-               background:#1c2128;
-               border-radius:3px;
+               background:#1c2128;border-radius:3px;
                padding:1px 5px;">
                LTP ${unrealStr}
              </span>`
           : ''}
       </div>
 
-      <!-- ROW 3: levels + M2 Day X/6 -->
+      <!-- ROW 3: levels + Day X/6 -->
       <div style="display:flex;gap:8px;
         flex-wrap:wrap;font-size:11px;
         color:#8b949e;">
@@ -1566,12 +1661,12 @@ function _compactCard(sig, isRejView, ltpPrices) {
                <b style="color:#555;">${exitStr}</b>
              </span>`
           : ''}
-        ${/* M2: Day X/6 alongside exit date */
-          dayNum !== null && isOpen
+        ${dayNum !== null && isOpen
           ? `<span style="color:${
                dayNum >= 6 ? '#f85149' :
                dayNum >= 5 ? '#FF8C00' : '#555'};
-               font-weight:${dayNum >= 5 ? '700' : '400'};">
+               font-weight:${
+                 dayNum >= 5 ? '700' : '400'};">
                Day ${dayNum}/6
              </span>`
           : ''}
@@ -1584,47 +1679,47 @@ function _compactCard(sig, isRejView, ltpPrices) {
            </div>`
         : ''}
 
-      <!-- H14/H15: failure/win reason tag -->
       ${reasonHtml}
 
-      <!-- L5: Took/Skip row -->
       ${!isRejView && !isBackfill
         ? _renderTookSkipRow(sig, cardId) : ''}
     </div>`;
 }
 
-// ── FILTER TABS ───────────────────────────────────────
-function _filterBar(tookN, rejN) {
-  const tookActive = _jFilter === 'took';
+// ── J1: FILTER BAR — 3 TABS ───────────────────────────
+function _filterBar(tookN, rejN, resolvedN) {
+  const isTook     = _jFilter === 'took';
+  const isResolved = _jFilter === 'resolved';
+  const isRej      = _jFilter === 'rejected';
+
+  const _tab = function(filter, label, active) {
+    return `
+      <button onclick="window._jFilter('${filter}')"
+        style="flex:1;min-width:70px;
+          background:${active ? '#21262d' : 'none'};
+          color:${active ? '#c9d1d9' : '#555'};
+          border:1px solid ${active
+            ? '#30363d' : '#21262d'};
+          border-radius:6px;padding:7px 0;
+          font-size:11px;cursor:pointer;
+          font-weight:${active ? '700' : '400'};
+          white-space:nowrap;
+          -webkit-tap-highlight-color:transparent;">
+        ${label}
+      </button>`;
+  };
+
   return `
-    <div style="display:flex;gap:8px;
-      padding:0 16px 10px;">
-      <button onclick="window._jFilter('took')"
-        style="flex:1;
-          background:${tookActive
-            ? '#21262d' : 'none'};
-          color:${tookActive ? '#c9d1d9' : '#555'};
-          border:1px solid ${tookActive
-            ? '#30363d' : '#21262d'};
-          border-radius:6px;padding:7px 0;
-          font-size:12px;cursor:pointer;
-          font-weight:${tookActive ? '700' : '400'};
-          -webkit-tap-highlight-color:transparent;">
-        📥 Took (${tookN})
-      </button>
-      <button onclick="window._jFilter('rejected')"
-        style="flex:1;
-          background:${!tookActive
-            ? '#21262d' : 'none'};
-          color:${!tookActive ? '#c9d1d9' : '#555'};
-          border:1px solid ${!tookActive
-            ? '#30363d' : '#21262d'};
-          border-radius:6px;padding:7px 0;
-          font-size:12px;cursor:pointer;
-          font-weight:${!tookActive ? '700' : '400'};
-          -webkit-tap-highlight-color:transparent;">
-        ✕ Rejected (${rejN})
-      </button>
+    <div style="display:flex;gap:6px;
+      padding:0 16px 10px;
+      overflow-x:auto;
+      -webkit-overflow-scrolling:touch;">
+      ${_tab('took',     `📥 Took (${tookN})`,
+             isTook)}
+      ${_tab('resolved', `✓ Resolved (${resolvedN})`,
+             isResolved)}
+      ${_tab('rejected', `✕ Rejected (${rejN})`,
+             isRej)}
     </div>`;
 }
 
@@ -1650,7 +1745,6 @@ window.renderJournal = function(tietiy) {
     && tietiy.history.history)
     ? tietiy.history.history : [];
 
-  // H3/H4: LTP prices from tietiy object
   const ltpPrices = tietiy.ltp_prices || null;
 
   const took = raw.filter(
@@ -1659,14 +1753,39 @@ window.renderJournal = function(tietiy) {
     s => s.layer === 'ALPHA'
       && s.action === 'REJECTED');
 
-  const entries   = _jFilter === 'took' ? took : rej;
-  const isRejView = _jFilter === 'rejected';
+  // J1: resolved signals (subset of took)
+  const resolved = took.filter(
+    s => OUTCOME_DONE.has(s.outcome || ''));
 
+  // Determine which list to show
+  let entries;
+  if (_jFilter === 'resolved') {
+    entries = resolved;
+  } else if (_jFilter === 'rejected') {
+    entries = rej;
+  } else {
+    entries = took;
+  }
+
+  const isRejView      = _jFilter === 'rejected';
+  const isResolvedView = _jFilter === 'resolved';
+
+  // TR1: deduplicate for Took and Resolved views
+  // Rejected view shows all (each rejection is unique)
+  let groupedEntries;
+  if (!isRejView) {
+    groupedEntries = _deduplicateSignals(entries);
+  } else {
+    groupedEntries = entries.map(
+      s => ({ sig: s, count: 1 }));
+  }
+
+  // Group by date
   const byDate = {};
-  entries.forEach(function(sig) {
-    const d = sig.date || 'Unknown';
+  groupedEntries.forEach(function(item) {
+    const d = item.sig.date || 'Unknown';
     if (!byDate[d]) byDate[d] = [];
-    byDate[d].push(sig);
+    byDate[d].push(item);
   });
 
   const dates = Object.keys(byDate)
@@ -1674,8 +1793,8 @@ window.renderJournal = function(tietiy) {
 
   dates.forEach(function(d) {
     byDate[d].sort((a, b) =>
-      (parseFloat(b.score) || 0)
-      - (parseFloat(a.score) || 0));
+      (parseFloat(b.sig.score) || 0)
+      - (parseFloat(a.sig.score) || 0));
   });
 
   let html = `
@@ -1691,28 +1810,38 @@ window.renderJournal = function(tietiy) {
             letter-spacing:1px;">📓 JOURNAL</span>
           <span style="font-size:10px;color:#555;">
             ${took.length} took ·
+            ${resolved.length} resolved ·
             ${rej.length} rejected
           </span>
         </div>
-        ${_filterBar(took.length, rej.length)}
-      </div>
+        ${_filterBar(
+          took.length,
+          rej.length,
+          resolved.length)}
+      </div>`;
 
-      ${_jFilter === 'took' && took.length > 0
-        ? _renderExpiryAlert(took) : ''}
+  // J1: resolved summary at top of resolved view
+  if (isResolvedView && resolved.length > 0) {
+    html += _buildResolvedSummary(resolved);
+  }
 
-      ${_jFilter === 'took' && took.length > 0
-        ? _buildPnlSummary(took, ltpPrices) : ''}
+  if (_jFilter === 'took' && took.length > 0) {
+    html += _renderExpiryAlert(took);
+    html += _buildPnlSummary(took, ltpPrices);
+  }
 
-      ${isRejView && rej.length > 0
-        ? _renderRejectionSummary(rej) : ''}`;
+  if (isRejView && rej.length > 0) {
+    html += _renderRejectionSummary(rej);
+  }
 
-  if (entries.length === 0) {
+  if (groupedEntries.length === 0) {
     html += `
       <div style="text-align:center;
         padding:48px 16px;color:#555;
         font-size:13px;">
-        No ${isRejView ? 'rejected' : 'TOOK'}
-        signals yet.
+        No ${isResolvedView ? 'resolved'
+          : isRejView ? 'rejected'
+          : 'TOOK'} signals yet.
       </div>`;
   } else {
     dates.forEach(function(dateStr) {
@@ -1730,9 +1859,13 @@ window.renderJournal = function(tietiy) {
                 group.length !== 1 ? 's' : ''}
             </span>
           </div>
-          ${group.map(s =>
-            _compactCard(s, isRejView, ltpPrices)
-          ).join('')}
+          ${group.map(function(item) {
+            return _compactCard(
+              item.sig,
+              isRejView,
+              ltpPrices,
+              item.count);
+          }).join('')}
         </div>`;
     });
   }
