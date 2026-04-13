@@ -69,6 +69,7 @@ jobs:
             output/signal_archive.json \
             output/colab_export.json \
             output/meta.json \
+            output/tg_offset.json \
             output/backups/ \
             2>/dev/null || true
           git diff --cached --quiet && echo "No changes to commit" && exit 0
