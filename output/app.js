@@ -9,18 +9,19 @@
 // - Score breakdown section in tap panel
 //
 // V1 FIXES APPLIED:
-// - R3  : _initSWMessageListener() — receives
-//         OFFLINE/ONLINE messages from sw.js and
-//         wires to ui.js banner functions
+// - R3  : _initSWMessageListener()
 // - R8  : SA badge on signal cards + tap panel
-//         Uses window._isSA() + window._renderSABadge()
-//         defined in ui.js. SA callout block in panel.
 //
 // V1.1 FIXES:
 // - M5  : _buildMorningBrief() — compact urgency bar
-//         at top of Signals tab showing exits today,
-//         exits tomorrow, new signals, stop alerts.
-//         Replaces need to check Journal first in morning.
+// - H1  : Score visual weight on cards —
+//         font size + background scales with score
+//         9/10 looks clearly stronger than 5/10
+// - H2  : Score-based card border colour —
+//         gold 8-10, faint white 5-7, grey below 5
+// - J2  : TradingView link in tap panel fixed for
+//         iOS PWA — window.open() replaces
+//         target="_blank" which is blocked in PWA
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
@@ -163,6 +164,66 @@ function _scoreColor(score) {
   if (score >= 5) return '#00C851';
   if (score >= 3) return '#8b949e';
   return '#555';
+}
+
+// ── H1: SCORE VISUAL WEIGHT ───────────────────────────
+// Score 8-10: large gold bold — unmissable
+// Score 5-7:  medium green
+// Score 3-4:  small grey
+// Score 1-2:  tiny dim
+function _scoreDisplay(score) {
+  const n = parseFloat(score) || 0;
+  if (n >= 8) {
+    return `<span style="
+      color:#FFD700;
+      font-size:13px;
+      font-weight:700;
+      background:#1a1500;
+      border:1px solid #FFD70033;
+      border-radius:4px;
+      padding:1px 7px;
+      letter-spacing:0.3px;">
+      ${n}/10
+    </span>`;
+  }
+  if (n >= 5) {
+    return `<span style="
+      color:#00C851;
+      font-size:12px;
+      font-weight:700;
+      background:#0a1a0a;
+      border:1px solid #00C85122;
+      border-radius:4px;
+      padding:1px 6px;">
+      ${n}/10
+    </span>`;
+  }
+  if (n >= 3) {
+    return `<span style="
+      color:#8b949e;
+      font-size:11px;
+      font-weight:400;
+      border-radius:4px;
+      padding:1px 5px;">
+      ${n}/10
+    </span>`;
+  }
+  return `<span style="
+    color:#444;
+    font-size:10px;
+    font-weight:400;
+    padding:1px 4px;">
+    ${n}/10
+  </span>`;
+}
+
+// ── H2: SCORE-BASED CARD BORDER ───────────────────────
+// gold 8-10, faint white 5-7, grey below 5
+function _cardBorderColor(score) {
+  const n = parseFloat(score) || 0;
+  if (n >= 8) return '#FFD700';
+  if (n >= 5) return '#30363d';
+  return '#21262d';
 }
 
 // ── SCORE BREAKDOWN ───────────────────────────────────
@@ -530,10 +591,6 @@ function _buildSACallout(sig) {
 }
 
 // ── M5: MORNING BRIEF ────────────────────────────────
-// Compact urgency bar at top of Signals tab.
-// Shows exits today, exits tomorrow, new signals,
-// and active stop alerts. Only renders when there
-// is something actionable — silent on clean days.
 function _buildMorningBrief(allSignals, stopAlerts) {
   const today = _todayIST();
   const dayFn = typeof getDayNumber === 'function'
@@ -557,7 +614,6 @@ function _buildMorningBrief(allSignals, stopAlerts) {
     : [];
   const hasAlerts  = alertList.length > 0;
 
-  // Nothing urgent — don't show the brief
   if (!exitsToday.length && !exitsTmrw.length
       && !newToday.length && !hasAlerts) {
     return '';
@@ -699,6 +755,9 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
   const lowConv   = score <= 2;
   const cardOp    = lowConv ? 'opacity:0.6;' : '';
 
+  // H2: outer card border based on score
+  const scoreBorder = _cardBorderColor(score);
+
   let borderGlow = '';
   let cardAnim   = '';
   if (dayNum >= 6) {
@@ -798,7 +857,7 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
       onclick="openTapPanel(this)"
       data-sig="${sigData}"
       style="background:#0d1117;
-        border:1px solid #21262d;
+        border:1px solid ${scoreBorder};
         border-left:4px solid ${cfg.border};
         border-radius:8px;
         padding:12px 14px 10px;
@@ -849,7 +908,7 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
         </div>
       </div>
 
-      <!-- Row 2: Signal info -->
+      <!-- Row 2: Signal info + H1 score display -->
       <div style="display:flex;align-items:center;
         gap:8px;flex-wrap:wrap;margin-bottom:7px;">
         <span style="color:${cfg.color};
@@ -864,10 +923,7 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
           ${regime || '—'}
         </span>
         <span style="color:#444;font-size:11px;">·</span>
-        <span style="color:${sc};font-size:11px;
-          font-weight:700;">
-          Score ${score}/10
-        </span>
+        ${_scoreDisplay(score)}
         ${direction === 'SHORT'
           ? `<span style="color:#a78bfa;
                font-size:10px;">
@@ -1040,6 +1096,7 @@ function openTapPanel(el) {
          padding:2px 8px;">2ND ATT</span>`
     : '';
 
+  // J2 FIX: use window.open — works in iOS PWA
   const tvUrl =
     `https://www.tradingview.com/chart/` +
     `?symbol=NSE%3A${sym}`;
@@ -1267,18 +1324,19 @@ function openTapPanel(el) {
          </div>`
       : ''}
 
+    <!-- J2 FIX: window.open for iOS PWA -->
     <div style="display:flex;gap:8px;
       margin-bottom:6px;">
-      <a href="${tvUrl}" target="_blank"
+      <button
+        onclick="window.open('${tvUrl}','_blank')"
         style="flex:1;background:#161b22;
           border:1px solid #30363d;color:#8b949e;
           border-radius:6px;padding:10px;
           font-size:12px;cursor:pointer;
-          text-align:center;text-decoration:none;
-          display:block;
+          text-align:center;
           -webkit-tap-highlight-color:transparent;">
         📈 Open Chart
-      </a>
+      </button>
       <button onclick="copySignal()"
         style="flex:1;background:#161b22;
           border:1px solid #30363d;color:#8b949e;
