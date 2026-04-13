@@ -10,6 +10,14 @@
 #              to prevent health check failures from stale data
 # M4 FIX: Skip if already scanned today (for retry crons)
 # M5 FIX: Auto-sync active count if mismatch detected
+#
+# V1.1 FIXES:
+# HC2: scan_time stored as UTC HH:MM so telegram_bot
+#      _to_ist_safe() converts correctly to IST display.
+#      Previous code stored UTC time labelled as IST.
+# HC4: poll_and_respond() wired after morning scan —
+#      reads ltp_prices.json, passes to command handler
+#      so /stops and /pnl commands have live LTP data.
 # ─────────────────────────────────────────────────────
 
 import sys
@@ -40,7 +48,8 @@ from universe import (
 from scorer import enrich_signal
 from telegram_bot import (
     send_morning_scan, send_eod_summary,
-    send_stop_alert
+    send_stop_alert,
+    poll_and_respond,          # HC4 FIX: wired
 )
 from scanner_core import (
     prepare, detect_signals,
@@ -64,7 +73,8 @@ from mini_scanner import (
 )
 from meta_writer   import (write_meta, write_holidays)
 from html_builder  import build_html
-from push_sender   import (send_notifications, check_dependencies)
+from push_sender   import (send_notifications,
+                            check_dependencies)
 from eod_prices_writer  import run_eod_update
 from stop_alert_writer  import run_stop_check
 from outcome_evaluator  import run_outcome_evaluation
@@ -88,7 +98,8 @@ SECTOR_INDICES = {
 def _is_shadow_mode():
     try:
         rules_path = os.path.join(
-            parent_dir, 'data', 'mini_scanner_rules.json')
+            parent_dir, 'data',
+            'mini_scanner_rules.json')
         with open(rules_path, 'r') as f:
             rules = json.load(f)
         return rules.get('shadow_mode', True)
@@ -98,39 +109,55 @@ def _is_shadow_mode():
 
 # ── M4: SKIP-IF-DONE CHECK ────────────────────────────
 def _already_scanned_today():
-    """
-    Returns True if scan_log.json exists with today's date
-    and has signals or explicitly marked complete.
-    Used by retry crons to skip if primary scan succeeded.
-    """
-    scan_log_path = os.path.join(OUTPUT_DIR, 'scan_log.json')
+    scan_log_path = os.path.join(
+        OUTPUT_DIR, 'scan_log.json')
     today_str = date.today().isoformat()
-    
+
     if not os.path.exists(scan_log_path):
         return False
-    
+
     try:
         with open(scan_log_path, 'r') as f:
             data = json.load(f)
-        
+
         if data.get('date') != today_str:
             return False
-        
+
         if data.get('is_trading_day', True):
             if 'count' in data:
                 print(f"[main] Already scanned today "
-                      f"({data.get('count', 0)} signals) — skipping")
+                      f"({data.get('count', 0)} signals)"
+                      f" — skipping")
                 return True
         else:
             print("[main] Already processed today "
                   "(non-trading day) — skipping")
             return True
-        
+
         return False
-        
+
     except Exception as e:
         print(f"[main] Skip check error: {e}")
         return False
+
+
+# ── HC4: LOAD LTP PRICES ──────────────────────────────
+def _load_ltp_prices() -> dict:
+    """
+    Load ltp_prices.json for poll_and_respond().
+    Used by /stops and /pnl Telegram commands.
+    Returns empty dict if file not found or invalid.
+    """
+    ltp_path = os.path.join(
+        OUTPUT_DIR, 'ltp_prices.json')
+    if not os.path.exists(ltp_path):
+        return {}
+    try:
+        with open(ltp_path, 'r') as f:
+            return json.load(f)
+    except Exception as e:
+        print(f"[main] LTP load error: {e}")
+        return {}
 
 
 # ── MARKET DATA ───────────────────────────────────────
@@ -157,7 +184,8 @@ def get_nifty_info():
             regime = 'Choppy'
 
         ret20 = float(
-            (closes.iloc[-1] / closes.iloc[-20] - 1) * 100)
+            (closes.iloc[-1] / closes.iloc[-20] - 1)
+            * 100)
         regime_score = (
              2 if ret20 >  5 else
              1 if ret20 >  2 else
@@ -166,11 +194,14 @@ def get_nifty_info():
         return {
             'regime':         regime,
             'regime_score':   regime_score,
-            'nifty_close':    round(float(closes.iloc[-1]), 2),
-            'nifty_price':    round(float(closes.iloc[-1]), 2),
+            'nifty_close':    round(
+                float(closes.iloc[-1]), 2),
+            'nifty_price':    round(
+                float(closes.iloc[-1]), 2),
             'nifty_change':   round(ret20, 2),
             'ret20':          round(ret20, 2),
-            'today':          date.today().strftime('%d %b %Y'),
+            'today':          date.today().strftime(
+                '%d %b %Y'),
             'market_date':    date.today().isoformat(),
             'sector_leaders': []
         }
@@ -183,7 +214,8 @@ def get_nifty_info():
             'nifty_price':    0,
             'nifty_change':   0,
             'ret20':          0,
-            'today':          date.today().strftime('%d %b %Y'),
+            'today':          date.today().strftime(
+                '%d %b %Y'),
             'market_date':    date.today().isoformat(),
             'sector_leaders': []
         }
@@ -197,10 +229,12 @@ def get_sector_momentum():
                 sym, period='1mo',
                 progress=False, auto_adjust=True)
             if isinstance(df.columns, pd.MultiIndex):
-                df.columns = [c[0] for c in df.columns]
+                df.columns = [
+                    c[0] for c in df.columns]
             closes = df['Close']
             ret    = float(
-                (closes.iloc[-1] / closes.iloc[0] - 1) * 100)
+                (closes.iloc[-1] / closes.iloc[0] - 1)
+                * 100)
             momentum[sector] = (
                 'Leading' if ret >  2 else
                 'Lagging' if ret < -2 else
@@ -259,15 +293,11 @@ def filter_duplicate_pending(signals, history_signals):
 
 
 # ── SCAN LOG ──────────────────────────────────────────
-def write_scan_log(signals, rejected, scan_date, regime,
-                   is_trading_day=True):
-    """
-    Writes scan_log.json.
-    WEEKEND FIX: Now accepts is_trading_day flag to write
-    valid but empty scan_log on non-trading days.
-    """
+def write_scan_log(signals, rejected, scan_date,
+                   regime, is_trading_day=True):
     os.makedirs(OUTPUT_DIR, exist_ok=True)
-    log_path = os.path.join(OUTPUT_DIR, 'scan_log.json')
+    log_path = os.path.join(
+        OUTPUT_DIR, 'scan_log.json')
 
     def _fmt(s):
         entry = float(s.get('entry_est') or
@@ -293,23 +323,28 @@ def write_scan_log(signals, rejected, scan_date, regime,
             'entry_est':      round(entry, 2),
             'stop':           round(stop, 2),
             'target_price':   target,
-            'atr':            round(float(s.get('atr') or 0), 2),
+            'atr':            round(float(
+                s.get('atr') or 0), 2),
             'pivot_price':    round(float(
-                                  s.get('pivot_price') or 0), 2),
+                s.get('pivot_price') or 0), 2),
             'pivot_date':     s.get('pivot_date', ''),
             'regime':         s.get('regime', ''),
             'regime_score':   s.get('regime_score', 0),
-            'stock_regime':   s.get('stock_regime', 'Choppy'),
+            'stock_regime':   s.get(
+                'stock_regime', 'Choppy'),
             'vol_q':          s.get('vol_q', ''),
-            'vol_confirm':    bool(s.get('vol_confirm', False)),
+            'vol_confirm':    bool(
+                s.get('vol_confirm', False)),
             'rs_q':           s.get('rs_q', ''),
             'sec_mom':        s.get('sec_mom', ''),
             'bear_bonus':     s.get('bear_bonus', False),
             'attempt_number': s.get('attempt_number', 1),
             'parent_signal':  s.get('parent_signal', None),
             'parent_date':    s.get('parent_date', None),
+            # HC2 FIX: store as UTC HH:MM
+            # telegram_bot._to_ist_safe() converts to IST
             'scan_time':      datetime.utcnow()
-                              .strftime('%H:%M UTC'),
+                              .strftime('%H:%M'),
             'date':           scan_date,
             'scanner_version': SCANNER_VERSION,
         }
@@ -317,7 +352,9 @@ def write_scan_log(signals, rejected, scan_date, regime,
     data = {
         'date':           scan_date,
         'scan_date':      scan_date,
-        'scan_time':      datetime.utcnow().strftime('%H:%M UTC'),
+        # HC2 FIX: store as UTC HH:MM (no label)
+        'scan_time':      datetime.utcnow()
+                          .strftime('%H:%M'),
         'regime':         regime,
         'count':          len(signals),
         'is_trading_day': is_trading_day,
@@ -344,7 +381,8 @@ def run_morning_scan():
     # ── STEP 1: Trading day check ──────────────────────
     status = get_market_status()
     if not status['is_trading']:
-        print(f"[main] Not a trading day: {status['reason']}")
+        print(f"[main] Not a trading day: "
+              f"{status['reason']}")
         market_info = get_nifty_info()
 
         try:
@@ -354,8 +392,6 @@ def run_morning_scan():
 
         write_holidays(OUTPUT_DIR)
 
-        # ── WEEKEND FIX: Write valid scan_log.json ─────
-        # This prevents health check failures from stale data
         scan_date = date.today().isoformat()
         write_scan_log(
             signals=[],
@@ -379,12 +415,12 @@ def run_morning_scan():
         )
         build_html()
 
-        # ── Telegram: Non-trading day notification ─────
         print(f"[main] Non-trading day complete — "
               f"{status['reason']}")
         return
 
-    print("[main] Trading day confirmed — starting morning scan")
+    print("[main] Trading day confirmed — "
+          "starting morning scan")
 
     # ── STEP 1b: Ensure archive exists ────────────────
     try:
@@ -407,7 +443,8 @@ def run_morning_scan():
     # ── STEP 2: F&O ban list ───────────────────────────
     try:
         banned_stocks = write_ban_list()
-        print(f"[main] Ban list: {len(banned_stocks)} stocks")
+        print(f"[main] Ban list: "
+              f"{len(banned_stocks)} stocks")
     except Exception as e:
         print(f"[main] Ban list error: {e}")
         banned_stocks = []
@@ -417,7 +454,8 @@ def run_morning_scan():
     market_info = get_nifty_info()
     regime      = market_info['regime']
     reg_score   = market_info['regime_score']
-    print(f"[main] Regime: {regime} Score: {reg_score}")
+    print(f"[main] Regime: {regime} "
+          f"Score: {reg_score}")
 
     # ── STEP 4: Sector momentum ───────────────────────
     sector_momentum = get_sector_momentum()
@@ -434,7 +472,8 @@ def run_morning_scan():
         nifty_df = yf.download(
             NIFTY_SYMBOL, period='3mo',
             progress=False, auto_adjust=True)
-        if isinstance(nifty_df.columns, pd.MultiIndex):
+        if isinstance(nifty_df.columns,
+                      pd.MultiIndex):
             nifty_df.columns = [
                 c[0] for c in nifty_df.columns]
         nifty_close = nifty_df['Close']
@@ -490,7 +529,8 @@ def run_morning_scan():
                 sig['grade']           = grade
                 sig['scanner_version'] = SCANNER_VERSION
                 sym_clean = sym.replace('.NS', '')
-                sig['is_banned'] = sym_clean in banned_stocks
+                sig['is_banned'] = (
+                    sym_clean in banned_stocks)
                 sig = enrich_signal(sig, grade)
                 all_raw_signals.append(sig)
 
@@ -499,7 +539,8 @@ def run_morning_scan():
             fetch_failed.append(sym)
             continue
 
-    print(f"[main] Raw signals: {len(all_raw_signals)}")
+    print(f"[main] Raw signals: "
+          f"{len(all_raw_signals)}")
 
     # ── STEP 9: Filter duplicate pending ──────────────
     all_raw_signals = filter_duplicate_pending(
@@ -540,17 +581,18 @@ def run_morning_scan():
             print(f"[main] Log error "
                   f"{sig.get('symbol','')}: {e}")
 
-    # ── BUG 2 FIX: Shadow rejection logging ───────────
+    # ── Shadow mode rejection logging ─────────────────
     shadow_mode_on = _is_shadow_mode()
 
     if shadow_mode_on:
         print(f"[main] Shadow mode ON — "
               f"no REJECTED records created "
-              f"({len(rejection_log)} shadow hits recorded "
+              f"({len(rejection_log)} shadow hits "
               f"in rejected_log.json only)")
     else:
         mini_took_keys = {
-            (s.get('symbol', ''), s.get('signal', ''))
+            (s.get('symbol', ''),
+             s.get('signal', ''))
             for s in mini_signals
         }
         rej_logged = 0
@@ -568,23 +610,29 @@ def run_morning_scan():
             try:
                 orig = next(
                     (s for s in all_raw_signals
-                     if s.get('symbol') == rej.get('symbol')
-                     and s.get('signal') == rej.get('signal')),
+                     if s.get('symbol') ==
+                     rej.get('symbol')
+                     and s.get('signal') ==
+                     rej.get('signal')),
                     None)
                 if orig:
                     log_rejected(
                         orig,
-                        rej.get('rejection_reason', 'unknown'),
-                        rej.get('rejection_filter', 'unknown'),
+                        rej.get('rejection_reason',
+                                'unknown'),
+                        rej.get('rejection_filter',
+                                'unknown'),
                         rej.get('threshold', None)
                     )
                     rej_logged += 1
             except Exception:
                 pass
 
-        print(f"[main] Rejected records logged: {rej_logged}")
+        print(f"[main] Rejected records logged: "
+              f"{rej_logged}")
 
-    print(f"[main] Logged {logged_count} TOOK signals")
+    print(f"[main] Logged {logged_count} "
+          f"TOOK signals")
 
     # ── STEP 15: Archive old records ──────────────────
     try:
@@ -598,21 +646,21 @@ def run_morning_scan():
     except Exception as e:
         print(f"[main] Holidays write error: {e}")
 
-    # ── STEP 17: Write meta.json — MUST BE LAST ────────
-    # M5 FIX: Verify active count matches reality
+    # ── STEP 17: Write meta.json ───────────────────────
     active_now = get_active_signals_count()
-    
+
     try:
-        fresh_history = load_history()
+        fresh_history  = load_history()
         actual_pending = len([
             s for s in fresh_history
             if s.get('result') == 'PENDING'
             and s.get('action') == 'TOOK'
         ])
         if actual_pending != active_now:
-            print(f"[main] M5 FIX: Active count mismatch — "
-                  f"journal says {active_now}, "
-                  f"actual is {actual_pending}")
+            print(f"[main] M5 FIX: Active count "
+                  f"mismatch — journal says "
+                  f"{active_now}, actual is "
+                  f"{actual_pending}")
             active_now = actual_pending
     except Exception as e:
         print(f"[main] M5 count verify error: {e}")
@@ -655,15 +703,34 @@ def run_morning_scan():
 
     # ── STEP 20: Telegram morning alert ───────────────
     # D1 FIX: populate active_signals_count + scan_time
-    # into market_info before passing to send_morning_scan
+    # HC2 FIX: scan_time stored as UTC HH:MM so
+    # telegram_bot._to_ist_safe() converts to IST correctly
     try:
         market_info['active_signals_count'] = active_now
-        market_info['signals_found']        = len(mini_signals)
+        market_info['signals_found']        = len(
+            mini_signals)
+        # UTC HH:MM — telegram_bot converts to IST
         market_info['scan_time'] = (
-            datetime.now().strftime('%I:%M %p IST'))
+            datetime.utcnow().strftime('%H:%M'))
         send_morning_scan(mini_signals, market_info)
     except Exception as e:
-        print(f"[main] Telegram error: {e}")
+        print(f"[main] Telegram morning error: {e}")
+
+    # ── STEP 21: Poll and respond to commands ──────────
+    # HC4 FIX: poll_and_respond() wired here so Telegram
+    # commands (/status /signals /today /exits /pnl /stops)
+    # are answered within the morning scan window.
+    # ltp_prices passed so /stops + /pnl have live data.
+    try:
+        fresh_history = load_history()
+        ltp_prices    = _load_ltp_prices()
+        poll_and_respond(
+            meta       = market_info,
+            history    = fresh_history,
+            ltp_prices = ltp_prices,
+        )
+    except Exception as e:
+        print(f"[main] Command poll error: {e}")
 
     print(f"[main] Morning scan complete — "
           f"{len(mini_signals)} signals | "
@@ -704,8 +771,8 @@ def run_eod():
     except Exception as e:
         print(f"[main] EOD error: {e}")
 
-    # B2 FIX: pass full load_history() to send_eod_summary
-    # not just open trades — resolved signals need to show
+    # B2 FIX: pass full load_history() not just
+    # open trades — resolved signals must show
     try:
         all_history  = load_history()
         open_count   = len(get_open_trades())
@@ -748,4 +815,5 @@ if __name__ == '__main__':
         run_eod()
     else:
         print(f"[main] Unknown mode: {mode}")
-        print("Usage: python main.py [morning|stops|eod]")
+        print("Usage: python main.py "
+              "[morning|stops|eod]")
