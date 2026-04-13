@@ -15,17 +15,14 @@
 // - H9  : Stale warning suppressed before 9 AM IST
 //         and on weekends/holidays — only fires red
 //         after 9 AM on a trading day with no fresh data
-// - M8  : Market regime note added to status bar —
-//         explains market regime vs stock regime
-//         difference for traders reading cards
-// - S1  : Responsive CSS injected for iPad —
-//         app fills tablet screen width not phone width
-// - S4  : Tab bar touch targets larger on tablet —
-//         icon size + padding increased at 768px+
+// - M8  : Market regime note added to status bar
+// - S1  : Responsive CSS moved to index.html —
+//         _injectResponsiveStyles() removed.
+//         body max-width breakpoints now in HTML.
+// - S4  : Tab bar targets in index.html media query
 //
 // PRIOR FIXES RETAINED:
 // - Default filter is 'top'
-// - _buildConflictMap exported as window helper
 // - P1: LTP updated_at in status bar
 // - V1: Open validate time in status bar
 // ─────────────────────────────────────────────────────
@@ -112,8 +109,6 @@ function _safeGet(url) {
 }
 
 // ── H9: CURRENT IST HOUR ──────────────────────────────
-// Used to suppress false stale warnings before
-// the morning scan runs at 8:45 AM IST
 function _istHour() {
   try {
     return parseInt(
@@ -123,18 +118,16 @@ function _istHour() {
         timeZone: 'Asia/Kolkata',
       }), 10);
   } catch(e) {
-    // fallback: UTC+5:30
     return (new Date().getUTCHours()
       + 5 + Math.floor((new Date().getUTCMinutes()
       + 30) / 60)) % 24;
   }
 }
 
-// H9: Is today a market-open weekday?
 function _isTodayTradingDay() {
   const holidays = window.TIETIY.holidays || [];
   const today    = _todayIST();
-  const dow      = new Date(today + 'T00:00:00').getDay();
+  const dow = new Date(today + 'T00:00:00').getDay();
   if (dow === 0 || dow === 6) return false;
   return !holidays.includes(today);
 }
@@ -166,9 +159,9 @@ function _seedDefaultTook() {
   let changed = false;
 
   hist.history.forEach(function(s) {
-    if (s.layer    !== 'MINI') return;
-    if (s.action   !== 'TOOK') return;
-    if (s.generation === 0)    return;
+    if (s.layer      !== 'MINI') return;
+    if (s.action     !== 'TOOK') return;
+    if (s.generation === 0)      return;
 
     const sym    = (s.symbol || '').replace('.NS', '');
     const cardId = (s.id ||
@@ -287,7 +280,7 @@ function _ensureOfflineBannerEl() {
       'left:50%',
       'transform:translateX(-50%)',
       'width:100%',
-      'max-width:min(960px,100vw)',
+      'max-width:min(680px,100vw)',
       'z-index:999',
       'display:none',
     ].join(';');
@@ -338,69 +331,6 @@ window.addEventListener('online', function() {
     if (window.TIETIY.loaded) refreshData();
   }, 1000);
 });
-
-// ── S1: RESPONSIVE CSS INJECTION ─────────────────────
-// Fixes PWA layout on iPad — phone-width layout
-// was leaving large empty margins on tablet screens.
-// Injects once at init time.
-function _injectResponsiveStyles() {
-  if (document.getElementById(
-      'tietiy-responsive')) return;
-  const style = document.createElement('style');
-  style.id    = 'tietiy-responsive';
-  style.textContent = `
-    /* Base: phone — natural full width */
-    #app-root {
-      width: 100%;
-      max-width: 100vw;
-      margin: 0 auto;
-      box-sizing: border-box;
-    }
-    /* Tablet: 768px+ — cap at readable width */
-    @media (min-width: 768px) {
-      #app-root {
-        max-width: 680px;
-      }
-      body {
-        background: #07070f;
-        display: flex;
-        justify-content: center;
-      }
-      /* Status bar and nav align with app-root */
-      #status-bar,
-      #alert-banner,
-      #bottom-nav > div,
-      #offline-banner > div {
-        max-width: 680px;
-        margin-left: auto;
-        margin-right: auto;
-      }
-    }
-    /* Large tablet / small desktop */
-    @media (min-width: 1024px) {
-      #app-root { max-width: 720px; }
-      #status-bar,
-      #alert-banner,
-      #bottom-nav > div {
-        max-width: 720px;
-      }
-    }
-    /* S4: larger tab targets on tablet */
-    @media (min-width: 768px) {
-      #bottom-nav button {
-        padding-top: 12px !important;
-        padding-bottom: 10px !important;
-      }
-      #bottom-nav button span:first-child {
-        font-size: 22px !important;
-      }
-      #bottom-nav button span:last-child {
-        font-size: 11px !important;
-      }
-    }
-  `;
-  document.head.appendChild(style);
-}
 
 // ── STATUS BAR ────────────────────────────────────────
 function _renderStatusBar(meta) {
@@ -454,31 +384,25 @@ function _renderStatusBar(meta) {
   let borderColor = '#21262d';
 
   if (!isToday) {
-    // H9 FIX: Don't show red error in 3 situations:
-    // 1) Before 9AM IST on a trading day — scan hasn't run yet
-    // 2) Weekend — market is closed
-    // 3) Holiday — market is closed
-    // Only show red AFTER 9AM on a real trading day
-    const hour             = _istHour();
-    const todayIsTrading   = _isTodayTradingDay();
-    const nextDay          = _getNextTradingDay();
+    // H9 FIX: suppress false red on holidays/weekends
+    // and before 9 AM on trading days
+    const hour           = _istHour();
+    const todayIsTrading = _isTodayTradingDay();
+    const nextDay        = _getNextTradingDay();
 
     if (!todayIsTrading) {
-      // Weekend or holiday — market closed, no alarm
       statusDot   = '🟡';
       statusText  = `Market closed · Next scan: `
         + `${nextDay} 8:45 AM`;
       statusColor = '#FFD700';
     } else if (hour < 9) {
-      // Before 9 AM on a trading day — scan pending
       statusDot   = '🟡';
       statusText  = `Scan pending · Runs at 8:45 AM IST`;
       statusColor = '#FFD700';
     } else {
-      // After 9 AM on trading day, still no fresh data
-      // This is a genuine problem — show red
       statusDot   = '🔴';
-      statusText  = "Yesterday's data · Scanner not run today";
+      statusText  = "Yesterday's data · "
+        + "Scanner not run today";
       statusColor = '#f85149';
       bgColor     = '#1a0a0a';
       borderColor = '#f85149';
@@ -530,9 +454,7 @@ function _renderStatusBar(meta) {
        </span>`
     : '';
 
-  // M8 FIX: explain market regime vs stock regime
-  // Only show on trading days when data is fresh
-  // Brief note — doesn't take much space
+  // M8 FIX: market regime vs stock regime note
   const regimeNote = isToday && isTrading
     ? `<div style="font-size:9px;color:#444;
          margin-top:3px;">
@@ -673,13 +595,11 @@ function _renderNav(activeTab) {
     { id: 'stats',   icon: '📈', label: 'Stats'   },
   ];
 
-  // S4 FIX: icon/label sizes are now controlled by
-  // responsive CSS injected in _injectResponsiveStyles
-  // so they scale up automatically on tablet
+  // S4: tab sizing handled by index.html media query
   el.innerHTML = `
     <div style="position:fixed;bottom:0;left:50%;
       transform:translateX(-50%);
-      width:100%;max-width:min(960px,100vw);
+      width:100%;max-width:min(680px,100vw);
       background:#0d1117;
       border-top:1px solid #21262d;
       display:flex;z-index:50;
@@ -688,7 +608,8 @@ function _renderNav(activeTab) {
         const active = t.id === activeTab;
         return `
           <button onclick="switchTab('${t.id}')"
-            style="flex:1;background:none;border:none;
+            style="flex:1;background:none;
+              border:none;
               padding:10px 0 8px;cursor:pointer;
               display:flex;flex-direction:column;
               align-items:center;gap:2px;
@@ -699,7 +620,8 @@ function _renderNav(activeTab) {
             </span>
             <span style="font-size:10px;
               color:${active ? '#ffd700' : '#555'};
-              font-weight:${active ? '700' : '400'};">
+              font-weight:${active
+                ? '700' : '400'};">
               ${t.label}
             </span>
           </button>`;
@@ -849,15 +771,14 @@ function showHelp() {
           font-size:11px;color:#8b949e;
           line-height:1.7;">
           <b style="color:#c9d1d9;">Market regime</b>
-          = Nifty50 trend — shown in the header bar.<br>
+          = Nifty50 trend — shown in the header.<br>
           <b style="color:#c9d1d9;">Stock regime</b>
-          = individual stock trend — shown on each
-          signal card as "stk:Bear" etc.<br><br>
-          These can differ. A stock can be in Bear
-          trend while the market is Choppy. The score
-          uses <b style="color:#ffd700;">market</b>
-          regime for the Bear bonus (+3) —
-          not the stock regime.
+          = individual stock trend — on each card
+          as "stk:Bear" etc.<br><br>
+          These can differ. Score uses
+          <b style="color:#ffd700;">market</b>
+          regime for Bear bonus (+3) —
+          not stock regime.
         </div>
       </div>
 
@@ -888,8 +809,10 @@ function showHelp() {
         ${_helpRule('Stop is never moved')}
         ${_helpRule('Stop hit intraday = exit same day')}
         ${_helpRule('No adding to an open position')}
-        ${_helpRule('R:R below 1.5 = reduce size or skip')}
-        ${_helpRule('Miss 9:15 AM by 15+ mins = skip')}
+        ${_helpRule(
+          'R:R below 1.5 = reduce size or skip')}
+        ${_helpRule(
+          'Miss 9:15 AM by 15+ mins = skip')}
         ${_helpRule('Gap > 3% at open = skip signal')}
       </div>
 
@@ -905,7 +828,9 @@ function showHelp() {
           line-height:1.6;">
           Get notified at 8:50 AM every trading day.
           <br><br>
-          <strong style="color:#c9d1d9;">iOS users:</strong>
+          <strong style="color:#c9d1d9;">
+            iOS users:
+          </strong>
           Add to Home Screen first, then open from
           home screen icon to enable notifications.
           <br><br>
@@ -954,7 +879,9 @@ function _helpStep(num, title, desc) {
         <div style="color:#c9d1d9;font-size:12px;
           font-weight:700;">${title}</div>
         <div style="color:#666;font-size:11px;
-          margin-top:2px;line-height:1.5;">${desc}</div>
+          margin-top:2px;line-height:1.5;">
+          ${desc}
+        </div>
       </div>
     </div>`;
 }
@@ -976,8 +903,8 @@ function _helpSignal(name, color, subtitle, desc) {
 
 function _helpTerm(term, desc) {
   return `
-    <div style="display:flex;gap:8px;margin-bottom:8px;
-      font-size:11px;">
+    <div style="display:flex;gap:8px;
+      margin-bottom:8px;font-size:11px;">
       <div style="color:#ffd700;font-weight:700;
         min-width:120px;">${term}</div>
       <div style="color:#8b949e;line-height:1.5;">
@@ -988,9 +915,11 @@ function _helpTerm(term, desc) {
 
 function _helpRule(rule) {
   return `
-    <div style="display:flex;gap:8px;margin-bottom:6px;
-      font-size:12px;color:#c9d1d9;">
-      <span style="color:#f85149;">✕</span> ${rule}
+    <div style="display:flex;gap:8px;
+      margin-bottom:6px;font-size:12px;
+      color:#c9d1d9;">
+      <span style="color:#f85149;">✕</span>
+      ${rule}
     </div>`;
 }
 
@@ -1036,8 +965,8 @@ async function requestNotifications() {
           VAPID_PUBLIC_KEY),
       });
 
-    const subJson  = subscription.toJSON();
-    const payload  = {
+    const subJson = subscription.toJSON();
+    const payload = {
       endpoint:      subJson.endpoint,
       keys:          subJson.keys,
       pin_verified:  true,
@@ -1150,15 +1079,18 @@ function getExitDate(signalDateStr) {
 
 // ── MAIN INIT ─────────────────────────────────────────
 async function initApp() {
-  const loader    = document.getElementById('app-loader');
-  const errorDiv  = document.getElementById('app-error');
-  const appRoot   = document.getElementById('app-root');
-  const loaderMsg = document.getElementById('loader-msg');
+  const loader    =
+    document.getElementById('app-loader');
+  const errorDiv  =
+    document.getElementById('app-error');
+  const appRoot   =
+    document.getElementById('app-root');
+  const loaderMsg =
+    document.getElementById('loader-msg');
 
-  // S1 FIX: inject responsive CSS early
-  _injectResponsiveStyles();
+  // S1: responsive CSS now in index.html — no inject
 
-  // R3: ensure offline banner element exists early
+  // R3: ensure offline banner exists early
   _ensureOfflineBannerEl();
 
   _restoreSession();
@@ -1170,7 +1102,7 @@ async function initApp() {
 
     if (!success || !window.TIETIY.meta) {
       if (loader)
-        loader.style.display  = 'none';
+        loader.style.display   = 'none';
       if (errorDiv)
         errorDiv.style.display = 'block';
       return;
@@ -1191,7 +1123,7 @@ async function initApp() {
   } catch(e) {
     console.error('[ui] Init error:', e);
     if (loader)
-      loader.style.display  = 'none';
+      loader.style.display   = 'none';
     if (errorDiv)
       errorDiv.style.display = 'block';
   }
