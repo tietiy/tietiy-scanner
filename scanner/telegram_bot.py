@@ -29,6 +29,8 @@
 # - TG3: /stops command — stop proximity from LTP
 # - TG4: /pnl command — unrealized P&L on open positions
 # - poll_and_respond() accepts ltp_prices param
+# - W1/TR5: send_weekend_summary now shows phase_note,
+#   type_counts breakdown, week date range
 #
 # PRIOR FIXES RETAINED:
 # D1: send_morning_scan reads active_signals_count from meta
@@ -53,14 +55,6 @@ PWA_URL = 'https://tietiy.github.io/tietiy-scanner/'
 
 # ── HC1/HC2/HC3: UTC → IST CONVERTER ─────────────────
 def _to_ist(time_str: str) -> str:
-    """
-    Convert UTC time string to IST (UTC+5:30).
-    Accepts: 'HH:MM', 'HH:MM:SS' (24h UTC)
-    Returns: '8:48 AM IST'
-
-    All GitHub Actions runners use UTC.
-    All Telegram messages must show IST.
-    """
     if not time_str or str(time_str).strip() in (
             '—', '', 'None', 'none'):
         return '—'
@@ -74,10 +68,8 @@ def _to_ist(time_str: str) -> str:
         elif re.match(r'^\d{1,2}:\d{2}$', time_str):
             h, m = map(int, time_str.split(':'))
         else:
-            # Already formatted or unknown — return as-is
             return time_str
 
-        # Add IST offset: UTC + 5h30m
         total = h * 60 + m + 330
         ist_h = (total // 60) % 24
         ist_m = total % 60
@@ -91,7 +83,6 @@ def _to_ist(time_str: str) -> str:
 
 
 def _to_ist_safe(time_str: str) -> str:
-    """Never raises — always returns string."""
     try:
         return _to_ist(time_str)
     except Exception:
@@ -217,7 +208,6 @@ def _send_single_message(
             print(f'[telegram] Retrying in {delay}s...')
             time.sleep(delay)
 
-    # Plain text fallback
     print('[telegram] MarkdownV2 failed, '
           'trying plain text fallback')
     try:
@@ -241,7 +231,6 @@ def _send_single_message(
 
 
 def _reply_message(chat_id, text: str) -> bool:
-    """Plain text reply to a specific chat_id."""
     if not TELEGRAM_TOKEN:
         return False
     url = (f'https://api.telegram.org/'
@@ -393,17 +382,6 @@ def poll_and_respond(meta: dict,
                      ltp_prices: dict = None,
                      window_minutes: int = 30
                      ) -> int:
-    """
-    Poll Telegram for recent commands and respond.
-    Processes commands from last window_minutes.
-
-    ltp_prices: dict from ltp_prices.json
-                used by /stops and /pnl commands
-
-    Call from main.py after morning scan:
-        from telegram_bot import poll_and_respond
-        poll_and_respond(meta, history, ltp_prices)
-    """
     if not TELEGRAM_TOKEN:
         print('[telegram] No token — skipping poll')
         return 0
@@ -655,18 +633,12 @@ def _respond_health(chat_id, meta: dict):
 def _respond_today(chat_id, meta: dict,
                    history: list,
                    ltp_prices: dict):
-    """
-    Morning brief — everything a trader needs
-    before market opens. Replaces checking PWA
-    for routine days.
-    """
     regime     = meta.get('regime', '—')
     scan_ist   = _to_ist_safe(
         meta.get('scan_time', ''))
     active     = meta.get('active_signals_count', 0)
     today_str  = date.today().strftime('%a %d %b')
 
-    # Signals exiting today (Day 6)
     today_iso  = date.today().isoformat()
     exits_today = [
         s for s in history
@@ -675,7 +647,6 @@ def _respond_today(chat_id, meta: dict,
         and s.get('exit_date', '') == today_iso
     ]
 
-    # Signals exiting tomorrow
     tomorrow   = (date.today() +
                   timedelta(days=1)).isoformat()
     exits_tmrw = [
@@ -685,7 +656,6 @@ def _respond_today(chat_id, meta: dict,
         and s.get('exit_date', '') == tomorrow
     ]
 
-    # New signals today
     new_today = [
         s for s in history
         if s.get('date', '') == today_iso
@@ -698,14 +668,12 @@ def _respond_today(chat_id, meta: dict,
         '',
     ]
 
-    # Exit today block
     if exits_today:
         lines.append(
             f'🚨 EXIT TODAY — {len(exits_today)} signals')
         lines.append(
             'Sell at 9:15 AM open. No extensions.')
 
-        # Show top 5 with P&L from LTP
         enriched = _enrich_with_pnl(
             exits_today, ltp_prices)
         enriched.sort(
@@ -717,30 +685,23 @@ def _respond_today(chat_id, meta: dict,
             sym = e['sym']
             pnl = e.get('pnl_pct')
             if pnl is None:
-                icon = '📌'
-                pct  = '—'
+                icon = '📌'; pct = '—'
             elif pnl >= 3:
-                icon = '🟢'
-                pct  = f'+{pnl:.1f}%'
+                icon = '🟢'; pct = f'+{pnl:.1f}%'
             elif pnl >= 0:
-                icon = '🟡'
-                pct  = f'+{pnl:.1f}%'
+                icon = '🟡'; pct = f'+{pnl:.1f}%'
             else:
-                icon = '🔴'
-                pct  = f'{pnl:.1f}%'
-            lines.append(
-                f'  {icon} {sym}  {pct}')
+                icon = '🔴'; pct = f'{pnl:.1f}%'
+            lines.append(f'  {icon} {sym}  {pct}')
 
         if len(exits_today) > 5:
             lines.append(
                 f'  ... +{len(exits_today)-5} more')
         lines.append('')
 
-    # Exit tomorrow block
     if exits_tmrw:
         syms = ', '.join(
-            (s.get('symbol','?')
-             .replace('.NS',''))
+            (s.get('symbol','?').replace('.NS',''))
             for s in exits_tmrw[:6])
         lines.append(
             f'⏰ EXIT TOMORROW — '
@@ -751,7 +712,6 @@ def _respond_today(chat_id, meta: dict,
                 f'  +{len(exits_tmrw)-6} more')
         lines.append('')
 
-    # New signals today
     if new_today:
         lines.append(
             f'🔔 NEW TODAY — {len(new_today)} signals')
@@ -776,20 +736,14 @@ def _respond_today(chat_id, meta: dict,
         lines.append('No new signals today.')
         lines.append('')
 
-    # Active summary
-    lines.append(
-        f'Active positions: {active}')
+    lines.append(f'Active positions: {active}')
     lines.append(PWA_URL)
-
     _reply_message(chat_id, '\n'.join(lines))
 
 
 # ── TG2: /exits ───────────────────────────────────────
 def _respond_exits(chat_id, history: list,
                    ltp_prices: dict):
-    """
-    Today and tomorrow exits with current P&L.
-    """
     today_iso = date.today().isoformat()
     tomorrow  = (date.today() +
                  timedelta(days=1)).isoformat()
@@ -813,8 +767,7 @@ def _respond_exits(chat_id, history: list,
         lines.append(
             f'TODAY ({today_iso}) — '
             f'{len(exits_today)} signals')
-        lines.append(
-            'Sell at 9:15 AM open')
+        lines.append('Sell at 9:15 AM open')
 
         enriched = _enrich_with_pnl(
             exits_today, ltp_prices)
@@ -827,8 +780,7 @@ def _respond_exits(chat_id, history: list,
             pnl  = e.get('pnl_pct')
             icon = ('🟢' if pnl and pnl >= 3
                     else '🟡' if pnl and pnl >= 0
-                    else '🔴' if pnl
-                    else '📌')
+                    else '🔴' if pnl else '📌')
             pct  = (f'{pnl:+.1f}%'
                     if pnl is not None else '—')
             lines.append(
@@ -856,8 +808,7 @@ def _respond_exits(chat_id, history: list,
                     if pnl is not None else '—')
             icon = ('🟢' if pnl and pnl >= 3
                     else '🟡' if pnl and pnl >= 0
-                    else '🔴' if pnl
-                    else '📌')
+                    else '🔴' if pnl else '📌')
             lines.append(
                 f'  {icon} {e["sym"]}  {pct}')
 
@@ -868,18 +819,13 @@ def _respond_exits(chat_id, history: list,
         lines.append('No exits tomorrow.')
 
     lines.append('')
-    lines.append(
-        'Rule: sell at open. No extensions.')
+    lines.append('Rule: sell at open. No extensions.')
     _reply_message(chat_id, '\n'.join(lines))
 
 
 # ── TG3: /stops ───────────────────────────────────────
 def _respond_stops(chat_id, history: list,
                    ltp_prices: dict):
-    """
-    Stop proximity for all open positions.
-    Uses LTP to calculate buffer from stop.
-    """
     ltp_ist = _to_ist_safe(
         ltp_prices.get('ltp_updated_at', ''))
     prices  = ltp_prices.get('prices', {})
@@ -896,10 +842,10 @@ def _respond_stops(chat_id, history: list,
             'No open signals to check.')
         return
 
-    danger  = []   # within 2% of stop
-    caution = []   # 2-5% from stop
-    safe    = []   # >5% from stop
-    no_data = []   # no LTP available
+    danger  = []
+    caution = []
+    safe    = []
+    no_data = []
 
     for s in open_sigs:
         sym   = (s.get('symbol', '?')
@@ -931,14 +877,12 @@ def _respond_stops(chat_id, history: list,
             buf_pct = (stop - ltp) / stop * 100
 
         item = {
-            'sym':     sym,
-            'ltp':     ltp,
-            'stop':    stop,
-            'buf_pct': buf_pct,
+            'sym': sym, 'ltp': ltp,
+            'stop': stop, 'buf_pct': buf_pct,
         }
 
         if buf_pct < 0:
-            danger.append(item)   # already below!
+            danger.append(item)
         elif buf_pct < 2:
             danger.append(item)
         elif buf_pct < 5:
@@ -947,43 +891,35 @@ def _respond_stops(chat_id, history: list,
             safe.append(item)
 
     ltp_line = (f'LTP as of {ltp_ist}'
-                if ltp_ist != '—'
-                else 'LTP data')
+                if ltp_ist != '—' else 'LTP data')
 
     lines = [f'🛑 STOP PROXIMITY', f'{ltp_line}', '']
 
     if danger:
-        lines.append(
-            f'🚨 DANGER — within 2% of stop:')
-        for d in sorted(
-                danger,
-                key=lambda x: x['buf_pct']):
+        lines.append('🚨 DANGER — within 2% of stop:')
+        for d in sorted(danger,
+                        key=lambda x: x['buf_pct']):
             pct = f"{d['buf_pct']:.1f}%"
             if d['buf_pct'] < 0:
                 pct = f"BREACHED {d['buf_pct']:.1f}%"
             lines.append(
                 f"  {d['sym']}  "
                 f"LTP {_p(d['ltp'])}  "
-                f"Stop {_p(d['stop'])}  "
-                f"({pct})")
+                f"Stop {_p(d['stop'])}  ({pct})")
         lines.append('')
 
     if caution:
-        lines.append(
-            f'⚠️ CAUTION — 2-5% buffer:')
-        for d in sorted(
-                caution,
-                key=lambda x: x['buf_pct']):
+        lines.append('⚠️ CAUTION — 2-5% buffer:')
+        for d in sorted(caution,
+                        key=lambda x: x['buf_pct']):
             lines.append(
                 f"  {d['sym']}  "
                 f"{d['buf_pct']:.1f}% buffer")
         lines.append('')
 
-    safe_syms = ', '.join(
-        d['sym'] for d in safe[:8])
+    safe_syms = ', '.join(d['sym'] for d in safe[:8])
     if safe_syms:
-        lines.append(
-            f'✅ SAFE (>5%): {safe_syms}')
+        lines.append(f'✅ SAFE (>5%): {safe_syms}')
         if len(safe) > 8:
             lines.append(
                 f'   +{len(safe)-8} more safe')
@@ -991,8 +927,7 @@ def _respond_stops(chat_id, history: list,
     if no_data:
         lines.append('')
         lines.append(
-            f'No LTP: '
-            f'{", ".join(no_data[:5])}')
+            f'No LTP: {", ".join(no_data[:5])}')
 
     if not danger and not caution:
         lines.append('')
@@ -1004,13 +939,8 @@ def _respond_stops(chat_id, history: list,
 # ── TG4: /pnl ─────────────────────────────────────────
 def _respond_pnl(chat_id, history: list,
                  ltp_prices: dict):
-    """
-    Unrealized P&L on all open positions.
-    Calculated from entry price vs LTP.
-    """
     ltp_ist = _to_ist_safe(
         ltp_prices.get('ltp_updated_at', ''))
-    prices  = ltp_prices.get('prices', {})
 
     open_sigs = [
         s for s in history
@@ -1020,12 +950,10 @@ def _respond_pnl(chat_id, history: list,
     ]
 
     if not open_sigs:
-        _reply_message(chat_id,
-            'No open positions.')
+        _reply_message(chat_id, 'No open positions.')
         return
 
-    enriched = _enrich_with_pnl(
-        open_sigs, ltp_prices)
+    enriched = _enrich_with_pnl(open_sigs, ltp_prices)
     enriched_with = [
         e for e in enriched
         if e.get('pnl_pct') is not None]
@@ -1042,7 +970,7 @@ def _respond_pnl(chat_id, history: list,
                 else 'Based on last LTP')
 
     lines = [
-        f'📊 UNREALIZED P&L',
+        '📊 UNREALIZED P&L',
         f'{ltp_line}',
         f'({len(enriched_with)} positions)',
         '',
@@ -1051,11 +979,8 @@ def _respond_pnl(chat_id, history: list,
     for e in enriched_with[:15]:
         pnl  = e['pnl_pct']
         icon = ('🟢' if pnl >= 3
-                else '🟡' if pnl >= 0
-                else '🔴')
-        pct  = f'{pnl:+.1f}%'
-        lines.append(
-            f'{icon} {e["sym"]}  {pct}')
+                else '🟡' if pnl >= 0 else '🔴')
+        lines.append(f'{icon} {e["sym"]}  {pnl:+.1f}%')
 
     if len(enriched_with) > 15:
         lines.append(
@@ -1067,21 +992,16 @@ def _respond_pnl(chat_id, history: list,
                / len(enriched_with))
         lines.append('')
         lines.append(f'Avg open P&L: {avg:+.1f}%')
-
-        winners = sum(
-            1 for e in enriched_with
-            if e['pnl_pct'] > 0)
-        losers  = sum(
-            1 for e in enriched_with
-            if e['pnl_pct'] < 0)
-        lines.append(
-            f'Up: {winners}  Down: {losers}')
+        winners = sum(1 for e in enriched_with
+                      if e['pnl_pct'] > 0)
+        losers  = sum(1 for e in enriched_with
+                      if e['pnl_pct'] < 0)
+        lines.append(f'Up: {winners}  Down: {losers}')
 
     if no_data:
         lines.append('')
         lines.append(
-            f'No LTP for: '
-            f'{", ".join(no_data[:4])}')
+            f'No LTP for: {", ".join(no_data[:4])}')
 
     _reply_message(chat_id, '\n'.join(lines))
 
@@ -1109,11 +1029,6 @@ def _respond_help(chat_id):
 # ── SHARED HELPER: ENRICH WITH PNL ───────────────────
 def _enrich_with_pnl(signals: list,
                      ltp_prices: dict) -> list:
-    """
-    Add sym and pnl_pct to each signal dict
-    using LTP vs entry price.
-    Returns list of dicts with sym, pnl_pct keys.
-    """
     prices = ltp_prices.get('prices', {}) \
              if ltp_prices else {}
     result = []
@@ -1132,12 +1047,10 @@ def _enrich_with_pnl(signals: list,
         pnl_pct = None
         if entry and ltp:
             try:
-                ltp_f = float(ltp)
-                raw   = (ltp_f - entry) / entry * 100
-                pnl_pct = (raw
-                           if dirn == 'LONG'
-                           else -raw)
-                pnl_pct = round(pnl_pct, 1)
+                ltp_f   = float(ltp)
+                raw     = (ltp_f - entry) / entry * 100
+                pnl_pct = round(
+                    raw if dirn == 'LONG' else -raw, 1)
             except Exception:
                 pass
 
@@ -1158,7 +1071,6 @@ def send_morning_scan(signals: list, meta: dict):
     scan_time    = meta.get('scan_time', '')
     ltp_time     = meta.get('ltp_updated_at', '')
 
-    # HC2 FIX: convert UTC → IST
     scan_ist = _to_ist_safe(scan_time)
     ltp_ist  = _to_ist_safe(ltp_time)
 
@@ -1195,14 +1107,14 @@ def send_morning_scan(signals: list, meta: dict):
             'Market watching\\.')
     else:
         for sig in sorted_sigs:
-            sym   = (sig.get('symbol') or '?') \
-                    .replace('.NS', '')
-            stype = sig.get('signal', '?')
-            score = sig.get('score', 0)
-            age   = sig.get('age', 0)
-            sr_tag= _stock_regime_tag(sig)
-            dirn  = sig.get('direction', 'LONG')
-            emoji = _sig_emoji(stype)
+            sym    = (sig.get('symbol') or '?') \
+                     .replace('.NS', '')
+            stype  = sig.get('signal', '?')
+            score  = sig.get('score', 0)
+            age    = sig.get('age', 0)
+            sr_tag = _stock_regime_tag(sig)
+            dirn   = sig.get('direction', 'LONG')
+            emoji  = _sig_emoji(stype)
 
             entry  = _resolve(sig,
                 'actual_open', 'scan_price',
@@ -1252,11 +1164,6 @@ def send_morning_scan(signals: list, meta: dict):
 # ── 2. OPEN VALIDATION ────────────────────────────────
 def send_open_validation(confirmed: list,
                          rejected: list):
-    """
-    MC3 FIX: Deduplicate same stock entries.
-    If same symbol has multiple signals, keep
-    the worst gap_status per symbol for display.
-    """
     all_results = confirmed + rejected
 
     if not all_results:
@@ -1265,7 +1172,6 @@ def send_open_validation(confirmed: list,
         send_message('\n'.join(lines))
         return
 
-    # MC3 FIX: Group by symbol, keep worst status
     STATUS_RANK = {'SKIP': 3, 'WARNING': 2, 'OK': 1}
     sym_map = {}
     for sig in all_results:
@@ -1284,15 +1190,12 @@ def send_open_validation(confirmed: list,
                 sym_map[sym] = sig
 
     deduped = list(sym_map.values())
+    lines   = ['📋 *Open Prices · 9:29 AM*', '']
 
-    lines = ['📋 *Open Prices · 9:29 AM*', '']
-
-    has_skip    = any(
-        s.get('gap_status') == 'SKIP'
-        for s in deduped)
-    has_warning = any(
-        s.get('gap_status') == 'WARNING'
-        for s in deduped)
+    has_skip    = any(s.get('gap_status') == 'SKIP'
+                      for s in deduped)
+    has_warning = any(s.get('gap_status') == 'WARNING'
+                      for s in deduped)
 
     for sig in deduped:
         sym        = (sig.get('symbol') or '?') \
@@ -1346,7 +1249,6 @@ def send_stop_alert(signal: dict):
     level      = signal.get('alert_level', 'NEAR')
     check_time = signal.get('check_time', '')
 
-    # HC1 FIX: convert UTC check_time → IST
     check_ist = _to_ist_safe(check_time)
 
     if level == 'BREACHED':
@@ -1383,10 +1285,6 @@ def send_stop_alert(signal: dict):
 # ── 4. EXIT TOMORROW / EXIT TODAY ─────────────────────
 def send_exit_tomorrow(signals: list,
                        exit_today: bool = False):
-    """
-    MC2 FIX: Deduplicate same stock — keep entry
-    with best P&L, annotate count if multiple.
-    """
     if not signals:
         return
 
@@ -1396,7 +1294,6 @@ def send_exit_tomorrow(signals: list,
         else 'EXIT TOMORROW — Day 6 Open')
     header_icon = '🚨' if exit_today else '⏰'
 
-    # MC2 FIX: Enrich first, then deduplicate
     enriched = []
     for sig in signals:
         sym       = (sig.get('symbol') or '?') \
@@ -1415,28 +1312,23 @@ def send_exit_tomorrow(signals: list,
         if entry and ltp:
             try:
                 raw     = (ltp - entry) / entry * 100
-                pnl_pct = (raw
-                           if direction == 'LONG'
+                pnl_pct = (raw if direction == 'LONG'
                            else -raw)
             except Exception:
                 pass
 
         enriched.append({
-            'sym':     sym,
-            'stype':   stype,
-            'entry':   entry,
-            'ltp':     ltp,
+            'sym': sym, 'stype': stype,
+            'entry': entry, 'ltp': ltp,
             'pnl_pct': pnl_pct,
             'direction': direction,
         })
 
-    # Deduplicate: keep best P&L per symbol
     sym_map = {}
     for e in enriched:
         sym = e['sym']
         if sym not in sym_map:
-            sym_map[sym] = {
-                'entry': e, 'count': 1}
+            sym_map[sym] = {'entry': e, 'count': 1}
         else:
             sym_map[sym]['count'] += 1
             existing_pnl = (
@@ -1455,32 +1347,25 @@ def send_exit_tomorrow(signals: list,
 
     lines = []
     lines.append(
-        f'{header_icon} '
-        f'*{_esc(header_label)}*')
+        f'{header_icon} *{_esc(header_label)}*')
     lines.append(
         f'{_esc(str(len(signals)))} signals · '
-        f'Sell at 9:15 AM open\\. '
-        f'No extensions\\.')
+        f'Sell at 9:15 AM open\\. No extensions\\.')
     lines.append('')
 
     for e, count in deduped:
         pnl = e['pnl_pct']
 
         if pnl is None:
-            icon    = '📌'
-            pnl_str = _esc('—')
+            icon = '📌'; pnl_str = _esc('—')
         elif pnl >= 3:
-            icon    = '🟢'
-            pnl_str = _esc(_pct_str(pnl))
+            icon = '🟢'; pnl_str = _esc(_pct_str(pnl))
         elif pnl >= 0:
-            icon    = '🟡'
-            pnl_str = _esc(_pct_str(pnl))
+            icon = '🟡'; pnl_str = _esc(_pct_str(pnl))
         elif pnl >= -2:
-            icon    = '⚠️'
-            pnl_str = _esc(_pct_str(pnl))
+            icon = '⚠️'; pnl_str = _esc(_pct_str(pnl))
         else:
-            icon    = '🔴'
-            pnl_str = _esc(_pct_str(pnl))
+            icon = '🔴'; pnl_str = _esc(_pct_str(pnl))
 
         sym_display = _esc(e['sym'])
         if count > 1:
@@ -1508,15 +1393,13 @@ def send_eod_summary(outcomes: list,
     resolved = [
         o for o in outcomes
         if o.get('outcome')
-        and o.get('outcome')
-        not in ('OPEN', None)
+        and o.get('outcome') not in ('OPEN', None)
         and o.get('result') != 'REJECTED'
         and o.get('action') == 'TOOK'
     ]
 
     lines = []
-    lines.append(
-        f'📊 *EOD · {_esc(today_str)}*')
+    lines.append(f'📊 *EOD · {_esc(today_str)}*')
     lines.append('')
 
     if not resolved:
@@ -1571,13 +1454,11 @@ def send_eod_summary(outcomes: list,
         pnl_str = ''
         if pnl is not None:
             try:
-                pnl_str = (
-                    f'  {_esc(_pct_str(pnl))}')
+                pnl_str = f'  {_esc(_pct_str(pnl))}'
             except Exception:
                 pass
 
-        outcome_esc = _esc(
-            outcome.replace('_', ' '))
+        outcome_esc = _esc(outcome.replace('_', ' '))
         lines.append(
             f'{emoji} *{_esc(sym)}*  '
             f'{_esc(stype)}  '
@@ -1622,11 +1503,9 @@ def _find_next_exit(outcomes):
 def send_heartbeat(meta: dict):
     today_str = date.today().strftime('%Y-%m-%d')
 
-    # HC3 FIX: Use IST for heartbeat time
-    now_utc   = datetime.utcnow()
-    now_ist   = now_utc + timedelta(hours=5,
-                                    minutes=30)
-    now_time  = now_ist.strftime('%I:%M %p IST')
+    now_utc  = datetime.utcnow()
+    now_ist  = now_utc + timedelta(hours=5, minutes=30)
+    now_time = now_ist.strftime('%I:%M %p IST')
 
     regime     = meta.get('regime', '—')
     active     = meta.get('active_signals_count', 0)
@@ -1670,8 +1549,7 @@ def send_heartbeat(meta: dict):
             f'Scan time: {_esc(scan_ist)}')
 
     if wf_status:
-        lines.append(
-            f'Workflows: {wf_status}')
+        lines.append(f'Workflows: {wf_status}')
 
     send_message('\n'.join(lines))
 
@@ -1682,8 +1560,7 @@ def send_workflow_failure(workflow_name: str,
     today_str = date.today().strftime('%Y-%m-%d')
 
     now_utc  = datetime.utcnow()
-    now_ist  = now_utc + timedelta(hours=5,
-                                   minutes=30)
+    now_ist  = now_utc + timedelta(hours=5, minutes=30)
     now_time = now_ist.strftime('%I:%M %p IST')
 
     lines = []
@@ -1709,22 +1586,35 @@ def send_workflow_failure(workflow_name: str,
 
 # ── 8. WEEKEND SUMMARY ────────────────────────────────
 def send_weekend_summary(stats: dict):
-    today_str  = date.today().strftime('%Y-%m-%d')
+    """
+    W1/TR5: Now shows phase progress, signal type
+    breakdown, and week date range in addition to
+    standard W/L/F stats.
+    """
+    today_str   = date.today().strftime('%Y-%m-%d')
 
-    resolved   = stats.get('resolved', 0)
-    wins       = stats.get('wins', 0)
-    losses     = stats.get('losses', 0)
-    flats      = stats.get('flats', 0)
-    win_rate   = stats.get('win_rate', 0)
-    active     = stats.get('active', 0)
-    next_exits = stats.get('next_exits', [])
-    top_winner = stats.get('top_winner', None)
-    top_loser  = stats.get('top_loser', None)
+    resolved    = stats.get('resolved',    0)
+    wins        = stats.get('wins',        0)
+    losses      = stats.get('losses',      0)
+    flats       = stats.get('flats',       0)
+    win_rate    = stats.get('win_rate',    0)
+    active      = stats.get('active',      0)
+    next_exits  = stats.get('next_exits',  [])
+    top_winner  = stats.get('top_winner',  None)
+    top_loser   = stats.get('top_loser',   None)
+    phase_note  = stats.get('phase_note',  None)
+    type_counts = stats.get('type_counts', {})
+    week_start  = stats.get('week_start',  '')
 
     lines = []
     lines.append(
-        f'📅 *WEEKLY RECAP · '
-        f'{_esc(today_str)}*')
+        f'📅 *WEEKLY RECAP · {_esc(today_str)}*')
+
+    # Week date range
+    if week_start:
+        lines.append(
+            f'{_esc(week_start)} → {_esc(today_str)}')
+
     lines.append('')
 
     if resolved == 0:
@@ -1740,6 +1630,19 @@ def send_weekend_summary(stats: dict):
         lines.append(
             f'Win Rate: {_esc(str(win_rate))}%')
 
+        # Signal type breakdown
+        if type_counts:
+            type_parts = []
+            for t, n in sorted(
+                    type_counts.items(),
+                    key=lambda x: -x[1]):
+                label = _esc(t.replace('_', ' '))
+                type_parts.append(
+                    f'{label}:{_esc(str(n))}')
+            if type_parts:
+                lines.append(
+                    '  ' + '  '.join(type_parts))
+
     lines.append('')
     lines.append(
         f'Active: {_esc(str(active))} signals')
@@ -1749,19 +1652,24 @@ def send_weekend_summary(stats: dict):
         lines.append(
             f'Next exits: {_esc(exits_str)}')
 
+    # Phase progress
+    if phase_note:
+        lines.append('')
+        lines.append(f'📊 {_esc(phase_note)}')
+
     if top_winner:
         sym = (top_winner.get('symbol', '')
                .replace('.NS', ''))
-        pnl = top_winner.get('pnl_pct', 0)
+        pnl = float(top_winner.get('pnl_pct') or 0)
         lines.append('')
         lines.append(
-            f'🏆 Top: {_esc(sym)} '
+            f'🏆 Best: {_esc(sym)} '
             f'{_esc(f"+{pnl:.1f}%")}')
 
     if top_loser:
         sym = (top_loser.get('symbol', '')
                .replace('.NS', ''))
-        pnl = top_loser.get('pnl_pct', 0)
+        pnl = float(top_loser.get('pnl_pct') or 0)
         lines.append(
             f'📉 Worst: {_esc(sym)} '
             f'{_esc(f"{pnl:.1f}%")}')
