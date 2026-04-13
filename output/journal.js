@@ -7,11 +7,35 @@
 // - L7   : Signal detail modal (full-screen overlay)
 // - R5   : Expiry alerts banner (exit today / tomorrow)
 // - R8   : SA (Second Attempt) tracking display
+//
+// V1.1 FIXES:
+// - H3   : Stop proximity traffic light on cards —
+//          green/amber/red dot from LTP vs stop
+// - H4   : Unrealized P&L on open journal cards —
+//          LTP vs actual_open entry price
+// - H5   : Capital at risk in portfolio summary —
+//          X positions × 5% = Y% deployed
+// - H6   : R:R shows gap-adjusted actual —
+//          uses actual_open not scan entry
+// - H7   : Open Chart wires to TradingView
+//          NSE:SYMBOL basic chart
+// - H14  : Failure reason tag on resolved cards
+// - H15  : Win reason tag on resolved cards
+// - M2   : Day X/6 shown alongside exit date on cards
+// - M6   : Rejection reason summary at top of
+//          Rejected tab — "Score: 37, Regime: 6"
+// - MC4  : Why this trade in plain language per
+//          signal type — no jargon
+// - LC3  : Full failure reason shown in modal
+//          for resolved signals
+// - D6-6 : Day 6 open price shown in modal
+//          when sig.day6_open is available
 // ──────────────────────────────────────────────────────
 (function () {
 
 const OUTCOME_DONE = new Set([
-  'TARGET_HIT','STOP_HIT','DAY6_WIN','DAY6_LOSS','DAY6_FLAT']);
+  'TARGET_HIT','STOP_HIT',
+  'DAY6_WIN','DAY6_LOSS','DAY6_FLAT']);
 const OUTCOME_WIN  = new Set(['TARGET_HIT','DAY6_WIN']);
 const OUTCOME_LOSS = new Set(['STOP_HIT','DAY6_LOSS']);
 
@@ -22,7 +46,6 @@ window._jFilter = function(f) {
   if (window.TIETIY) window.renderJournal(window.TIETIY);
 };
 
-// ── SIGNAL MAP — for modal lookup (L7) ────────────────
 window._jSigMap = {};
 
 // ── L5: USER DECISION STORE ───────────────────────────
@@ -30,7 +53,8 @@ const _UD_KEY = 'tietiy_ud';
 
 function _loadUD() {
   try {
-    return JSON.parse(localStorage.getItem(_UD_KEY) || '{}');
+    return JSON.parse(
+      localStorage.getItem(_UD_KEY) || '{}');
   } catch(e) { return {}; }
 }
 function _getUD(id) { return _loadUD()[id] || null; }
@@ -38,19 +62,22 @@ function _getUD(id) { return _loadUD()[id] || null; }
 window._jTookSkip = function(cardId, action) {
   try {
     const store = _loadUD();
-    // tap same action again = toggle off
     if (store[cardId] === action) {
       delete store[cardId];
     } else {
       store[cardId] = action;
     }
-    localStorage.setItem(_UD_KEY, JSON.stringify(store));
+    localStorage.setItem(
+      _UD_KEY, JSON.stringify(store));
   } catch(e) {}
-  if (window.TIETIY) window.renderJournal(window.TIETIY);
+  if (window.TIETIY)
+    window.renderJournal(window.TIETIY);
 };
 
 // ── HELPERS ───────────────────────────────────────────
-function _sym(s) { return (s || '').replace('.NS', ''); }
+function _sym(s) {
+  return (s || '').replace('.NS', '');
+}
 
 function _scoreColor(score) {
   const n = parseFloat(score);
@@ -77,7 +104,6 @@ function _sigEmoji(signal) {
   return '📌';
 }
 
-// R8: second-attempt detection
 function _isSA(signal) {
   return (signal || '').toUpperCase().endsWith('_SA');
 }
@@ -92,29 +118,33 @@ function _dayBadge(dayNum) {
   return `<span style="color:${color};font-size:10px;
     font-weight:700;background:${bg};
     border-radius:4px;padding:1px 5px;
-    ${dayNum >= 5 ? 'border:1px solid ' + color + '33;' : ''}">
+    ${dayNum >= 5
+      ? 'border:1px solid ' + color + '33;' : ''}">
     Day ${dayNum}/6${icon}
   </span>`;
 }
 
 function _dayProgress(dayNum) {
-  const pct   = Math.min(Math.round((dayNum / 6) * 100), 100);
+  const pct   = Math.min(
+    Math.round((dayNum / 6) * 100), 100);
   const color = dayNum >= 6 ? '#f85149' :
                 dayNum >= 5 ? '#FF8C00' :
                 dayNum >= 3 ? '#FFD700' : '#58a6ff';
   return `
     <div style="margin-bottom:6px;">
-      <div style="display:flex;justify-content:space-between;
+      <div style="display:flex;
+        justify-content:space-between;
         font-size:10px;color:#555;margin-bottom:3px;">
         <span>Trade progress</span>
-        <span style="color:${color};">Day ${dayNum} of 6</span>
+        <span style="color:${color};">
+          Day ${dayNum} of 6
+        </span>
       </div>
       <div style="background:#21262d;border-radius:3px;
         height:5px;overflow:hidden;">
         <div style="background:${color};height:5px;
           width:${pct}%;border-radius:3px;
-          transition:width 0.3s ease;">
-        </div>
+          transition:width 0.3s ease;"></div>
       </div>
     </div>`;
 }
@@ -129,8 +159,11 @@ function _fmtD(str) {
   } catch(e) { return str; }
 }
 
+// H6 FIX: use actual_open if available
+// so R:R reflects what trader actually got
 function _rr(sig) {
-  const e = parseFloat(sig.entry        || 0);
+  const e = parseFloat(
+    sig.actual_open || sig.entry || 0);
   const s = parseFloat(sig.stop         || 0);
   const t = parseFloat(sig.target_price || 0);
   if (!e || !s || !t) return null;
@@ -148,12 +181,14 @@ function _rejLabel(reason) {
     vol_too_low:           'Volume too low',
     rr_too_low:            'R:R too low',
   };
-  const label = map[reason] || (reason || 'Filtered').replace(/_/g,' ');
+  const label = map[reason]
+    || (reason || 'Filtered').replace(/_/g,' ');
   return `ALPHA: ${label}`;
 }
 
 function _gradeColor(g) {
-  return g === 'A' ? '#ffd700' : g === 'B' ? '#8b949e' : '#555';
+  return g === 'A' ? '#ffd700'
+    : g === 'B' ? '#8b949e' : '#555';
 }
 
 function _badge(bg, color, label) {
@@ -169,35 +204,49 @@ function _outcomeBadge(sig) {
 
   if (outcome === 'TARGET_HIT') {
     const pnl = sig.pnl_pct != null
-      ? ` +${parseFloat(sig.pnl_pct).toFixed(1)}%` : '';
-    return _badge('#0d2a0d','#00C851', `🎯 TARGET${pnl}`);
+      ? ` +${parseFloat(sig.pnl_pct).toFixed(1)}%`
+      : '';
+    return _badge('#0d2a0d','#00C851',
+      `🎯 TARGET${pnl}`);
   }
   if (outcome === 'STOP_HIT') {
     const pnl = sig.pnl_pct != null
-      ? ` ${parseFloat(sig.pnl_pct).toFixed(1)}%` : '';
-    return _badge('#2a0a0a','#f85149', `🛑 STOP${pnl}`);
+      ? ` ${parseFloat(sig.pnl_pct).toFixed(1)}%`
+      : '';
+    return _badge('#2a0a0a','#f85149',
+      `🛑 STOP${pnl}`);
   }
   if (outcome === 'DAY6_WIN') {
     const pnl = sig.pnl_pct != null
-      ? ` +${parseFloat(sig.pnl_pct).toFixed(1)}%` : '';
-    return _badge('#0d2a0d','#00C851', `✓ DAY6 WIN${pnl}`);
+      ? ` +${parseFloat(sig.pnl_pct).toFixed(1)}%`
+      : '';
+    return _badge('#0d2a0d','#00C851',
+      `✓ DAY6 WIN${pnl}`);
   }
   if (outcome === 'DAY6_LOSS') {
     const pnl = sig.pnl_pct != null
-      ? ` ${parseFloat(sig.pnl_pct).toFixed(1)}%` : '';
-    return _badge('#2a0a0a','#f85149', `✕ DAY6 LOSS${pnl}`);
+      ? ` ${parseFloat(sig.pnl_pct).toFixed(1)}%`
+      : '';
+    return _badge('#2a0a0a','#f85149',
+      `✕ DAY6 LOSS${pnl}`);
   }
   if (outcome === 'DAY6_FLAT')
-    return _badge('#1a1a0a','#FFD700', '~ FLAT');
+    return _badge('#1a1a0a','#FFD700','~ FLAT');
   if (result === 'REJECTED')
-    return _badge('#2a0a0a','#f85149', '✕ REJECTED');
+    return _badge('#2a0a0a','#f85149','✕ REJECTED');
 
   const day = typeof getDayNumber === 'function'
     ? getDayNumber(sig.date) : null;
   if (day !== null) {
-    if (day >= 6) return _badge('#2a0a0a','#f85149','⚠️ EXIT TODAY');
-    if (day >= 5) return _badge('#1a0f00','#FF8C00',`⚠️ Day ${day}/6`);
-    if (day >= 3) return _badge('#1a1a0a','#FFD700', `Day ${day}/6`);
+    if (day >= 6)
+      return _badge('#2a0a0a','#f85149',
+        '⚠️ EXIT TODAY');
+    if (day >= 5)
+      return _badge('#1a0f00','#FF8C00',
+        `⚠️ Day ${day}/6`);
+    if (day >= 3)
+      return _badge('#1a1a0a','#FFD700',
+        `Day ${day}/6`);
     return _badge('#1a1a0a','#555',`Day ${day}/6`);
   }
   return _badge('#1a1a0a','#555','OPEN');
@@ -206,18 +255,170 @@ function _outcomeBadge(sig) {
 // ── L7: QUALITY FLAGS ─────────────────────────────────
 function _qualityFlags(sig) {
   const flags = [];
-  if (sig.vol_confirm === true || sig.vol_confirm === 'true')
+  if (sig.vol_confirm === true
+      || sig.vol_confirm === 'true')
     flags.push({ label: 'Vol ✓',    color: '#58a6ff' });
-  if (sig.sec_leading === true || sig.sec_leading === 'true')
+  if (sig.sec_leading === true
+      || sig.sec_leading === 'true')
     flags.push({ label: 'Sec Lead', color: '#58a6ff' });
-  if (sig.rs_strong   === true || sig.rs_strong   === 'true')
+  if (sig.rs_strong === true
+      || sig.rs_strong === 'true')
     flags.push({ label: 'RS ↑',     color: '#58a6ff' });
-  if (sig.grade_A     === true || sig.grade_A     === 'true'
-                               || sig.grade === 'A')
+  if (sig.grade_A === true
+      || sig.grade_A === 'true'
+      || sig.grade === 'A')
     flags.push({ label: 'Grade A',  color: '#ffd700' });
-  if (sig.bear_bonus  === true || sig.bear_bonus  === 'true')
+  if (sig.bear_bonus === true
+      || sig.bear_bonus === 'true')
     flags.push({ label: '🔥 Bear',  color: '#ffd700' });
   return flags;
+}
+
+// ── H3: STOP PROXIMITY ────────────────────────────────
+function _getLTP(sig, ltpPrices) {
+  if (!ltpPrices) return null;
+  const prices = ltpPrices.prices || ltpPrices || {};
+  const symKey = sig.symbol || '';
+  const symClean = _sym(symKey);
+  const val = prices[symKey] || prices[symClean];
+  if (!val) return null;
+  // ltp may be object {ltp:..} or number
+  if (typeof val === 'object' && val.ltp)
+    return parseFloat(val.ltp);
+  return parseFloat(val);
+}
+
+function _stopProximityDot(sig, ltpPrices) {
+  const ltp  = _getLTP(sig, ltpPrices);
+  const stop = parseFloat(sig.stop || 0);
+  if (!ltp || !stop) return '';
+
+  const dirn = sig.direction || 'LONG';
+  const buf  = dirn === 'LONG'
+    ? (ltp - stop) / stop * 100
+    : (stop - ltp) / stop * 100;
+
+  const color = buf < 0      ? '#f85149' : // breached
+                buf < 2      ? '#f85149' : // danger
+                buf < 5      ? '#FF8C00' : // caution
+                               '#00C851';  // safe
+  const title = buf < 0
+    ? 'Stop breached'
+    : `${buf.toFixed(1)}% above stop`;
+
+  return `<span title="${title}"
+    style="display:inline-block;
+      width:7px;height:7px;
+      border-radius:50%;
+      background:${color};
+      margin-left:4px;
+      vertical-align:middle;
+      flex-shrink:0;"
+  ></span>`;
+}
+
+// ── H4: UNREALIZED P&L ────────────────────────────────
+function _unrealizedPnl(sig, ltpPrices) {
+  const ltp   = _getLTP(sig, ltpPrices);
+  const entry = parseFloat(
+    sig.actual_open || sig.entry || 0);
+  if (!ltp || !entry) return null;
+  const dirn = sig.direction || 'LONG';
+  const raw  = (ltp - entry) / entry * 100;
+  return dirn === 'LONG' ? raw : -raw;
+}
+
+// ── H14/H15: FAILURE/WIN REASON TAG ───────────────────
+function _reasonTag(sig) {
+  const outcome = sig.outcome || '';
+  const reason  = sig.failure_reason || '';
+  if (!reason) return '';
+
+  const isWin = OUTCOME_WIN.has(outcome);
+  const color = isWin ? '#00C851' : '#8b949e';
+  const bg    = isWin ? '#0d2a0d' : '#1c2128';
+
+  return `
+    <div style="font-size:10px;color:${color};
+      background:${bg};border-radius:4px;
+      padding:4px 8px;margin-top:6px;
+      line-height:1.4;border:1px solid ${color}22;">
+      💡 ${reason}
+    </div>`;
+}
+
+// ── MC4: WHY THIS TRADE (plain language) ──────────────
+function _whyThisTrade(sig) {
+  const stype   = (sig.signal || '').toUpperCase();
+  const regime  = (sig.stock_regime
+    || sig.regime || '').toUpperCase();
+  const bear    = sig.bear_bonus === true
+    || sig.bear_bonus === 'true';
+  const vol     = sig.vol_confirm === true
+    || sig.vol_confirm === 'true';
+  const sec     = sig.sec_leading === true
+    || sig.sec_leading === 'true';
+  const age     = parseInt(sig.age || 0);
+  const lines   = [];
+
+  if (stype.includes('UP_TRI')) {
+    lines.push(
+      'Price broke out of a tight range — '
+      + 'buyers took control');
+    if (age === 0)
+      lines.push(
+        'Fresh breakout today — most traders '
+        + 'haven\'t seen it yet');
+    if (bear)
+      lines.push(
+        'Market is falling but this stock '
+        + 'is pushing up — strongest signal type 🔥');
+    else if (regime === 'BULL' || regime === 'BULL')
+      lines.push(
+        'Market trend is in your favour — '
+        + 'tailwind behind the move');
+    if (vol)
+      lines.push(
+        'High volume confirms the breakout — '
+        + 'real buyers, not a fake move');
+    if (sec)
+      lines.push(
+        'Sector is leading the market — '
+        + 'group momentum supports the trade');
+  } else if (stype.includes('DOWN_TRI')) {
+    lines.push(
+      'Stock failed to hold a key level — '
+      + 'sellers stepped in');
+    if (age === 0)
+      lines.push(
+        'Fresh breakdown today — edge is highest '
+        + 'at age 0, drops sharply after');
+    lines.push(
+      'Short opportunity — price likely to fall '
+      + 'toward target within 6 days');
+    if (vol)
+      lines.push(
+        'Volume confirms the breakdown — '
+        + 'not just a low-activity drift');
+  } else if (stype.includes('BULL_PROXY')) {
+    lines.push(
+      'Stock bounced off a support level '
+      + 'with strength');
+    lines.push(
+      'Risk is defined — stop is just below '
+      + 'the support floor');
+    if (vol)
+      lines.push(
+        'Volume confirmed the bounce — '
+        + 'buyers defended the level');
+    if (sec)
+      lines.push(
+        'Sector strength adds extra conviction '
+        + 'to this bounce');
+  }
+
+  if (!lines.length) return [];
+  return lines;
 }
 
 // ── POST-TARGET TRACKING DISPLAY ──────────────────────
@@ -232,61 +433,73 @@ function _buildPostTargetSection(sig) {
 
   if (day6Open === null && postMove === null) {
     return `
-      <div style="background:#0a0d1a;border:1px solid #21262d;
-        border-radius:6px;padding:8px 10px;margin-top:8px;
-        font-size:10px;color:#555;">
+      <div style="background:#0a0d1a;
+        border:1px solid #21262d;
+        border-radius:6px;padding:8px 10px;
+        margin-top:8px;font-size:10px;color:#555;">
         🔭 Shadow tracking: observing till Day 6 open
       </div>`;
   }
 
   const moveColor = postMove === null  ? '#555' :
                     postMove > 0       ? '#00C851' :
-                    postMove < 0       ? '#f85149' : '#FFD700';
+                    postMove < 0       ? '#f85149'
+                                       : '#FFD700';
   const moveLabel = postMove === null  ? '—' :
-                    postMove > 0
-                      ? `▲ +${postMove.toFixed(1)}% continued`
-                      : postMove < 0
-                        ? `▼ ${postMove.toFixed(1)}% reversed`
-                        : '~ Flat';
-  const insight   = postMove === null  ? '' :
-                    postMove > 1
-                      ? 'Holding past target would have gained more'
-                      : postMove < -1
-                        ? 'Correct to exit at target — price reversed'
-                        : 'Price moved sideways after target';
+    postMove > 0
+      ? `▲ +${postMove.toFixed(1)}% continued`
+      : postMove < 0
+        ? `▼ ${postMove.toFixed(1)}% reversed`
+        : '~ Flat';
+  const insight   = postMove === null ? '' :
+    postMove > 1
+      ? 'Holding past target would have gained more'
+      : postMove < -1
+        ? 'Correct to exit at target — price reversed'
+        : 'Price moved sideways after target';
 
   return `
     <div style="background:#0a0d1a;
       border:1px solid #21262d33;
       border-left:3px solid #ffd70044;
-      border-radius:6px;padding:10px 12px;margin-top:8px;">
+      border-radius:6px;padding:10px 12px;
+      margin-top:8px;">
       <div style="font-size:10px;color:#555;
         letter-spacing:1px;margin-bottom:8px;">
         🔭 POST-TARGET SHADOW DATA
       </div>
-      <div style="display:grid;grid-template-columns:1fr 1fr;
+      <div style="display:grid;
+        grid-template-columns:1fr 1fr;
         gap:8px;margin-bottom:6px;">
         <div>
-          <div style="font-size:9px;color:#555;margin-bottom:2px;">
+          <div style="font-size:9px;color:#555;
+            margin-bottom:2px;">
             Target hit Day
           </div>
-          <div style="font-size:13px;font-weight:700;color:#ffd700;">
+          <div style="font-size:13px;font-weight:700;
+            color:#ffd700;">
             Day ${exitDay}
           </div>
         </div>
         <div>
-          <div style="font-size:9px;color:#555;margin-bottom:2px;">
+          <div style="font-size:9px;color:#555;
+            margin-bottom:2px;">
             Day 6 open price
           </div>
-          <div style="font-size:13px;font-weight:700;color:#c9d1d9;">
-            ${day6Open !== null ? '₹' + day6Open.toFixed(2) : 'Pending'}
+          <div style="font-size:13px;font-weight:700;
+            color:#c9d1d9;">
+            ${day6Open !== null
+              ? '₹' + day6Open.toFixed(2)
+              : 'Pending'}
           </div>
         </div>
         <div style="grid-column:1/-1;">
-          <div style="font-size:9px;color:#555;margin-bottom:2px;">
+          <div style="font-size:9px;color:#555;
+            margin-bottom:2px;">
             Move from target → Day 6
           </div>
-          <div style="font-size:13px;font-weight:700;color:${moveColor};">
+          <div style="font-size:13px;font-weight:700;
+            color:${moveColor};">
             ${moveLabel}
           </div>
         </div>
@@ -313,9 +526,12 @@ function _buildModalHTML(sig) {
   const outcome  = sig.outcome   || 'OPEN';
   const dayNum   = typeof getDayNumber === 'function'
     ? getDayNumber(sig.date) : null;
+  const isResolved = OUTCOME_DONE.has(outcome);
 
-  const regime   = sig.stock_regime || sig.regime || '—';
-  const age      = sig.age  != null ? String(sig.age) : '—';
+  const regime   = sig.stock_regime
+    || sig.regime || '—';
+  const age      = sig.age != null
+    ? String(sig.age) : '—';
 
   const entry    = sig.entry
     ? parseFloat(sig.entry).toFixed(2)        : null;
@@ -324,13 +540,19 @@ function _buildModalHTML(sig) {
   const target   = sig.target_price
     ? parseFloat(sig.target_price).toFixed(2) : null;
 
-  const mfe      = sig.mfe_pct != null ? parseFloat(sig.mfe_pct) : null;
-  const mae      = sig.mae_pct != null ? parseFloat(sig.mae_pct) : null;
+  const mfe = sig.mfe_pct != null
+    ? parseFloat(sig.mfe_pct) : null;
+  const mae = sig.mae_pct != null
+    ? parseFloat(sig.mae_pct) : null;
 
-  const actOpen  = sig.actual_open != null
+  const actOpen = sig.actual_open != null
     ? parseFloat(sig.actual_open) : null;
-  const gapPct   = sig.gap_pct    != null
+  const gapPct  = sig.gap_pct != null
     ? parseFloat(sig.gap_pct)     : null;
+
+  // D6-6: Day 6 open price
+  const day6Open = sig.day6_open != null
+    ? parseFloat(sig.day6_open) : null;
 
   const exitDateStr = sig.exit_date
     ? (typeof fmtDate === 'function'
@@ -338,13 +560,27 @@ function _buildModalHTML(sig) {
     : '—';
 
   const regimeColor =
-    (regime === 'BEAR' || regime === 'Bear') ? '#f85149' :
-    (regime === 'BULL' || regime === 'Bull') ? '#00C851' : '#FFD700';
+    (regime === 'BEAR' || regime === 'Bear')
+      ? '#f85149' :
+    (regime === 'BULL' || regime === 'Bull')
+      ? '#00C851' : '#FFD700';
+
+  // H7: TradingView URL
+  const tvURL = 'https://www.tradingview.com/chart/'
+    + '?symbol=NSE:' + sym;
+
+  // MC4: why this trade lines
+  const whyLines = _whyThisTrade(sig);
+
+  // LC3: failure/win reason for resolved signals
+  const failureReason = isResolved
+    && sig.failure_reason
+    ? sig.failure_reason : null;
 
   return `
     <div id="j-modal-overlay"
-      style="position:fixed;top:0;left:0;right:0;bottom:0;
-        z-index:9999;
+      style="position:fixed;top:0;left:0;
+        right:0;bottom:0;z-index:9999;
         background:rgba(7,7,15,0.96);
         overflow-y:auto;
         -webkit-overflow-scrolling:touch;"
@@ -355,132 +591,231 @@ function _buildModalHTML(sig) {
         onclick="event.stopPropagation()">
 
         <!-- TOP BAR -->
-        <div style="display:flex;justify-content:space-between;
-          align-items:flex-start;margin-bottom:14px;">
+        <div style="display:flex;
+          justify-content:space-between;
+          align-items:flex-start;
+          margin-bottom:14px;">
           <div>
-            <div style="display:flex;align-items:center;
+            <div style="display:flex;
+              align-items:center;
               gap:8px;flex-wrap:wrap;">
-              <span style="color:#c9d1d9;font-size:22px;
-                font-weight:700;">${sym}</span>
-              <span style="color:${sigColor};font-size:13px;
-                font-weight:700;">
-                ${_sigEmoji(stype)} ${stype.replace(/_/g,' ')}
+              <span style="color:#c9d1d9;
+                font-size:22px;font-weight:700;">
+                ${sym}
+              </span>
+              <span style="color:${sigColor};
+                font-size:13px;font-weight:700;">
+                ${_sigEmoji(stype)}
+                ${stype.replace(/_/g,' ')}
               </span>
               ${isSA_sig
                 ? `<span style="background:#1a1a0a;
-                     color:#ffd700;font-size:10px;font-weight:700;
-                     border:1px solid #ffd70044;border-radius:4px;
+                     color:#ffd700;font-size:10px;
+                     font-weight:700;
+                     border:1px solid #ffd70044;
+                     border-radius:4px;
                      padding:2px 7px;">2ND ATT</span>`
                 : ''}
             </div>
-            <div style="font-size:11px;color:#555;margin-top:3px;">
+            <div style="font-size:11px;color:#555;
+              margin-top:3px;">
               ${sig.sector || ''}
               ${sig.sector && sig.date ? ' · ' : ''}
               ${_fmtD(sig.date)}
             </div>
           </div>
           <button onclick="window._closeSignalModal()"
-            style="background:#21262d;border:1px solid #30363d;
-              color:#c9d1d9;font-size:16px;font-weight:700;
-              width:32px;height:32px;border-radius:6px;
-              cursor:pointer;flex-shrink:0;line-height:1;
-              -webkit-tap-highlight-color:transparent;">✕</button>
+            style="background:#21262d;
+              border:1px solid #30363d;
+              color:#c9d1d9;font-size:16px;
+              font-weight:700;
+              width:32px;height:32px;
+              border-radius:6px;cursor:pointer;
+              flex-shrink:0;line-height:1;
+              -webkit-tap-highlight-color:transparent;">
+            ✕
+          </button>
         </div>
 
         <!-- OUTCOME + SCORE + RR -->
-        <div style="display:flex;gap:6px;flex-wrap:wrap;
-          align-items:center;margin-bottom:14px;">
+        <div style="display:flex;gap:6px;
+          flex-wrap:wrap;align-items:center;
+          margin-bottom:14px;">
           ${_outcomeBadge(sig)}
           <span style="color:${_scoreColor(score)};
             font-size:13px;font-weight:700;
             background:#1c2128;border-radius:4px;
-            padding:2px 8px;border:1px solid #30363d;">
+            padding:2px 8px;
+            border:1px solid #30363d;">
             ${score}/10
           </span>
           ${rr
-            ? `<span style="color:#58a6ff;font-size:11px;
-                 background:#0d1117;border-radius:4px;
-                 padding:2px 8px;">R:R ${rr}×</span>`
+            ? `<span style="color:#58a6ff;
+                 font-size:11px;
+                 background:#0d1117;
+                 border-radius:4px;
+                 padding:2px 8px;">
+                 R:R ${rr}×
+               </span>`
             : ''}
           ${sig.pnl_pct != null
-            ? `<span style="font-size:12px;font-weight:700;
+            ? `<span style="font-size:12px;
+                 font-weight:700;
                  color:${parseFloat(sig.pnl_pct) >= 0
                    ? '#00C851' : '#f85149'};">
-                 P&amp;L:&nbsp;${parseFloat(sig.pnl_pct) >= 0 ? '+' : ''}${
+                 P&amp;L:&nbsp;${
+                   parseFloat(sig.pnl_pct) >= 0
+                     ? '+' : ''}${
                    parseFloat(sig.pnl_pct).toFixed(1)}%
                </span>`
             : ''}
         </div>
 
+        <!-- LC3: FAILURE REASON for resolved signals -->
+        ${failureReason
+          ? `<div style="background:#1c2128;
+               border:1px solid #30363d;
+               border-radius:8px;padding:10px 12px;
+               margin-bottom:10px;
+               font-size:11px;color:#8b949e;
+               line-height:1.6;">
+               <span style="color:#555;font-size:10px;
+                 letter-spacing:1px;">
+                 ${OUTCOME_WIN.has(outcome)
+                   ? '✅ WHY THIS WORKED'
+                   : '💡 WHY THIS FAILED'}
+               </span><br>
+               ${failureReason}
+             </div>`
+          : ''}
+
         <!-- TRADE LEVELS -->
-        <div style="background:#161b22;border:1px solid #21262d;
-          border-radius:8px;padding:14px;margin-bottom:10px;">
+        <div style="background:#161b22;
+          border:1px solid #21262d;
+          border-radius:8px;padding:14px;
+          margin-bottom:10px;">
           <div style="font-size:10px;color:#555;
-            letter-spacing:1px;margin-bottom:10px;">TRADE LEVELS</div>
-          <div style="display:grid;grid-template-columns:1fr 1fr 1fr;
+            letter-spacing:1px;margin-bottom:10px;">
+            TRADE LEVELS
+          </div>
+          <div style="display:grid;
+            grid-template-columns:1fr 1fr 1fr;
             gap:8px;margin-bottom:10px;">
-            <div style="text-align:center;background:#0d1117;
-              border-radius:6px;padding:8px;">
+            <div style="text-align:center;
+              background:#0d1117;border-radius:6px;
+              padding:8px;">
               <div style="font-size:9px;color:#555;
-                letter-spacing:1px;margin-bottom:3px;">ENTRY</div>
-              <div style="color:#58a6ff;font-weight:700;font-size:14px;">
+                letter-spacing:1px;margin-bottom:3px;">
+                ENTRY
+              </div>
+              <div style="color:#58a6ff;font-weight:700;
+                font-size:14px;">
                 ${entry ? '₹' + entry : '—'}
               </div>
             </div>
-            <div style="text-align:center;background:#0d1117;
-              border-radius:6px;padding:8px;">
+            <div style="text-align:center;
+              background:#0d1117;border-radius:6px;
+              padding:8px;">
               <div style="font-size:9px;color:#555;
-                letter-spacing:1px;margin-bottom:3px;">STOP</div>
-              <div style="color:#f85149;font-weight:700;font-size:14px;">
+                letter-spacing:1px;margin-bottom:3px;">
+                STOP
+              </div>
+              <div style="color:#f85149;font-weight:700;
+                font-size:14px;">
                 ${stop ? '₹' + stop : '—'}
               </div>
             </div>
-            <div style="text-align:center;background:#0d1117;
-              border-radius:6px;padding:8px;">
+            <div style="text-align:center;
+              background:#0d1117;border-radius:6px;
+              padding:8px;">
               <div style="font-size:9px;color:#555;
-                letter-spacing:1px;margin-bottom:3px;">TARGET</div>
-              <div style="color:#00C851;font-weight:700;font-size:14px;">
+                letter-spacing:1px;margin-bottom:3px;">
+                TARGET
+              </div>
+              <div style="color:#00C851;font-weight:700;
+                font-size:14px;">
                 ${target ? '₹' + target : 'Day 6'}
               </div>
             </div>
           </div>
+
           ${dayNum !== null ? _dayProgress(dayNum) : ''}
-          <div style="font-size:10px;color:#555;line-height:1.8;
-            margin-top:4px;">
-            Entry: <b style="color:#8b949e;">${_fmtD(sig.date)}</b>
+
+          <div style="font-size:10px;color:#555;
+            line-height:1.8;margin-top:4px;">
+            Entry: <b style="color:#8b949e;">
+              ${_fmtD(sig.date)}
+            </b>
             &nbsp;·&nbsp;
-            Exit: <b style="color:#8b949e;">${exitDateStr}</b>
+            Exit: <b style="color:#8b949e;">
+              ${exitDateStr}
+            </b>
+            ${dayNum !== null
+              ? `&nbsp;·&nbsp;
+                 <b style="color:${
+                   dayNum >= 6 ? '#f85149' :
+                   dayNum >= 5 ? '#FF8C00' : '#555'};">
+                   Day ${dayNum}/6
+                 </b>`
+              : ''}
           </div>
+
           ${actOpen !== null
             ? `<div style="font-size:11px;color:#8b949e;
                  margin-top:6px;">
                  Actual open:
-                 <b style="color:#c9d1d9;">₹${actOpen.toFixed(2)}</b>
+                 <b style="color:#c9d1d9;">
+                   ₹${actOpen.toFixed(2)}
+                 </b>
                  ${gapPct !== null
-                   ? `<span style="margin-left:6px;color:${
-                       Math.abs(gapPct) >= 3   ? '#f85149' :
-                       Math.abs(gapPct) >= 1.5 ? '#FFD700' : '#00C851'};">
-                       Gap: ${gapPct >= 0 ? '+' : ''}${gapPct.toFixed(1)}%
-                       ${sig.entry_valid === false
-                         ? '⚠️ Too large' : '✓'}
-                     </span>`
+                   ? `<span style="margin-left:6px;
+                        color:${
+                          Math.abs(gapPct) >= 3
+                            ? '#f85149' :
+                          Math.abs(gapPct) >= 1.5
+                            ? '#FFD700' : '#00C851'};">
+                        Gap:
+                        ${gapPct >= 0 ? '+' : ''}${
+                          gapPct.toFixed(1)}%
+                        ${sig.entry_valid === false
+                          ? '⚠️ Too large' : '✓'}
+                      </span>`
                    : ''}
+               </div>`
+            : ''}
+
+          ${/* D6-6: Day 6 open in modal */
+            day6Open !== null
+            ? `<div style="font-size:11px;
+                 color:#8b949e;margin-top:6px;">
+                 Day 6 open:
+                 <b style="color:#ffd700;">
+                   ₹${day6Open.toFixed(2)}
+                 </b>
                </div>`
             : ''}
         </div>
 
         <!-- SIGNAL CONTEXT -->
-        <div style="background:#161b22;border:1px solid #21262d;
-          border-radius:8px;padding:14px;margin-bottom:10px;">
+        <div style="background:#161b22;
+          border:1px solid #21262d;
+          border-radius:8px;padding:14px;
+          margin-bottom:10px;">
           <div style="font-size:10px;color:#555;
             letter-spacing:1px;margin-bottom:10px;">
             SIGNAL CONTEXT
           </div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;
-            gap:10px;font-size:11px;margin-bottom:10px;">
+          <div style="display:grid;
+            grid-template-columns:1fr 1fr;
+            gap:10px;font-size:11px;
+            margin-bottom:10px;">
             <div>
-              <div style="color:#555;margin-bottom:2px;">Regime</div>
-              <b style="color:${regimeColor};">${regime}</b>
+              <div style="color:#555;margin-bottom:2px;">
+                Regime
+              </div>
+              <b style="color:${regimeColor};">
+                ${regime}
+              </b>
             </div>
             <div>
               <div style="color:#555;margin-bottom:2px;">
@@ -489,8 +824,11 @@ function _buildModalHTML(sig) {
               <b style="color:#c9d1d9;">${age}</b>
             </div>
             <div>
-              <div style="color:#555;margin-bottom:2px;">Grade</div>
-              <b style="color:${_gradeColor(sig.grade || '')};">
+              <div style="color:#555;margin-bottom:2px;">
+                Grade
+              </div>
+              <b style="color:${_gradeColor(
+                sig.grade || '')};">
                 ${sig.grade || '—'}
               </b>
             </div>
@@ -500,14 +838,15 @@ function _buildModalHTML(sig) {
               </div>
               <b style="color:${sig.generation === 0
                 ? '#555' : '#c9d1d9'};">
-                ${sig.generation === 0 ? 'Backfill' : 'Live'}
+                ${sig.generation === 0
+                  ? 'Backfill' : 'Live'}
               </b>
             </div>
           </div>
 
           ${flags.length > 0
-            ? `<div style="display:flex;gap:6px;flex-wrap:wrap;
-                 padding-top:8px;
+            ? `<div style="display:flex;gap:6px;
+                 flex-wrap:wrap;padding-top:8px;
                  border-top:1px solid #21262d;">
                  ${flags.map(f =>
                    `<span style="background:#1c2128;
@@ -523,42 +862,119 @@ function _buildModalHTML(sig) {
 
           ${isSA_sig
             ? `<div style="background:#1a1a0a;
-                 border:1px solid #ffd70033;border-radius:6px;
+                 border:1px solid #ffd70033;
+                 border-radius:6px;
                  padding:8px 10px;margin-top:8px;
-                 font-size:10px;color:#8b949e;line-height:1.6;">
-                 <b style="color:#ffd700;">2nd Attempt</b> —
-                 re-test of the same pattern after a prior signal.
-                 ${stype.toUpperCase().startsWith('DOWN')
-                   ? 'Age-0 only. If missed at the break, skip — edge is gone.'
-                   : 'Ages 0–1 valid. Same entry rules as first attempt.'}
+                 font-size:10px;color:#8b949e;
+                 line-height:1.6;">
+                 <b style="color:#ffd700;">
+                   2nd Attempt
+                 </b> —
+                 re-test of the same pattern after a
+                 prior signal.
+                 ${stype.toUpperCase()
+                   .startsWith('DOWN')
+                   ? 'Age-0 only. If missed at the '
+                     + 'break, skip — edge is gone.'
+                   : 'Ages 0–1 valid. Same entry '
+                     + 'rules as first attempt.'}
                </div>`
             : ''}
         </div>
 
+        <!-- MC4: WHY THIS TRADE (plain language) -->
+        ${whyLines.length > 0
+          ? `<div style="background:#161b22;
+               border:1px solid #21262d;
+               border-radius:8px;padding:14px;
+               margin-bottom:10px;">
+               <div style="font-size:10px;color:#555;
+                 letter-spacing:1px;
+                 margin-bottom:10px;">
+                 WHY THIS TRADE
+               </div>
+               ${whyLines.map(line =>
+                 `<div style="display:flex;gap:8px;
+                    margin-bottom:6px;
+                    font-size:11px;color:#8b949e;
+                    line-height:1.5;">
+                    <span style="color:#555;
+                      flex-shrink:0;">·</span>
+                    <span>${line}</span>
+                  </div>`
+               ).join('')}
+             </div>`
+          : ''}
+
         <!-- MAE / MFE -->
         ${(mfe !== null || mae !== null)
-          ? `<div style="background:#161b22;border:1px solid #21262d;
-               border-radius:8px;padding:14px;margin-bottom:10px;">
+          ? `<div style="background:#161b22;
+               border:1px solid #21262d;
+               border-radius:8px;padding:14px;
+               margin-bottom:10px;">
                <div style="font-size:10px;color:#555;
-                 letter-spacing:1px;margin-bottom:10px;">
+                 letter-spacing:1px;
+                 margin-bottom:10px;">
                  EXCURSION
                </div>
-               <div style="display:flex;gap:20px;font-size:12px;">
+               <div style="display:flex;gap:20px;
+                 font-size:12px;">
                  <span style="color:#555;">Peak gain:
-                   <b style="color:${mfe !== null && mfe > 0
+                   <b style="color:${mfe !== null
+                     && mfe > 0
                      ? '#00C851' : '#555'};">
-                     ${mfe !== null ? '+' + mfe.toFixed(1) + '%' : '—'}
+                     ${mfe !== null
+                       ? '+' + mfe.toFixed(1) + '%'
+                       : '—'}
                    </b>
                  </span>
-                 <span style="color:#555;">Max drawdown:
-                   <b style="color:${mae !== null && mae > 0
+                 <span style="color:#555;">
+                   Max drawdown:
+                   <b style="color:${mae !== null
+                     && mae > 0
                      ? '#f85149' : '#555'};">
-                     ${mae !== null ? '-' + mae.toFixed(1) + '%' : '—'}
+                     ${mae !== null
+                       ? '-' + mae.toFixed(1) + '%'
+                       : '—'}
                    </b>
                  </span>
                </div>
              </div>`
           : ''}
+
+        <!-- H7: OPEN CHART button -->
+        <div style="display:flex;gap:8px;
+          margin-bottom:10px;">
+          <a href="${tvURL}" target="_blank"
+            rel="noopener noreferrer"
+            style="flex:1;text-align:center;
+              background:#1c2128;
+              border:1px solid #30363d;
+              color:#8b949e;font-size:11px;
+              border-radius:6px;padding:8px 0;
+              text-decoration:none;
+              -webkit-tap-highlight-color:transparent;">
+            📈 Open Chart
+          </a>
+          <button onclick="
+            const t = '${sym} ${stype} '
+              + 'Entry: ${entry || '—'} '
+              + 'Stop: ${stop || '—'} '
+              + 'Target: ${target || '—'}';
+            if(navigator.clipboard)
+              navigator.clipboard.writeText(t);
+            this.textContent='✓ Copied';
+            setTimeout(()=>
+              this.textContent='📋 Copy',1200);"
+            style="flex:1;background:#1c2128;
+              border:1px solid #30363d;
+              color:#8b949e;font-size:11px;
+              border-radius:6px;padding:8px 0;
+              cursor:pointer;
+              -webkit-tap-highlight-color:transparent;">
+            📋 Copy
+          </button>
+        </div>
 
         <!-- POST-TARGET -->
         ${_buildPostTargetSection(sig)}
@@ -570,7 +986,8 @@ function _buildModalHTML(sig) {
 window._openSignalModal = function(cardId) {
   const sig = window._jSigMap[cardId];
   if (!sig) return;
-  const existing = document.getElementById('j-modal-overlay');
+  const existing =
+    document.getElementById('j-modal-overlay');
   if (existing) existing.remove();
   const tmp = document.createElement('div');
   tmp.innerHTML = _buildModalHTML(sig);
@@ -582,7 +999,6 @@ window._closeSignalModal = function() {
   if (m) m.remove();
 };
 
-// backward-compat stub — no longer used but may be in cache
 window.toggleJournalCard = function() {};
 
 // ── L5: TOOK / SKIP ROW ───────────────────────────────
@@ -594,7 +1010,8 @@ function _renderTookSkipRow(sig, cardId) {
       <div style="display:flex;gap:6px;margin-top:8px;
         padding-top:8px;border-top:1px solid #21262d;">
         <span style="flex:1;text-align:center;
-          background:#0d2a0d;border:1px solid #00C85144;
+          background:#0d2a0d;
+          border:1px solid #00C85144;
           color:#00C851;font-size:11px;font-weight:700;
           border-radius:5px;padding:5px 0;">
           ✓ Took it
@@ -602,9 +1019,11 @@ function _renderTookSkipRow(sig, cardId) {
         <button
           onclick="event.stopPropagation();
             window._jTookSkip('${cardId}','TOOK')"
-          style="background:none;border:1px solid #21262d;
-            color:#555;font-size:10px;border-radius:5px;
-            padding:5px 10px;cursor:pointer;
+          style="background:none;
+            border:1px solid #21262d;
+            color:#555;font-size:10px;
+            border-radius:5px;padding:5px 10px;
+            cursor:pointer;
             -webkit-tap-highlight-color:transparent;">
           undo
         </button>
@@ -616,7 +1035,8 @@ function _renderTookSkipRow(sig, cardId) {
       <div style="display:flex;gap:6px;margin-top:8px;
         padding-top:8px;border-top:1px solid #21262d;">
         <span style="flex:1;text-align:center;
-          background:#1c2128;border:1px solid #30363d;
+          background:#1c2128;
+          border:1px solid #30363d;
           color:#555;font-size:11px;font-weight:700;
           border-radius:5px;padding:5px 0;">
           — Skipped
@@ -624,9 +1044,11 @@ function _renderTookSkipRow(sig, cardId) {
         <button
           onclick="event.stopPropagation();
             window._jTookSkip('${cardId}','SKIPPED')"
-          style="background:none;border:1px solid #21262d;
-            color:#555;font-size:10px;border-radius:5px;
-            padding:5px 10px;cursor:pointer;
+          style="background:none;
+            border:1px solid #21262d;
+            color:#555;font-size:10px;
+            border-radius:5px;padding:5px 10px;
+            cursor:pointer;
             -webkit-tap-highlight-color:transparent;">
           undo
         </button>
@@ -642,7 +1064,8 @@ function _renderTookSkipRow(sig, cardId) {
         style="flex:1;background:#0d1a0d;
           border:1px solid #00C85144;color:#00C851;
           font-size:11px;font-weight:700;
-          border-radius:5px;padding:6px 0;cursor:pointer;
+          border-radius:5px;padding:6px 0;
+          cursor:pointer;
           -webkit-tap-highlight-color:transparent;">
         ✓ Took it
       </button>
@@ -652,7 +1075,8 @@ function _renderTookSkipRow(sig, cardId) {
         style="flex:1;background:#1c2128;
           border:1px solid #30363d;color:#555;
           font-size:11px;font-weight:700;
-          border-radius:5px;padding:6px 0;cursor:pointer;
+          border-radius:5px;padding:6px 0;
+          cursor:pointer;
           -webkit-tap-highlight-color:transparent;">
         — Skip
       </button>
@@ -665,9 +1089,12 @@ function _renderExpiryAlert(took) {
     ? getDayNumber : null;
   if (!dayFn) return '';
 
-  const open  = took.filter(s => !OUTCOME_DONE.has(s.outcome || ''));
-  const today = open.filter(s => dayFn(s.date) >= 6);
-  const tmrw  = open.filter(s => dayFn(s.date) === 5);
+  const open  = took.filter(
+    s => !OUTCOME_DONE.has(s.outcome || ''));
+  const today = open.filter(
+    s => dayFn(s.date) >= 6);
+  const tmrw  = open.filter(
+    s => dayFn(s.date) === 5);
 
   if (!today.length && !tmrw.length) return '';
 
@@ -718,33 +1145,104 @@ function _renderExpiryAlert(took) {
     </div>`;
 }
 
-// ── P&L SUMMARY ROW ───────────────────────────────────
-function _buildPnlSummary(took) {
-  const open     = took.filter(s => s.outcome === 'OPEN' || !s.outcome);
-  const resolved = took.filter(s => s.outcome && s.outcome !== 'OPEN');
+// ── M6: REJECTION SUMMARY ─────────────────────────────
+function _renderRejectionSummary(rej) {
+  if (!rej.length) return '';
 
-  const openWithPnl = open.filter(s => s.pnl_pct != null);
+  const byReason = {};
+  rej.forEach(function(s) {
+    const r = s.rejection_reason || 'unknown';
+    byReason[r] = (byReason[r] || 0) + 1;
+  });
+
+  const sorted = Object.entries(byReason)
+    .sort((a, b) => b[1] - a[1]);
+
+  const items = sorted.map(function([r, n]) {
+    const map = {
+      score_below_threshold: 'Score too low',
+      regime_not_aligned:    'Regime mismatch',
+      age_expired:           'Age expired',
+      vol_too_low:           'Volume too low',
+      rr_too_low:            'R:R too low',
+    };
+    const label = map[r]
+      || r.replace(/_/g,' ');
+    const pct = Math.round(n / rej.length * 100);
+    const width = Math.max(pct, 3);
+    return `
+      <div style="margin-bottom:7px;">
+        <div style="display:flex;
+          justify-content:space-between;
+          font-size:10px;color:#555;
+          margin-bottom:3px;">
+          <span>${label}</span>
+          <span style="color:#c9d1d9;">
+            ${n}
+            <span style="color:#444;">${pct}%</span>
+          </span>
+        </div>
+        <div style="background:#21262d;
+          border-radius:2px;height:4px;">
+          <div style="background:#f85149;height:4px;
+            width:${width}%;border-radius:2px;">
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  return `
+    <div style="margin:0 16px 12px;
+      background:#161b22;border-radius:8px;
+      border:1px solid #21262d;
+      padding:10px 12px;">
+      <div style="font-size:10px;color:#555;
+        letter-spacing:1px;margin-bottom:10px;">
+        REJECTION REASONS
+      </div>
+      ${items}
+    </div>`;
+}
+
+// ── H5: CAPITAL AT RISK ───────────────────────────────
+function _buildPnlSummary(took, ltpPrices) {
+  const open     = took.filter(
+    s => s.outcome === 'OPEN' || !s.outcome);
+  const resolved = took.filter(
+    s => s.outcome && s.outcome !== 'OPEN');
+
+  // H4: unrealized P&L from LTP
+  const openWithPnl = open.filter(
+    s => _unrealizedPnl(s, ltpPrices) !== null);
   const totalUnreal = openWithPnl.reduce(
-    (sum, s) => sum + parseFloat(s.pnl_pct || 0), 0);
-  const avgUnreal   = openWithPnl.length > 0
-    ? (totalUnreal / openWithPnl.length) : null;
+    function(sum, s) {
+      return sum + _unrealizedPnl(s, ltpPrices);
+    }, 0);
+  const avgUnreal = openWithPnl.length > 0
+    ? totalUnreal / openWithPnl.length : null;
 
   const wins   = resolved.filter(
-    s => s.outcome === 'TARGET_HIT' || s.outcome === 'DAY6_WIN');
+    s => s.outcome === 'TARGET_HIT'
+      || s.outcome === 'DAY6_WIN');
   const losses = resolved.filter(
-    s => s.outcome === 'STOP_HIT'   || s.outcome === 'DAY6_LOSS');
-  const flats  = resolved.filter(s => s.outcome === 'DAY6_FLAT');
+    s => s.outcome === 'STOP_HIT'
+      || s.outcome === 'DAY6_LOSS');
+  const flats  = resolved.filter(
+    s => s.outcome === 'DAY6_FLAT');
 
   const winRate = resolved.length > 0
-    ? Math.round(wins.length / resolved.length * 100) : null;
+    ? Math.round(wins.length / resolved.length * 100)
+    : null;
 
   const avgWinPnl = wins.length > 0
-    ? wins.reduce((s, t) => s + parseFloat(t.pnl_pct || 0), 0) /
-      wins.length
+    ? wins.reduce(
+        (s, t) => s + parseFloat(t.pnl_pct || 0), 0)
+      / wins.length
     : null;
   const avgLossPnl = losses.length > 0
-    ? losses.reduce((s, t) => s + parseFloat(t.pnl_pct || 0), 0) /
-      losses.length
+    ? losses.reduce(
+        (s, t) => s + parseFloat(t.pnl_pct || 0), 0)
+      / losses.length
     : null;
 
   const exitToday = open.filter(s => {
@@ -760,17 +1258,35 @@ function _buildPnlSummary(took) {
 
   const unrealColor = avgUnreal === null ? '#555' :
                       avgUnreal > 0      ? '#00C851' :
-                      avgUnreal < 0      ? '#f85149' : '#FFD700';
+                      avgUnreal < 0      ? '#f85149'
+                                         : '#FFD700';
 
-  const urgencyHtml = (exitToday > 0 || exitTomorrow > 0)
+  // H5: capital at risk — max 5% per trade
+  const capitalPct = open.length * 5;
+  const capitalNote = open.length > 0
+    ? `<div style="font-size:10px;color:#555;
+         margin-top:3px;">
+         ${open.length} positions × 5% =
+         <span style="color:${
+           capitalPct > 50 ? '#f85149' :
+           capitalPct > 30 ? '#FF8C00' : '#8b949e'};">
+           ~${capitalPct}% deployed
+         </span>
+       </div>`
+    : '';
+
+  const urgencyHtml = (exitToday > 0
+    || exitTomorrow > 0)
     ? `<div style="font-size:10px;margin-top:4px;">
          ${exitToday > 0
-           ? `<span style="color:#f85149;font-weight:700;">
+           ? `<span style="color:#f85149;
+               font-weight:700;">
                ⚠️ ${exitToday} exit today
              </span>`
            : ''}
          ${exitTomorrow > 0
-           ? `<span style="color:#FF8C00;margin-left:8px;">
+           ? `<span style="color:#FF8C00;
+               margin-left:8px;">
                ${exitTomorrow} exit tomorrow
              </span>`
            : ''}
@@ -780,7 +1296,8 @@ function _buildPnlSummary(took) {
   return `
     <div style="margin:0 16px 14px;
       background:#161b22;border-radius:8px;
-      border:1px solid #21262d;padding:12px 14px;">
+      border:1px solid #21262d;
+      padding:12px 14px;">
       <div style="font-size:10px;color:#555;
         letter-spacing:1px;margin-bottom:10px;">
         PORTFOLIO SUMMARY
@@ -788,53 +1305,72 @@ function _buildPnlSummary(took) {
       <div style="display:grid;
         grid-template-columns:1fr 1fr;gap:10px;">
         <div>
-          <div style="font-size:10px;color:#555;margin-bottom:4px;">
+          <div style="font-size:10px;color:#555;
+            margin-bottom:4px;">
             Open positions
           </div>
-          <div style="font-size:20px;font-weight:700;color:#c9d1d9;">
+          <div style="font-size:20px;font-weight:700;
+            color:#c9d1d9;">
             ${open.length}
           </div>
-          <div style="font-size:11px;color:#555;margin-top:2px;">
+          <div style="font-size:11px;color:#555;
+            margin-top:2px;">
             Avg P&amp;L:
-            <span style="color:${unrealColor};font-weight:700;">
+            <span style="color:${unrealColor};
+              font-weight:700;">
               ${avgUnreal !== null
-                ? (avgUnreal >= 0 ? '+' : '') +
-                  avgUnreal.toFixed(1) + '%'
+                ? (avgUnreal >= 0 ? '+' : '')
+                  + avgUnreal.toFixed(1) + '%'
                 : '—'}
             </span>
           </div>
+          ${capitalNote}
           ${urgencyHtml}
         </div>
         <div>
-          <div style="font-size:10px;color:#555;margin-bottom:4px;">
+          <div style="font-size:10px;color:#555;
+            margin-bottom:4px;">
             Resolved
           </div>
-          <div style="display:flex;align-items:baseline;gap:6px;">
+          <div style="display:flex;
+            align-items:baseline;gap:6px;">
             <span style="font-size:20px;font-weight:700;
-              color:#c9d1d9;">${resolved.length}</span>
+              color:#c9d1d9;">
+              ${resolved.length}
+            </span>
             ${winRate !== null
-              ? `<span style="font-size:12px;font-weight:700;
-                  color:${winRate >= 70 ? '#00C851' :
-                          winRate >= 50 ? '#FFD700' : '#f85149'};">
-                  ${winRate}% WR
-                </span>`
+              ? `<span style="font-size:12px;
+                   font-weight:700;
+                   color:${winRate >= 70 ? '#00C851' :
+                           winRate >= 50 ? '#FFD700'
+                                        : '#f85149'};">
+                   ${winRate}% WR
+                 </span>`
               : ''}
           </div>
-          <div style="display:flex;gap:8px;font-size:11px;
-            margin-top:4px;">
+          <div style="display:flex;gap:8px;
+            font-size:11px;margin-top:4px;">
             <span style="color:#00C851;">
               W:${wins.length}
               ${avgWinPnl !== null
-                ? `<span style="color:#555;font-size:10px;">
-                    (+${avgWinPnl.toFixed(1)}%)</span>` : ''}
+                ? `<span style="color:#555;
+                     font-size:10px;">
+                     (+${avgWinPnl.toFixed(1)}%)
+                   </span>`
+                : ''}
             </span>
             <span style="color:#f85149;">
               L:${losses.length}
               ${avgLossPnl !== null
-                ? `<span style="color:#555;font-size:10px;">
-                    (${avgLossPnl.toFixed(1)}%)</span>` : ''}
+                ? `<span style="color:#555;
+                     font-size:10px;">
+                     (${avgLossPnl.toFixed(1)}%)
+                   </span>`
+                : ''}
             </span>
-            <span style="color:#FFD700;">F:${flats.length}</span>
+            <span style="color:#FFD700;">
+              F:${flats.length}
+            </span>
           </div>
         </div>
       </div>
@@ -842,35 +1378,67 @@ function _buildPnlSummary(took) {
 }
 
 // ── COMPACT CARD ──────────────────────────────────────
-function _compactCard(sig, isRejView) {
-  const sym        = _sym(sig.symbol || sig.stock || '?');
+function _compactCard(sig, isRejView, ltpPrices) {
+  const sym        = _sym(sig.symbol
+    || sig.stock || '?');
   const stype      = sig.signal    || '?';
   const sigColor   = _sigColor(stype);
   const score      = sig.score     || 0;
-  const direction  = sig.direction === 'SHORT' ? '↓ SHORT' : '↑ LONG';
+  const direction  = sig.direction === 'SHORT'
+    ? '↓ SHORT' : '↑ LONG';
   const sector     = sig.sector    || '';
   const grade      = sig.grade     || '';
-  const bearBonus  = sig.bear_bonus === true || sig.bear_bonus === 'true';
+  const bearBonus  = sig.bear_bonus === true
+    || sig.bear_bonus === 'true';
   const stkRegime  = sig.stock_regime || null;
   const isBackfill = sig.generation === 0;
-  const isSA_sig   = _isSA(stype);        // R8
+  const isSA_sig   = _isSA(stype);
+  const isResolved = OUTCOME_DONE.has(sig.outcome || '');
+  const isOpen     = !isResolved;
 
   const entry  = sig.entry
-    ? '₹' + parseFloat(sig.entry).toFixed(2)        : '—';
+    ? '₹' + parseFloat(sig.entry).toFixed(2) : '—';
   const stop   = sig.stop
-    ? '₹' + parseFloat(sig.stop).toFixed(2)         : '—';
+    ? '₹' + parseFloat(sig.stop).toFixed(2)  : '—';
   const target = sig.target_price
-    ? '₹' + parseFloat(sig.target_price).toFixed(2) : '—';
-  const exitStr = sig.exit_date ? _fmtD(sig.exit_date) : null;
+    ? '₹' + parseFloat(sig.target_price).toFixed(2)
+    : '—';
+
+  const exitStr  = sig.exit_date
+    ? _fmtD(sig.exit_date) : null;
+  const dayNum   = typeof getDayNumber === 'function'
+    ? getDayNumber(sig.date) : null;
 
   const rr    = _rr(sig);
   const cardId = (sig.id ||
-    (sym + '-' + stype + '-' + (sig.date || ''))).replace(/[^a-zA-Z0-9-]/g, '-');
+    (sym + '-' + stype + '-'
+     + (sig.date || '')))
+    .replace(/[^a-zA-Z0-9-]/g, '-');
 
   const rejReason = isRejView && sig.rejection_reason
     ? _rejLabel(sig.rejection_reason) : null;
-  const rejThresh = isRejView && sig.rejection_threshold != null
+  const rejThresh = isRejView
+    && sig.rejection_threshold != null
     ? ` (min: ${sig.rejection_threshold})` : '';
+
+  // H3: stop proximity dot (open positions only)
+  const stopDot = isOpen && !isRejView
+    ? _stopProximityDot(sig, ltpPrices) : '';
+
+  // H4: unrealized P&L from LTP
+  const unreal = isOpen && !isRejView
+    ? _unrealizedPnl(sig, ltpPrices) : null;
+  const unrealStr = unreal !== null
+    ? ((unreal >= 0 ? '+' : '')
+       + unreal.toFixed(1) + '%')
+    : null;
+  const unrealColor = unreal === null ? '#555' :
+    unreal > 0 ? '#00C851' :
+    unreal < 0 ? '#f85149' : '#FFD700';
+
+  // H14/H15: failure/win reason for resolved
+  const reasonHtml = isResolved
+    ? _reasonTag(sig) : '';
 
   // register in signal map for L7 modal
   window._jSigMap[cardId] = sig;
@@ -884,40 +1452,52 @@ function _compactCard(sig, isRejView) {
       ${isBackfill ? 'opacity:0.75;' : ''}">
 
       <!-- ROW 1: symbol + badges + modal button -->
-      <div style="display:flex;justify-content:space-between;
+      <div style="display:flex;
+        justify-content:space-between;
         align-items:flex-start;margin-bottom:5px;">
         <div style="display:flex;align-items:center;
           gap:5px;flex-wrap:wrap;flex:1;min-width:0;">
           <span style="color:#c9d1d9;font-size:14px;
             font-weight:700;">${sym}</span>
-          <span style="color:#555;font-size:11px;">${sector}</span>
+          ${stopDot}
+          <span style="color:#555;font-size:11px;">
+            ${sector}
+          </span>
           ${grade
-            ? `<span style="color:${_gradeColor(grade)};
-                font-size:10px;font-weight:700;
-                border:1px solid ${_gradeColor(grade)}44;
-                border-radius:3px;padding:0 4px;">
-                ${grade}
-              </span>`
+            ? `<span style="color:${
+                 _gradeColor(grade)};
+                 font-size:10px;font-weight:700;
+                 border:1px solid ${
+                   _gradeColor(grade)}44;
+                 border-radius:3px;padding:0 4px;">
+                 ${grade}
+               </span>`
             : ''}
           ${bearBonus
-            ? '<span style="font-size:10px;">🔥</span>' : ''}
+            ? '<span style="font-size:10px;">🔥</span>'
+            : ''}
           ${isSA_sig
-            ? `<span style="background:#1a1a0a;color:#ffd700;
-                font-size:9px;font-weight:700;
-                border:1px solid #ffd70033;border-radius:3px;
-                padding:1px 5px;">2ND</span>`
+            ? `<span style="background:#1a1a0a;
+                 color:#ffd700;font-size:9px;
+                 font-weight:700;
+                 border:1px solid #ffd70033;
+                 border-radius:3px;
+                 padding:1px 5px;">2ND</span>`
             : ''}
           ${stkRegime
             ? `<span style="font-size:9px;color:#555;
-                background:#1c2128;border-radius:3px;
-                padding:1px 4px;">stk:${stkRegime}</span>`
+                 background:#1c2128;
+                 border-radius:3px;padding:1px 4px;">
+                 stk:${stkRegime}
+               </span>`
             : ''}
           ${isBackfill
             ? `<span style="font-size:9px;color:#444;
-                background:#1c2128;border-radius:3px;
-                padding:1px 4px;border:1px solid #30363d;">
-                gen:0
-              </span>`
+                 background:#1c2128;border-radius:3px;
+                 padding:1px 4px;
+                 border:1px solid #30363d;">
+                 gen:0
+               </span>`
             : ''}
         </div>
         <div style="display:flex;align-items:center;
@@ -928,8 +1508,9 @@ function _compactCard(sig, isRejView) {
                 onclick="event.stopPropagation();
                   window._openSignalModal('${cardId}')"
                 style="background:none;border:none;
-                  color:#555;font-size:14px;cursor:pointer;
-                  padding:0 2px;line-height:1;
+                  color:#555;font-size:14px;
+                  cursor:pointer;padding:0 2px;
+                  line-height:1;
                   -webkit-tap-highlight-color:transparent;">
                 ▶
               </button>`
@@ -937,41 +1518,76 @@ function _compactCard(sig, isRejView) {
         </div>
       </div>
 
-      <!-- ROW 2: signal type + score -->
+      <!-- ROW 2: signal type + score + unreal P&L -->
       <div style="display:flex;align-items:center;
-        gap:6px;flex-wrap:wrap;margin-bottom:6px;font-size:11px;">
+        gap:6px;flex-wrap:wrap;margin-bottom:6px;
+        font-size:11px;">
         <span style="color:${sigColor};font-weight:700;">
           ${_sigEmoji(stype)} ${stype.replace(/_/g,' ')}
         </span>
-        <span style="color:${_scoreColor(score)};font-weight:700;">
+        <span style="color:${_scoreColor(score)};
+          font-weight:700;">
           ${score}/10
         </span>
         <span style="color:#555;">${direction}</span>
         ${rr
           ? `<span style="color:#555;">
-               R:R <b style="color:#58a6ff;">${rr}×</b>
+               R:R <b style="color:#58a6ff;">
+                 ${rr}×
+               </b>
+             </span>`
+          : ''}
+        ${unrealStr !== null
+          ? `<span style="color:${unrealColor};
+               font-weight:700;font-size:10px;
+               background:#1c2128;
+               border-radius:3px;
+               padding:1px 5px;">
+               LTP ${unrealStr}
              </span>`
           : ''}
       </div>
 
-      <!-- ROW 3: levels -->
-      <div style="display:flex;gap:12px;flex-wrap:wrap;
-        font-size:11px;color:#8b949e;">
-        <span>Entry <b style="color:#c9d1d9;">${entry}</b></span>
-        <span>Stop  <b style="color:#f85149;">${stop}</b></span>
-        <span>Target <b style="color:#00C851;">${target}</b></span>
+      <!-- ROW 3: levels + M2 Day X/6 -->
+      <div style="display:flex;gap:8px;
+        flex-wrap:wrap;font-size:11px;
+        color:#8b949e;">
+        <span>Entry
+          <b style="color:#c9d1d9;">${entry}</b>
+        </span>
+        <span>Stop
+          <b style="color:#f85149;">${stop}</b>
+        </span>
+        <span>Target
+          <b style="color:#00C851;">${target}</b>
+        </span>
         ${exitStr
-          ? `<span>Exit <b style="color:#555;">${exitStr}</b></span>`
+          ? `<span>Exit
+               <b style="color:#555;">${exitStr}</b>
+             </span>`
+          : ''}
+        ${/* M2: Day X/6 alongside exit date */
+          dayNum !== null && isOpen
+          ? `<span style="color:${
+               dayNum >= 6 ? '#f85149' :
+               dayNum >= 5 ? '#FF8C00' : '#555'};
+               font-weight:${dayNum >= 5 ? '700' : '400'};">
+               Day ${dayNum}/6
+             </span>`
           : ''}
       </div>
 
       ${rejReason
-        ? `<div style="font-size:10px;color:#f85149;margin-top:5px;">
+        ? `<div style="font-size:10px;color:#f85149;
+             margin-top:5px;">
              ✕ ${rejReason}${rejThresh}
            </div>`
         : ''}
 
-      <!-- L5: Took/Skip row (non-backfill, took view only) -->
+      <!-- H14/H15: failure/win reason tag -->
+      ${reasonHtml}
+
+      <!-- L5: Took/Skip row -->
       ${!isRejView && !isBackfill
         ? _renderTookSkipRow(sig, cardId) : ''}
     </div>`;
@@ -981,25 +1597,30 @@ function _compactCard(sig, isRejView) {
 function _filterBar(tookN, rejN) {
   const tookActive = _jFilter === 'took';
   return `
-    <div style="display:flex;gap:8px;padding:0 16px 10px;">
+    <div style="display:flex;gap:8px;
+      padding:0 16px 10px;">
       <button onclick="window._jFilter('took')"
         style="flex:1;
-          background:${tookActive ? '#21262d' : 'none'};
+          background:${tookActive
+            ? '#21262d' : 'none'};
           color:${tookActive ? '#c9d1d9' : '#555'};
-          border:1px solid ${tookActive ? '#30363d' : '#21262d'};
-          border-radius:6px;padding:7px 0;font-size:12px;
-          cursor:pointer;
+          border:1px solid ${tookActive
+            ? '#30363d' : '#21262d'};
+          border-radius:6px;padding:7px 0;
+          font-size:12px;cursor:pointer;
           font-weight:${tookActive ? '700' : '400'};
           -webkit-tap-highlight-color:transparent;">
         📥 Took (${tookN})
       </button>
       <button onclick="window._jFilter('rejected')"
         style="flex:1;
-          background:${!tookActive ? '#21262d' : 'none'};
+          background:${!tookActive
+            ? '#21262d' : 'none'};
           color:${!tookActive ? '#c9d1d9' : '#555'};
-          border:1px solid ${!tookActive ? '#30363d' : '#21262d'};
-          border-radius:6px;padding:7px 0;font-size:12px;
-          cursor:pointer;
+          border:1px solid ${!tookActive
+            ? '#30363d' : '#21262d'};
+          border-radius:6px;padding:7px 0;
+          font-size:12px;cursor:pointer;
           font-weight:${!tookActive ? '700' : '400'};
           -webkit-tap-highlight-color:transparent;">
         ✕ Rejected (${rejN})
@@ -1007,7 +1628,6 @@ function _filterBar(tookN, rejN) {
     </div>`;
 }
 
-// ── DATE HEADER ───────────────────────────────────────
 function _dateHeader(dateStr) {
   if (!dateStr || dateStr === 'Unknown') return '—';
   try {
@@ -1024,16 +1644,20 @@ window.renderJournal = function(tietiy) {
   const el = document.getElementById('tab-content');
   if (!el) return;
 
-  // reset signal map on each render
   window._jSigMap = {};
 
-  const raw = (tietiy.history && tietiy.history.history)
+  const raw = (tietiy.history
+    && tietiy.history.history)
     ? tietiy.history.history : [];
+
+  // H3/H4: LTP prices from tietiy object
+  const ltpPrices = tietiy.ltp_prices || null;
 
   const took = raw.filter(
     s => s.layer === 'MINI' && s.action === 'TOOK');
   const rej  = raw.filter(
-    s => s.layer === 'ALPHA' && s.action === 'REJECTED');
+    s => s.layer === 'ALPHA'
+      && s.action === 'REJECTED');
 
   const entries   = _jFilter === 'took' ? took : rej;
   const isRejView = _jFilter === 'rejected';
@@ -1050,10 +1674,10 @@ window.renderJournal = function(tietiy) {
 
   dates.forEach(function(d) {
     byDate[d].sort((a, b) =>
-      (parseFloat(b.score) || 0) - (parseFloat(a.score) || 0));
+      (parseFloat(b.score) || 0)
+      - (parseFloat(a.score) || 0));
   });
 
-  // U1c: sticky header + filter tabs
   let html = `
     <div style="padding-bottom:80px;">
 
@@ -1066,25 +1690,29 @@ window.renderJournal = function(tietiy) {
           <span style="font-size:11px;color:#555;
             letter-spacing:1px;">📓 JOURNAL</span>
           <span style="font-size:10px;color:#555;">
-            ${took.length} took · ${rej.length} rejected
+            ${took.length} took ·
+            ${rej.length} rejected
           </span>
         </div>
         ${_filterBar(took.length, rej.length)}
       </div>
 
-      <!-- R5: expiry alerts (took view only) -->
       ${_jFilter === 'took' && took.length > 0
         ? _renderExpiryAlert(took) : ''}
 
-      <!-- portfolio summary (took view only) -->
       ${_jFilter === 'took' && took.length > 0
-        ? _buildPnlSummary(took) : ''}`;
+        ? _buildPnlSummary(took, ltpPrices) : ''}
+
+      ${isRejView && rej.length > 0
+        ? _renderRejectionSummary(rej) : ''}`;
 
   if (entries.length === 0) {
     html += `
-      <div style="text-align:center;padding:48px 16px;
-        color:#555;font-size:13px;">
-        No ${isRejView ? 'rejected' : 'TOOK'} signals yet.
+      <div style="text-align:center;
+        padding:48px 16px;color:#555;
+        font-size:13px;">
+        No ${isRejView ? 'rejected' : 'TOOK'}
+        signals yet.
       </div>`;
   } else {
     dates.forEach(function(dateStr) {
@@ -1098,10 +1726,13 @@ window.renderJournal = function(tietiy) {
             ${_dateHeader(dateStr)}
             <span style="color:#555;font-weight:400;
               margin-left:6px;">
-              ${group.length} signal${group.length !== 1 ? 's' : ''}
+              ${group.length} signal${
+                group.length !== 1 ? 's' : ''}
             </span>
           </div>
-          ${group.map(s => _compactCard(s, isRejView)).join('')}
+          ${group.map(s =>
+            _compactCard(s, isRejView, ltpPrices)
+          ).join('')}
         </div>`;
     });
   }
