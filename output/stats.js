@@ -10,16 +10,33 @@
 // - L8   : CSV export button in sticky header
 // - L9   : Performance dashboard (expectancy, streaks,
 //           best/worst trade, avg win/loss P&L)
+//
+// V1.1 FIXES:
+// - HC6  : shadowModeActive reads tietiy.meta.shadow_mode
+//          instead of broken heuristic — funnel banner
+//          now correctly shows shadow vs active mode
+// - H10  : MAE outlier note shown when avg skewed by
+//          gap-through stops (MAE > 10%)
+// - M9   : Failure pattern summary section — groups
+//          resolved signals by failure_reason field
+//          written by outcome_evaluator classifier
+// - MC1  : WIN RATE BY REGIME section now explains
+//          market regime vs stock regime distinction
+// - D6-4 : Day 6 outcome breakdown section —
+//          DAY6_WIN vs DAY6_LOSS vs DAY6_FLAT
+//          with counts and avg P&L
 // ─────────────────────────────────────────────────────
 (function () {
 
 const RESOLVED_TARGET = 30;
 const BUCKET_MIN_N    = 5;
 
-const OUTCOME_WIN  = new Set(['TARGET_HIT', 'DAY6_WIN']);
-const OUTCOME_LOSS = new Set(['STOP_HIT', 'DAY6_LOSS']);
-const OUTCOME_DONE = new Set([
+const OUTCOME_WIN   = new Set(['TARGET_HIT', 'DAY6_WIN']);
+const OUTCOME_LOSS  = new Set(['STOP_HIT', 'DAY6_LOSS']);
+const OUTCOME_DONE  = new Set([
   'TARGET_HIT', 'STOP_HIT',
+  'DAY6_WIN', 'DAY6_LOSS', 'DAY6_FLAT']);
+const OUTCOME_DAY6  = new Set([
   'DAY6_WIN', 'DAY6_LOSS', 'DAY6_FLAT']);
 
 // ── HELPERS ───────────────────────────────────────────
@@ -143,12 +160,13 @@ function _divider() {
 // ── L8: CSV EXPORT ────────────────────────────────────
 function _downloadCSV(raw) {
   const cols = [
-    'date', 'stock', 'signal', 'score', 'outcome', 'pnl_pct',
-    'stock_regime', 'regime', 'sector', 'generation',
-    'bear_bonus', 'vol_confirm', 'sec_leading', 'rs_strong',
-    'grade_A', 'entry_price', 'stop_price', 'target_price',
+    'date', 'stock', 'signal', 'score', 'outcome',
+    'pnl_pct', 'stock_regime', 'regime', 'sector',
+    'generation', 'bear_bonus', 'vol_confirm',
+    'sec_leading', 'rs_strong', 'grade_A',
+    'entry_price', 'stop_price', 'target_price',
     'age', 'mae_pct', 'mfe_pct', 'action', 'layer',
-    'rejection_reason'
+    'rejection_reason', 'failure_reason'
   ];
   const header = cols.join(',');
   const rows = raw.map(function (s) {
@@ -156,52 +174,55 @@ function _downloadCSV(raw) {
       const v = s[c];
       if (v === undefined || v === null) return '';
       const str = String(v);
-      return (str.includes(',') || str.includes('"') || str.includes('\n'))
+      return (str.includes(',') || str.includes('"')
+              || str.includes('\n'))
         ? '"' + str.replace(/"/g, '""') + '"'
         : str;
     }).join(',');
   });
   const csv  = [header].concat(rows).join('\n');
-  const uri  = 'data:text/csv;charset=utf-8,' + encodeURIComponent(csv);
+  const uri  = 'data:text/csv;charset=utf-8,'
+    + encodeURIComponent(csv);
   const link = document.createElement('a');
   link.setAttribute('href', uri);
   link.setAttribute('download',
-    'tietiy_' + new Date().toISOString().slice(0, 10) + '.csv');
+    'tietiy_' + new Date().toISOString().slice(0, 10)
+    + '.csv');
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
 }
-// expose for inline onclick
 window._tietiyDownloadCSV = _downloadCSV;
 
 // ── REGIME NORMALISE ──────────────────────────────────
 function _normaliseRegime(s) {
   const raw = (s.stock_regime || s.regime || '')
     .toString().trim().toUpperCase();
-  if (raw === 'BEAR'   || raw === 'BEARISH')              return 'Bear';
-  if (raw === 'BULL'   || raw === 'BULLISH')              return 'Bull';
+  if (raw === 'BEAR' || raw === 'BEARISH')
+    return 'Bear';
+  if (raw === 'BULL' || raw === 'BULLISH')
+    return 'Bull';
   if (raw === 'CHOPPY' || raw === 'RANGING'
-                       || raw === 'NEUTRAL')              return 'Choppy';
+      || raw === 'NEUTRAL')
+    return 'Choppy';
   if (!raw) return null;
-  // pass through unknown values capitalised
   return raw.charAt(0) + raw.slice(1).toLowerCase();
 }
 
-// ── SHORT DATE LABEL ──────────────────────────────────
 function _shortDate(iso) {
-  // "2026-04-06" → "Apr 6"
   try {
     const parts = iso.split('-');
     const mon   = parseInt(parts[1], 10);
     const day   = parseInt(parts[2], 10);
-    const names = ['','Jan','Feb','Mar','Apr','May','Jun',
-                   'Jul','Aug','Sep','Oct','Nov','Dec'];
+    const names = ['','Jan','Feb','Mar','Apr','May',
+                   'Jun','Jul','Aug','Sep','Oct',
+                   'Nov','Dec'];
     return (names[mon] || '?') + ' ' + day;
   } catch (e) { return iso; }
 }
 
 // ── DATA ANALYSIS ─────────────────────────────────────
-function _analyse(raw) {
+function _analyse(raw, shadowMode) {
   const took = raw.filter(
     s => s.layer === 'MINI' && s.action === 'TOOK');
   const rej  = raw.filter(
@@ -220,28 +241,24 @@ function _analyse(raw) {
   const openLive     = tookLive.filter(
     s => !OUTCOME_DONE.has(s.outcome || ''));
 
-  // signal type counts (all took)
   const byType = {};
   took.forEach(function (s) {
     const t = s.signal || 'Unknown';
     byType[t] = (byType[t] || 0) + 1;
   });
 
-  // score distribution (live only)
   const byScore = {};
   tookLive.forEach(function (s) {
     const sc = parseInt(s.score, 10) || 0;
     byScore[sc] = (byScore[sc] || 0) + 1;
   });
 
-  // sector counts (all took)
   const bySector = {};
   took.forEach(function (s) {
     const sec = s.sector || 'Other';
     bySector[sec] = (bySector[sec] || 0) + 1;
   });
 
-  // rejection reasons
   const byRej = {};
   rej.forEach(function (s) {
     const r = s.rejection_reason || 'unknown';
@@ -249,26 +266,29 @@ function _analyse(raw) {
   });
 
   const bearCount = tookLive.filter(
-    s => s.bear_bonus === true || s.bear_bonus === 'true').length;
+    s => s.bear_bonus === true
+      || s.bear_bonus === 'true').length;
 
   const wrTotal = resolvedLive.length
-    ? _pct(winsLive.length, resolvedLive.length) : null;
+    ? _pct(winsLive.length, resolvedLive.length)
+    : null;
 
-  // win rate by signal type
   const wrByType = {};
-  ['UP_TRI', 'DOWN_TRI', 'BULL_PROXY'].forEach(function (t) {
-    const res  = resolvedLive.filter(s => s.signal === t);
-    const wins = res.filter(s => OUTCOME_WIN.has(s.outcome));
-    if (res.length >= BUCKET_MIN_N) {
-      wrByType[t] = {
-        wr:    _pct(wins.length, res.length),
-        n:     res.length,
-        fired: byType[t] || 0,
-      };
-    }
-  });
+  ['UP_TRI', 'DOWN_TRI', 'BULL_PROXY'].forEach(
+    function (t) {
+      const res  = resolvedLive.filter(
+        s => s.signal === t);
+      const wins = res.filter(
+        s => OUTCOME_WIN.has(s.outcome));
+      if (res.length >= BUCKET_MIN_N) {
+        wrByType[t] = {
+          wr:    _pct(wins.length, res.length),
+          n:     res.length,
+          fired: byType[t] || 0,
+        };
+      }
+    });
 
-  // score bucket performance
   const BUCKETS = [
     { label: '7–8', min: 7, max: 10 },
     { label: '5–6', min: 5, max: 6  },
@@ -276,15 +296,17 @@ function _analyse(raw) {
     { label: '1–2', min: 1, max: 2  },
   ];
   const bucketPerf = BUCKETS.map(function (b) {
-    const inB   = resolvedLive.filter(s => {
+    const inB  = resolvedLive.filter(s => {
       const sc = parseFloat(s.score) || 0;
       return sc >= b.min && sc <= b.max;
     });
-    const bWins  = inB.filter(s => OUTCOME_WIN.has(s.outcome));
-    const pArr   = inB.filter(s => s.pnl_pct != null)
+    const bWins = inB.filter(
+      s => OUTCOME_WIN.has(s.outcome));
+    const pArr  = inB.filter(s => s.pnl_pct != null)
       .map(s => parseFloat(s.pnl_pct));
     const avgPnl = pArr.length
-      ? (pArr.reduce((a, c) => a + c, 0) / pArr.length).toFixed(1)
+      ? (pArr.reduce((a, c) => a + c, 0)
+         / pArr.length).toFixed(1)
       : null;
     return {
       label:   b.label,
@@ -297,21 +319,21 @@ function _analyse(raw) {
     };
   });
 
-  // overall avg P&L
   const allPnl = resolvedLive
-    .filter(s => s.pnl_pct != null).map(s => parseFloat(s.pnl_pct));
+    .filter(s => s.pnl_pct != null)
+    .map(s => parseFloat(s.pnl_pct));
   const avgPnl = allPnl.length
-    ? (allPnl.reduce((a, b) => a + b, 0) / allPnl.length).toFixed(2)
+    ? (allPnl.reduce((a, b) => a + b, 0)
+       / allPnl.length).toFixed(2)
     : null;
 
-  // SCAN_DAYS FIX: live dates only
   const dates = [...new Set(
     tookLive.map(s => s.date).filter(Boolean))].sort();
 
-  // L3: per-date signal count
   const byDate = {};
   tookLive.forEach(function (s) {
-    if (s.date) byDate[s.date] = (byDate[s.date] || 0) + 1;
+    if (s.date) byDate[s.date] =
+      (byDate[s.date] || 0) + 1;
   });
 
   // L1: win rate by regime
@@ -319,17 +341,20 @@ function _analyse(raw) {
   resolvedLive.forEach(function (s) {
     const r = _normaliseRegime(s);
     if (!r) return;
-    if (!regimeResolved[r]) regimeResolved[r] = { wins: 0, total: 0 };
+    if (!regimeResolved[r])
+      regimeResolved[r] = { wins: 0, total: 0 };
     regimeResolved[r].total++;
-    if (OUTCOME_WIN.has(s.outcome)) regimeResolved[r].wins++;
+    if (OUTCOME_WIN.has(s.outcome))
+      regimeResolved[r].wins++;
   });
   const regimeFired = {};
   tookLive.forEach(function (s) {
     const r = _normaliseRegime(s);
-    if (r) regimeFired[r] = (regimeFired[r] || 0) + 1;
+    if (r) regimeFired[r] =
+      (regimeFired[r] || 0) + 1;
   });
 
-  // L2: MAE / MFE samples and bands
+  // L2: MAE / MFE
   const maeSamples = resolvedLive.filter(
     s => s.mae_pct != null && s.mae_pct !== '');
   const mfeSamples = resolvedLive.filter(
@@ -341,7 +366,9 @@ function _analyse(raw) {
         label: b.label,
         count: samples.filter(function (s) {
           const v = Math.abs(parseFloat(s[field]));
-          return b.last ? v >= b.min : (v >= b.min && v < b.max);
+          return b.last
+            ? v >= b.min
+            : (v >= b.min && v < b.max);
         }).length,
       };
     });
@@ -353,39 +380,60 @@ function _analyse(raw) {
     { label: '>3%',  min: 3, last: true },
   ];
   const MFE_DEFS = [
-    { label: '0–2%',  min: 0, max: 2  },
-    { label: '2–5%',  min: 2, max: 5  },
-    { label: '5–10%', min: 5, max: 10 },
+    { label: '0–2%',  min: 0,  max: 2  },
+    { label: '2–5%',  min: 2,  max: 5  },
+    { label: '5–10%', min: 5,  max: 10 },
     { label: '>10%',  min: 10, last: true },
   ];
   const maeBands = _bands(maeSamples, 'mae_pct', MAE_DEFS);
   const mfeBands = _bands(mfeSamples, 'mfe_pct', MFE_DEFS);
 
-  const avgMAE = maeSamples.length
-    ? (maeSamples.map(s => Math.abs(parseFloat(s.mae_pct)))
-        .reduce((a, b) => a + b, 0) / maeSamples.length).toFixed(2)
+  const maeVals = maeSamples.map(
+    s => Math.abs(parseFloat(s.mae_pct)));
+  const avgMAE = maeVals.length
+    ? (maeVals.reduce((a, b) => a + b, 0)
+       / maeVals.length).toFixed(2)
     : null;
   const avgMFE = mfeSamples.length
-    ? (mfeSamples.map(s => Math.abs(parseFloat(s.mfe_pct)))
-        .reduce((a, b) => a + b, 0) / mfeSamples.length).toFixed(2)
+    ? (mfeSamples.map(
+        s => Math.abs(parseFloat(s.mfe_pct)))
+       .reduce((a, b) => a + b, 0)
+       / mfeSamples.length).toFixed(2)
+    : null;
+
+  // H10: detect MAE outliers (gap-through stops)
+  const maeOutlierCount = maeVals.filter(
+    v => v > 10).length;
+  const maeWithoutOutliers = maeVals.filter(
+    v => v <= 10);
+  const avgMAEAdjusted = maeWithoutOutliers.length
+    ? (maeWithoutOutliers.reduce((a, b) => a + b, 0)
+       / maeWithoutOutliers.length).toFixed(2)
     : null;
 
   // L9: performance dashboard
-  const pnlRes  = resolvedLive.filter(s => s.pnl_pct != null);
-  const pnlWArr = pnlRes.filter(s => OUTCOME_WIN.has(s.outcome))
+  const pnlRes  = resolvedLive.filter(
+    s => s.pnl_pct != null);
+  const pnlWArr = pnlRes.filter(
+    s => OUTCOME_WIN.has(s.outcome))
     .map(s => parseFloat(s.pnl_pct));
-  const pnlLArr = pnlRes.filter(s => OUTCOME_LOSS.has(s.outcome))
+  const pnlLArr = pnlRes.filter(
+    s => OUTCOME_LOSS.has(s.outcome))
     .map(s => parseFloat(s.pnl_pct));
 
   const avgWinPnl = pnlWArr.length
-    ? (pnlWArr.reduce((a, b) => a + b, 0) / pnlWArr.length).toFixed(2)
+    ? (pnlWArr.reduce((a, b) => a + b, 0)
+       / pnlWArr.length).toFixed(2)
     : null;
   const avgLossPnl = pnlLArr.length
-    ? (pnlLArr.reduce((a, b) => a + b, 0) / pnlLArr.length).toFixed(2)
+    ? (pnlLArr.reduce((a, b) => a + b, 0)
+       / pnlLArr.length).toFixed(2)
     : null;
 
   let expectancy = null;
-  if (avgWinPnl !== null && avgLossPnl !== null && wrTotal !== null) {
+  if (avgWinPnl !== null
+      && avgLossPnl !== null
+      && wrTotal !== null) {
     const wr = wrTotal / 100;
     expectancy = (
       parseFloat(avgWinPnl)  * wr +
@@ -396,15 +444,18 @@ function _analyse(raw) {
   let bestTrade = null, worstTrade = null;
   if (pnlRes.length) {
     bestTrade  = pnlRes.reduce(
-      (m, s) => parseFloat(s.pnl_pct) > parseFloat(m.pnl_pct) ? s : m);
+      (m, s) => parseFloat(s.pnl_pct) >
+        parseFloat(m.pnl_pct) ? s : m);
     worstTrade = pnlRes.reduce(
-      (m, s) => parseFloat(s.pnl_pct) < parseFloat(m.pnl_pct) ? s : m);
+      (m, s) => parseFloat(s.pnl_pct) <
+        parseFloat(m.pnl_pct) ? s : m);
   }
 
-  // consecutive streaks from date-sorted resolved signals
-  let maxWinStreak = 0, maxLossStreak = 0, curW = 0, curL = 0;
+  let maxWinStreak = 0, maxLossStreak = 0,
+      curW = 0, curL = 0;
   const sortedRes = resolvedLive.slice().sort(
-    (a, b) => (a.date || '') < (b.date || '') ? -1 : 1);
+    (a, b) => (a.date || '') <
+              (b.date || '') ? -1 : 1);
   sortedRes.forEach(function (s) {
     if (OUTCOME_WIN.has(s.outcome)) {
       curW++; curL = 0;
@@ -415,12 +466,42 @@ function _analyse(raw) {
     }
   });
 
-  const shadowModeActive = rej.length === 0 ||
-    (tookLive.length > 0 &&
-     Math.abs(tookLive.length - rej.length) <= 5);
+  // HC6 FIX: shadowModeActive comes from meta param
+  // not from broken heuristic on signal counts.
+  // Default true — system is in observation phase.
+  const shadowModeActive = shadowMode !== false;
+
+  // M9: failure pattern summary
+  const failureCounts = {};
+  resolvedLive.forEach(function (s) {
+    const fr = s.failure_reason;
+    if (!fr) return;
+    failureCounts[fr] = (failureCounts[fr] || 0) + 1;
+  });
+  const failurePatterns = Object.entries(failureCounts)
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, 5);
+
+  // D6-4: Day 6 exit breakdown
+  const day6Signals = resolvedLive.filter(
+    s => OUTCOME_DAY6.has(s.outcome));
+  const day6Win  = day6Signals.filter(
+    s => s.outcome === 'DAY6_WIN');
+  const day6Loss = day6Signals.filter(
+    s => s.outcome === 'DAY6_LOSS');
+  const day6Flat = day6Signals.filter(
+    s => s.outcome === 'DAY6_FLAT');
+
+  function _avgPnlArr(arr) {
+    const vals = arr.filter(s => s.pnl_pct != null)
+      .map(s => parseFloat(s.pnl_pct));
+    return vals.length
+      ? (vals.reduce((a, b) => a + b, 0)
+         / vals.length).toFixed(2)
+      : null;
+  }
 
   return {
-    // core counts
     totalLive:    tookLive.length,
     resolvedLive: resolvedLive.length,
     openLive:     openLive.length,
@@ -443,17 +524,16 @@ function _analyse(raw) {
     backfillCount: tookBackfill.length,
     bucketPerf,
     shadowModeActive,
-    // L1
     regimeResolved,
     regimeFired,
-    // L2
     maeSamples,
     mfeSamples,
     maeBands,
     mfeBands,
     avgMAE,
     avgMFE,
-    // L9
+    maeOutlierCount,
+    avgMAEAdjusted,
     avgWinPnl,
     avgLossPnl,
     expectancy,
@@ -461,6 +541,14 @@ function _analyse(raw) {
     worstTrade,
     maxWinStreak,
     maxLossStreak,
+    failurePatterns,
+    day6Signals,
+    day6Win,
+    day6Loss,
+    day6Flat,
+    day6WinAvgPnl:  _avgPnlArr(day6Win),
+    day6LossAvgPnl: _avgPnlArr(day6Loss),
+    day6FlatAvgPnl: _avgPnlArr(day6Flat),
   };
 }
 
@@ -471,7 +559,8 @@ function _renderDataQualityBanner(d) {
     <div style="background:#1a1a0a;border:1px solid #ffd70044;
       border-radius:8px;padding:10px 12px;
       margin-bottom:12px;font-size:11px;">
-      <div style="color:#ffd700;font-weight:700;margin-bottom:4px;">
+      <div style="color:#ffd700;font-weight:700;
+        margin-bottom:4px;">
         ⚠️ DATA QUALITY NOTE
       </div>
       <div style="color:#8b949e;line-height:1.6;">
@@ -488,7 +577,8 @@ function _renderDataQualityBanner(d) {
 function _renderProgress(d) {
   const n      = d.resolvedLive;
   const target = RESOLVED_TARGET;
-  const pct    = Math.min(Math.round((n / target) * 100), 100);
+  const pct    = Math.min(
+    Math.round((n / target) * 100), 100);
   const left   = Math.max(target - n, 0);
   const color  = pct >= 100 ? '#00C851'
     : pct >= 50  ? '#FFD700' : '#58a6ff';
@@ -544,14 +634,16 @@ function _renderWinRate(d) {
       <div style="text-align:center;padding:16px 0;color:#555;">
         <div style="font-size:28px;margin-bottom:6px;">🔒</div>
         <div style="font-size:12px;">
-          Win rate unlocks at ${RESOLVED_TARGET} live resolved signals.
+          Win rate unlocks at ${RESOLVED_TARGET}
+          live resolved signals.
         </div>
         <div style="font-size:11px;color:#555;margin-top:4px;">
           Currently: ${n} live resolved.
           ${RESOLVED_TARGET - n} more needed.
         </div>
         ${d.hasBackfill
-          ? `<div style="font-size:10px;color:#444;margin-top:6px;">
+          ? `<div style="font-size:10px;color:#444;
+               margin-top:6px;">
                ${d.backfillCount} backfill signals not counted
              </div>`
           : ''}
@@ -576,17 +668,21 @@ function _renderWinRate(d) {
         ${_miniStat('Losses',  d.lossesLive, '#f85149')}
         ${_miniStat('Avg P&L',
           d.avgPnl != null ? d.avgPnl + '%' : '—',
-          parseFloat(d.avgPnl) > 0 ? '#00C851' : '#f85149')}
+          parseFloat(d.avgPnl) > 0
+            ? '#00C851' : '#f85149')}
       </div>
-      <div style="border-top:1px solid #21262d;padding-top:10px;">
-        <div style="font-size:11px;color:#555;margin-bottom:8px;">
+      <div style="border-top:1px solid #21262d;
+        padding-top:10px;">
+        <div style="font-size:11px;color:#555;
+          margin-bottom:8px;">
           BY SIGNAL TYPE (min ${BUCKET_MIN_N} resolved)
         </div>
         ${['UP_TRI', 'DOWN_TRI', 'BULL_PROXY']
           .filter(t => d.wrByType[t])
           .map(t => {
             const wr  = d.wrByType[t];
-            const col = wr.wr >= 60 ? '#00C851' : '#f85149';
+            const col = wr.wr >= 60
+              ? '#00C851' : '#f85149';
             return _statRow(
               t.replace(/_/g, ' '),
               wr.wr + '%',
@@ -604,8 +700,8 @@ function _renderPerfDashboard(d) {
 
   if (!ready) {
     return _section('⚡ PERFORMANCE DASHBOARD', `
-      <div style="text-align:center;padding:10px 0 6px;color:#555;
-        font-size:11px;">
+      <div style="text-align:center;padding:10px 0 6px;
+        color:#555;font-size:11px;">
         Unlocks at ${RESOLVED_TARGET} resolved.
         Currently ${d.resolvedLive} live resolved.
       </div>
@@ -622,13 +718,15 @@ function _renderPerfDashboard(d) {
   }
 
   const expColor = d.expectancy !== null
-    ? (parseFloat(d.expectancy) >= 0 ? '#00C851' : '#f85149')
+    ? (parseFloat(d.expectancy) >= 0
+       ? '#00C851' : '#f85149')
     : '#555';
 
   const fmt = function (v, forceSign) {
     if (v == null) return '—';
     const f = parseFloat(v).toFixed(2);
-    return (forceSign && parseFloat(f) > 0 ? '+' : '') + f + '%';
+    return (forceSign && parseFloat(f) > 0
+      ? '+' : '') + f + '%';
   };
 
   const bestStr = d.bestTrade
@@ -653,7 +751,7 @@ function _renderPerfDashboard(d) {
     ${_statRow('Worst trade', worstStr, '', '#f85149')}
     ${_divider()}
     ${_statRow('Max win streak',
-      d.maxWinStreak,  'consecutive wins',  '#00C851')}
+      d.maxWinStreak, 'consecutive wins', '#00C851')}
     ${_statRow('Max loss streak',
       d.maxLossStreak, 'consecutive losses', '#f85149')}
   `);
@@ -666,7 +764,6 @@ function _renderRegimeWR(d) {
     Bear: '#f85149', Bull: '#00C851', Choppy: '#FFD700'
   };
 
-  // build full list: known + any unexpected from data
   const allRegimes = [...new Set(
     REGIME_ORDER.concat(
       Object.keys(d.regimeResolved),
@@ -679,7 +776,8 @@ function _renderRegimeWR(d) {
 
   allRegimes.forEach(function (r) {
     const fired = d.regimeFired[r] || 0;
-    const data  = d.regimeResolved[r] || { wins: 0, total: 0 };
+    const data  = d.regimeResolved[r]
+      || { wins: 0, total: 0 };
     if (!fired && !data.total) return;
 
     hasAny = true;
@@ -687,13 +785,15 @@ function _renderRegimeWR(d) {
     const wr    = data.total >= BUCKET_MIN_N
       ? _pct(data.wins, data.total) : null;
     const wrColor = wr !== null
-      ? (wr >= 65 ? '#00C851' : wr >= 50 ? '#FFD700' : '#f85149')
+      ? (wr >= 65 ? '#00C851'
+         : wr >= 50 ? '#FFD700' : '#f85149')
       : '#555';
 
     rows += `
       <div style="display:flex;align-items:center;
         gap:8px;padding:7px 0;
-        border-bottom:1px solid #21262d;font-size:11px;">
+        border-bottom:1px solid #21262d;
+        font-size:11px;">
         <span style="color:${color};font-weight:700;
           min-width:55px;">${r}</span>
         <span style="color:#555;min-width:65px;">
@@ -702,17 +802,34 @@ function _renderRegimeWR(d) {
         ${wr !== null
           ? `<span style="color:${wrColor};font-weight:700;
                min-width:50px;">${wr}% WR</span>
-             <span style="color:#555;">${data.total} resolved</span>`
+             <span style="color:#555;">
+               ${data.total} resolved
+             </span>`
           : `<span style="color:#555;font-style:italic;">
-               🔒 ${Math.max(BUCKET_MIN_N - data.total, 0)} more to unlock
+               🔒 ${Math.max(
+                 BUCKET_MIN_N - data.total, 0)}
+               more to unlock
              </span>`}
       </div>`;
   });
 
+  // MC1 FIX: explain market regime vs stock regime
   return _section('🌡️ WIN RATE BY REGIME', `
-    <div style="font-size:10px;color:#555;margin-bottom:10px;">
+    <div style="font-size:10px;color:#555;margin-bottom:8px;">
       Market regime at signal time ·
       min ${BUCKET_MIN_N} resolved per regime to unlock
+    </div>
+    <div style="font-size:10px;color:#444;
+      background:#0d1117;border-radius:6px;
+      padding:6px 8px;margin-bottom:10px;
+      line-height:1.6;">
+      <b style="color:#8b949e;">Market regime</b>
+      = Nifty50 trend (Bull/Bear/Choppy) —
+      used for scoring and this table.<br>
+      <b style="color:#8b949e;">Stock regime</b>
+      = individual stock trend — shown on signal cards.
+      These can differ: a stock can be in Bear regime
+      while market is Choppy.
     </div>
     ${hasAny
       ? rows
@@ -722,8 +839,8 @@ function _renderRegimeWR(d) {
          </div>`}
     <div style="font-size:10px;color:#444;margin-top:8px;
       padding-top:8px;border-top:1px solid #21262d;">
-      Bear regime UP_TRI = system's highest-conviction trade
-      (backtest avg +4.85% · stop rarely hit).
+      Bear regime UP_TRI = system's highest-conviction
+      trade (backtest avg +4.85% · stop rarely hit).
     </div>`);
 }
 
@@ -732,14 +849,18 @@ function _renderByType(d) {
   const order  = ['UP_TRI','DOWN_TRI','BULL_PROXY',
                   'UP_TRI_SA','DOWN_TRI_SA'];
   const colors = {
-    UP_TRI: '#00C851', DOWN_TRI: '#f85149',
+    UP_TRI:     '#00C851',
+    DOWN_TRI:   '#f85149',
     BULL_PROXY: '#58a6ff',
-    UP_TRI_SA: '#00C851', DOWN_TRI_SA: '#f85149',
+    UP_TRI_SA:  '#00C851',
+    DOWN_TRI_SA:'#f85149',
   };
   const rows = order
     .filter(t => d.byType[t])
-    .map(t => _bar(t.replace(/_/g, ' '), d.byType[t],
-                   d.totalAll, colors[t] || '#8b949e'));
+    .map(t => _bar(
+      t.replace(/_/g, ' '),
+      d.byType[t], d.totalAll,
+      colors[t] || '#8b949e'));
   Object.keys(d.byType)
     .filter(t => !order.includes(t))
     .forEach(t => rows.push(
@@ -752,21 +873,28 @@ function _renderByType(d) {
 function _renderScoreDist(d) {
   const scores   = Object.keys(d.byScore).map(Number)
     .sort((a, b) => b - a);
-  const maxCount = Math.max(...Object.values(d.byScore), 1);
+  const maxCount = Math.max(
+    ...Object.values(d.byScore), 1);
   const bars     = scores.map(s =>
     _scoreBar(s, d.byScore[s], maxCount)).join('');
 
   return _section('🎯 SCORE DISTRIBUTION', `
-    <div style="font-size:10px;color:#555;margin-bottom:10px;">
-      Live signals only (gen=1) · higher score = stronger setup
+    <div style="font-size:10px;color:#555;
+      margin-bottom:10px;">
+      Live signals only (gen=1) ·
+      higher score = stronger setup
     </div>
     ${bars || `<div style="color:#555;font-size:11px;">
       No live signals yet.</div>`}
-    <div style="margin-top:8px;border-top:1px solid #21262d;
-      padding-top:8px;display:flex;gap:16px;font-size:11px;">
+    <div style="margin-top:8px;
+      border-top:1px solid #21262d;
+      padding-top:8px;
+      display:flex;gap:16px;font-size:11px;">
       <span style="color:#555;">
         Bear bonus
-        <b style="color:#ffd700;margin-left:4px;">${d.bearCount}</b>
+        <b style="color:#ffd700;margin-left:4px;">
+          ${d.bearCount}
+        </b>
         <span style="color:#555;font-size:10px;">
           &nbsp;(${_pct(d.bearCount, d.totalLive)}%)
         </span>
@@ -784,23 +912,24 @@ function _renderScoreBucketPerf(d) {
       const wrColor  = b.wr >= 70 ? '#00C851' :
                        b.wr >= 55 ? '#FFD700' : '#f85149';
       const pnlColor = b.avgPnl != null
-        && parseFloat(b.avgPnl) > 0 ? '#00C851' : '#f85149';
+        && parseFloat(b.avgPnl) > 0
+        ? '#00C851' : '#f85149';
       rows += `
         <div style="display:flex;align-items:center;
           gap:8px;padding:7px 0;
-          border-bottom:1px solid #21262d;font-size:11px;">
-          <span style="color:#ffd700;font-weight:700;min-width:38px;">
-            ${b.label}
-          </span>
+          border-bottom:1px solid #21262d;
+          font-size:11px;">
+          <span style="color:#ffd700;font-weight:700;
+            min-width:38px;">${b.label}</span>
           <span style="color:#555;min-width:70px;">
             ${b.n} resolved
           </span>
-          <span style="color:${wrColor};font-weight:700;min-width:50px;">
-            ${b.wr}% WR
-          </span>
+          <span style="color:${wrColor};font-weight:700;
+            min-width:50px;">${b.wr}% WR</span>
           <span style="color:${pnlColor};">
             ${b.avgPnl !== null
-              ? (parseFloat(b.avgPnl) >= 0 ? '+' : '') + b.avgPnl + '%'
+              ? (parseFloat(b.avgPnl) >= 0 ? '+' : '')
+                + b.avgPnl + '%'
               : '—'}
           </span>
         </div>`;
@@ -808,10 +937,10 @@ function _renderScoreBucketPerf(d) {
       rows += `
         <div style="display:flex;align-items:center;
           gap:8px;padding:7px 0;
-          border-bottom:1px solid #21262d;font-size:11px;opacity:0.4;">
-          <span style="color:#ffd700;font-weight:700;min-width:38px;">
-            ${b.label}
-          </span>
+          border-bottom:1px solid #21262d;
+          font-size:11px;opacity:0.4;">
+          <span style="color:#ffd700;font-weight:700;
+            min-width:38px;">${b.label}</span>
           <span style="color:#555;min-width:70px;">
             ${b.n} resolved
           </span>
@@ -829,7 +958,8 @@ function _renderScoreBucketPerf(d) {
     </div>`;
 
   return _section('📐 PERFORMANCE BY SCORE BUCKET', `
-    <div style="font-size:10px;color:#555;margin-bottom:10px;">
+    <div style="font-size:10px;color:#555;
+      margin-bottom:10px;">
       Win rate and avg P&L by score range ·
       Min ${BUCKET_MIN_N} resolved per bucket to unlock ·
       Key input for Phase 2 mini-scanner rules
@@ -845,62 +975,95 @@ function _renderMAEMFE(d) {
 
   if (!hasMAE && !hasMFE) {
     return _section('📉 MAE / MFE ANALYSIS', `
-      <div style="text-align:center;padding:12px 0;color:#555;">
-        <div style="font-size:22px;margin-bottom:6px;">🔒</div>
+      <div style="text-align:center;padding:12px 0;
+        color:#555;">
+        <div style="font-size:22px;margin-bottom:6px;">
+          🔒
+        </div>
         <div style="font-size:11px;">
           Unlocks when ${BUCKET_MIN_N}+ resolved signals
           have MAE/MFE data.
         </div>
-        <div style="font-size:10px;color:#444;margin-top:6px;">
+        <div style="font-size:10px;color:#444;
+          margin-top:6px;">
           Currently: ${d.maeSamples.length} MAE
           · ${d.mfeSamples.length} MFE samples.
-        </div>
-        <div style="font-size:10px;color:#444;margin-top:4px;">
-          Written by outcome_evaluator as signals resolve.
         </div>
       </div>`);
   }
 
+  // H10 FIX: show outlier note when gap-through stops
+  // skew the MAE average significantly
+  const maeOutlierNote = (hasMAE
+    && d.maeOutlierCount > 0
+    && d.avgMAEAdjusted !== null)
+    ? `<div style="background:#1a0a0a;
+         border:1px solid #f8514944;
+         border-radius:6px;padding:6px 8px;
+         margin-bottom:8px;font-size:10px;
+         color:#f85149;line-height:1.6;">
+         ⚠️ ${d.maeOutlierCount} outlier stop${
+           d.maeOutlierCount > 1 ? 's' : ''}
+         (MAE > 10%) skewing average.
+         Outlier-adjusted avg MAE:
+         <b>${d.avgMAEAdjusted}%</b>
+         — gap-through stops are excluded
+         from normal stop analysis.
+       </div>`
+    : '';
+
   const maeBlock = hasMAE ? `
     <div style="margin-bottom:12px;">
-      <div style="font-size:11px;color:#8b949e;margin-bottom:4px;">
+      <div style="font-size:11px;color:#8b949e;
+        margin-bottom:4px;">
         MAE — Max Adverse Excursion
-        <span style="color:#555;font-size:10px;margin-left:4px;">
+        <span style="color:#555;font-size:10px;
+          margin-left:4px;">
           how far against you before resolve
         </span>
       </div>
+      ${maeOutlierNote}
       <div style="font-size:11px;margin-bottom:8px;">
         avg MAE:
         <b style="color:#f85149;">${d.avgMAE}%</b>
-        <span style="color:#555;font-size:10px;margin-left:6px;">
+        <span style="color:#555;font-size:10px;
+          margin-left:6px;">
           · ${d.maeSamples.length} samples
         </span>
       </div>
       ${d.maeBands.map(b =>
-        _bar(b.label, b.count, d.maeSamples.length, '#f85149')).join('')}
+        _bar(b.label, b.count,
+             d.maeSamples.length,
+             '#f85149')).join('')}
     </div>` : '';
 
   const mfeBlock = hasMFE ? `
     <div>
-      <div style="font-size:11px;color:#8b949e;margin-bottom:4px;">
+      <div style="font-size:11px;color:#8b949e;
+        margin-bottom:4px;">
         MFE — Max Favorable Excursion
-        <span style="color:#555;font-size:10px;margin-left:4px;">
+        <span style="color:#555;font-size:10px;
+          margin-left:4px;">
           peak gain before resolve
         </span>
       </div>
       <div style="font-size:11px;margin-bottom:8px;">
         avg MFE:
         <b style="color:#00C851;">${d.avgMFE}%</b>
-        <span style="color:#555;font-size:10px;margin-left:6px;">
+        <span style="color:#555;font-size:10px;
+          margin-left:6px;">
           · ${d.mfeSamples.length} samples
         </span>
       </div>
       ${d.mfeBands.map(b =>
-        _bar(b.label, b.count, d.mfeSamples.length, '#00C851')).join('')}
+        _bar(b.label, b.count,
+             d.mfeSamples.length,
+             '#00C851')).join('')}
     </div>` : '';
 
   return _section('📉 MAE / MFE ANALYSIS', `
-    <div style="font-size:10px;color:#555;margin-bottom:10px;">
+    <div style="font-size:10px;color:#555;
+      margin-bottom:10px;">
       Trade excursion profile across resolved signals
     </div>
     ${maeBlock}
@@ -923,24 +1086,26 @@ function _renderTimeline(d) {
 
   const bars = d.dates.map(function (dt) {
     const count = d.byDate[dt] || 0;
-    const width = Math.max(Math.round((count / maxCount) * 100), 3);
+    const width = Math.max(
+      Math.round((count / maxCount) * 100), 3);
     const label = _shortDate(dt);
-    // colour: high-signal days stand out
     const color = count >= 10 ? '#FFD700'
       : count >= 5 ? '#58a6ff' : '#30363d';
     return `
       <div style="display:flex;align-items:center;
         gap:8px;margin-bottom:5px;">
         <span style="color:#555;font-size:10px;
-          min-width:38px;text-align:right;flex-shrink:0;">
+          min-width:38px;text-align:right;
+          flex-shrink:0;">
           ${label}
         </span>
         <div style="flex:1;background:#21262d;
-          border-radius:3px;height:18px;overflow:hidden;">
+          border-radius:3px;height:18px;
+          overflow:hidden;">
           <div style="background:${color};height:18px;
             width:${width}%;border-radius:3px;
-            display:flex;align-items:center;padding:0 6px;
-            box-sizing:border-box;">
+            display:flex;align-items:center;
+            padding:0 6px;box-sizing:border-box;">
             <span style="color:#07070f;font-size:10px;
               font-weight:700;white-space:nowrap;">
               ${count}
@@ -951,7 +1116,8 @@ function _renderTimeline(d) {
   });
 
   return _section('📅 SIGNAL TIMELINE', `
-    <div style="font-size:10px;color:#555;margin-bottom:10px;">
+    <div style="font-size:10px;color:#555;
+      margin-bottom:10px;">
       Live signals per scan day (gen=1) ·
       ${d.dates.length} scan days ·
       ${d.totalLive} total signals
@@ -968,44 +1134,198 @@ function _renderSectors(d) {
       _bar(s, n, d.totalAll, '#58a6ff')).join(''));
 }
 
-// ── 11. SIGNAL FUNNEL ─────────────────────────────────
+// ── 11. D6-4: DAY 6 EXIT BREAKDOWN ───────────────────
+function _renderDay6Breakdown(d) {
+  const total = d.day6Signals.length;
+  if (total === 0) {
+    return _section('📆 DAY 6 EXIT BREAKDOWN', `
+      <div style="color:#555;font-size:11px;
+        text-align:center;padding:12px 0;">
+        No Day 6 exits yet — populates after first
+        batch of signals complete their 6-day window.
+      </div>`);
+  }
+
+  const fmtPnl = function (v) {
+    if (v == null) return '—';
+    const f = parseFloat(v).toFixed(1);
+    return (parseFloat(f) >= 0 ? '+' : '') + f + '%';
+  };
+
+  const winPct  = _pct(d.day6Win.length,  total);
+  const lossPct = _pct(d.day6Loss.length, total);
+  const flatPct = _pct(d.day6Flat.length, total);
+
+  return _section('📆 DAY 6 EXIT BREAKDOWN', `
+    <div style="font-size:10px;color:#555;
+      margin-bottom:10px;">
+      Signals that reached Day 6 open exit ·
+      ${total} total · no stop hit, no target hit
+    </div>
+
+    <div style="display:flex;gap:8px;
+      flex-wrap:wrap;margin-bottom:12px;">
+      ${_miniStat('Win', d.day6Win.length,  '#00C851')}
+      ${_miniStat('Loss', d.day6Loss.length, '#f85149')}
+      ${_miniStat('Flat', d.day6Flat.length, '#8b949e')}
+    </div>
+
+    <div style="font-size:11px;">
+      <div style="display:flex;justify-content:space-between;
+        padding:6px 0;border-bottom:1px solid #21262d;">
+        <span style="color:#00C851;">DAY6 WIN</span>
+        <span style="color:#555;">
+          ${d.day6Win.length}
+          <span style="color:#444;">(${winPct}%)</span>
+        </span>
+        <span style="color:#00C851;">
+          avg ${fmtPnl(d.day6WinAvgPnl)}
+        </span>
+      </div>
+      <div style="display:flex;justify-content:space-between;
+        padding:6px 0;border-bottom:1px solid #21262d;">
+        <span style="color:#f85149;">DAY6 LOSS</span>
+        <span style="color:#555;">
+          ${d.day6Loss.length}
+          <span style="color:#444;">(${lossPct}%)</span>
+        </span>
+        <span style="color:#f85149;">
+          avg ${fmtPnl(d.day6LossAvgPnl)}
+        </span>
+      </div>
+      <div style="display:flex;justify-content:space-between;
+        padding:6px 0;">
+        <span style="color:#8b949e;">DAY6 FLAT</span>
+        <span style="color:#555;">
+          ${d.day6Flat.length}
+          <span style="color:#444;">(${flatPct}%)</span>
+        </span>
+        <span style="color:#8b949e;">
+          avg ${fmtPnl(d.day6FlatAvgPnl)}
+        </span>
+      </div>
+    </div>
+
+    <div style="font-size:10px;color:#444;margin-top:8px;
+      padding-top:8px;border-top:1px solid #21262d;">
+      Day 6 exit = sell at open regardless of P&L.
+      Target/stop hits shown separately in win rate.
+    </div>`);
+}
+
+// ── 12. M9: FAILURE PATTERN SUMMARY ──────────────────
+function _renderFailurePatterns(d) {
+  const resolved = d.resolvedLive;
+  if (resolved < 5 || !d.failurePatterns.length) {
+    return '';   // Don't show until meaningful data
+  }
+
+  const hasReasons = d.failurePatterns.some(
+    ([, n]) => n > 0);
+  if (!hasReasons) return '';
+
+  const totalWithReason = d.failurePatterns
+    .reduce((sum, [, n]) => sum + n, 0);
+
+  const rows = d.failurePatterns.map(
+    function ([reason, count]) {
+      const pct = _pct(count, resolved);
+      return `
+        <div style="padding:5px 0;
+          border-bottom:1px solid #21262d;
+          font-size:11px;">
+          <div style="display:flex;
+            justify-content:space-between;
+            margin-bottom:3px;">
+            <span style="color:#c9d1d9;
+              flex:1;margin-right:8px;">
+              ${reason}
+            </span>
+            <span style="color:#555;
+              white-space:nowrap;">
+              ${count}
+            </span>
+          </div>
+          <div style="background:#21262d;
+            border-radius:2px;height:3px;">
+            <div style="background:#8b949e;
+              height:3px;width:${Math.max(pct, 2)}%;
+              border-radius:2px;"></div>
+          </div>
+        </div>`;
+    }).join('');
+
+  return _section('🔍 FAILURE PATTERN SUMMARY', `
+    <div style="font-size:10px;color:#555;
+      margin-bottom:10px;">
+      Most common failure reasons across
+      ${resolved} resolved signals ·
+      written by outcome evaluator at resolution
+    </div>
+    ${rows}
+    <div style="font-size:10px;color:#444;
+      margin-top:8px;padding-top:8px;
+      border-top:1px solid #21262d;">
+      Patterns with many signals = areas to
+      improve via scoring weight tuning in Phase 3.
+    </div>`);
+}
+
+// ── 13. SIGNAL FUNNEL ─────────────────────────────────
 function _renderFunnel(d) {
-  const total      = d.tookCount + d.rejCount;
-  const rejLabel   = d.shadowModeActive
+  const total    = d.tookCount + d.rejCount;
+
+  // HC6 FIX: use shadowModeActive from _analyse()
+  // which reads tietiy.meta.shadow_mode correctly.
+  // Old heuristic was broken when 43 signals were
+  // accidentally rejected during shadow mode.
+  const shadow = d.shadowModeActive;
+
+  const rejLabel   = shadow
     ? 'Shadow analysis' : 'Mini scanner rejected';
-  const rejSubtext = d.shadowModeActive
+  const rejSubtext = shadow
     ? `${_pct(d.rejCount, total)}% would-be reject`
     : `${_pct(d.rejCount, total)}% reject rate`;
-  const rejColor   = d.shadowModeActive ? '#555' : '#f85149';
+  const rejColor   = shadow ? '#555' : '#f85149';
 
-  const shadowNote = d.shadowModeActive
-    ? `<div style="background:#0d1117;border:1px solid #21262d;
-         border-radius:6px;padding:8px 10px;margin-top:10px;
-         font-size:10px;color:#555;line-height:1.6;">
-         🔍 <b style="color:#8b949e;">Shadow mode active</b>
-         — mini scanner is observing only. No signals are
-         currently being blocked. Rejection reasons are logged
-         for future analysis.
+  const shadowNote = shadow
+    ? `<div style="background:#0d1117;
+         border:1px solid #21262d;
+         border-radius:6px;padding:8px 10px;
+         margin-top:10px;font-size:10px;
+         color:#555;line-height:1.6;">
+         🔍 <b style="color:#8b949e;">
+         Shadow mode active</b>
+         — mini scanner is observing only.
+         No signals are currently being blocked.
+         Rejection reasons are logged for
+         future analysis.
        </div>`
-    : `<div style="background:#0d2a0d;border:1px solid #00C85133;
-         border-radius:6px;padding:8px 10px;margin-top:10px;
-         font-size:10px;color:#00C851;">
-         ✓ Active filter mode — mini scanner is blocking
-         low-conviction signals.
+    : `<div style="background:#0d2a0d;
+         border:1px solid #00C85133;
+         border-radius:6px;padding:8px 10px;
+         margin-top:10px;font-size:10px;
+         color:#00C851;">
+         ✓ Active filter mode — mini scanner
+         is blocking low-conviction signals.
        </div>`;
 
   return _section('🔺 SIGNAL FUNNEL', `
-    ${_statRow('Alpha scanner saw', total, 'total signals')}
+    ${_statRow('Alpha scanner saw', total,
+      'total signals')}
     ${_statRow('Mini scanner passed', d.tookCount,
-      `${_pct(d.tookCount, total)}% pass rate`, '#00C851')}
-    ${_statRow(rejLabel, d.rejCount, rejSubtext, rejColor)}
+      `${_pct(d.tookCount, total)}% pass rate`,
+      '#00C851')}
+    ${_statRow(rejLabel, d.rejCount,
+      rejSubtext, rejColor)}
 
     ${d.rejCount > 0
-      ? `<div style="margin-top:10px;border-top:1px solid #21262d;
+      ? `<div style="margin-top:10px;
+           border-top:1px solid #21262d;
            padding-top:10px;">
            <div style="font-size:11px;color:#555;
              margin-bottom:8px;letter-spacing:0.5px;">
-             ${d.shadowModeActive
+             ${shadow
                ? 'WOULD-BE REJECTION REASONS'
                : 'REJECTION REASONS'}
            </div>
@@ -1014,7 +1334,7 @@ function _renderFunnel(d) {
              .map(([r, n]) => _bar(
                r.replace(/_/g, ' '),
                n, d.rejCount,
-               d.shadowModeActive ? '#444' : '#f85149'))
+               shadow ? '#444' : '#f85149'))
              .join('')}
          </div>`
       : ''}
@@ -1031,19 +1351,26 @@ window.renderStats = function (tietiy) {
 
   if (!raw.length) {
     el.innerHTML = `
-      <div style="text-align:center;padding:48px 16px;
-        color:#555;font-size:13px;">
+      <div style="text-align:center;
+        padding:48px 16px;color:#555;
+        font-size:13px;">
         No signal history yet.
       </div>`;
     return;
   }
 
-  const d = _analyse(raw);
+  // HC6 FIX: read shadow_mode from meta.
+  // If not present in meta, default to true
+  // (system is in shadow/observation phase).
+  const shadowMode = (tietiy.meta
+    && tietiy.meta.shadow_mode !== undefined)
+    ? tietiy.meta.shadow_mode
+    : true;
 
-  // L8: stash raw for CSV button
+  const d = _analyse(raw, shadowMode);
+
   window._tietiyCSVData = raw;
 
-  // U1b FIX: sticky header + L8 CSV button
   el.innerHTML = `
     <div style="position:sticky;top:0;z-index:10;
       background:#07070f;
@@ -1051,15 +1378,19 @@ window.renderStats = function (tietiy) {
       border-bottom:1px solid #21262d;
       display:flex;justify-content:space-between;
       align-items:center;">
-      <div style="font-size:11px;color:#555;letter-spacing:1px;">
+      <div style="font-size:11px;color:#555;
+        letter-spacing:1px;">
         📈 STATS — PHASE 1 COLLECTION
       </div>
       <button
         onclick="if(window._tietiyCSVData)
-          window._tietiyDownloadCSV(window._tietiyCSVData);"
-        style="background:#21262d;border:1px solid #30363d;
-          color:#8b949e;font-size:10px;padding:4px 10px;
-          border-radius:4px;cursor:pointer;
+          window._tietiyDownloadCSV(
+            window._tietiyCSVData);"
+        style="background:#21262d;
+          border:1px solid #30363d;
+          color:#8b949e;font-size:10px;
+          padding:4px 10px;border-radius:4px;
+          cursor:pointer;
           -webkit-tap-highlight-color:transparent;">
         ⬇ CSV
       </button>
@@ -1076,6 +1407,8 @@ window.renderStats = function (tietiy) {
       ${_renderScoreBucketPerf(d)}
       ${_renderMAEMFE(d)}
       ${_renderTimeline(d)}
+      ${_renderDay6Breakdown(d)}
+      ${_renderFailurePatterns(d)}
       ${_renderSectors(d)}
       ${_renderFunnel(d)}
     </div>`;
