@@ -14,6 +14,9 @@
 # - top_winner / top_loser only from signals with pnl_pct
 # - Added signal type breakdown to stats payload
 # - Added phase progress (resolved vs 30 target)
+#
+# V1.1 FIX — TR5:
+# - --force flag bypasses Saturday check for testing
 # ─────────────────────────────────────────────────────
 
 import os
@@ -60,16 +63,22 @@ def run_weekend_summary():
     """
     Compiles weekly stats and sends Telegram summary.
     Only runs on Saturday (weekday == 5).
+    Use --force flag to bypass Saturday check for testing.
     """
     print("[weekend_summary] Starting...")
 
     today = date.today()
 
-    # Only run on Saturday
-    if today.weekday() != 5:
+    # TR5 FIX: --force bypasses Saturday check
+    force = '--force' in sys.argv
+    if today.weekday() != 5 and not force:
         print(f"[weekend_summary] Not Saturday "
-              f"(weekday={today.weekday()}) — skipping")
+              f"(weekday={today.weekday()}) — skipping. "
+              f"Use --force to run anyway.")
         return
+    if force:
+        print("[weekend_summary] --force flag — "
+              "bypassing Saturday check")
 
     week_start     = _get_week_start()
     week_start_str = week_start.isoformat()
@@ -102,8 +111,8 @@ def run_weekend_summary():
     ]
 
     # W/L/F classification from outcome values
-    wins  = [s for s in resolved_this_week
-             if s.get('outcome') in OUTCOME_WIN]
+    wins   = [s for s in resolved_this_week
+              if s.get('outcome') in OUTCOME_WIN]
     losses = [s for s in resolved_this_week
               if s.get('outcome') in OUTCOME_LOSS]
     flats  = [s for s in resolved_this_week
@@ -135,7 +144,6 @@ def run_weekend_summary():
     next_exits = sorted(set(next_exits))[:3]
 
     # ── TOP WINNER / LOSER (this week) ────────────────
-    # Only signals that have pnl_pct recorded
     with_pnl = [
         s for s in resolved_this_week
         if s.get('pnl_pct') is not None
@@ -144,13 +152,12 @@ def run_weekend_summary():
     top_loser  = None
 
     if with_pnl:
-        by_pnl     = sorted(
+        by_pnl = sorted(
             with_pnl,
             key=lambda x: float(x.get('pnl_pct') or 0),
             reverse=True)
         best  = by_pnl[0]
         worst = by_pnl[-1]
-        # Only include if actually positive / negative
         if float(best.get('pnl_pct')  or 0) > 0:
             top_winner = best
         if float(worst.get('pnl_pct') or 0) < 0:
@@ -181,16 +188,17 @@ def run_weekend_summary():
         'next_exits':  next_exits,
         'top_winner':  top_winner,
         'top_loser':   top_loser,
-        # W1: additional context fields
-        'type_counts':          type_counts,
-        'phase_note':           phase_note,
-        'total_resolved_live':  total_resolved_live,
-        'week_start':           week_start_str,
+        'type_counts':         type_counts,
+        'phase_note':          phase_note,
+        'total_resolved_live': total_resolved_live,
+        'week_start':          week_start_str,
     }
 
     print(f"[weekend_summary] "
           f"resolved={total} "
-          f"W={len(wins)} L={len(losses)} F={len(flats)} "
+          f"W={len(wins)} "
+          f"L={len(losses)} "
+          f"F={len(flats)} "
           f"WR={win_rate}% "
           f"active={len(active)} "
           f"phase={phase_note}")
