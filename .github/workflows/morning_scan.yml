@@ -1,4 +1,10 @@
-name: Morning Scan 8:45 AM IST
+# .github/workflows/morning_scan.yml
+# Daily morning scan — 188 stocks
+# Detects UP_TRI DOWN_TRI BULL_PROXY signals
+# Scores, filters, sends Telegram + commits output
+# Triggered by cron-job.org at 8:45 AM IST
+
+name: "☀️ Morning Scan | 188stocks UP-TRI DOWN-TRI BULL-PROXY+Telegram | 8:45 AM IST Auto"
 
 on:
   workflow_dispatch:
@@ -23,24 +29,23 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: "3.11"
+          python-version: '3.11'
 
       - name: Install dependencies
-        run: |
-          pip install yfinance pandas numpy requests pywebpush cryptography
+        run: pip install yfinance pandas numpy requests
 
       - name: Run morning scan
         id: scan
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
-          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          TELEGRAM_TOKEN:    ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID:  ${{ secrets.TELEGRAM_CHAT_ID }}
+          GH_TOKEN:          ${{ secrets.GH_TOKEN }}
           VAPID_PRIVATE_KEY: ${{ secrets.VAPID_PRIVATE_KEY }}
-          VAPID_PUBLIC_KEY: ${{ secrets.VAPID_PUBLIC_KEY }}
+          VAPID_PUBLIC_KEY:  ${{ secrets.VAPID_PUBLIC_KEY }}
           VAPID_CLAIM_EMAIL: ${{ secrets.VAPID_CLAIM_EMAIL }}
-          PUSH_PIN: ${{ secrets.PUSH_PIN }}
+          PUSH_PIN:          ${{ secrets.PUSH_PIN }}
         run: |
           cd "$GITHUB_WORKSPACE/scanner"
           python main.py morning
@@ -51,31 +56,24 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git config user.name "TIE TIY Bot"
+          git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-
           git add output/ data/ quarantine/ || true
-
           if git diff --cached --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-
           SCAN_RESULT="${{ steps.scan.outcome }}"
-
           if [ "$SCAN_RESULT" = "failure" ]; then
             COMMIT_MSG="🔴 Scan $(date '+%Y-%m-%d %H:%M') IST [FAILED]"
           else
             COMMIT_MSG="🟢 Scan $(date '+%Y-%m-%d %H:%M') IST"
           fi
-
           git commit -m "$COMMIT_MSG"
-
           for i in 1 2 3; do
             git pull --rebase origin main && \
             git push origin HEAD:main && \
             echo "Push succeeded on attempt $i" && break
-
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
@@ -83,11 +81,11 @@ jobs:
       - name: Alert on failure
         if: failure() || steps.scan.outcome == 'failure'
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WORKFLOW_NAME: "Morning Scan"
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          WORKFLOW_NAME:    "Morning Scan"
+          RUN_URL:          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           pip install requests --quiet
           python scanner/alert_failure.py
