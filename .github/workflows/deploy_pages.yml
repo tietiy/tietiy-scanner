@@ -32,6 +32,13 @@ jobs:
       - name: Setup Pages
         uses: actions/configure-pages@v4
 
+      - name: Inject PWA PIN
+        env:
+          PWA_PIN: ${{ secrets.PWA_PIN }}
+        run: |
+          sed -i "s/PWA_PIN_PLACEHOLDER/${PWA_PIN}/g" \
+            output/index.html
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
