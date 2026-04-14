@@ -1,8 +1,6 @@
 name: Telegram Command Responder
 
 on:
-  schedule:
-    - cron: '*/10 * * * *'
   workflow_dispatch:
 
 permissions:
