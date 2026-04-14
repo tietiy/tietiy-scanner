@@ -1,12 +1,9 @@
 # .github/workflows/diagnostic.yml
-# System diagnostic — manual dispatch or daily post-market
-# M8: stale data detection
-# M13: self-healing triggers + commit healed files
-# BUG FIX: set +e so EXIT code is captured correctly
-# BUG FIX: exit code 1 (warnings) no longer fails workflow
-# BUG FIX: GH_TOKEN in checkout so heal can push
+# System diagnostic — manual or daily post-market
+# Checks data files, schema, signal counts, overdue
+# Self-heals and commits if issues found
 
-name: Diagnostic Check
+name: "🩺 Diagnostic | Files+Schema+SignalCount+Overdue+V5fields | Manual"
 
 on:
   schedule:
@@ -39,6 +36,8 @@ on:
 jobs:
   diagnostic:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -100,10 +99,16 @@ jobs:
                   2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No heal changes to commit"
-          else
-            git commit -m "chore: diagnostic self-heal $(date -u +%Y-%m-%d)"
-            git push
+            exit 0
           fi
+          git commit -m "chore: diagnostic self-heal $(date -u +%Y-%m-%d)"
+          for i in 1 2 3; do
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
 
       - name: Notify on failure
         if: failure()
