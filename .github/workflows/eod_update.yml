@@ -1,7 +1,10 @@
-name: EOD Update 3:35 PM IST
-# V1.1 FIX H8: EOD commit scope expanded —
-# signal_archive.json + colab_export.json now
-# committed alongside signal_history.json
+# .github/workflows/eod_update.yml
+# EOD update — runs at 3:35 PM IST daily
+# Backup + outcome evaluation + P&L + Telegram summary
+# Commits signal_history, archive, colab_export, meta
+# GitHub cron kept as backup — primary trigger is cron-job.org
+
+name: "📊 EOD Update | Backup+Outcomes+P&L+Telegram+colab-export | 3:35 PM IST Auto"
 
 on:
   schedule:
@@ -31,7 +34,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -42,25 +45,26 @@ jobs:
         run: mkdir -p output data output/backups
 
       - name: Run Backup
-        run: |
-          export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
-          python scanner/backup_manager.py
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: python scanner/backup_manager.py
 
       - name: Run EOD update
         if: ${{ inputs.backup_only != true }}
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN:         ${{ secrets.GH_TOKEN }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
-          export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
-          cd $GITHUB_WORKSPACE/scanner && python main.py eod
+          cd $GITHUB_WORKSPACE/scanner
+          python main.py eod
 
       - name: Commit and push outputs
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git config user.name "TIE TIY Bot"
+          git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
           git add \
             output/eod_prices.json \
@@ -72,10 +76,13 @@ jobs:
             output/tg_offset.json \
             output/backups/ \
             2>/dev/null || true
-          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git diff --cached --quiet && \
+            echo "No changes to commit" && exit 0
           git commit -m "EOD update $(date '+%Y-%m-%d') IST"
           for i in 1 2 3; do
-            git pull --rebase origin main && git push origin HEAD:main && echo "Push succeeded on attempt $i" && break
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
@@ -83,11 +90,11 @@ jobs:
       - name: Alert on failure
         if: failure()
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WORKFLOW_NAME: "EOD Update"
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          WORKFLOW_NAME:    "EOD Update"
+          RUN_URL:          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           pip install requests --quiet
           python scanner/alert_failure.py
