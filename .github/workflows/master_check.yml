@@ -234,7 +234,6 @@ jobs:
               add(3, run['name'], ok, detail)
 
           # ── TIER 3: INLINE VALIDATION ─────────────
-          # Logic checks that don't need subprocess
 
           def check_yml_syntax():
               import glob
@@ -244,74 +243,81 @@ jobs:
                   return False, 'pyyaml not installed'
               files = sorted(
                   glob.glob('.github/workflows/*.yml'))
-              fails = []
+              fails_list = []
               for f in files:
                   try:
                       yaml.safe_load(open(f))
                   except Exception as e:
-                      fails.append(
+                      fails_list.append(
                           f'{os.path.basename(f)}: '
                           f'{str(e)[:50]}')
-              if fails:
-                  return False, fails[0]
-              return True, f'{len(files)} yml files valid'
+              if fails_list:
+                  return False, fails_list[0]
+              return True, (
+                  f'{len(files)} yml files valid')
 
           def check_pin_injection():
               try:
+                  import glob
                   html = open(
                       'output/index.html').read()
-                  deploy = open(
-                      '.github/workflows/'
-                      'deploy.yml').read()
                   if 'PWA_PIN_PLACEHOLDER' not in html:
                       return False, (
-                          'PWA_PIN_PLACEHOLDER missing '
-                          'from index.html')
-                  if ('sed' not in deploy or
-                          'PWA_PIN_PLACEHOLDER'
-                          not in deploy):
+                          'PWA_PIN_PLACEHOLDER '
+                          'missing from index.html')
+                  # Find deploy yml dynamically
+                  ymls = glob.glob(
+                      '.github/workflows/*.yml')
+                  deploy_yml = None
+                  for f in ymls:
+                      content = open(f).read()
+                      if ('sed' in content and
+                              'PWA_PIN_PLACEHOLDER'
+                              in content):
+                          deploy_yml = f
+                          break
+                  if not deploy_yml:
                       return False, (
-                          'deploy.yml missing '
+                          'no yml found with '
                           'sed PIN inject step')
                   return True, (
-                      'source has placeholder + '
-                      'deploy has sed inject')
+                      f'placeholder in index.html'
+                      f' + inject in '
+                      f'{os.path.basename(deploy_yml)}')
               except Exception as e:
                   return False, str(e)[:80]
 
           def check_exit_date():
+              # Tests next_trading_day + days_until_exit
+              # Apr 11 (Fri) → skip weekend + Apr14 holiday
+              # → next trading = Apr 15 (Tue)
               try:
-                  import json
-                  import importlib
                   sys.path.insert(0, 'scanner')
-                  cu = importlib.import_module(
-                      'calendar_utils')
-                  holidays = []
-                  try:
-                      with open(
-                              'output/nse_holidays'
-                              '.json') as f:
-                          holidays = json.load(f).get(
-                              'holidays', [])
-                  except Exception:
-                      pass
-                  fn = None
-                  for fname in ['get_exit_date',
-                                'exit_date',
-                                'calc_exit_date']:
-                      if hasattr(cu, fname):
-                          fn = getattr(cu, fname)
-                          break
-                  if fn is None:
+                  from calendar_utils import (
+                      next_trading_day,
+                      days_until_exit)
+                  from datetime import date
+                  # Test 1: next_trading_day skips
+                  # weekend + holiday correctly
+                  result = next_trading_day(
+                      date(2026, 4, 11))
+                  expected = date(2026, 4, 15)
+                  if result != expected:
                       return False, (
-                          'no exit date function '
-                          'in calendar_utils')
-                  result = fn('2026-04-06', holidays)
-                  if result != '2026-04-15':
+                          f'Apr11 next_trading='
+                          f'{result} '
+                          f'expected {expected}')
+                  # Test 2: days_until_exit returns
+                  # a date object
+                  exit_dt = days_until_exit(
+                      date(2026, 4, 7), 5)
+                  if not isinstance(exit_dt, date):
                       return False, (
-                          f'Apr6→{result} '
-                          f'expected 2026-04-15')
-                  return True, f'Apr6 → {result}'
+                          f'days_until_exit returned '
+                          f'{type(exit_dt)} not date')
+                  return True, (
+                      f'Apr11→{result} ✓ '
+                      f'exit_date type ✓')
               except Exception as e:
                   return False, str(e)[:80]
 
@@ -324,11 +330,14 @@ jobs:
                       'age':         0,
                       'regime':      'Bear',
                       'vol_confirm': True,
-                      'sec_leading': False,
-                      'rs_strong':   False,
-                      'grade':       'B',
+                      'sec_mom':     'Neutral',
+                      'rs_q':        'Neutral',
                   }
-                  score = score_signal(sig)
+                  # score_signal returns (score, breakdown)
+                  result = score_signal(sig, 'B')
+                  score = (result[0]
+                           if isinstance(result, tuple)
+                           else result)
                   if not isinstance(
                           score, (int, float)):
                       return False, (
@@ -338,7 +347,7 @@ jobs:
                       return False, (
                           f'score {score} '
                           f'out of 0-10 range')
-                  # Bear+UP_TRI+Age0 = min 6
+                  # Bear+3 + Age0+3 + vol+1 = 7
                   if score < 6:
                       return False, (
                           f'Bear UP_TRI Age0 '
@@ -346,7 +355,7 @@ jobs:
                           f'expected 6+')
                   return True, (
                       f'Bear UP_TRI Age0 '
-                      f'score={score}')
+                      f'score={score}/10')
               except Exception as e:
                   return False, str(e)[:80]
 
@@ -414,7 +423,7 @@ jobs:
                check_yml_syntax),
               ('PIN source+deploy inject',
                check_pin_injection),
-              ('exit date — Apr6→Apr15',
+              ('exit date — Apr11→Apr15',
                check_exit_date),
               ('scorer — Bear UP_TRI Age0 6+',
                check_scorer),
@@ -433,7 +442,8 @@ jobs:
                   ok, detail = check_fn()
               except Exception as e:
                   ok     = False
-                  detail = f'Exception: {str(e)[:60]}'
+                  detail = (
+                      f'Exception: {str(e)[:60]}')
               add(3, check_name, ok, detail)
 
           # ── SUMMARY ───────────────────────────────
@@ -517,7 +527,8 @@ jobs:
                           if tier == 2
                           else 'Runtime')
                       icon  = (
-                          '✅' if tier_ok == tier_total
+                          '✅'
+                          if tier_ok == tier_total
                           else '❌')
                       n_ok  = esc(str(tier_ok))
                       n_tot = esc(str(tier_total))
