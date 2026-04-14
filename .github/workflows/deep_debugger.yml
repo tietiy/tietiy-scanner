@@ -1,11 +1,9 @@
 # .github/workflows/deep_debugger.yml
 # Deep signal forensics — manual dispatch only
-# Modes: --audit, --signal, --lifecycle,
-#        --sa-check, --regime-audit
-# BUG FIX: set +e so exit code 1 (issues found)
-#          does not fail the workflow
+# Modes: audit, signal, lifecycle, sa-check, regime-audit
+# exit code 1 = issues found (not a failure)
 
-name: Deep Debugger
+name: "🔬 Deep Debugger | Signal fields+outcomes+SA chain+score+dupes | Manual"
 
 on:
   workflow_dispatch:
@@ -49,6 +47,8 @@ on:
 jobs:
   debug:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -86,26 +86,22 @@ jobs:
           set +e
 
           if [ "$MODE" = "audit" ]; then
-            python scanner/deep_debugger.py \
-              --audit $ARGS
+            python scanner/deep_debugger.py --audit $ARGS
 
           elif [ "$MODE" = "sa-check" ]; then
-            python scanner/deep_debugger.py \
-              --sa-check $ARGS
+            python scanner/deep_debugger.py --sa-check $ARGS
 
           elif [ "$MODE" = "regime-audit" ]; then
             python scanner/deep_debugger.py \
               --regime-audit "$SIG" "$REG" $ARGS
 
           elif [ "$MODE" = "signal" ] \
-               && [ -n "$SYM" ] \
-               && [ -n "$DT" ]; then
+               && [ -n "$SYM" ] && [ -n "$DT" ]; then
             python scanner/deep_debugger.py \
               --signal "$SYM" "$DT" $ARGS
 
           elif [ "$MODE" = "lifecycle" ] \
-               && [ -n "$SYM" ] \
-               && [ -n "$DT" ]; then
+               && [ -n "$SYM" ] && [ -n "$DT" ]; then
             python scanner/deep_debugger.py \
               --lifecycle "$SYM" "$DT" $ARGS
 
