@@ -15,10 +15,12 @@
 //         enforcement for iPad PWA standalone mode.
 // - S4  : Tab bar sizing via _enforceTabletWidth
 // - PWA_LAYOUT: Right sidebar on iPad >900px —
-//   market context card (regime, active, exits today,
-//   new today, F&O ban, next scan, phase progress).
-//   Compact on portrait, full on landscape.
-//   Hidden on mobile/fold. Updates on resize.
+//   market context card, dynamic resize.
+// - NEWS_PANEL: Left panel iPad >1000px —
+//   hybrid news (active+new today), compact cards,
+//   tap-to-open drawer, mobile collapsible section.
+//   Source: Google News RSS via rss2json proxy.
+//   Last 48h only. Session cache 30 min.
 //
 // PRIOR FIXES RETAINED:
 // - Default filter is 'top'
@@ -56,6 +58,7 @@ window.TIETIY = {
   loaded:       false,
   activeTab:    'signals',
   lastFetch:    null,
+  newsCache:    {},
 };
 
 // ── UTILITY ───────────────────────────────────────────
@@ -295,9 +298,6 @@ function _countResolvedGen1() {
   }).length;
 }
 
-// Returns sidebar layout info based on viewport
-// show:false = no sidebar
-// show:true  = {left, width, compact}
 function _sidebarLayout() {
   const vw = window.innerWidth
     || document.documentElement.clientWidth
@@ -305,14 +305,10 @@ function _sidebarLayout() {
 
   if (vw < 900) return { show: false };
 
-  // Body cap (mirrors _enforceTabletWidth logic)
-  const bodyWidth = vw >= 1024 ? 720 : 680;
-
-  // Space to right of centered body
+  const bodyWidth     = vw >= 1024 ? 720 : 680;
   const bodyRightEdge = (vw + bodyWidth) / 2;
   const available     = vw - bodyRightEdge - 8;
 
-  // Need at least 120px for useful sidebar
   if (available < 120) return { show: false };
 
   const sidebarWidth = Math.min(260, available - 8);
@@ -339,12 +335,11 @@ function _renderSidebar() {
     return;
   }
 
-  // Position sidebar
-  el.style.display  = 'block';
-  el.style.left     = layout.left + 'px';
-  el.style.width    = layout.width + 'px';
-  el.style.top      = '0';
-  el.style.height   = '100vh';
+  el.style.display   = 'block';
+  el.style.left      = layout.left + 'px';
+  el.style.width     = layout.width + 'px';
+  el.style.top       = '0';
+  el.style.height    = '100vh';
   el.style.overflowY = 'auto';
   el.style.paddingBottom = '80px';
 
@@ -355,27 +350,23 @@ function _renderSidebar() {
   const fsL     = compact ? '13px' : '15px';
   const gap     = compact ? '8px' : '10px';
 
-  if (!meta) {
-    el.innerHTML = '';
-    return;
-  }
+  if (!meta) { el.innerHTML = ''; return; }
 
-  const regime  = meta.regime || '—';
-  const active  = meta.active_signals_count || 0;
-  const rc      = regime === 'Bear'  ? '#ff4444'
-                : regime === 'Bull'  ? '#00C851'
-                : '#FFD700';
+  const regime = meta.regime || '—';
+  const active = meta.active_signals_count || 0;
+  const rc     = regime === 'Bear'  ? '#ff4444'
+               : regime === 'Bull'  ? '#00C851'
+               : '#FFD700';
 
-  const exitsToday  = _countTodayExits();
-  const newToday    = _countTodaySignals();
-  const resolved    = _countResolvedGen1();
-  const phasePct    = Math.min(
+  const exitsToday = _countTodayExits();
+  const newToday   = _countTodaySignals();
+  const resolved   = _countResolvedGen1();
+  const phasePct   = Math.min(
     100, Math.round(resolved / 30 * 100));
-  const banned      = window.TIETIY.bannedStocks || [];
-  const nextDay     = _getNextTradingDay();
-  const isTrading   = meta.is_trading_day;
+  const banned     = window.TIETIY.bannedStocks || [];
+  const nextDay    = _getNextTradingDay();
+  const isTrading  = meta.is_trading_day;
 
-  // Card style helper
   const card = (content) =>
     `<div style="background:#0d1117;
       border:1px solid #21262d;
@@ -385,42 +376,32 @@ function _renderSidebar() {
       ${content}
     </div>`;
 
-  // Section label helper
   const label = (txt) =>
     `<div style="color:#444;font-size:9px;
       font-weight:700;letter-spacing:1px;
       text-transform:uppercase;
       margin-bottom:6px;">${txt}</div>`;
 
-  // Row helper
   const row = (icon, lbl, val, valColor) =>
     `<div style="display:flex;
       justify-content:space-between;
       align-items:center;
       margin-bottom:5px;
       font-size:${fs};">
-      <span style="color:#555;">
-        ${icon} ${lbl}
-      </span>
+      <span style="color:#555;">${icon} ${lbl}</span>
       <span style="color:${valColor || '#c9d1d9'};
-        font-weight:600;">
-        ${val}
-      </span>
+        font-weight:600;">${val}</span>
     </div>`;
 
   let html = '';
 
-  // ── REGIME CARD ────────────────────────────────
   html += card(`
     ${label('Market')}
-    <div style="display:flex;
-      align-items:center;
+    <div style="display:flex;align-items:center;
       justify-content:space-between;">
       <span style="background:${rc};color:#000;
-        border-radius:5px;
-        padding:2px 8px;
-        font-size:${fsL};
-        font-weight:700;">
+        border-radius:5px;padding:2px 8px;
+        font-size:${fsL};font-weight:700;">
         ${regime}
       </span>
       ${regime === 'Bear'
@@ -429,7 +410,6 @@ function _renderSidebar() {
     </div>
   `);
 
-  // ── TODAY CARD ─────────────────────────────────
   html += card(`
     ${label('Today')}
     ${row('📊', 'Active', active, '#c9d1d9')}
@@ -441,41 +421,39 @@ function _renderSidebar() {
       exitsToday > 0 ? '#f85149' : '#555')}
     ${row('🔔', 'New',
       newToday > 0
-        ? `<span style="color:#00C851;">${newToday}</span>`
+        ? `<span style="color:#00C851;">
+            ${newToday}</span>`
         : '0',
       newToday > 0 ? '#00C851' : '#555')}
     ${exitsToday > 0
-      ? `<div style="color:#f85149;
-           font-size:9px;margin-top:6px;
-           padding:4px 6px;
-           background:#2a0a0a;
-           border-radius:5px;
+      ? `<div style="color:#f85149;font-size:9px;
+           margin-top:6px;padding:4px 6px;
+           background:#2a0a0a;border-radius:5px;
            text-align:center;">
            Sell at 9:15 AM
          </div>`
       : ''}
   `);
 
-  // ── NEXT SCAN ──────────────────────────────────
   html += card(`
     ${label('Next Scan')}
-    <div style="color:#8b949e;
-      font-size:${fs};
+    <div style="color:#8b949e;font-size:${fs};
       line-height:1.6;">
       ${isTrading
-        ? `<span style="color:#00C851;">
-             ● Today
+        ? `<span style="color:#00C851;">● Today
            </span><br>
-           <span style="color:#555;">8:45 AM IST</span>`
+           <span style="color:#555;">
+             8:45 AM IST
+           </span>`
         : `<span style="color:#c9d1d9;">
              ${nextDay}
            </span><br>
-           <span style="color:#555;">8:45 AM IST</span>`
-      }
+           <span style="color:#555;">
+             8:45 AM IST
+           </span>`}
     </div>
   `);
 
-  // ── PHASE PROGRESS ─────────────────────────────
   const phaseBar = Array.from({length: 10},
     (_, i) => i < Math.round(phasePct / 10)
       ? `<span style="color:#ffd700;">█</span>`
@@ -484,15 +462,12 @@ function _renderSidebar() {
 
   html += card(`
     ${label('Phase 1')}
-    <div style="font-size:${fsL};
-      color:#ffd700;font-weight:700;
-      margin-bottom:4px;">
+    <div style="font-size:${fsL};color:#ffd700;
+      font-weight:700;margin-bottom:4px;">
       ${resolved} / 30
     </div>
-    <div style="font-size:9px;
-      letter-spacing:1px;margin-bottom:4px;">
-      ${phaseBar}
-    </div>
+    <div style="font-size:9px;letter-spacing:1px;
+      margin-bottom:4px;">${phaseBar}</div>
     <div style="color:#444;font-size:9px;">
       ${30 - resolved > 0
         ? `${30 - resolved} more needed`
@@ -500,17 +475,14 @@ function _renderSidebar() {
     </div>
   `);
 
-  // ── F&O BAN ────────────────────────────────────
   if (banned.length > 0) {
     const banNames = banned.slice(0, 4)
-      .map(b => b.replace('.NS',''))
-      .join(', ');
+      .map(b => b.replace('.NS','')).join(', ');
     const more = banned.length > 4
       ? ` +${banned.length - 4}` : '';
     html += card(`
       ${label('F&O Ban')}
-      <div style="color:#f85149;
-        font-size:${fs};
+      <div style="color:#f85149;font-size:${fs};
         line-height:1.6;">
         ⚠️ ${banNames}${more}
       </div>
@@ -519,6 +491,468 @@ function _renderSidebar() {
 
   el.innerHTML = html;
 }
+
+// ── NEWS PANEL ────────────────────────────────────────
+// Left panel iPad >1000px — hybrid news feed
+// Stocks: active positions + new today (max 10)
+// Source: Google News RSS via rss2json.com proxy
+// Last 48h only. Session cache 30 min per stock.
+// Mobile: collapsible section above Signals tab.
+
+function _newsLayout() {
+  const vw = window.innerWidth
+    || document.documentElement.clientWidth
+    || 375;
+
+  if (vw < 1000) return { show: false };
+
+  // On vw >= 1024, body = 720px centered
+  const bodyWidth    = 720;
+  const bodyLeftEdge = (vw - bodyWidth) / 2;
+  const available    = bodyLeftEdge - 16;
+
+  if (available < 100) return { show: false };
+
+  return {
+    show:  true,
+    left:  8,
+    width: Math.round(Math.min(200, available - 8)),
+  };
+}
+
+function _getNewsStocks() {
+  const hist = window.TIETIY.history;
+  if (!hist || !hist.history) return [];
+
+  const today = _todayIST();
+  const done  = ['TARGET_HIT','STOP_HIT',
+    'DAY6_WIN','DAY6_LOSS','DAY6_FLAT'];
+  const seen  = new Set();
+  const syms  = [];
+
+  // Active positions first
+  hist.history.forEach(function(s) {
+    if (s.action !== 'TOOK') return;
+    if ((s.generation || 0) < 1) return;
+    if (done.indexOf(s.outcome || '') !== -1) return;
+    const sym = (s.symbol || '').replace('.NS','');
+    if (!sym || seen.has(sym)) return;
+    seen.add(sym);
+    syms.push(sym);
+  });
+
+  // New today signals not already in list
+  hist.history.forEach(function(s) {
+    if (s.date !== today) return;
+    if ((s.generation || 0) < 1) return;
+    const sym = (s.symbol || '').replace('.NS','');
+    if (!sym || seen.has(sym)) return;
+    seen.add(sym);
+    syms.push(sym);
+  });
+
+  return syms.slice(0, 10);
+}
+
+function _timeAgo(pubDate) {
+  try {
+    const diff  = Date.now() -
+      new Date(pubDate).getTime();
+    const hours = Math.floor(diff / 3600000);
+    if (hours < 1)  return 'just now';
+    if (hours < 24) return hours + 'h ago';
+    return Math.floor(hours / 24) + 'd ago';
+  } catch(e) { return ''; }
+}
+
+async function _fetchStockNews(symbol) {
+  // Check session cache — valid 30 min
+  const cache = window.TIETIY.newsCache[symbol];
+  if (cache &&
+      (Date.now() - cache.fetchedAt) < 1800000) {
+    return cache.items;
+  }
+
+  try {
+    const query = encodeURIComponent(
+      symbol + ' NSE stock');
+    const rssUrl = encodeURIComponent(
+      'https://news.google.com/rss/search?q='
+      + query
+      + '&hl=en-IN&gl=IN&ceid=IN:en');
+    const url =
+      'https://api.rss2json.com/v1/api.json'
+      + '?rss_url=' + rssUrl + '&count=3';
+
+    const r = await fetch(url);
+    if (!r.ok) throw new Error(r.status);
+
+    const data  = await r.json();
+    const items = (data.items || [])
+      .filter(function(item) {
+        // Last 48 hours only
+        try {
+          const age = Date.now() -
+            new Date(item.pubDate).getTime();
+          return age < 172800000;
+        } catch(e) { return false; }
+      })
+      .slice(0, 2);
+
+    window.TIETIY.newsCache[symbol] = {
+      items:     items,
+      fetchedAt: Date.now(),
+    };
+    return items;
+
+  } catch(e) {
+    // Cache empty to avoid repeated failures
+    window.TIETIY.newsCache[symbol] = {
+      items:     [],
+      fetchedAt: Date.now(),
+    };
+    return [];
+  }
+}
+
+async function _fetchNewsForStocks(symbols) {
+  const results = [];
+  for (const sym of symbols) {
+    const items = await _fetchStockNews(sym);
+    if (items.length > 0) {
+      results.push({ symbol: sym, item: items[0] });
+    }
+  }
+  return results;
+}
+
+function _openNewsCard(title, source, link, ago) {
+  const overlay =
+    document.getElementById('news-overlay');
+  const drawer  =
+    document.getElementById('news-drawer');
+  if (!overlay || !drawer) return;
+
+  drawer.innerHTML = `
+    <div style="display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      margin-bottom:14px;">
+      <div style="color:#8b949e;font-size:11px;">
+        📰 ${source || 'News'} · ${ago || ''}
+      </div>
+      <button onclick="_closeNewsCard()"
+        style="background:none;border:none;
+          color:#555;font-size:20px;cursor:pointer;
+          padding:0;line-height:1;
+          -webkit-tap-highlight-color:transparent;">
+        ✕
+      </button>
+    </div>
+    <div style="color:#c9d1d9;font-size:14px;
+      font-weight:600;line-height:1.6;
+      margin-bottom:20px;">
+      ${title || ''}
+    </div>
+    ${link
+      ? `<a href="${link}"
+           target="_blank"
+           rel="noopener noreferrer"
+           style="display:block;
+             background:#ffd700;color:#000;
+             border-radius:8px;
+             padding:12px 14px;
+             font-size:13px;font-weight:700;
+             text-align:center;
+             text-decoration:none;">
+           Read Full Article →
+         </a>`
+      : ''}`;
+
+  overlay.style.display = 'block';
+  drawer.style.display  = 'block';
+}
+
+window._closeNewsCard = function() {
+  const overlay =
+    document.getElementById('news-overlay');
+  const drawer  =
+    document.getElementById('news-drawer');
+  if (overlay) overlay.style.display = 'none';
+  if (drawer)  drawer.style.display  = 'none';
+};
+
+function _newsCardHtml(sym, item, compact) {
+  const title  = (item.title || '').trim();
+  const source = (item.author || '')
+    .replace(/.*on /i, '').trim()
+    || (item.source && item.source.name) || '';
+  const link   = item.link || '';
+  const ago    = _timeAgo(item.pubDate);
+  const maxLen = compact ? 55 : 80;
+  const short  = title.length > maxLen
+    ? title.slice(0, maxLen) + '…' : title;
+  const escaped = short
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+
+  // Safely encode for onclick attribute
+  const safeTitle  = JSON.stringify(title);
+  const safeSource = JSON.stringify(source);
+  const safeLink   = JSON.stringify(link);
+
+  return `
+    <div onclick="_openNewsCard(
+        ${safeTitle},${safeSource},
+        ${safeLink},'${ago}')"
+      style="background:#0d1117;
+        border:1px solid #21262d;
+        border-radius:8px;
+        padding:8px;margin:0 6px 8px;
+        cursor:pointer;
+        -webkit-tap-highlight-color:transparent;">
+      <div style="color:#ffd700;font-size:10px;
+        font-weight:700;margin-bottom:3px;">
+        ${sym}
+      </div>
+      <div style="color:#c9d1d9;font-size:10px;
+        line-height:1.4;margin-bottom:4px;">
+        ${escaped}
+      </div>
+      <div style="color:#444;font-size:9px;">
+        ${source ? source + ' · ' : ''}${ago}
+      </div>
+    </div>`;
+}
+
+function _newsMobileItemHtml(sym, item) {
+  const title  = (item.title || '').trim();
+  const source = (item.author || '')
+    .replace(/.*on /i, '').trim() || '';
+  const link   = item.link || '';
+  const ago    = _timeAgo(item.pubDate);
+  const short  = title.length > 90
+    ? title.slice(0, 90) + '…' : title;
+  const escaped = short
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;');
+
+  const safeTitle  = JSON.stringify(title);
+  const safeSource = JSON.stringify(source);
+  const safeLink   = JSON.stringify(link);
+
+  return `
+    <div onclick="_openNewsCard(
+        ${safeTitle},${safeSource},
+        ${safeLink},'${ago}')"
+      style="padding:8px 14px;
+        border-bottom:1px solid #161b22;
+        cursor:pointer;
+        -webkit-tap-highlight-color:transparent;">
+      <div style="display:flex;
+        justify-content:space-between;
+        margin-bottom:3px;">
+        <span style="color:#ffd700;
+          font-size:11px;font-weight:700;">
+          ${sym}
+        </span>
+        <span style="color:#444;font-size:10px;">
+          ${ago}
+        </span>
+      </div>
+      <div style="color:#8b949e;font-size:11px;
+        line-height:1.4;">
+        ${escaped}
+      </div>
+    </div>`;
+}
+
+async function _renderNewsPanel() {
+  const vw       = window.innerWidth || 375;
+  const panel    = document.getElementById(
+    'news-panel');
+  const mobileEl = document.getElementById(
+    'mobile-news-section');
+
+  if (!panel) return;
+
+  const layout = _newsLayout();
+
+  if (!layout.show) {
+    panel.style.display = 'none';
+    // Mobile section for phone/fold
+    if (mobileEl && vw < 900) {
+      await _renderMobileNewsSection(mobileEl);
+    } else if (mobileEl) {
+      mobileEl.style.display = 'none';
+    }
+    return;
+  }
+
+  // Desktop panel — hide mobile section
+  if (mobileEl) mobileEl.style.display = 'none';
+
+  // Position
+  panel.style.display      = 'block';
+  panel.style.left         = layout.left + 'px';
+  panel.style.top          = '0';
+  panel.style.width        = layout.width + 'px';
+  panel.style.height       = '100vh';
+
+  const header = `
+    <div style="padding:10px 8px 8px;
+      border-bottom:1px solid #21262d;
+      margin-bottom:8px;">
+      <div style="color:#444;font-size:9px;
+        font-weight:700;letter-spacing:1px;
+        text-transform:uppercase;">
+        📰 News
+      </div>
+    </div>`;
+
+  const stocks = _getNewsStocks();
+
+  if (stocks.length === 0) {
+    panel.innerHTML = header +
+      `<div style="color:#333;font-size:10px;
+        padding:8px;text-align:center;
+        line-height:1.6;">
+        No active<br>signals
+      </div>`;
+    return;
+  }
+
+  // Show loading state
+  panel.innerHTML = header +
+    `<div style="color:#333;font-size:10px;
+      padding:8px;text-align:center;">
+      Loading…
+    </div>`;
+
+  // Fetch news (uses cache after first load)
+  const newsItems = await _fetchNewsForStocks(stocks);
+
+  if (newsItems.length === 0) {
+    panel.innerHTML = header +
+      `<div style="color:#333;font-size:10px;
+        padding:8px;text-align:center;
+        line-height:1.6;">
+        No recent<br>news
+      </div>`;
+    return;
+  }
+
+  let html = header;
+  const compact = layout.width < 160;
+  newsItems.forEach(function(n) {
+    html += _newsCardHtml(n.symbol, n.item, compact);
+  });
+
+  panel.innerHTML = html;
+}
+
+async function _renderMobileNewsSection(el) {
+  if (!el) return;
+
+  const stocks = _getNewsStocks();
+  if (stocks.length === 0) {
+    el.style.display = 'none';
+    return;
+  }
+
+  el.style.display = 'block';
+  const expanded =
+    window._mobileNewsExpanded || false;
+
+  el.innerHTML = `
+    <div onclick="window._toggleMobileNews()"
+      style="background:#0d1117;
+        border-bottom:1px solid #21262d;
+        padding:8px 14px;
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        cursor:pointer;
+        -webkit-tap-highlight-color:transparent;">
+      <span style="color:#555;font-size:11px;
+        font-weight:700;">
+        📰 News
+      </span>
+      <span id="mobile-news-arrow"
+        style="color:#444;font-size:11px;">
+        ${expanded ? '▲' : '▼'}
+      </span>
+    </div>
+    <div id="mobile-news-body"
+      style="display:${expanded
+        ? 'block' : 'none'};
+        background:#0d1117;">
+      <div style="color:#444;font-size:10px;
+        padding:8px 14px;text-align:center;">
+        Loading…
+      </div>
+    </div>`;
+
+  if (!expanded) return;
+
+  // Fetch and populate
+  const newsItems = await _fetchNewsForStocks(stocks);
+  _populateMobileNewsBody(newsItems);
+}
+
+function _populateMobileNewsBody(newsItems) {
+  const body = document.getElementById(
+    'mobile-news-body');
+  if (!body) return;
+
+  if (!newsItems || newsItems.length === 0) {
+    body.innerHTML =
+      `<div style="color:#333;font-size:11px;
+        padding:8px 14px;text-align:center;">
+        No recent news
+      </div>`;
+    return;
+  }
+
+  let html = '';
+  newsItems.forEach(function(n) {
+    html += _newsMobileItemHtml(n.symbol, n.item);
+  });
+  body.innerHTML = html;
+}
+
+window._toggleMobileNews = function() {
+  window._mobileNewsExpanded =
+    !(window._mobileNewsExpanded || false);
+
+  const body  = document.getElementById(
+    'mobile-news-body');
+  const arrow = document.getElementById(
+    'mobile-news-arrow');
+
+  if (!body) return;
+
+  if (window._mobileNewsExpanded) {
+    if (arrow) arrow.textContent = '▲';
+    body.style.display = 'block';
+
+    // Fetch if still showing loading
+    if (body.textContent.trim()
+        .includes('Loading')) {
+      const stocks = _getNewsStocks();
+      if (stocks.length > 0) {
+        _fetchNewsForStocks(stocks).then(
+          _populateMobileNewsBody);
+      }
+    }
+  } else {
+    if (arrow) arrow.textContent = '▼';
+    body.style.display = 'none';
+  }
+};
 
 // ── R3: OFFLINE BANNER ────────────────────────────────
 function _ensureOfflineBannerEl() {
@@ -558,7 +992,8 @@ function _showOfflineBanner() {
 }
 
 function _hideOfflineBanner() {
-  const el = document.getElementById('offline-banner');
+  const el =
+    document.getElementById('offline-banner');
   if (!el) return;
   el.innerHTML = `
     <div style="background:#0d2a0d;
@@ -585,45 +1020,36 @@ window.addEventListener('online', function() {
 });
 
 // ── S1: TABLET WIDTH ENFORCEMENT ─────────────────────
-// CSS media queries unreliable in iOS PWA standalone.
-// JavaScript directly sets body width.
-// Also handles sidebar show/hide at same breakpoints.
-//
-// Breakpoints:
-//   < 600px   : phone — no cap, no sidebar
-//   600-900px : fold unfolded — no sidebar
-//   >= 900px  : iPad — sidebar if space available
 function _enforceTabletWidth() {
   const vw = window.innerWidth
     || document.documentElement.clientWidth
     || 375;
 
   if (vw < 768) {
-    // Phone — no cap, no sidebar
     document.body.style.maxWidth  = '';
     document.body.style.margin    = '0 auto';
     document.body.style.overflowX = 'hidden';
     const sidebar =
       document.getElementById('sidebar');
     if (sidebar) sidebar.style.display = 'none';
+    // Reposition news panel if visible
+    const newsPanel =
+      document.getElementById('news-panel');
+    if (newsPanel) newsPanel.style.display = 'none';
     console.log('[ui] Phone width: ' + vw + 'px');
     return;
   }
 
-  // Tablet: cap body
   const cap   = vw >= 1024 ? '720px' : '680px';
-  const capPx = vw >= 1024 ? 720     : 680;
 
   document.body.style.maxWidth  = cap;
   document.body.style.margin    = '0 auto';
   document.body.style.overflowX = 'hidden';
 
-  // Tap panel width
   const tapPanel =
     document.getElementById('tap-panel');
   if (tapPanel) tapPanel.style.maxWidth = cap;
 
-  // Help overlay
   const helpOverlay =
     document.getElementById('help-overlay');
   if (helpOverlay) {
@@ -633,14 +1059,26 @@ function _enforceTabletWidth() {
     helpOverlay.style.position  = 'fixed';
   }
 
-  // Sidebar — position and show/hide
+  // Reposition news panel without re-fetching
+  const newsPanel =
+    document.getElementById('news-panel');
+  if (newsPanel &&
+      newsPanel.style.display !== 'none') {
+    const nl = _newsLayout();
+    if (nl.show) {
+      newsPanel.style.left  = nl.left + 'px';
+      newsPanel.style.width = nl.width + 'px';
+    } else {
+      newsPanel.style.display = 'none';
+    }
+  }
+
   _renderSidebar();
 
   console.log('[ui] Tablet width: '
     + cap + ' (vw: ' + vw + 'px)');
 }
 
-// Re-apply on orientation change
 window.addEventListener('orientationchange',
   function() {
     setTimeout(function() {
@@ -652,7 +1090,6 @@ window.addEventListener('orientationchange',
   }
 );
 
-// Re-apply on resize (split-screen / fold hinge)
 window.addEventListener('resize', function() {
   _enforceTabletWidth();
 });
@@ -695,9 +1132,10 @@ function _renderStatusBar(meta) {
     && openPrices.count > 0)
     ? openPrices.fetch_time : null;
 
-  const activeCount = meta.active_signals_count != null
-    ? meta.active_signals_count
-    : meta.signals_found || 0;
+  const activeCount =
+    meta.active_signals_count != null
+      ? meta.active_signals_count
+      : meta.signals_found || 0;
 
   const rc = regime === 'Bear'  ? '#ff4444' :
              regime === 'Bull'  ? '#00C851' : '#FFD700';
@@ -933,7 +1371,7 @@ function _renderNav(activeTab) {
       display:flex;z-index:50;
       padding-bottom:env(safe-area-inset-bottom);">
       ${tabs.map(t => {
-        const active = t.id === activeTab;
+        const active    = t.id === activeTab;
         const iconSize  = vw >= 768 ? '22px' : '18px';
         const labelSize = vw >= 768 ? '11px' : '10px';
         const padTop    = vw >= 768 ? '12px' : '10px';
@@ -1001,10 +1439,16 @@ async function refreshData() {
 
   try {
     await _fetchAll();
+    // Clear news cache on refresh
+    window.TIETIY.newsCache = {};
+
     _renderStatusBar(window.TIETIY.meta);
     _renderAlertBanner(window.TIETIY.stopAlerts);
     _renderSidebar();
+    // Re-fetch news on refresh
+    _renderNewsPanel();
     switchTab(window.TIETIY.activeTab);
+
     if (btn) {
       btn.textContent = '✓';
       setTimeout(function() {
@@ -1447,6 +1891,8 @@ async function initApp() {
     _renderStatusBar(window.TIETIY.meta);
     _renderAlertBanner(window.TIETIY.stopAlerts);
     _renderSidebar();
+    // News panel — async, fires after main UI renders
+    _renderNewsPanel();
     _renderNav(window.TIETIY.activeTab);
     switchTab(window.TIETIY.activeTab);
 
