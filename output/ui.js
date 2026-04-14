@@ -21,6 +21,7 @@
 //   tap-to-open drawer, mobile collapsible section.
 //   Source: Google News RSS via rss2json proxy.
 //   Last 30 days. Session cache 30 min.
+// - HEALTH_LINK: Sidebar bottom card → health.html
 //
 // PRIOR FIXES RETAINED:
 // - Default filter is 'top'
@@ -489,6 +490,36 @@ function _renderSidebar() {
     `);
   }
 
+  // ── HEALTH LINK ──────────────────────────────
+  html += `
+    <a href="/health.html"
+       target="_blank"
+       rel="noopener noreferrer"
+       style="display:block;
+         background:#0d1117;
+         border:1px solid #21262d;
+         border-radius:10px;
+         padding:${p};
+         margin-bottom:${gap};
+         text-decoration:none;
+         -webkit-tap-highlight-color:transparent;">
+      <div style="color:#444;font-size:9px;
+        font-weight:700;letter-spacing:1px;
+        text-transform:uppercase;
+        margin-bottom:6px;">System</div>
+      <div style="display:flex;
+        align-items:center;
+        justify-content:space-between;">
+        <span style="color:#8b949e;
+          font-size:${fs};">
+          🩺 Health
+        </span>
+        <span style="color:#444;font-size:9px;">
+          ↗
+        </span>
+      </div>
+    </a>`;
+
   el.innerHTML = html;
 }
 
@@ -630,7 +661,6 @@ function _openNewsCard(title, source, link, ago) {
     document.getElementById('news-drawer');
   if (!overlay || !drawer) return;
 
-  // Escape HTML for safe display in drawer
   const safeTitle = (title || '')
     .replace(/&amp;/g, '&')
     .replace(/&lt;/g, '<')
@@ -713,8 +743,6 @@ function _newsCardHtml(sym, item, compact) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  // Store item by index — avoids special char
-  // corruption in onclick JSON.stringify
   const idx = window._newsItems.length;
   window._newsItems.push(
     { title, source, link, ago });
@@ -1446,7 +1474,6 @@ async function refreshData() {
 
   try {
     await _fetchAll();
-    // Clear caches on refresh
     window.TIETIY.newsCache = {};
     window._newsItems       = [];
 
@@ -1908,8 +1935,8 @@ async function initApp() {
     console.error('[ui] Init error:', e);
     if (loader)
       loader.style.display   = 'none';
-      if (errorDiv)
-        errorDiv.style.display = 'block';
+    if (errorDiv)
+      errorDiv.style.display = 'block';
   }
 }
 
