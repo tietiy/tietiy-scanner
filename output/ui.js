@@ -17,10 +17,10 @@
 // - PWA_LAYOUT: Right sidebar on iPad >900px —
 //   market context card, dynamic resize.
 // - NEWS_PANEL: Left panel iPad >1000px —
-//   hybrid news (active+new today), compact cards,
+//   hybrid news (active+new today), max 40 stocks,
 //   tap-to-open drawer, mobile collapsible section.
 //   Source: Google News RSS via rss2json proxy.
-//   Last 48h only. Session cache 30 min.
+//   Last 30 days. Session cache 30 min.
 //
 // PRIOR FIXES RETAINED:
 // - Default filter is 'top'
@@ -494,9 +494,9 @@ function _renderSidebar() {
 
 // ── NEWS PANEL ────────────────────────────────────────
 // Left panel iPad >1000px — hybrid news feed
-// Stocks: active positions + new today (max 10)
+// Stocks: active positions + new today (max 40)
 // Source: Google News RSS via rss2json.com proxy
-// Last 48h only. Session cache 30 min per stock.
+// Last 30 days. Session cache 30 min per stock.
 // Mobile: collapsible section above Signals tab.
 
 function _newsLayout() {
@@ -506,7 +506,6 @@ function _newsLayout() {
 
   if (vw < 1000) return { show: false };
 
-  // On vw >= 1024, body = 720px centered
   const bodyWidth    = 720;
   const bodyLeftEdge = (vw - bodyWidth) / 2;
   const available    = bodyLeftEdge - 16;
@@ -515,8 +514,8 @@ function _newsLayout() {
 
   return {
     show:  true,
-    left:  8,
-    width: Math.round(Math.min(200, available - 8)),
+    left:  4,
+    width: Math.round(available - 4),
   };
 }
 
@@ -551,7 +550,7 @@ function _getNewsStocks() {
     syms.push(sym);
   });
 
-  return syms.slice(0, 10);
+  return syms.slice(0, 40);
 }
 
 function _timeAgo(pubDate) {
@@ -566,7 +565,6 @@ function _timeAgo(pubDate) {
 }
 
 async function _fetchStockNews(symbol) {
-  // Check session cache — valid 30 min
   const cache = window.TIETIY.newsCache[symbol];
   if (cache &&
       (Date.now() - cache.fetchedAt) < 1800000) {
@@ -574,17 +572,15 @@ async function _fetchStockNews(symbol) {
   }
 
   try {
-    const query = encodeURIComponent(
+    const query  = encodeURIComponent(
       symbol + ' NSE stock');
     const rssUrl = encodeURIComponent(
       'https://news.google.com/rss/search?q='
       + query
       + '&hl=en-IN&gl=IN&ceid=IN:en');
-       
     const url =
       'https://api.rss2json.com/v1/api.json'
       + '?rss_url=' + rssUrl;
-
 
     const r = await fetch(url);
     if (!r.ok) throw new Error(r.status);
@@ -598,7 +594,6 @@ async function _fetchStockNews(symbol) {
             new Date(item.pubDate).getTime();
           return age < 2592000000;
         } catch(e) { return false; }
-
       })
       .slice(0, 2);
 
@@ -609,7 +604,6 @@ async function _fetchStockNews(symbol) {
     return items;
 
   } catch(e) {
-    // Cache empty to avoid repeated failures
     window.TIETIY.newsCache[symbol] = {
       items:     [],
       fetchedAt: Date.now(),
@@ -636,6 +630,12 @@ function _openNewsCard(title, source, link, ago) {
     document.getElementById('news-drawer');
   if (!overlay || !drawer) return;
 
+  // Escape HTML for safe display in drawer
+  const safeTitle = (title || '')
+    .replace(/&amp;/g, '&')
+    .replace(/&lt;/g, '<')
+    .replace(/&gt;/g, '>');
+
   drawer.innerHTML = `
     <div style="display:flex;
       justify-content:space-between;
@@ -655,7 +655,7 @@ function _openNewsCard(title, source, link, ago) {
     <div style="color:#c9d1d9;font-size:14px;
       font-weight:600;line-height:1.6;
       margin-bottom:20px;">
-      ${title || ''}
+      ${safeTitle}
     </div>
     ${link
       ? `<a href="${link}"
@@ -685,6 +685,19 @@ window._closeNewsCard = function() {
   if (drawer)  drawer.style.display  = 'none';
 };
 
+// Store news items in global array to avoid
+// inline JSON breaking on special characters
+window._newsItems = [];
+
+window._openNewsIdx = function(idx) {
+  const item = window._newsItems &&
+    window._newsItems[idx];
+  if (!item) return;
+  _openNewsCard(
+    item.title, item.source,
+    item.link, item.ago);
+};
+
 function _newsCardHtml(sym, item, compact) {
   const title  = (item.title || '').trim();
   const source = (item.author || '')
@@ -698,18 +711,16 @@ function _newsCardHtml(sym, item, compact) {
   const escaped = short
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;');
+    .replace(/>/g, '&gt;');
 
-  // Safely encode for onclick attribute
-  const safeTitle  = JSON.stringify(title);
-  const safeSource = JSON.stringify(source);
-  const safeLink   = JSON.stringify(link);
+  // Store item by index — avoids special char
+  // corruption in onclick JSON.stringify
+  const idx = window._newsItems.length;
+  window._newsItems.push(
+    { title, source, link, ago });
 
   return `
-    <div onclick="_openNewsCard(
-        ${safeTitle},${safeSource},
-        ${safeLink},'${ago}')"
+    <div onclick="_openNewsIdx(${idx})"
       style="background:#0d1117;
         border:1px solid #21262d;
         border-radius:8px;
@@ -743,14 +754,12 @@ function _newsMobileItemHtml(sym, item) {
     .replace(/</g, '&lt;')
     .replace(/>/g, '&gt;');
 
-  const safeTitle  = JSON.stringify(title);
-  const safeSource = JSON.stringify(source);
-  const safeLink   = JSON.stringify(link);
+  const idx = window._newsItems.length;
+  window._newsItems.push(
+    { title, source, link, ago });
 
   return `
-    <div onclick="_openNewsCard(
-        ${safeTitle},${safeSource},
-        ${safeLink},'${ago}')"
+    <div onclick="_openNewsIdx(${idx})"
       style="padding:8px 14px;
         border-bottom:1px solid #161b22;
         cursor:pointer;
@@ -774,6 +783,9 @@ function _newsMobileItemHtml(sym, item) {
 }
 
 async function _renderNewsPanel() {
+  // Reset item lookup on each render
+  window._newsItems = [];
+
   const vw       = window.innerWidth || 375;
   const panel    = document.getElementById(
     'news-panel');
@@ -786,7 +798,6 @@ async function _renderNewsPanel() {
 
   if (!layout.show) {
     panel.style.display = 'none';
-    // Mobile section for phone/fold
     if (mobileEl && vw < 900) {
       await _renderMobileNewsSection(mobileEl);
     } else if (mobileEl) {
@@ -795,15 +806,13 @@ async function _renderNewsPanel() {
     return;
   }
 
-  // Desktop panel — hide mobile section
   if (mobileEl) mobileEl.style.display = 'none';
 
-  // Position
-  panel.style.display      = 'block';
-  panel.style.left         = layout.left + 'px';
-  panel.style.top          = '0';
-  panel.style.width        = layout.width + 'px';
-  panel.style.height       = '100vh';
+  panel.style.display  = 'block';
+  panel.style.left     = layout.left + 'px';
+  panel.style.top      = '0';
+  panel.style.width    = layout.width + 'px';
+  panel.style.height   = '100vh';
 
   const header = `
     <div style="padding:10px 8px 8px;
@@ -828,15 +837,14 @@ async function _renderNewsPanel() {
     return;
   }
 
-  // Show loading state
   panel.innerHTML = header +
     `<div style="color:#333;font-size:10px;
       padding:8px;text-align:center;">
       Loading…
     </div>`;
 
-  // Fetch news (uses cache after first load)
-  const newsItems = await _fetchNewsForStocks(stocks);
+  const newsItems =
+    await _fetchNewsForStocks(stocks);
 
   if (newsItems.length === 0) {
     panel.innerHTML = header +
@@ -901,8 +909,8 @@ async function _renderMobileNewsSection(el) {
 
   if (!expanded) return;
 
-  // Fetch and populate
-  const newsItems = await _fetchNewsForStocks(stocks);
+  const newsItems =
+    await _fetchNewsForStocks(stocks);
   _populateMobileNewsBody(newsItems);
 }
 
@@ -941,8 +949,6 @@ window._toggleMobileNews = function() {
   if (window._mobileNewsExpanded) {
     if (arrow) arrow.textContent = '▲';
     body.style.display = 'block';
-
-    // Fetch if still showing loading
     if (body.textContent.trim()
         .includes('Loading')) {
       const stocks = _getNewsStocks();
@@ -1035,7 +1041,6 @@ function _enforceTabletWidth() {
     const sidebar =
       document.getElementById('sidebar');
     if (sidebar) sidebar.style.display = 'none';
-    // Reposition news panel if visible
     const newsPanel =
       document.getElementById('news-panel');
     if (newsPanel) newsPanel.style.display = 'none';
@@ -1043,7 +1048,7 @@ function _enforceTabletWidth() {
     return;
   }
 
-  const cap   = vw >= 1024 ? '720px' : '680px';
+  const cap = vw >= 1024 ? '720px' : '680px';
 
   document.body.style.maxWidth  = cap;
   document.body.style.margin    = '0 auto';
@@ -1062,7 +1067,6 @@ function _enforceTabletWidth() {
     helpOverlay.style.position  = 'fixed';
   }
 
-  // Reposition news panel without re-fetching
   const newsPanel =
     document.getElementById('news-panel');
   if (newsPanel &&
@@ -1442,13 +1446,13 @@ async function refreshData() {
 
   try {
     await _fetchAll();
-    // Clear news cache on refresh
+    // Clear caches on refresh
     window.TIETIY.newsCache = {};
+    window._newsItems       = [];
 
     _renderStatusBar(window.TIETIY.meta);
     _renderAlertBanner(window.TIETIY.stopAlerts);
     _renderSidebar();
-    // Re-fetch news on refresh
     _renderNewsPanel();
     switchTab(window.TIETIY.activeTab);
 
@@ -1894,7 +1898,6 @@ async function initApp() {
     _renderStatusBar(window.TIETIY.meta);
     _renderAlertBanner(window.TIETIY.stopAlerts);
     _renderSidebar();
-    // News panel — async, fires after main UI renders
     _renderNewsPanel();
     _renderNav(window.TIETIY.activeTab);
     switchTab(window.TIETIY.activeTab);
@@ -1905,8 +1908,8 @@ async function initApp() {
     console.error('[ui] Init error:', e);
     if (loader)
       loader.style.display   = 'none';
-    if (errorDiv)
-      errorDiv.style.display = 'block';
+      if (errorDiv)
+        errorDiv.style.display = 'block';
   }
 }
 
