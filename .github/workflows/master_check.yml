@@ -4,14 +4,13 @@
 #
 # Tier 1: syntax check (py_compile) — all .py files
 # Tier 2: import check — all scanner modules
-# Tier 3: safe execution — scripts in read-only mode
-# Single Telegram report at end
+# Tier 3: safe execution (6 scripts) + inline validation (7 checks)
 #
 # BUG FIX: nonlocal → global for fails/warns
 # (nonlocal requires enclosing function scope;
 #  top-level script variables need global)
 
-name: "🔍 Master Check | T1:Syntax 25files T2:Imports 15mod T3:Runtime 6scripts | Manual"
+name: "🔍 Master Check | T1:Syntax 25files T2:Imports 15mod T3:Runtime 13checks | Manual"
 
 on:
   workflow_dispatch:
@@ -39,7 +38,7 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
-        run: pip install requests pandas numpy yfinance
+        run: pip install requests pandas numpy yfinance pyyaml
 
       - name: Pull latest output files
         run: |
@@ -216,7 +215,8 @@ jobs:
                   os.path.join(os.getcwd(), 'scanner'))
           }
 
-          print(f'\nTIER 3 — Safe execution ({len(SAFE_RUNS)} scripts)')
+          print(f'\nTIER 3 — Safe execution '
+                f'({len(SAFE_RUNS)} scripts)')
           for run in SAFE_RUNS:
               r = subprocess.run(
                   run['cmd'],
@@ -233,6 +233,209 @@ jobs:
                             else f'exit {r.returncode}')
               add(3, run['name'], ok, detail)
 
+          # ── TIER 3: INLINE VALIDATION ─────────────
+          # Logic checks that don't need subprocess
+
+          def check_yml_syntax():
+              import glob
+              try:
+                  import yaml
+              except ImportError:
+                  return False, 'pyyaml not installed'
+              files = sorted(
+                  glob.glob('.github/workflows/*.yml'))
+              fails = []
+              for f in files:
+                  try:
+                      yaml.safe_load(open(f))
+                  except Exception as e:
+                      fails.append(
+                          f'{os.path.basename(f)}: '
+                          f'{str(e)[:50]}')
+              if fails:
+                  return False, fails[0]
+              return True, f'{len(files)} yml files valid'
+
+          def check_pin_injection():
+              try:
+                  html = open(
+                      'output/index.html').read()
+                  deploy = open(
+                      '.github/workflows/'
+                      'deploy.yml').read()
+                  if 'PWA_PIN_PLACEHOLDER' not in html:
+                      return False, (
+                          'PWA_PIN_PLACEHOLDER missing '
+                          'from index.html')
+                  if ('sed' not in deploy or
+                          'PWA_PIN_PLACEHOLDER'
+                          not in deploy):
+                      return False, (
+                          'deploy.yml missing '
+                          'sed PIN inject step')
+                  return True, (
+                      'source has placeholder + '
+                      'deploy has sed inject')
+              except Exception as e:
+                  return False, str(e)[:80]
+
+          def check_exit_date():
+              try:
+                  import json
+                  import importlib
+                  sys.path.insert(0, 'scanner')
+                  cu = importlib.import_module(
+                      'calendar_utils')
+                  holidays = []
+                  try:
+                      with open(
+                              'output/nse_holidays'
+                              '.json') as f:
+                          holidays = json.load(f).get(
+                              'holidays', [])
+                  except Exception:
+                      pass
+                  fn = None
+                  for fname in ['get_exit_date',
+                                'exit_date',
+                                'calc_exit_date']:
+                      if hasattr(cu, fname):
+                          fn = getattr(cu, fname)
+                          break
+                  if fn is None:
+                      return False, (
+                          'no exit date function '
+                          'in calendar_utils')
+                  result = fn('2026-04-06', holidays)
+                  if result != '2026-04-15':
+                      return False, (
+                          f'Apr6→{result} '
+                          f'expected 2026-04-15')
+                  return True, f'Apr6 → {result}'
+              except Exception as e:
+                  return False, str(e)[:80]
+
+          def check_scorer():
+              try:
+                  sys.path.insert(0, 'scanner')
+                  from scorer import score_signal
+                  sig = {
+                      'signal':      'UP_TRI',
+                      'age':         0,
+                      'regime':      'Bear',
+                      'vol_confirm': True,
+                      'sec_leading': False,
+                      'rs_strong':   False,
+                      'grade':       'B',
+                  }
+                  score = score_signal(sig)
+                  if not isinstance(
+                          score, (int, float)):
+                      return False, (
+                          f'score not numeric: '
+                          f'{type(score)}')
+                  if score < 0 or score > 10:
+                      return False, (
+                          f'score {score} '
+                          f'out of 0-10 range')
+                  # Bear+UP_TRI+Age0 = min 6
+                  if score < 6:
+                      return False, (
+                          f'Bear UP_TRI Age0 '
+                          f'score={score} '
+                          f'expected 6+')
+                  return True, (
+                      f'Bear UP_TRI Age0 '
+                      f'score={score}')
+              except Exception as e:
+                  return False, str(e)[:80]
+
+          def check_rr_calc():
+              try:
+                  sys.path.insert(0, 'scanner')
+                  from telegram_bot import _rr_calc
+                  # entry=100 stop=90 target=120
+                  # risk=10 reward=20 R:R=2.0x
+                  result = _rr_calc(
+                      100, 90, 120, 'LONG')
+                  if result != '2.0x':
+                      return False, (
+                          f'R:R expected 2.0x '
+                          f'got {result}')
+                  return True, (
+                      f'100/90/120 = {result}')
+              except Exception as e:
+                  return False, str(e)[:80]
+
+          def check_holiday_calendar():
+              try:
+                  import json
+                  with open(
+                          'output/nse_holidays'
+                          '.json') as f:
+                      data = json.load(f)
+                  holidays = data.get('holidays', [])
+                  # Apr 14 2026 = Ambedkar Jayanti
+                  known = ['2026-04-14']
+                  missing = [
+                      h for h in known
+                      if h not in holidays]
+                  if missing:
+                      return False, (
+                          f'Known holidays missing:'
+                          f' {missing}')
+                  return True, (
+                      f'{len(holidays)} holidays, '
+                      f'Apr14 confirmed')
+              except Exception as e:
+                  return False, str(e)[:80]
+
+          def check_telegram_esc():
+              try:
+                  sys.path.insert(0, 'scanner')
+                  import importlib
+                  tb = importlib.import_module(
+                      'telegram_bot')
+                  if not hasattr(tb, '_esc'):
+                      return False, (
+                          '_esc missing from '
+                          'telegram_bot')
+                  result = tb._esc('test.value-1')
+                  if '\\.' not in result:
+                      return False, (
+                          f'_esc not escaping dots:'
+                          f' {result}')
+                  return True, '_esc escaping OK'
+              except Exception as e:
+                  return False, str(e)[:80]
+
+          INLINE_CHECKS = [
+              ('yml syntax — 18 workflow files',
+               check_yml_syntax),
+              ('PIN source+deploy inject',
+               check_pin_injection),
+              ('exit date — Apr6→Apr15',
+               check_exit_date),
+              ('scorer — Bear UP_TRI Age0 6+',
+               check_scorer),
+              ('R:R calc — 100/90/120=2.0x',
+               check_rr_calc),
+              ('holiday calendar — Apr14 present',
+               check_holiday_calendar),
+              ('telegram _esc formatting',
+               check_telegram_esc),
+          ]
+
+          print(f'\nTIER 3 — Inline validation '
+                f'({len(INLINE_CHECKS)} checks)')
+          for check_name, check_fn in INLINE_CHECKS:
+              try:
+                  ok, detail = check_fn()
+              except Exception as e:
+                  ok     = False
+                  detail = f'Exception: {str(e)[:60]}'
+              add(3, check_name, ok, detail)
+
           # ── SUMMARY ───────────────────────────────
           total  = len(results)
           passed = sum(1 for r in results if r[2])
@@ -240,7 +443,8 @@ jobs:
           if fails == 0:
               print(f'PASS — {passed}/{total} checks OK')
           else:
-              print(f'FAIL — {fails} failed, {passed} passed')
+              print(f'FAIL — {fails} failed, '
+                    f'{passed} passed')
           print('=' * 55)
 
           # ── TELEGRAM ──────────────────────────────
@@ -255,10 +459,12 @@ jobs:
                           t = t.replace(ch, f'\\{ch}')
                       return t
 
-                  today  = datetime.now().strftime('%Y-%m-%d')
+                  today  = datetime.now().strftime(
+                      '%Y-%m-%d')
                   tlines = []
                   tlines.append(
-                      f'🔍 *MASTER CHECK · {esc(today)}*')
+                      f'🔍 *MASTER CHECK · '
+                      f'{esc(today)}*')
                   tlines.append('')
 
                   if fails == 0:
@@ -267,51 +473,65 @@ jobs:
                           f'checks passed')
                   else:
                       tlines.append(
-                          f'❌ *{esc(str(fails))} failed · '
-                          f'{esc(str(passed))} passed*')
+                          f'❌ *{esc(str(fails))} '
+                          f'failed · '
+                          f'{esc(str(passed))} '
+                          f'passed*')
                       tlines.append('')
                       for tier in [1, 2, 3]:
                           tier_fails = [
                               r for r in results
-                              if r[0] == tier and not r[2]]
+                              if r[0] == tier
+                              and not r[2]]
                           if not tier_fails:
                               continue
                           tier_name = (
-                              'Syntax'  if tier == 1 else
-                              'Imports' if tier == 2 else
-                              'Runtime')
+                              'Syntax'  if tier == 1
+                              else 'Imports'
+                              if tier == 2
+                              else 'Runtime')
                           tlines.append(
-                              f'*T{tier} {tier_name}:*')
+                              f'*T{tier} '
+                              f'{tier_name}:*')
                           for _, name, _, detail \
                                   in tier_fails[:5]:
-                              d = (f' \\- {esc(detail)}'
-                                   if detail else '')
+                              d = (
+                                  f' \\- {esc(detail)}'
+                                  if detail else '')
                               tlines.append(
-                                  f'  • {esc(name)}{d}')
+                                  f'  • '
+                                  f'{esc(name)}{d}')
                           tlines.append('')
 
                   for tier in [1, 2, 3]:
-                      tier_res   = [r for r in results
-                                    if r[0] == tier]
-                      tier_ok    = sum(1 for r in tier_res
-                                       if r[2])
+                      tier_res = [
+                          r for r in results
+                          if r[0] == tier]
+                      tier_ok    = sum(
+                          1 for r in tier_res
+                          if r[2])
                       tier_total = len(tier_res)
                       tier_name  = (
-                          'Syntax'  if tier == 1 else
-                          'Imports' if tier == 2 else
-                          'Runtime')
-                      icon  = ('✅' if tier_ok == tier_total
-                               else '❌')
+                          'Syntax'  if tier == 1
+                          else 'Imports'
+                          if tier == 2
+                          else 'Runtime')
+                      icon  = (
+                          '✅' if tier_ok == tier_total
+                          else '❌')
                       n_ok  = esc(str(tier_ok))
                       n_tot = esc(str(tier_total))
                       tlines.append(
-                          f'{icon} T{tier} {tier_name}: '
+                          f'{icon} T{tier} '
+                          f'{tier_name}: '
                           f'{n_ok}/{n_tot}')
 
                   send_message('\n'.join(tlines))
                   print('[master_check] Telegram sent')
               except Exception as e:
-                  print(f'[master_check] Telegram error: {e}')
+                  print(
+                      f'[master_check] '
+                      f'Telegram error: {e}')
 
           sys.exit(0 if fails == 0 else 1)
           PYEOF
