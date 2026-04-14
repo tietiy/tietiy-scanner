@@ -1,4 +1,9 @@
-name: Scan Watchdog
+# .github/workflows/scan_watchdog.yml
+# Checks if morning scan ran — retriggers if missed
+# Also retriggers if scan found 0 signals on trading day
+# Triggered by cron-job.org at 9:02 AM IST
+
+name: "👁️ Scan Watchdog | Checks scan ran retriggers if missed+Telegram | 9:02 AM IST Auto"
 
 on:
   workflow_dispatch:
@@ -12,17 +17,19 @@ jobs:
     steps:
       - name: Check scan health and retry if needed
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          REPO: tietiy/tietiy-scanner
+          GH_TOKEN:         ${{ secrets.GH_TOKEN }}
+          REPO:             tietiy/tietiy-scanner
         run: |
           TODAY=$(TZ='Asia/Kolkata' date '+%Y-%m-%d')
           IST_HOUR=$(TZ='Asia/Kolkata' date '+%H')
           echo "Watchdog running — today: $TODAY | IST hour: $IST_HOUR"
 
           META_URL="https://tietiy.github.io/tietiy-scanner/meta.json"
-          HTTP_CODE=$(curl -s -o /tmp/meta.json -w "%{http_code}" --max-time 10 "$META_URL" || echo "000")
+          HTTP_CODE=$(curl -s -o /tmp/meta.json \
+            -w "%{http_code}" --max-time 10 \
+            "$META_URL" || echo "000")
           echo "meta.json HTTP: $HTTP_CODE"
 
           if [ "$HTTP_CODE" = "200" ]; then
@@ -56,29 +63,29 @@ jobs:
             IS_TRADING="false"
           fi
 
-          echo "Last scan date: $SCAN_DATE"
-          echo "Signals found: $SIGNALS_FOUND"
-          echo "Is trading day: $IS_TRADING"
+          echo "Last scan date : $SCAN_DATE"
+          echo "Signals found  : $SIGNALS_FOUND"
+          echo "Is trading day : $IS_TRADING"
 
-          # ── CASE 1: Scan never ran today ──────────────────────
+          TRIGGER=false
+
           if [ "$SCAN_DATE" != "$TODAY" ]; then
             echo "Scan missed today — triggering now"
             REASON="Morning scan missed"
             TRIGGER=true
 
-          # ── CASE 2: Scan ran but found 0 signals on a trading day ──
-          elif [ "$SIGNALS_FOUND" = "0" ] && [ "$IS_TRADING" = "true" ] && [ "$IST_HOUR" -ge "10" ]; then
-            echo "Scan ran today but 0 signals — data likely not ready at 8:45AM — retrying"
-            REASON="0 signals at 8:45AM — data retry at 10AM"
+          elif [ "$SIGNALS_FOUND" = "0" ] \
+               && [ "$IS_TRADING" = "true" ] \
+               && [ "$IST_HOUR" -ge "10" ]; then
+            echo "0 signals on trading day — retrying"
+            REASON="0 signals at 8:45AM — data retry"
             TRIGGER=true
 
-          # ── CASE 3: All good ──────────────────────────────────
           else
             echo "Scan healthy — date:$SCAN_DATE signals:$SIGNALS_FOUND"
             exit 0
           fi
 
-          # ── TRIGGER RE-SCAN ───────────────────────────────────
           TRIGGER_RESPONSE=$(curl -s -w "\n%{http_code}" \
             -X POST \
             -H "Accept: application/vnd.github+json" \
