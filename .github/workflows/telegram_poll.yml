@@ -1,4 +1,10 @@
-name: Telegram Command Responder
+# .github/workflows/telegram_poll.yml
+# Polls Telegram for commands and responds
+# Commands: /today /exits /pnl /stops /signals /health /help
+# Triggered by cron-job.org every 10 min
+# Commits tg_offset.json to prevent duplicate responses
+
+name: "🤖 Telegram Poll | /today /exits /pnl /stops /signals /health | Every 10Min cron-job"
 
 on:
   workflow_dispatch:
@@ -19,28 +25,34 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
       - name: Install dependencies
         run: pip install requests
 
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
+
       - name: Poll and respond to Telegram commands
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: python scanner/telegram_poll_runner.py
 
       - name: Commit offset file
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git config user.name "TIE TIY Bot"
+          git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
           git add output/tg_offset.json 2>/dev/null || true
-          git diff --cached --quiet && echo "No offset change" && exit 0
+          git diff --cached --quiet && \
+            echo "No offset change" && exit 0
           git commit -m "Telegram offset $(date '+%Y-%m-%d %H:%M')"
           for i in 1 2 3; do
             git pull --rebase origin main && \
@@ -49,3 +61,16 @@ jobs:
             echo "Attempt $i failed — retrying in 5s..."
             sleep 5
           done
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('telegram_poll', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
