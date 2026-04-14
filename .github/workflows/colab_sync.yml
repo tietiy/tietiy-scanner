@@ -1,9 +1,9 @@
 # .github/workflows/colab_sync.yml
 # Exports signal_history.json as Colab-ready JSON
-# R9: creates colab_export.json in output/
+# Creates colab_export.json in output/
 # Colab reads from GitHub Pages URL directly
 
-name: Colab Sync
+name: "🔄 Colab Sync | Flatten gen1 signals to colab_export.json | Manual+EOD"
 
 on:
   schedule:
@@ -14,6 +14,8 @@ on:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -42,10 +44,16 @@ jobs:
           git add output/colab_export.json 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No export changes"
-          else
-            git commit -m "chore: colab export $(date -u +%Y-%m-%d)"
-            git push
+            exit 0
           fi
+          git commit -m "chore: colab export $(date -u +%Y-%m-%d)"
+          for i in 1 2 3; do
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
 
       - name: Notify on failure
         if: failure()
