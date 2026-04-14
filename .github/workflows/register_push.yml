@@ -1,24 +1,9 @@
-# ── register_push.yml ────────────────────────────────
-# Receives push notification subscriptions
-# from the frontend and saves them to
-# subscriptions.json in the repo
-#
-# F16 — Push notification bridge
-# Solves: localStorage → subscriptions.json gap
-#
-# Flow:
-#   1. User taps "Enable Notifications" in app
-#   2. Browser creates push subscription
-#   3. Frontend POSTs to GitHub API
-#      workflow_dispatch with subscription data
-#   4. This workflow writes subscriptions.json
-#   5. push_sender.py reads subscriptions.json
-#   6. Push notifications fire at 8:50 AM IST
-#
-# Trigger: workflow_dispatch with input payload
-# ─────────────────────────────────────────────────────
+# .github/workflows/register_push.yml
+# Receives push notification subscriptions from PWA
+# Verifies PIN hash, saves to subscriptions.json
+# push_sender.py reads subscriptions.json at 8:50 AM IST
 
-name: Register Push Subscription
+name: "🔔 Push Register | VAPID subscribe PWA web-push notifications | Manual"
 
 on:
   workflow_dispatch:
@@ -43,14 +28,20 @@ on:
 jobs:
   register:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
 
       - name: Write subscription
         env:
@@ -70,7 +61,7 @@ jobs:
           p256dh   = os.environ['P256DH']
           auth     = os.environ['AUTH']
           pin_hash = os.environ['PIN_HASH']
-          push_pin = os.environ.get('PUSH_PIN','')
+          push_pin = os.environ.get('PUSH_PIN', '')
 
           # Verify PIN hash
           expected = hashlib.sha256(
@@ -91,7 +82,7 @@ jobs:
           except Exception:
               subs = []
 
-          # Check for duplicate endpoint
+          # Remove duplicate endpoint if exists
           existing = [
               s for s in subs
               if s.get('endpoint') != endpoint
@@ -104,8 +95,7 @@ jobs:
                   'p256dh': p256dh,
                   'auth':   auth,
               },
-              'subscribed_at': date.today()
-                               .isoformat(),
+              'subscribed_at': date.today().isoformat(),
               'active':        True,
           }
           existing.append(new_sub)
@@ -125,20 +115,19 @@ jobs:
         run: |
           git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-
           git add output/subscriptions.json
-
           if git diff --staged --quiet; then
             echo "No changes"
             exit 0
           fi
-
-          git commit -m \
-            "Push subscription registered"
-
-          git pull --rebase origin main
-          git push origin HEAD:main \
-            --force-with-lease
+          git commit -m "Push subscription registered $(date '+%Y-%m-%d %H:%M')"
+          for i in 1 2 3; do
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
 
       - name: Send confirmation via Telegram
         env:
@@ -149,3 +138,15 @@ jobs:
             "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
             -d "chat_id=${TELEGRAM_CHAT_ID}" \
             -d "text=🔔 TIE TIY%0ANew push notification device registered.%0AAlerts active from next scan."
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORKFLOW_NAME:    "Push Register"
+          RUN_URL:          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          pip install requests --quiet
+          python scanner/alert_failure.py
