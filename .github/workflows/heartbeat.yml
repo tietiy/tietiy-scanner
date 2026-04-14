@@ -1,4 +1,9 @@
-name: Daily Heartbeat
+# .github/workflows/heartbeat.yml
+# Daily alive signal — confirms system is running
+# Sends regime + active count + last scan to Telegram
+# Triggered by cron-job.org at 8:30 AM IST daily
+
+name: "💓 Heartbeat | Regime+Active+LastScan alive ping Telegram | Daily Auto"
 
 on:
   schedule:
@@ -8,6 +13,8 @@ on:
 jobs:
   heartbeat:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -18,26 +25,31 @@ jobs:
         with:
           python-version: '3.11'
 
-      - name: Install requests
+      - name: Install dependencies
         run: pip install requests
+
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
 
       - name: Send Heartbeat
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-          GH_REPO: ${{ github.repository }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          GH_TOKEN:         ${{ secrets.GH_TOKEN }}
+          GH_REPO:          ${{ github.repository }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: python scanner/heartbeat.py
 
       - name: Alert on failure
         if: failure()
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WORKFLOW_NAME: "Heartbeat"
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          WORKFLOW_NAME:    "Heartbeat"
+          RUN_URL:          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           pip install requests --quiet
           python scanner/alert_failure.py
