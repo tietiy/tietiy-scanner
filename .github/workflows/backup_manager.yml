@@ -1,9 +1,9 @@
 # .github/workflows/backup_manager.yml
 # Daily rolling backup of signal_history.json
-# M7: keeps last 7 days, auto-cleans older
+# Keeps last 30 days, auto-cleans older
 # Runs after EOD update completes
 
-name: Backup Manager
+name: "💾 Backup | signal_history dated+archive rotation 30days | Manual+EOD"
 
 on:
   schedule:
@@ -25,10 +25,13 @@ on:
 jobs:
   backup:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
         with:
+          token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 1
 
       - name: Set up Python
@@ -66,10 +69,16 @@ jobs:
           git add output/backups/ 2>/dev/null || true
           if git diff --cached --quiet; then
             echo "No backup changes to commit"
-          else
-            git commit -m "chore: daily backup $(date -u +%Y-%m-%d)"
-            git push
+            exit 0
           fi
+          git commit -m "chore: daily backup $(date -u +%Y-%m-%d)"
+          for i in 1 2 3; do
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
 
       - name: Notify on failure
         if: failure()
