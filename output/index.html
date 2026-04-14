@@ -285,11 +285,8 @@
   <!-- Runs immediately — before any app code         -->
   <script>
   (function() {
-    // Secret replaced at deploy time by sed
-    // Never committed to repo as a real value
     var S = 'PWA_PIN_PLACEHOLDER';
 
-    // Check if device is remembered
     try {
       if (localStorage.getItem('tietiy_pin') === S) {
         var gate = document.getElementById('pin-gate');
@@ -298,7 +295,6 @@
       }
     } catch(e) {}
 
-    // Focus input after DOM ready
     document.addEventListener('DOMContentLoaded',
       function() {
         var inp = document.getElementById('pin-input');
@@ -308,20 +304,14 @@
       }
     );
 
-    // Global unlock function called by button + Enter
     window._pinUnlock = function() {
-      var inp      = document.getElementById(
-        'pin-input');
-      var err      = document.getElementById(
-        'pin-error');
-      var remember = document.getElementById(
-        'pin-remember');
-      var gate     = document.getElementById(
-        'pin-gate');
+      var inp      = document.getElementById('pin-input');
+      var err      = document.getElementById('pin-error');
+      var remember = document.getElementById('pin-remember');
+      var gate     = document.getElementById('pin-gate');
       if (!inp || !gate) return;
 
       if (inp.value === S) {
-        // Correct PIN
         if (remember && remember.checked) {
           try {
             localStorage.setItem('tietiy_pin', S);
@@ -330,11 +320,9 @@
         gate.style.display = 'none';
         if (err) err.textContent = '';
       } else {
-        // Wrong PIN
         if (err) err.textContent = 'Incorrect PIN';
         inp.value = '';
         inp.focus();
-        // Shake animation
         var card = gate.querySelector('.pin-card');
         if (card) {
           card.style.transform = 'translateX(-8px)';
@@ -382,6 +370,12 @@
     <!-- STOP ALERT BANNER — rendered by ui.js -->
     <div id="alert-banner"></div>
 
+    <!-- MOBILE NEWS — phone/fold only              -->
+    <!-- Hidden on iPad where left panel is used    -->
+    <div id="mobile-news-section"
+         style="display:none;">
+    </div>
+
     <!-- TAB CONTENT — rendered by active tab JS -->
     <div id="tab-content"></div>
 
@@ -422,13 +416,42 @@
 
   </div><!-- end app-root -->
 
-  <!-- ── SIDEBAR — rendered by ui.js ────────────── -->
-  <!-- Fixed right panel on iPad/large screens       -->
-  <!-- Hidden on mobile — shown dynamically by JS    -->
+  <!-- ── SIDEBAR — right panel iPad/large ───────── -->
   <div id="sidebar"
        style="display:none;position:fixed;
               top:0;overflow-y:auto;
               z-index:10;">
+  </div>
+
+  <!-- ── NEWS PANEL — left panel iPad >1000px ───── -->
+  <div id="news-panel"
+       style="display:none;position:fixed;
+              top:0;overflow-y:auto;
+              padding-bottom:80px;z-index:10;">
+  </div>
+
+  <!-- ── NEWS OVERLAY ────────────────────────────── -->
+  <!-- Darkens screen when news drawer is open       -->
+  <div id="news-overlay"
+       style="display:none;position:fixed;
+              top:0;left:0;right:0;bottom:0;
+              background:rgba(0,0,0,0.85);
+              z-index:400;"
+       onclick="_closeNewsCard()">
+  </div>
+
+  <!-- ── NEWS DRAWER ─────────────────────────────── -->
+  <!-- Slide-up panel for full headline + link       -->
+  <div id="news-drawer"
+       style="display:none;position:fixed;
+              bottom:0;left:0;right:0;
+              background:#0d1117;
+              border-top:2px solid #30363d;
+              border-radius:16px 16px 0 0;
+              padding:20px 16px 48px;
+              z-index:401;
+              max-height:60vh;
+              overflow-y:auto;">
   </div>
 
   <!-- ── SERVICE WORKER REGISTRATION ────────────── -->
@@ -448,10 +471,10 @@
   </script>
 
   <!-- ── JS FILES ────────────────────────────────── -->
-  <script src="ui.js?v=202604150000"></script>
-  <script src="app.js?v=202604150000"></script>
-  <script src="journal.js?v=202604150000"></script>
-  <script src="stats.js?v=202604150000"></script>
+  <script src="ui.js?v=202604160200"></script>
+  <script src="app.js?v=202604160200"></script>
+  <script src="journal.js?v=202604160200"></script>
+  <script src="stats.js?v=202604160200"></script>
 
 </body>
 </html>
