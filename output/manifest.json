@@ -2,8 +2,8 @@
   "name": "TIE TIY Scanner",
   "short_name": "TIE TIY",
   "description": "NSE Equity Signal Scanner",
-  "start_url": "/tietiy-scanner/",
-  "scope": "/tietiy-scanner/",
+  "start_url": "/",
+  "scope": "/",
   "display": "standalone",
   "orientation": "portrait",
   "background_color": "#07070f",
@@ -12,13 +12,13 @@
 
   "icons": [
     {
-      "src": "icon-192.png",
+      "src": "/icon-192.png",
       "sizes": "192x192",
       "type": "image/png",
       "purpose": "any maskable"
     },
     {
-      "src": "icon-512.png",
+      "src": "/icon-512.png",
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
@@ -34,10 +34,10 @@
       "name": "Today's Signals",
       "short_name": "Signals",
       "description": "View today's scan signals",
-      "url": "/tietiy-scanner/",
+      "url": "/",
       "icons": [
         {
-          "src": "icon-192.png",
+          "src": "/icon-192.png",
           "sizes": "192x192"
         }
       ]
