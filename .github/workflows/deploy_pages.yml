@@ -1,4 +1,9 @@
-name: Deploy Scanner to GitHub Pages
+# .github/workflows/deploy.yml
+# Deploys output/ to tietiy.in via GitHub Pages
+# Injects PWA PIN from GitHub secret before upload
+# Triggered on any push to output/
+
+name: "🚀 Deploy | PIN-inject+output to tietiy.in GitHub Pages | On Push Auto"
 
 on:
   push:
@@ -16,16 +21,15 @@ jobs:
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     permissions:
-      pages: write
+      pages:    write
       id-token: write
       contents: read
 
     environment:
       name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
+      url:  ${{ steps.deployment.outputs.page_url }}
 
     steps:
-
       - name: Checkout
         uses: actions/checkout@v4
 
