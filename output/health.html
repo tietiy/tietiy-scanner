@@ -13,6 +13,18 @@
   content="width=device-width,initial-scale=1,
            viewport-fit=cover">
 <title>TIE TIY — Health</title>
+<meta name="apple-mobile-web-app-capable"
+      content="yes">
+<meta name="apple-mobile-web-app-title"
+      content="TIY Health">
+<link rel="apple-touch-icon"
+      href="/health-icon-192.png">
+<link rel="apple-touch-icon"
+      sizes="192x192"
+      href="/health-icon-192.png">
+<link rel="apple-touch-icon"
+      sizes="512x512"
+      href="/health-icon-512.png">
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -225,13 +237,10 @@
 </div>
 
 <script>
-// ── CONFIG ────────────────────────────────────────────
 const BASE    = '/';
 const GH_REPO = 'tietiy/tietiy-scanner';
-// Workflow file name for diagnostic dispatch
 const DIAG_WF = 'diagnostic.yml';
 
-// ── BUST CACHE ────────────────────────────────────────
 function _bust(url) {
   return url + '?t=' + Date.now();
 }
@@ -244,8 +253,6 @@ async function _safeGet(url) {
   } catch(e) { return null; }
 }
 
-// ── STALENESS CHECK ───────────────────────────────────
-// Returns age in minutes from an ISO timestamp string
 function _ageMinutes(isoStr) {
   if (!isoStr) return null;
   try {
@@ -267,7 +274,6 @@ function _isTradingHours() {
   const utcH   = now.getUTCHours();
   const utcM   = now.getUTCMinutes();
   const utcTot = utcH * 60 + utcM;
-  // 3:00–10:30 UTC = 8:30–16:00 IST approx
   return utcTot >= 180 && utcTot <= 630;
 }
 
@@ -276,7 +282,6 @@ function _isWeekend() {
   return day === 0 || day === 6;
 }
 
-// ── STATUS HELPERS ────────────────────────────────────
 function _dot(cls) {
   return `<span class="dot ${cls}"></span>`;
 }
@@ -301,7 +306,6 @@ function _statusRow(label, dotCls, text, valueCls) {
     </div>`;
 }
 
-// ── OVERALL STATUS ────────────────────────────────────
 function _overallBanner(fails, warns) {
   if (fails > 0) {
     return `
@@ -351,7 +355,6 @@ function _overallBanner(fails, warns) {
     </div>`;
 }
 
-// ── MAIN LOAD ─────────────────────────────────────────
 async function loadAll() {
   document.getElementById('last-refresh')
     .textContent = 'Refreshing…';
@@ -396,7 +399,6 @@ async function loadAll() {
     return;
   }
 
-  // ── DERIVE STATUS ─────────────────────────────────
   let fails = 0;
   let warns  = 0;
 
@@ -404,7 +406,6 @@ async function loadAll() {
     (meta.is_trading_day !== false);
   const inMarket   = _isTradingHours();
 
-  // Scan freshness
   const marketDate   = meta.market_date || '';
   const scanIsToday  = _isToday(marketDate);
   let   scanDot, scanText, scanCls;
@@ -423,7 +424,6 @@ async function loadAll() {
     fails++;
   }
 
-  // LTP freshness
   const ltpUpdated = meta.ltp_updated_at || '';
   let   ltpDot, ltpText, ltpCls;
   const ltpAge     = _ageMinutes(ltpUpdated);
@@ -452,29 +452,22 @@ async function loadAll() {
     if (inMarket) fails++;
   }
 
-  // Active signals
   const active = meta.active_signals_count != null
     ? meta.active_signals_count
     : (meta.signals_found || 0);
 
-  // Regime
   const regime    = meta.regime || '—';
   const regimeCls =
     regime === 'Bear' ? 'val-fail' :
     regime === 'Bull' ? 'val-ok'   : 'val-warn';
 
-  // Schema version
   const schemaV    = meta.schema_version || '—';
-  const schemaDot  = schemaV >= 5
-    ? 'dot-ok' : 'dot-warn';
   const schemaCls  = schemaV >= 5
     ? 'val-ok' : 'val-warn';
   if (schemaV < 5) warns++;
 
-  // Scan time
   const scanTime   = meta.scan_time || '—';
 
-  // History stats
   let histTotal    = 0;
   let histPending  = 0;
   let histResolved = 0;
@@ -507,7 +500,6 @@ async function loadAll() {
     histDot = 'dot-warn';
   }
 
-  // Warnings from meta
   const fetchFailed = (meta.fetch_failed || []).length;
   const caSkip      =
     (meta.corporate_action_skip || []).length;
@@ -533,14 +525,11 @@ async function loadAll() {
     wfCls  = 'val-ok';
   }
 
-  // Universe size
   const univSize = meta.universe_size || 0;
 
-  // ── BUILD HTML ────────────────────────────────────
   const html = `
     ${_overallBanner(fails, warns)}
 
-    <!-- SCANNER STATUS -->
     <div class="card">
       <div class="card-title">📡 Scanner Status</div>
       ${_statusRow('Last scan date',
@@ -557,7 +546,6 @@ async function loadAll() {
           wfDot, wfText, wfCls)}
     </div>
 
-    <!-- SIGNAL HEALTH -->
     <div class="card">
       <div class="card-title">📊 Signal Health</div>
       ${_statusRow('Active signals',
@@ -580,7 +568,6 @@ async function loadAll() {
           'val-dim')}
     </div>
 
-    <!-- MARKET CONTEXT -->
     <div class="card">
       <div class="card-title">
         🌡️ Market Context
@@ -607,7 +594,6 @@ async function loadAll() {
         : ''}
     </div>
 
-    <!-- PHASE PROGRESS -->
     <div class="card">
       <div class="card-title">
         🔬 Phase 1 Progress
@@ -663,14 +649,10 @@ async function loadAll() {
   dash.innerHTML     = html;
 }
 
-// ── TRIGGER DIAGNOSTIC ────────────────────────────────
-// Dispatches diagnostic.yml workflow via GitHub API.
-// Requires GH_TOKEN in localStorage (set once manually).
 async function triggerDiagnostic() {
   const diagEl =
     document.getElementById('diag-status');
 
-  // Get or prompt for token
   let token = '';
   try {
     token = localStorage.getItem('tietiy_gh_token')
@@ -749,17 +731,13 @@ async function triggerDiagnostic() {
   }
 }
 
-// ── AUTO REFRESH ──────────────────────────────────────
 loadAll();
 setInterval(loadAll, 60000);
 
-// Update refresh countdown
 let _countdown = 60;
 setInterval(function() {
   _countdown--;
-  if (_countdown <= 0) {
-    _countdown = 60;
-  }
+  if (_countdown <= 0) _countdown = 60;
   const footer =
     document.getElementById('footer-note');
   if (footer) {
