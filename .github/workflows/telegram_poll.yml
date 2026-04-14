@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   poll:
@@ -34,3 +34,20 @@ jobs:
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: python scanner/telegram_poll_runner.py
+
+      - name: Commit offset file
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config user.name "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+          git add output/tg_offset.json 2>/dev/null || true
+          git diff --cached --quiet && echo "No offset change" && exit 0
+          git commit -m "Telegram offset $(date '+%Y-%m-%d %H:%M')"
+          for i in 1 2 3; do
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
+            echo "Attempt $i failed — retrying in 5s..."
+            sleep 5
+          done
