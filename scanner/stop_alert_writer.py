@@ -8,6 +8,17 @@
 # F1 FIX: Dual track — target hit fires Telegram once,
 #         signal continues observing till Day 6
 # NEW:    ltp_updated_at written to output for PWA
+#
+# V1.1 FIXES:
+# - BX2: Holiday/weekend guard — exits immediately
+#         if market is closed, no alerts sent
+# - BX4: Target hit dedup already existed (F1) —
+#         confirmed working, sig_id based
+# - BX6: entry_valid=False signals excluded from
+#         stop monitoring — never entered, ignore
+# - BX7: Same stock same direction dedup —
+#         if stock has multiple signals, only
+#         send ONE alert per stock per cycle
 # ─────────────────────────────────────────────────────
 
 import json
@@ -23,19 +34,47 @@ from journal import get_open_trades
 from telegram_bot import send_message
 
 # ── PATHS ─────────────────────────────────────────────
-_HERE               = os.path.dirname(os.path.abspath(__file__))
-_ROOT               = os.path.dirname(_HERE)
-_OUTPUT             = os.path.join(_ROOT, 'output')
-OUT_FILE            = os.path.join(_OUTPUT, 'stop_alerts.json')
-TARGET_ALERTS_FILE  = os.path.join(_OUTPUT, 'target_alerts_sent.json')
+_HERE              = os.path.dirname(
+    os.path.abspath(__file__))
+_ROOT              = os.path.dirname(_HERE)
+_OUTPUT            = os.path.join(_ROOT, 'output')
+OUT_FILE           = os.path.join(
+    _OUTPUT, 'stop_alerts.json')
+TARGET_ALERTS_FILE = os.path.join(
+    _OUTPUT, 'target_alerts_sent.json')
 
 # ── THRESHOLDS ────────────────────────────────────────
 NEAR_STOP_PCT = 2.0
 AT_STOP_PCT   = 0.5
 
 
-# ── TARGET ALERT DEDUP ────────────────────────────────
+# ── BX2: TRADING DAY GUARD ────────────────────────────
+def _is_trading_day() -> bool:
+    """
+    Returns True only on weekdays that are
+    not NSE holidays.
+    Reads nse_holidays.json from output/.
+    """
+    today = date.today()
+    # Weekend check
+    if today.weekday() >= 5:
+        return False
+    # Holiday check
+    try:
+        holidays_file = os.path.join(
+            _OUTPUT, 'nse_holidays.json')
+        if os.path.exists(holidays_file):
+            with open(holidays_file, 'r') as f:
+                data = json.load(f)
+            holidays = data.get('holidays', [])
+            if today.isoformat() in holidays:
+                return False
+    except Exception:
+        pass
+    return True
 
+
+# ── TARGET ALERT DEDUP ────────────────────────────────
 def _load_target_alerts_sent():
     """
     Load set of signal IDs that already got
@@ -65,7 +104,6 @@ def _save_target_alert_sent(signal_id, sent_ids):
 
 
 # ── HELPERS ───────────────────────────────────────────
-
 def _fetch_current_price(symbol, retries=2):
     """
     Fetch current intraday price.
@@ -82,9 +120,12 @@ def _fetch_current_price(symbol, retries=2):
             )
 
             if df is not None and not df.empty:
-                if isinstance(df.columns, pd.MultiIndex):
-                    df.columns = [c[0] for c in df.columns]
-                price      = float(df.iloc[-1]['Close'])
+                if isinstance(
+                        df.columns, pd.MultiIndex):
+                    df.columns = [
+                        c[0] for c in df.columns]
+                price      = float(
+                    df.iloc[-1]['Close'])
                 fetch_time = datetime.now().strftime(
                     '%I:%M %p IST')
                 return price, fetch_time
@@ -99,9 +140,12 @@ def _fetch_current_price(symbol, retries=2):
             )
 
             if df is not None and not df.empty:
-                if isinstance(df.columns, pd.MultiIndex):
-                    df.columns = [c[0] for c in df.columns]
-                price      = float(df.iloc[-1]['Close'])
+                if isinstance(
+                        df.columns, pd.MultiIndex):
+                    df.columns = [
+                        c[0] for c in df.columns]
+                price      = float(
+                    df.iloc[-1]['Close'])
                 fetch_time = datetime.now().strftime(
                     '%I:%M %p IST')
                 return price, fetch_time
@@ -116,10 +160,12 @@ def _fetch_current_price(symbol, retries=2):
 def _assess_stop_level(trade, current_price):
     """
     Assess stop proximity.
-    Returns (alert_level, pct_from_stop, pnl_pct, pnl_r, note)
+    Returns (alert_level, pct_from_stop,
+             pnl_pct, pnl_r, note)
     """
     try:
-        stop      = float(trade.get('stop', 0) or 0)
+        stop      = float(
+            trade.get('stop', 0) or 0)
         entry     = float(
             trade.get('entry', 0)
             or trade.get('scan_price', 0) or 0)
@@ -138,16 +184,19 @@ def _assess_stop_level(trade, current_price):
                     'Invalid risk calculation')
 
         pct_from_stop = round(
-            abs(current_price - stop) / stop * 100, 2)
+            abs(current_price - stop) / stop * 100,
+            2)
 
         if direction == 'LONG':
             pnl_pct = round(
-                (current_price - entry) / entry * 100, 2)
+                (current_price - entry)
+                / entry * 100, 2)
             pnl_r   = round(
                 (current_price - entry) / risk, 2)
         else:
             pnl_pct = round(
-                (entry - current_price) / entry * 100, 2)
+                (entry - current_price)
+                / entry * 100, 2)
             pnl_r   = round(
                 (entry - current_price) / risk, 2)
 
@@ -158,7 +207,8 @@ def _assess_stop_level(trade, current_price):
                         f"STOP BREACHED — "
                         f"₹{current_price:.2f} below "
                         f"stop ₹{stop:.2f}")
-            diff = (current_price - stop) / stop * 100
+            diff = ((current_price - stop)
+                    / stop * 100)
             if diff <= AT_STOP_PCT:
                 return ('AT', pct_from_stop,
                         pnl_pct, pnl_r,
@@ -179,17 +229,21 @@ def _assess_stop_level(trade, current_price):
                         f"STOP BREACHED — "
                         f"₹{current_price:.2f} above "
                         f"stop ₹{stop:.2f}")
-            diff = (stop - current_price) / stop * 100
+            diff = ((stop - current_price)
+                    / stop * 100)
             if diff <= AT_STOP_PCT:
                 return ('AT', pct_from_stop,
                         pnl_pct, pnl_r,
-                        f"AT STOP — within 0.5% of stop")
+                        f"AT STOP — within 0.5% "
+                        f"of stop")
             if diff <= NEAR_STOP_PCT:
                 return ('NEAR', pct_from_stop,
                         pnl_pct, pnl_r,
-                        f"NEAR STOP — within 2% of stop")
+                        f"NEAR STOP — within 2% "
+                        f"of stop")
 
-        return ('SAFE', pct_from_stop, pnl_pct, pnl_r,
+        return ('SAFE', pct_from_stop,
+                pnl_pct, pnl_r,
                 f"Safe ₹{current_price:.2f} | "
                 f"{pnl_r:+.2f}R")
 
@@ -244,20 +298,18 @@ def _send_target_hit_alert(trade, current_price,
     F1 FIX: Fire Telegram alert when target hit.
     Signal continues observing till Day 6 (dual track).
     """
-    sym     = (trade.get('symbol') or '?')\
-               .replace('.NS', '')
-    stype   = trade.get('signal', '?')
-    target  = trade.get('target_price', 0)
-    entry   = (trade.get('entry')
-               or trade.get('scan_price') or 0)
-    score   = trade.get('score', 0)
+    sym    = (trade.get('symbol') or '?')\
+              .replace('.NS', '')
+    stype  = trade.get('signal', '?')
+    target = trade.get('target_price', 0)
+    entry  = (trade.get('entry')
+              or trade.get('scan_price') or 0)
+    score  = trade.get('score', 0)
 
-    # Format pnl
     sign    = '+' if (pnl_pct or 0) >= 0 else ''
-    pnl_str = f"{sign}{pnl_pct:.1f}%" \
-              if pnl_pct is not None else '—'
+    pnl_str = (f"{sign}{pnl_pct:.1f}%"
+               if pnl_pct is not None else '—')
 
-    # Escape for MarkdownV2
     def _e(v):
         for ch in r'\_*[]()~`>#+-=|{}.!':
             v = str(v).replace(ch, f'\\{ch}')
@@ -315,7 +367,8 @@ def _send_stop_alert_msg(trade, current_price,
         action = 'Exit immediately at market\\.'
     elif alert_level == 'AT':
         icon   = '🔴'
-        action = 'At stop\\. Exit if next tick against\\.'
+        action = ('At stop\\. '
+                  'Exit if next tick against\\.')
     else:
         icon   = '⚠️'
         action = 'Watch closely\\.'
@@ -335,23 +388,36 @@ def _send_stop_alert_msg(trade, current_price,
 
 
 # ── MAIN FUNCTION ─────────────────────────────────────
-
 def run_stop_check():
     """
     Main entry point. Called by stop_check.yml.
 
-    Workflow:
-    1. Load open positions
-    2. Fetch current price per stock
-    3. Check stop proximity → alert if NEAR/AT/BREACHED
-    4. Check target hit → alert once, mark dual_track
-    5. Write stop_alerts.json with ltp_updated_at
+    V1.1 FIXES:
+    BX2: Exits immediately on holidays/weekends.
+    BX6: Skips entry_valid=False signals.
+    BX7: Deduplicates same stock same direction —
+         only fires ONE Telegram alert per stock.
+    BX4: Target hit dedup already via sig_id (F1).
     """
 
     os.makedirs(_OUTPUT, exist_ok=True)
 
+    # BX2 FIX: Holiday/weekend guard
+    # Stop check should never run when market is closed
+    if not _is_trading_day():
+        today_str = date.today().isoformat()
+        print(f"[stop_alert] {today_str} is a "
+              f"holiday or weekend — skipping")
+        # Write a clean empty file so PWA
+        # doesn't show stale alerts
+        _write_empty(
+            date.today().isoformat(),
+            datetime.now().strftime('%I:%M %p IST'))
+        return
+
     today      = date.today().isoformat()
-    check_time = datetime.now().strftime('%I:%M %p IST')
+    check_time = datetime.now().strftime(
+        '%I:%M %p IST')
 
     print(f"[stop_alert] Stop check at {check_time}")
 
@@ -362,11 +428,30 @@ def run_stop_check():
         _write_empty(today, check_time)
         return
 
+    # BX6 FIX: Exclude entry_valid=False signals
+    # These were never entered — no stop to monitor
+    valid_trades = [
+        t for t in open_trades
+        if t.get('entry_valid') is not False
+    ]
+    skipped_invalid = len(open_trades) - len(valid_trades)
+    if skipped_invalid > 0:
+        print(f"[stop_alert] Skipping "
+              f"{skipped_invalid} entry_valid=False "
+              f"signals")
+
     print(f"[stop_alert] Checking "
-          f"{len(open_trades)} positions")
+          f"{len(valid_trades)} positions")
 
     # Load target alerts already sent today
     target_alerts_sent = _load_target_alerts_sent()
+
+    # BX7 FIX: Track which stocks already had
+    # a stop alert sent this cycle
+    # Key: symbol_clean + direction
+    # Prevents BSE DOWN_TRI + BSE DOWN_TRI_SA
+    # both firing separate alerts
+    stop_alerted_stocks = set()
 
     alerts         = []
     fetch_failed   = []
@@ -376,7 +461,7 @@ def run_stop_check():
     safe_count     = 0
     target_hit_count = 0
 
-    for trade in open_trades:
+    for trade in valid_trades:
         symbol    = trade.get('symbol', '')
         signal    = trade.get('signal', '')
         direction = trade.get('direction', 'LONG')
@@ -392,7 +477,8 @@ def run_stop_check():
             _fetch_current_price(symbol)
 
         if current_price is None:
-            print(f"[stop_alert] Fetch failed: {symbol}")
+            print(
+                f"[stop_alert] Fetch failed: {symbol}")
             fetch_failed.append(symbol)
             alerts.append({
                 'symbol':        symbol,
@@ -420,16 +506,32 @@ def run_stop_check():
          note) = _assess_stop_level(
             trade, current_price)
 
+        # BX7 FIX: dedup key — one alert per
+        # stock per direction per cycle
+        sym_clean  = symbol.replace('.NS', '')
+        dedup_key  = f"{sym_clean}_{direction}"
+        already_alerted = dedup_key in stop_alerted_stocks
+
         if alert_level == 'BREACHED':
             breached_count += 1
-            _send_stop_alert_msg(
-                trade, current_price,
-                alert_level, fetch_time or check_time)
+            if not already_alerted:
+                _send_stop_alert_msg(
+                    trade, current_price,
+                    alert_level,
+                    fetch_time or check_time)
+                stop_alerted_stocks.add(dedup_key)
+            else:
+                print(f"[stop_alert] Dedup: "
+                      f"skip duplicate alert "
+                      f"for {sym_clean}")
         elif alert_level == 'AT':
             at_count += 1
-            _send_stop_alert_msg(
-                trade, current_price,
-                alert_level, fetch_time or check_time)
+            if not already_alerted:
+                _send_stop_alert_msg(
+                    trade, current_price,
+                    alert_level,
+                    fetch_time or check_time)
+                stop_alerted_stocks.add(dedup_key)
         elif alert_level == 'NEAR':
             near_count += 1
         elif alert_level == 'SAFE':
@@ -444,8 +546,11 @@ def run_stop_check():
             print(f"[stop_alert] TARGET HIT: "
                   f"{symbol} @ {current_price:.2f}")
 
-            # F1 FIX: Send alert only once per signal per day
-            if sig_id and sig_id not in target_alerts_sent:
+            # F1/BX4 FIX: Send alert only once
+            # per signal per day via sig_id dedup
+            if (sig_id
+                    and sig_id
+                    not in target_alerts_sent):
                 _send_target_hit_alert(
                     trade, current_price,
                     target_pnl,
@@ -473,21 +578,23 @@ def run_stop_check():
         print(f"[stop_alert] {symbol} | "
               f"₹{current_price:.2f} | "
               f"Stop:{alert_level} | "
-              f"Target:{'HIT' if target_hit else 'open'}")
+              f"Target:"
+              f"{'HIT' if target_hit else 'open'}")
 
     # ── Write output ──────────────────────────────────
     output = {
         'date':             today,
         'check_time':       check_time,
-        'ltp_updated_at':   check_time,     # PWA reads this
-        'open_positions':   len(open_trades),
+        'ltp_updated_at':   check_time,
+        'open_positions':   len(valid_trades),
         'breached_count':   breached_count,
         'at_count':         at_count,
         'near_count':       near_count,
         'safe_count':       safe_count,
         'target_hit_count': target_hit_count,
         'fetch_failed':     fetch_failed,
-        'has_alerts':       (breached_count + at_count) > 0,
+        'has_alerts':       (
+            breached_count + at_count) > 0,
         'alerts':           alerts,
     }
 
@@ -499,7 +606,8 @@ def run_stop_check():
           f"AT:{at_count} "
           f"NEAR:{near_count} "
           f"TARGET_HIT:{target_hit_count} "
-          f"FAILED:{len(fetch_failed)}")
+          f"FAILED:{len(fetch_failed)} "
+          f"SKIPPED_INVALID:{skipped_invalid}")
 
 
 def _write_empty(today, check_time):
