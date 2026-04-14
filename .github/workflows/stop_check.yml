@@ -1,4 +1,10 @@
-name: Stop Check Every 5 Min
+# .github/workflows/stop_check.yml
+# Stop proximity check + target hit detection
+# Holiday guard — skips on NSE holidays
+# Deduplicates same stock per cycle
+# Triggered by cron-job.org every 5 min (staggered 2 min from LTP)
+
+name: "🛑 Stop Check | Stop proximity target-hit dedup holiday-guard | Every 5Min Market"
 
 on:
   workflow_dispatch:
@@ -19,7 +25,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -31,36 +37,38 @@ jobs:
 
       - name: Run stop check
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
-        run: |
-          export PYTHONPATH=$GITHUB_WORKSPACE:$GITHUB_WORKSPACE/scanner
-          cd $GITHUB_WORKSPACE/scanner && python stop_alert_writer.py
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: python scanner/stop_alert_writer.py
 
-      - name: Commit and push stop alerts
+      - name: Commit stop alerts
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
-          git config user.name "TIE TIY Bot"
+          git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
           git add output/stop_alerts.json
-          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git diff --cached --quiet && \
+            echo "No changes to commit" && exit 0
           git commit -m "Stop check $(date '+%H:%M') IST"
           for i in 1 2 3; do
-            git pull --rebase origin main && git push origin HEAD:main && echo "Push succeeded on attempt $i" && break
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
 
-      - name: Alert on failure
+      - name: Notify on failure
         if: failure()
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WORKFLOW_NAME: "Stop Check"
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
-          pip install requests --quiet
-          python scanner/alert_failure.py
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('stop_check', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
