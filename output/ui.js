@@ -592,12 +592,13 @@ async function _fetchStockNews(symbol) {
     const data  = await r.json();
     const items = (data.items || [])
       .filter(function(item) {
-        // Last 48 hours only
+        // Last 30 days only
         try {
           const age = Date.now() -
             new Date(item.pubDate).getTime();
-          return age < 172800000;
+          return age < 2592000000;
         } catch(e) { return false; }
+
       })
       .slice(0, 2);
 
