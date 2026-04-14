@@ -21,6 +21,10 @@
 #   - failure_reason→ "Gap at open invalidated entry
 #                      — trade was not taken"
 #
+# BX9 FIX: ADANIGREEN signal type corrected to
+# DOWN_TRI_SA (was UP_TRI_SA — that's why first
+# heal run found only BSE and missed ADANIGREEN)
+#
 # Run once from GitHub Actions workflow_dispatch or
 # locally. Backs up history before modifying.
 #
@@ -42,11 +46,12 @@ from journal import (
 )
 
 # Signals to reset — symbol + signal type + date
-# These are the two confirmed invalid SA signals
+# BX9 FIX: ADANIGREEN corrected to DOWN_TRI_SA
+# (PWA modal confirmed: DOWN TRI SA · 8 Apr 2026)
 TARGETS = [
     {
         'symbol': 'ADANIGREEN.NS',
-        'signal': 'UP_TRI_SA',
+        'signal': 'DOWN_TRI_SA',
         'date':   '2026-04-08',
     },
     {
@@ -78,18 +83,20 @@ def _match(sig, target):
         sig.get('symbol', '').upper()
         == target['symbol'].upper()
         or sig.get('symbol', '').upper()
-        == target['symbol'].replace('.NS', '').upper()
+        == target['symbol'].replace(
+            '.NS', '').upper()
     )
     sig_match = (
         sig.get('signal', '').upper()
         == target['signal'].upper()
     )
-    date_match = sig.get('date', '') == target['date']
+    date_match = (
+        sig.get('date', '') == target['date'])
     return sym_match and sig_match and date_match
 
 
 def run_heal(dry_run=False):
-    print('[heal_sa] Starting C1 SA signal heal...')
+    print('[heal_sa] Starting BX9 SA signal heal...')
     if dry_run:
         print('[heal_sa] DRY RUN — no changes written')
 
@@ -115,10 +122,13 @@ def run_heal(dry_run=False):
 
             print(f'\n[heal_sa] Found: {sym} '
                   f'{signal} {date}')
-            print(f'  Before: outcome={sig.get("outcome")} '
-                  f'result={sig.get("result")} '
-                  f'pnl={sig.get("pnl_pct")} '
-                  f'entry_valid={sig.get("entry_valid")}')
+            print(
+                f'  Before: '
+                f'outcome={sig.get("outcome")} '
+                f'result={sig.get("result")} '
+                f'pnl={sig.get("pnl_pct")} '
+                f'entry_valid='
+                f'{sig.get("entry_valid")}')
 
             if dry_run:
                 print(f'  Would reset to PENDING')
@@ -131,26 +141,28 @@ def run_heal(dry_run=False):
                     del history[i][field]
 
             # Set clean state
-            history[i]['outcome']       = None
-            history[i]['result']        = 'PENDING'
-            history[i]['entry_valid']   = False
+            history[i]['outcome']        = None
+            history[i]['result']         = 'PENDING'
+            history[i]['entry_valid']    = False
             history[i]['failure_reason'] = (
                 'Gap at open invalidated entry '
                 '— trade was not taken')
 
-            print(f'  After:  outcome=None '
-                  f'result=PENDING '
-                  f'entry_valid=False')
+            print(
+                f'  After:  outcome=None '
+                f'result=PENDING '
+                f'entry_valid=False')
             healed += 1
             found.append(i)
-            break   # matched — move to next signal
+            break
 
     print(f'\n[heal_sa] Found {len(found)} '
           f'target signals')
 
     if not found:
-        print('[heal_sa] No matching signals found '
-              '— check symbol/signal/date in TARGETS')
+        print(
+            '[heal_sa] No matching signals found '
+            '— check symbol/signal/date in TARGETS')
         return
 
     if not dry_run:
@@ -158,13 +170,15 @@ def run_heal(dry_run=False):
         data['history'] = history
         try:
             _save_json(HISTORY_FILE, data)
-            print(f'[heal_sa] Done — '
-                  f'{healed} signals reset to PENDING')
+            print(
+                f'[heal_sa] Done — '
+                f'{healed} signals reset to PENDING')
         except Exception as e:
             print(f'[heal_sa] Save failed: {e}')
     else:
-        print('[heal_sa] Dry run complete — '
-              'run without --dry-run to apply')
+        print(
+            '[heal_sa] Dry run complete — '
+            'run without --dry-run to apply')
 
 
 if __name__ == '__main__':
