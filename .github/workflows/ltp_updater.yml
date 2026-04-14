@@ -1,6 +1,11 @@
-name: LTP Price Updater
+# .github/workflows/ltp_updater.yml
+# Fetches intraday LTP for all PENDING signals
+# Holiday guard — skips on NSE holidays
+# Triggered by cron-job.org every 5 min during market hours
 
-on:   
+name: "💹 LTP Updater | Intraday price all PENDING signals holiday-guard | Every 5Min Market"
+
+on:
   workflow_dispatch:
 
 concurrency:
@@ -10,6 +15,8 @@ concurrency:
 jobs:
   update_ltp:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
@@ -18,48 +25,54 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
           fetch-depth: 1
 
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
       - name: Install dependencies
+        run: pip install yfinance pandas requests
+
+      - name: Pull latest output files
         run: |
-          pip install yfinance pandas requests \
-            --break-system-packages -q
+          git fetch origin
+          git checkout origin/main -- output/ || true
 
       - name: Run LTP updater
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
-        run: |
-          cd $GITHUB_WORKSPACE
-          python scanner/ltp_writer.py
+        run: python scanner/ltp_writer.py
 
       - name: Commit ltp_prices.json
         run: |
           git config user.name  "TIE TIY Bot"
           git config user.email "bot@tietiy.com"
-
           git add output/ltp_prices.json
-
           if git diff --staged --quiet; then
             echo "No changes to commit"
             exit 0
           fi
-
           IST=$(date -u -d '+5 hours 30 minutes' \
             '+%H:%M IST' 2>/dev/null || \
             date -u '+%H:%M IST')
-
           git commit -m "LTP update ${IST}"
+          for i in 1 2 3; do
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
 
-          git pull --rebase origin main
-          git push origin HEAD:main \
-            --force-with-lease
-
-      - name: Alert on failure
+      - name: Notify on failure
         if: failure()
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WORKFLOW_NAME: "LTP Update"
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
-          pip install requests --quiet
-          python scanner/alert_failure.py
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('ltp_updater', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
