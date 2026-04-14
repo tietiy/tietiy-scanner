@@ -1,15 +1,21 @@
-name: Heal Signal Data (One-Time)
+# .github/workflows/heal_data.yml
+# One-time data fix tool — manual dispatch only
+# C1: reset invalid SA signals
+# C2: fix accidentally rejected gen=1 signals
+# TR5: test weekend summary with --force
+
+name: "🔧 Heal Data | C1:SA-reset C2:rejected-fix TR5:weekend-test | Manual One-Time"
 
 on:
   workflow_dispatch:
     inputs:
       heal_sa:
-        description: 'C1 — Reset 2 invalid SA signals (ADANIGREEN + BSE Apr 8)'
+        description: 'C1 — Reset invalid SA signals (ADANIGREEN + BSE Apr 8)'
         required: false
         default: false
         type: boolean
       heal_rejected_report:
-        description: 'C2 — Report only: investigate 43 rejected signals'
+        description: 'C2 — Report only: investigate rejected signals'
         required: false
         default: false
         type: boolean
@@ -40,7 +46,7 @@ jobs:
           token: ${{ secrets.GH_TOKEN }}
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
@@ -94,10 +100,13 @@ jobs:
             output/signal_history.backup.json \
             output/backups/ \
             2>/dev/null || true
-          git diff --cached --quiet && echo "No changes to commit" && exit 0
+          git diff --cached --quiet && \
+            echo "No changes to commit" && exit 0
           git commit -m "Data heal $(date '+%Y-%m-%d') — C1/C2 fix"
           for i in 1 2 3; do
-            git pull --rebase origin main && git push origin HEAD:main && echo "Push succeeded on attempt $i" && break
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
             echo "Push attempt $i failed — retrying in 10s..."
             sleep 10
           done
@@ -105,9 +114,9 @@ jobs:
       - name: TR5 — Verify weekend summary
         if: ${{ inputs.verify_weekend_summary == true }}
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           echo "=== TR5 WEEKEND SUMMARY TEST ==="
           python scanner/weekend_summary.py --force
@@ -115,11 +124,11 @@ jobs:
       - name: Alert on failure
         if: failure()
         env:
-          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WORKFLOW_NAME: "Heal Signal Data"
-          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+          WORKFLOW_NAME:    "Heal Signal Data"
+          RUN_URL:          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           pip install requests --quiet
           python scanner/alert_failure.py
