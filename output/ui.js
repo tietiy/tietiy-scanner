@@ -13,9 +13,12 @@
 // - M8  : Market regime note in status bar
 // - S1  : _enforceTabletWidth() — JS-based width
 //         enforcement for iPad PWA standalone mode.
-//         CSS media queries unreliable in iOS PWA.
-//         Runs at init + on orientationchange.
 // - S4  : Tab bar sizing via _enforceTabletWidth
+// - PWA_LAYOUT: Right sidebar on iPad >900px —
+//   market context card (regime, active, exits today,
+//   new today, F&O ban, next scan, phase progress).
+//   Compact on portrait, full on landscape.
+//   Hidden on mobile/fold. Updates on resize.
 //
 // PRIOR FIXES RETAINED:
 // - Default filter is 'top'
@@ -264,6 +267,259 @@ function _countTodaySignals() {
   ).length;
 }
 
+// ── SIDEBAR HELPERS ───────────────────────────────────
+
+function _countTodayExits() {
+  const today = _todayIST();
+  const hist  = window.TIETIY.history;
+  if (!hist || !hist.history) return 0;
+  const done = ['TARGET_HIT','STOP_HIT',
+    'DAY6_WIN','DAY6_LOSS','DAY6_FLAT'];
+  return hist.history.filter(function(s) {
+    return s.exit_date === today
+      && s.result    === 'PENDING'
+      && s.action    === 'TOOK'
+      && done.indexOf(s.outcome || '') === -1;
+  }).length;
+}
+
+function _countResolvedGen1() {
+  const hist = window.TIETIY.history;
+  if (!hist || !hist.history) return 0;
+  const done = ['TARGET_HIT','STOP_HIT',
+    'DAY6_WIN','DAY6_LOSS','DAY6_FLAT'];
+  return hist.history.filter(function(s) {
+    return s.action === 'TOOK'
+      && (s.generation || 0) >= 1
+      && done.indexOf(s.outcome || '') !== -1;
+  }).length;
+}
+
+// Returns sidebar layout info based on viewport
+// show:false = no sidebar
+// show:true  = {left, width, compact}
+function _sidebarLayout() {
+  const vw = window.innerWidth
+    || document.documentElement.clientWidth
+    || 375;
+
+  if (vw < 900) return { show: false };
+
+  // Body cap (mirrors _enforceTabletWidth logic)
+  const bodyWidth = vw >= 1024 ? 720 : 680;
+
+  // Space to right of centered body
+  const bodyRightEdge = (vw + bodyWidth) / 2;
+  const available     = vw - bodyRightEdge - 8;
+
+  // Need at least 120px for useful sidebar
+  if (available < 120) return { show: false };
+
+  const sidebarWidth = Math.min(260, available - 8);
+  const sidebarLeft  = bodyRightEdge + 8;
+  const compact      = sidebarWidth < 180;
+
+  return {
+    show:    true,
+    left:    Math.round(sidebarLeft),
+    width:   Math.round(sidebarWidth),
+    compact: compact,
+  };
+}
+
+// ── RENDER SIDEBAR ────────────────────────────────────
+function _renderSidebar() {
+  const el = document.getElementById('sidebar');
+  if (!el) return;
+
+  const layout = _sidebarLayout();
+
+  if (!layout.show) {
+    el.style.display = 'none';
+    return;
+  }
+
+  // Position sidebar
+  el.style.display  = 'block';
+  el.style.left     = layout.left + 'px';
+  el.style.width    = layout.width + 'px';
+  el.style.top      = '0';
+  el.style.height   = '100vh';
+  el.style.overflowY = 'auto';
+  el.style.paddingBottom = '80px';
+
+  const meta    = window.TIETIY.meta;
+  const compact = layout.compact;
+  const p       = compact ? '10px 8px' : '12px 10px';
+  const fs      = compact ? '10px' : '11px';
+  const fsL     = compact ? '13px' : '15px';
+  const gap     = compact ? '8px' : '10px';
+
+  if (!meta) {
+    el.innerHTML = '';
+    return;
+  }
+
+  const regime  = meta.regime || '—';
+  const active  = meta.active_signals_count || 0;
+  const rc      = regime === 'Bear'  ? '#ff4444'
+                : regime === 'Bull'  ? '#00C851'
+                : '#FFD700';
+
+  const exitsToday  = _countTodayExits();
+  const newToday    = _countTodaySignals();
+  const resolved    = _countResolvedGen1();
+  const phasePct    = Math.min(
+    100, Math.round(resolved / 30 * 100));
+  const banned      = window.TIETIY.bannedStocks || [];
+  const nextDay     = _getNextTradingDay();
+  const isTrading   = meta.is_trading_day;
+
+  // Card style helper
+  const card = (content) =>
+    `<div style="background:#0d1117;
+      border:1px solid #21262d;
+      border-radius:10px;
+      padding:${p};
+      margin-bottom:${gap};">
+      ${content}
+    </div>`;
+
+  // Section label helper
+  const label = (txt) =>
+    `<div style="color:#444;font-size:9px;
+      font-weight:700;letter-spacing:1px;
+      text-transform:uppercase;
+      margin-bottom:6px;">${txt}</div>`;
+
+  // Row helper
+  const row = (icon, lbl, val, valColor) =>
+    `<div style="display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:5px;
+      font-size:${fs};">
+      <span style="color:#555;">
+        ${icon} ${lbl}
+      </span>
+      <span style="color:${valColor || '#c9d1d9'};
+        font-weight:600;">
+        ${val}
+      </span>
+    </div>`;
+
+  let html = '';
+
+  // ── REGIME CARD ────────────────────────────────
+  html += card(`
+    ${label('Market')}
+    <div style="display:flex;
+      align-items:center;
+      justify-content:space-between;">
+      <span style="background:${rc};color:#000;
+        border-radius:5px;
+        padding:2px 8px;
+        font-size:${fsL};
+        font-weight:700;">
+        ${regime}
+      </span>
+      ${regime === 'Bear'
+        ? '<span style="font-size:16px;">🔥</span>'
+        : ''}
+    </div>
+  `);
+
+  // ── TODAY CARD ─────────────────────────────────
+  html += card(`
+    ${label('Today')}
+    ${row('📊', 'Active', active, '#c9d1d9')}
+    ${row('🚪', 'Exits',
+      exitsToday > 0
+        ? `<span style="color:#f85149;
+            font-weight:700;">${exitsToday}</span>`
+        : '0',
+      exitsToday > 0 ? '#f85149' : '#555')}
+    ${row('🔔', 'New',
+      newToday > 0
+        ? `<span style="color:#00C851;">${newToday}</span>`
+        : '0',
+      newToday > 0 ? '#00C851' : '#555')}
+    ${exitsToday > 0
+      ? `<div style="color:#f85149;
+           font-size:9px;margin-top:6px;
+           padding:4px 6px;
+           background:#2a0a0a;
+           border-radius:5px;
+           text-align:center;">
+           Sell at 9:15 AM
+         </div>`
+      : ''}
+  `);
+
+  // ── NEXT SCAN ──────────────────────────────────
+  html += card(`
+    ${label('Next Scan')}
+    <div style="color:#8b949e;
+      font-size:${fs};
+      line-height:1.6;">
+      ${isTrading
+        ? `<span style="color:#00C851;">
+             ● Today
+           </span><br>
+           <span style="color:#555;">8:45 AM IST</span>`
+        : `<span style="color:#c9d1d9;">
+             ${nextDay}
+           </span><br>
+           <span style="color:#555;">8:45 AM IST</span>`
+      }
+    </div>
+  `);
+
+  // ── PHASE PROGRESS ─────────────────────────────
+  const phaseBar = Array.from({length: 10},
+    (_, i) => i < Math.round(phasePct / 10)
+      ? `<span style="color:#ffd700;">█</span>`
+      : `<span style="color:#21262d;">█</span>`
+  ).join('');
+
+  html += card(`
+    ${label('Phase 1')}
+    <div style="font-size:${fsL};
+      color:#ffd700;font-weight:700;
+      margin-bottom:4px;">
+      ${resolved} / 30
+    </div>
+    <div style="font-size:9px;
+      letter-spacing:1px;margin-bottom:4px;">
+      ${phaseBar}
+    </div>
+    <div style="color:#444;font-size:9px;">
+      ${30 - resolved > 0
+        ? `${30 - resolved} more needed`
+        : '✅ Unlocked'}
+    </div>
+  `);
+
+  // ── F&O BAN ────────────────────────────────────
+  if (banned.length > 0) {
+    const banNames = banned.slice(0, 4)
+      .map(b => b.replace('.NS',''))
+      .join(', ');
+    const more = banned.length > 4
+      ? ` +${banned.length - 4}` : '';
+    html += card(`
+      ${label('F&O Ban')}
+      <div style="color:#f85149;
+        font-size:${fs};
+        line-height:1.6;">
+        ⚠️ ${banNames}${more}
+      </div>
+    `);
+  }
+
+  el.innerHTML = html;
+}
+
 // ── R3: OFFLINE BANNER ────────────────────────────────
 function _ensureOfflineBannerEl() {
   let el = document.getElementById('offline-banner');
@@ -329,53 +585,59 @@ window.addEventListener('online', function() {
 });
 
 // ── S1: TABLET WIDTH ENFORCEMENT ─────────────────────
-// CSS media queries are unreliable in iOS PWA
-// standalone mode on iPad Pro. JavaScript directly
-// sets body and element widths — immediate and
-// guaranteed to apply regardless of PWA quirks.
+// CSS media queries unreliable in iOS PWA standalone.
+// JavaScript directly sets body width.
+// Also handles sidebar show/hide at same breakpoints.
 //
-// iPad Pro 12.9" = 1024px viewport in portrait.
-// Cap at 720px centered — readable, not too narrow.
+// Breakpoints:
+//   < 600px   : phone — no cap, no sidebar
+//   600-900px : fold unfolded — no sidebar
+//   >= 900px  : iPad — sidebar if space available
 function _enforceTabletWidth() {
   const vw = window.innerWidth
     || document.documentElement.clientWidth
     || 375;
 
-  // Only apply on tablet+ screens
   if (vw < 768) {
-    console.log('[ui] Phone width: ' + vw + 'px — no cap');
+    // Phone — no cap, no sidebar
+    document.body.style.maxWidth  = '';
+    document.body.style.margin    = '0 auto';
+    document.body.style.overflowX = 'hidden';
+    const sidebar =
+      document.getElementById('sidebar');
+    if (sidebar) sidebar.style.display = 'none';
+    console.log('[ui] Phone width: ' + vw + 'px');
     return;
   }
 
-  // iPad Pro 12.9" portrait = 1024px → use 720px
-  // Smaller tablets → use 680px
-  const cap = vw >= 1024 ? '720px' : '680px';
-  const capPx = vw >= 1024 ? 720 : 680;
+  // Tablet: cap body
+  const cap   = vw >= 1024 ? '720px' : '680px';
+  const capPx = vw >= 1024 ? 720     : 680;
 
-  // Force body
   document.body.style.maxWidth  = cap;
   document.body.style.margin    = '0 auto';
   document.body.style.overflowX = 'hidden';
 
-  // Force tap panel width
+  // Tap panel width
   const tapPanel =
     document.getElementById('tap-panel');
-  if (tapPanel) {
-    tapPanel.style.maxWidth = cap;
-  }
+  if (tapPanel) tapPanel.style.maxWidth = cap;
 
-  // Force help overlay to match
+  // Help overlay
   const helpOverlay =
     document.getElementById('help-overlay');
   if (helpOverlay) {
-    helpOverlay.style.maxWidth = cap;
-    helpOverlay.style.left     = '50%';
+    helpOverlay.style.maxWidth  = cap;
+    helpOverlay.style.left      = '50%';
     helpOverlay.style.transform = 'translateX(-50%)';
     helpOverlay.style.position  = 'fixed';
   }
 
-  console.log('[ui] Tablet width enforced: '
-    + cap + ' (viewport: ' + vw + 'px)');
+  // Sidebar — position and show/hide
+  _renderSidebar();
+
+  console.log('[ui] Tablet width: '
+    + cap + ' (vw: ' + vw + 'px)');
 }
 
 // Re-apply on orientation change
@@ -390,7 +652,7 @@ window.addEventListener('orientationchange',
   }
 );
 
-// Also re-apply on resize (covers split-screen)
+// Re-apply on resize (split-screen / fold hinge)
 window.addEventListener('resize', function() {
   _enforceTabletWidth();
 });
@@ -655,7 +917,6 @@ function _renderNav(activeTab) {
     { id: 'stats',   icon: '📈', label: 'Stats'   },
   ];
 
-  // Width matches _enforceTabletWidth cap
   const vw  = window.innerWidth || 375;
   const cap = vw >= 1024
     ? 'min(720px,100vw)'
@@ -673,7 +934,6 @@ function _renderNav(activeTab) {
       padding-bottom:env(safe-area-inset-bottom);">
       ${tabs.map(t => {
         const active = t.id === activeTab;
-        // S4: larger targets on tablet
         const iconSize  = vw >= 768 ? '22px' : '18px';
         const labelSize = vw >= 768 ? '11px' : '10px';
         const padTop    = vw >= 768 ? '12px' : '10px';
@@ -743,6 +1003,7 @@ async function refreshData() {
     await _fetchAll();
     _renderStatusBar(window.TIETIY.meta);
     _renderAlertBanner(window.TIETIY.stopAlerts);
+    _renderSidebar();
     switchTab(window.TIETIY.activeTab);
     if (btn) {
       btn.textContent = '✓';
@@ -1159,13 +1420,8 @@ async function initApp() {
   const loaderMsg =
     document.getElementById('loader-msg');
 
-  // S1: enforce tablet width via JS immediately
-  // Runs before any render so layout is correct
   _enforceTabletWidth();
-
-  // R3: ensure offline banner exists early
   _ensureOfflineBannerEl();
-
   _restoreSession();
 
   try {
@@ -1186,11 +1442,11 @@ async function initApp() {
     if (loader)  loader.style.display  = 'none';
     if (appRoot) appRoot.style.display = 'block';
 
-    // Re-enforce after app-root becomes visible
     _enforceTabletWidth();
 
     _renderStatusBar(window.TIETIY.meta);
     _renderAlertBanner(window.TIETIY.stopAlerts);
+    _renderSidebar();
     _renderNav(window.TIETIY.activeTab);
     switchTab(window.TIETIY.activeTab);
 
