@@ -1,10 +1,8 @@
 # .github/workflows/gap_report.yml
-# Weekly gap risk analysis report
-# Phase 4 prep: identifies stocks with frequent
-# large gap opens that increase entry risk
-# Runs Monday morning before scan
+# Weekly gap risk analysis — entry_valid=False signals
+# Identifies stocks with frequent large gap opens
 
-name: Gap Report
+name: "📉 Gap Report | entry_valid=False gap-size R:R-impact by type | Manual"
 
 on:
   schedule:
@@ -24,6 +22,8 @@ on:
 jobs:
   gap-report:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
     steps:
       - name: Checkout
         uses: actions/checkout@v4
