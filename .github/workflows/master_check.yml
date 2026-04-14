@@ -265,7 +265,6 @@ jobs:
                       return False, (
                           'PWA_PIN_PLACEHOLDER '
                           'missing from index.html')
-                  # Find deploy yml dynamically
                   ymls = glob.glob(
                       '.github/workflows/*.yml')
                   deploy_yml = None
@@ -288,27 +287,26 @@ jobs:
                   return False, str(e)[:80]
 
           def check_exit_date():
-              # Tests next_trading_day + days_until_exit
-              # Apr 11 (Fri) → skip weekend + Apr14 holiday
-              # → next trading = Apr 15 (Tue)
+              # Tests next_trading_day holiday skip
+              # Apr 13 (Mon) → Apr 14 is NSE holiday
+              # → next trading day = Apr 15 (Wed)
+              # This confirms holiday set is correct
               try:
                   sys.path.insert(0, 'scanner')
                   from calendar_utils import (
                       next_trading_day,
                       days_until_exit)
                   from datetime import date
-                  # Test 1: next_trading_day skips
-                  # weekend + holiday correctly
+                  # Test 1: holiday skip
                   result = next_trading_day(
-                      date(2026, 4, 11))
+                      date(2026, 4, 13))
                   expected = date(2026, 4, 15)
                   if result != expected:
                       return False, (
-                          f'Apr11 next_trading='
+                          f'Apr13 next_trading='
                           f'{result} '
                           f'expected {expected}')
-                  # Test 2: days_until_exit returns
-                  # a date object
+                  # Test 2: days_until_exit type check
                   exit_dt = days_until_exit(
                       date(2026, 4, 7), 5)
                   if not isinstance(exit_dt, date):
@@ -316,7 +314,7 @@ jobs:
                           f'days_until_exit returned '
                           f'{type(exit_dt)} not date')
                   return True, (
-                      f'Apr11→{result} ✓ '
+                      f'Apr13→{result} ✓ '
                       f'exit_date type ✓')
               except Exception as e:
                   return False, str(e)[:80]
@@ -333,7 +331,6 @@ jobs:
                       'sec_mom':     'Neutral',
                       'rs_q':        'Neutral',
                   }
-                  # score_signal returns (score, breakdown)
                   result = score_signal(sig, 'B')
                   score = (result[0]
                            if isinstance(result, tuple)
@@ -347,7 +344,6 @@ jobs:
                       return False, (
                           f'score {score} '
                           f'out of 0-10 range')
-                  # Bear+3 + Age0+3 + vol+1 = 7
                   if score < 6:
                       return False, (
                           f'Bear UP_TRI Age0 '
@@ -363,8 +359,6 @@ jobs:
               try:
                   sys.path.insert(0, 'scanner')
                   from telegram_bot import _rr_calc
-                  # entry=100 stop=90 target=120
-                  # risk=10 reward=20 R:R=2.0x
                   result = _rr_calc(
                       100, 90, 120, 'LONG')
                   if result != '2.0x':
@@ -384,7 +378,6 @@ jobs:
                           '.json') as f:
                       data = json.load(f)
                   holidays = data.get('holidays', [])
-                  # Apr 14 2026 = Ambedkar Jayanti
                   known = ['2026-04-14']
                   missing = [
                       h for h in known
@@ -423,7 +416,7 @@ jobs:
                check_yml_syntax),
               ('PIN source+deploy inject',
                check_pin_injection),
-              ('exit date — Apr11→Apr15',
+              ('exit date — Apr13→Apr15',
                check_exit_date),
               ('scorer — Bear UP_TRI Age0 6+',
                check_scorer),
