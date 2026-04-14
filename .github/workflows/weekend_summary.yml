@@ -1,8 +1,8 @@
 # .github/workflows/weekend_summary.yml
 # Sends weekly Telegram recap every Saturday morning
-# W1: aligned with weekend_summary.py outcome-based stats
+# Shows W/L/F WR signal type breakdown phase progress
 
-name: Weekend Summary
+name: "📅 Weekend Summary | W/L/F WR type-counts phase-progress Telegram | Auto Saturday"
 
 on:
   schedule:
@@ -13,6 +13,8 @@ on:
 jobs:
   summary:
     runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
       - name: Checkout
