@@ -580,9 +580,11 @@ async function _fetchStockNews(symbol) {
       'https://news.google.com/rss/search?q='
       + query
       + '&hl=en-IN&gl=IN&ceid=IN:en');
+       
     const url =
       'https://api.rss2json.com/v1/api.json'
-      + '?rss_url=' + rssUrl + '&count=3';
+      + '?rss_url=' + rssUrl;
+
 
     const r = await fetch(url);
     if (!r.ok) throw new Error(r.status);
