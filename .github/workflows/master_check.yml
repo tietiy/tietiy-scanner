@@ -11,7 +11,7 @@
 # (nonlocal requires enclosing function scope;
 #  top-level script variables need global)
 
-name: "🔍 Master Check | Syntax+Import+Runtime | Manual"
+name: "🔍 Master Check | T1:Syntax 25files T2:Imports 15mod T3:Runtime 6scripts | Manual"
 
 on:
   workflow_dispatch:
@@ -98,8 +98,6 @@ jobs:
           warns   = 0
 
           def add(tier, name, ok, detail=''):
-              # BUG FIX: global not nonlocal —
-              # these are module-level variables
               global fails, warns
               results.append((tier, name, ok, detail))
               if not ok:
