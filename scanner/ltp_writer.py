@@ -8,6 +8,10 @@
 #
 # S3 FIX: Alert if LTP data is stale (>30 min old).
 #
+# V1.1 FIX:
+# - BX3: Holiday/weekend guard — exits immediately
+#        if market is closed, no fetch attempted
+#
 # Schema:
 #   {
 #     "date": "2026-04-07",
@@ -65,18 +69,56 @@ def _ist_now_str():
 
 
 def _is_market_hours():
-    """Returns True if currently in NSE market hours (9:15 AM - 3:30 PM IST)."""
-    now = _ist_now()
-    market_open = now.replace(hour=9, minute=15, second=0, microsecond=0)
-    market_close = now.replace(hour=15, minute=30, second=0, microsecond=0)
+    """
+    Returns True if currently in NSE market hours
+    (9:15 AM - 3:30 PM IST).
+    """
+    now          = _ist_now()
+    market_open  = now.replace(
+        hour=9, minute=15, second=0, microsecond=0)
+    market_close = now.replace(
+        hour=15, minute=30, second=0, microsecond=0)
     return market_open <= now <= market_close
 
 
+# ── BX3: TRADING DAY GUARD ────────────────────────────
+def _is_trading_day() -> bool:
+    """
+    Returns True only on weekdays that are
+    not NSE holidays.
+    Reads nse_holidays.json from output/.
+    LTP fetch should never run on holidays —
+    yfinance returns no data and wastes Actions
+    minutes.
+    """
+    today = date.today()
+    # Weekend check
+    if today.weekday() >= 5:
+        return False
+    # Holiday check
+    try:
+        holidays_file = os.path.join(
+            _OUTPUT, 'nse_holidays.json')
+        if os.path.exists(holidays_file):
+            with open(holidays_file, 'r') as f:
+                data = json.load(f)
+            holidays = data.get('holidays', [])
+            if today.isoformat() in holidays:
+                return False
+    except Exception:
+        pass
+    return True
+
+
 def _parse_fetch_time(fetch_time_str, date_str):
-    """Parse fetch_time like '11:02 AM' with date into datetime."""
+    """
+    Parse fetch_time like '11:02 AM' with
+    date into datetime.
+    """
     try:
         dt_str = f"{date_str} {fetch_time_str}"
-        return datetime.strptime(dt_str, '%Y-%m-%d %I:%M %p')
+        return datetime.strptime(
+            dt_str, '%Y-%m-%d %I:%M %p')
     except Exception:
         return None
 
@@ -90,34 +132,39 @@ def _check_stale_ltp():
     """
     if not _is_market_hours():
         return False
-    
+
     if not os.path.exists(LTP_FILE):
         return False
-    
+
     try:
         with open(LTP_FILE, 'r') as f:
             data = json.load(f)
-        
-        file_date = data.get('date', '')
+
+        file_date  = data.get('date', '')
         fetch_time = data.get('fetch_time', '')
-        
+
         if not file_date or not fetch_time:
             return False
-        
-        last_fetch = _parse_fetch_time(fetch_time, file_date)
+
+        last_fetch = _parse_fetch_time(
+            fetch_time, file_date)
         if not last_fetch:
             return False
-        
-        now = _ist_now()
-        age_minutes = (now - last_fetch).total_seconds() / 60
-        
+
+        now         = _ist_now()
+        age_minutes = (
+            now - last_fetch
+        ).total_seconds() / 60
+
         if age_minutes > STALE_MINUTES:
-            print(f"[ltp] WARNING: Data is {age_minutes:.0f} min old")
-            _send_stale_warning(age_minutes, fetch_time)
+            print(f"[ltp] WARNING: Data is "
+                  f"{age_minutes:.0f} min old")
+            _send_stale_warning(
+                age_minutes, fetch_time)
             return True
-        
+
         return False
-        
+
     except Exception as e:
         print(f"[ltp] Stale check error: {e}")
         return False
@@ -127,17 +174,23 @@ def _send_stale_warning(age_minutes, last_fetch_time):
     """Send Telegram alert for stale LTP data."""
     if not TELEGRAM_AVAILABLE:
         return
-    
+
     try:
         lines = []
         lines.append('⚠️ *LTP DATA STALE*')
         lines.append('')
-        lines.append(f'Last update: {_esc(last_fetch_time)}')
-        lines.append(f'Age: {_esc(f"{age_minutes:.0f}")} minutes')
+        lines.append(
+            f'Last update: '
+            f'{_esc(last_fetch_time)}')
+        lines.append(
+            f'Age: '
+            f'{_esc(f"{age_minutes:.0f}")} minutes')
         lines.append('')
-        lines.append('Stop alerts may be delayed\\.')
-        lines.append('Check ltp\\_updater workflow\\.')
-        
+        lines.append(
+            'Stop alerts may be delayed\\.')
+        lines.append(
+            'Check ltp\\_updater workflow\\.')
+
         send_message('\n'.join(lines))
         print("[ltp] Stale warning sent to Telegram")
     except Exception as e:
@@ -150,10 +203,6 @@ def _fetch_ltp(symbol, retries=2):
     L1 FIX: Fetches intraday price via 1m bars.
     Falls back to 5m if 1m unavailable.
     Prev_close from a separate daily bars call.
-
-    Old code used interval='1d' which returns
-    yesterday's close unchanged all day — that
-    was the LTP-stuck bug.
     """
     ltp = None
 
@@ -179,7 +228,8 @@ def _fetch_ltp(symbol, retries=2):
             if df is None or df.empty:
                 continue
 
-            if isinstance(df.columns, pd.MultiIndex):
+            if isinstance(
+                    df.columns, pd.MultiIndex):
                 df.columns = [
                     c[0] for c in df.columns]
 
@@ -210,7 +260,8 @@ def _fetch_ltp(symbol, retries=2):
             auto_adjust = False,
         )
         if daily is not None and not daily.empty:
-            if isinstance(daily.columns, pd.MultiIndex):
+            if isinstance(
+                    daily.columns, pd.MultiIndex):
                 daily.columns = [
                     c[0] for c in daily.columns]
             if daily.index.tzinfo:
@@ -223,7 +274,7 @@ def _fetch_ltp(symbol, retries=2):
                 prev_close = float(
                     daily['Close'].iloc[-1])
     except Exception:
-        pass  # keep ltp as prev_close fallback
+        pass
 
     return ltp, prev_close
 
@@ -234,10 +285,20 @@ def run_ltp_update():
     Main entry. Called from ltp_updater.yml
     every 5 min during market hours.
 
-    Only fetches prices for PENDING signals —
-    not the full universe.
+    V1.1 BX3 FIX: Exits immediately on holidays
+    and weekends — no fetch attempted, no stale
+    data written.
     """
     print("[ltp] Starting LTP update...")
+
+    # BX3 FIX: Holiday/weekend guard
+    # LTP fetch is meaningless on closed days —
+    # NSE is not trading, yfinance returns no data
+    if not _is_trading_day():
+        today_str = date.today().isoformat()
+        print(f"[ltp] {today_str} is a holiday "
+              f"or weekend — skipping LTP fetch")
+        return
 
     # ── S3: Check for stale data before update ────────
     _check_stale_ltp()
@@ -312,23 +373,29 @@ def run_ltp_update():
     if total > 0 and failed > 0:
         fail_pct = (failed / total) * 100
         if fail_pct >= 50:
-            _send_high_failure_warning(failed, total, fetch_time)
+            _send_high_failure_warning(
+                failed, total, fetch_time)
 
 
-def _send_high_failure_warning(failed, total, fetch_time):
+def _send_high_failure_warning(
+        failed, total, fetch_time):
     """Alert if >50% of LTP fetches failed."""
     if not TELEGRAM_AVAILABLE:
         return
-    
+
     try:
         lines = []
         lines.append('⚠️ *LTP FETCH ISSUES*')
         lines.append('')
-        lines.append(f'Failed: {_esc(str(failed))}/{_esc(str(total))} symbols')
-        lines.append(f'Time: {_esc(fetch_time)}')
+        lines.append(
+            f'Failed: {_esc(str(failed))}'
+            f'/{_esc(str(total))} symbols')
+        lines.append(
+            f'Time: {_esc(fetch_time)}')
         lines.append('')
-        lines.append('yfinance may be rate limited\\.')
-        
+        lines.append(
+            'yfinance may be rate limited\\.')
+
         send_message('\n'.join(lines))
         print("[ltp] High failure warning sent")
     except Exception as e:
