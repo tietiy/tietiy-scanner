@@ -1570,11 +1570,13 @@ function renderSignals(data) {
     headerLabel    =
       `2ND ATTEMPT SIGNALS `
       + `(${displaySignals.length})`;
-  } else if (currentFilter === 'age0') {
+   } else if (currentFilter === 'age0') {
     displaySignals = sectorFiltered.filter(
-      s => s.age === 0 && s.generation !== 0);
+      s => s.date === _todayIST()
+        && s.generation !== 0);
     headerLabel    =
       `NEW TODAY SIGNALS (${displaySignals.length})`;
+
   }
 
   const conflictMap = _buildConflictMap(allSorted);
