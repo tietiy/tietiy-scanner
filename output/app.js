@@ -419,7 +419,7 @@ function _buildFilterBar(signals,
     SA:         signals.filter(
       s => (s.signal || '').endsWith('_SA')).length,
     age0:       signals.filter(
-      s => s.age === 0
+      s => s.age === _todayIST()
         && s.generation !== 0).length,
     top:        signals.filter(
       s => (s.score || 0) >= TOP_SCORE_MIN).length,
