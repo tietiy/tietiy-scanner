@@ -1,11 +1,11 @@
 {
   "date": "2026-04-15",
-  "check_time": "07:42 AM IST",
-  "ltp_updated_at": "07:42 AM IST",
+  "check_time": "07:47 AM IST",
+  "ltp_updated_at": "07:47 AM IST",
   "open_positions": 114,
   "breached_count": 4,
-  "at_count": 2,
-  "near_count": 2,
+  "at_count": 0,
+  "near_count": 4,
   "safe_count": 106,
   "target_hit_count": 4,
   "fetch_failed": [],
@@ -18,14 +18,14 @@
       "direction": "SHORT",
       "entry": 3178.5,
       "stop": 3608.8,
-      "current_price": 3592.6,
-      "alert_level": "AT",
+      "current_price": 3587.4,
+      "alert_level": "NEAR",
       "target_hit": false,
-      "pct_from_stop": 0.45,
-      "pnl_pct": -13.03,
-      "pnl_r": -0.96,
-      "note": "AT STOP \u2014 within 0.5% of stop",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 0.59,
+      "pnl_pct": -12.86,
+      "pnl_r": -0.95,
+      "note": "NEAR STOP \u2014 within 2% of stop",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "PFC.NS",
@@ -34,14 +34,14 @@
       "direction": "SHORT",
       "entry": 399.9,
       "stop": 451.03,
-      "current_price": 442.7,
+      "current_price": 442.5,
       "alert_level": "NEAR",
       "target_hit": false,
-      "pct_from_stop": 1.85,
-      "pnl_pct": -10.7,
-      "pnl_r": -0.84,
+      "pct_from_stop": 1.89,
+      "pnl_pct": -10.65,
+      "pnl_r": -0.83,
       "note": "NEAR STOP \u2014 within 2% of stop",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "PFC.NS",
@@ -50,14 +50,14 @@
       "direction": "LONG",
       "entry": 399.9,
       "stop": 372.95,
-      "current_price": 442.7,
+      "current_price": 442.5,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 18.7,
-      "pnl_pct": 10.7,
-      "pnl_r": 1.59,
-      "note": "Safe \u20b9442.70 | +1.59R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 18.65,
+      "pnl_pct": 10.65,
+      "pnl_r": 1.58,
+      "note": "Safe \u20b9442.50 | +1.58R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "INFY.NS",
@@ -66,14 +66,14 @@
       "direction": "LONG",
       "entry": 1310.5,
       "stop": 1181.81,
-      "current_price": 1303.6,
+      "current_price": 1304.5,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 10.31,
-      "pnl_pct": -0.53,
+      "pct_from_stop": 10.38,
+      "pnl_pct": -0.46,
       "pnl_r": -0.05,
-      "note": "Safe \u20b91303.60 | -0.05R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91304.50 | -0.05R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "HCLTECH.NS",
@@ -82,14 +82,14 @@
       "direction": "LONG",
       "entry": 1403.7,
       "stop": 1262.71,
-      "current_price": 1440.8,
+      "current_price": 1442.5,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 14.1,
-      "pnl_pct": 2.64,
-      "pnl_r": 0.26,
-      "note": "Safe \u20b91440.80 | +0.26R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 14.24,
+      "pnl_pct": 2.76,
+      "pnl_r": 0.28,
+      "note": "Safe \u20b91442.50 | +0.28R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "COFORGE.NS",
@@ -98,14 +98,14 @@
       "direction": "LONG",
       "entry": 1207.5,
       "stop": 955.71,
-      "current_price": 1269.7,
+      "current_price": 1270.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 32.85,
-      "pnl_pct": 5.15,
+      "pct_from_stop": 32.91,
+      "pnl_pct": 5.19,
       "pnl_r": 0.25,
-      "note": "Safe \u20b91269.70 | +0.25R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91270.20 | +0.25R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "OFSS.NS",
@@ -114,14 +114,14 @@
       "direction": "LONG",
       "entry": 6965.5,
       "stop": 6042.44,
-      "current_price": 7540.0,
+      "current_price": 7520.5,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 24.78,
-      "pnl_pct": 8.25,
-      "pnl_r": 0.62,
-      "note": "Safe \u20b97540.00 | +0.62R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 24.46,
+      "pnl_pct": 7.97,
+      "pnl_r": 0.6,
+      "note": "Safe \u20b97520.50 | +0.60R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "LTTS.NS",
@@ -130,14 +130,14 @@
       "direction": "LONG",
       "entry": 3341.6,
       "stop": 2820.35,
-      "current_price": 3447.4,
+      "current_price": 3449.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 22.23,
-      "pnl_pct": 3.17,
-      "pnl_r": 0.2,
-      "note": "Safe \u20b93447.40 | +0.20R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 22.3,
+      "pnl_pct": 3.22,
+      "pnl_r": 0.21,
+      "note": "Safe \u20b93449.20 | +0.21R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "KPITTECH.NS",
@@ -146,14 +146,14 @@
       "direction": "LONG",
       "entry": 688.35,
       "stop": 594.83,
-      "current_price": 730.8,
+      "current_price": 730.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 22.86,
-      "pnl_pct": 6.17,
+      "pct_from_stop": 22.72,
+      "pnl_pct": 6.05,
       "pnl_r": 0.45,
-      "note": "Safe \u20b9730.80 | +0.45R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9730.00 | +0.45R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "M&M.NS",
@@ -162,14 +162,14 @@
       "direction": "LONG",
       "entry": 2976.5,
       "stop": 2779.63,
-      "current_price": 3274.4,
+      "current_price": 3272.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 17.8,
-      "pnl_pct": 10.01,
-      "pnl_r": 1.51,
-      "note": "Safe \u20b93274.40 | +1.51R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 17.71,
+      "pnl_pct": 9.93,
+      "pnl_r": 1.5,
+      "note": "Safe \u20b93272.00 | +1.50R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TVSMOTOR.NS",
@@ -178,14 +178,14 @@
       "direction": "LONG",
       "entry": 3425.1,
       "stop": 3141.58,
-      "current_price": 3776.7,
+      "current_price": 3777.3,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 20.22,
-      "pnl_pct": 10.27,
+      "pct_from_stop": 20.24,
+      "pnl_pct": 10.28,
       "pnl_r": 1.24,
-      "note": "Safe \u20b93776.70 | +1.24R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b93777.30 | +1.24R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "APOLLOTYRE.NS",
@@ -194,14 +194,14 @@
       "direction": "LONG",
       "entry": 402.5,
       "stop": 375.74,
-      "current_price": 444.0,
+      "current_price": 444.4,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 18.17,
-      "pnl_pct": 10.31,
-      "pnl_r": 1.55,
-      "note": "Safe \u20b9444.00 | +1.55R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 18.27,
+      "pnl_pct": 10.41,
+      "pnl_r": 1.57,
+      "note": "Safe \u20b9444.40 | +1.57R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "GLENMARK.NS",
@@ -210,14 +210,14 @@
       "direction": "LONG",
       "entry": 2039.6,
       "stop": 1847.2,
-      "current_price": 2243.1,
+      "current_price": 2243.9,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.43,
-      "pnl_pct": 9.98,
+      "pct_from_stop": 21.48,
+      "pnl_pct": 10.02,
       "pnl_r": 1.06,
-      "note": "Safe \u20b92243.10 | +1.06R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b92243.90 | +1.06R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TATASTEEL.NS",
@@ -226,14 +226,14 @@
       "direction": "LONG",
       "entry": 190.4,
       "stop": 174.15,
-      "current_price": 208.17,
+      "current_price": 208.13,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 19.53,
-      "pnl_pct": 9.33,
+      "pct_from_stop": 19.51,
+      "pnl_pct": 9.31,
       "pnl_r": 1.09,
-      "note": "Safe \u20b9208.17 | +1.09R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9208.13 | +1.09R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TATASTEEL.NS",
@@ -242,14 +242,14 @@
       "direction": "LONG",
       "entry": 190.4,
       "stop": 177.16,
-      "current_price": 208.17,
+      "current_price": 208.13,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 17.5,
-      "pnl_pct": 9.33,
+      "pct_from_stop": 17.48,
+      "pnl_pct": 9.31,
       "pnl_r": 1.34,
-      "note": "Safe \u20b9208.17 | +1.34R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9208.13 | +1.34R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "VEDL.NS",
@@ -258,14 +258,14 @@
       "direction": "LONG",
       "entry": 692.0,
       "stop": 622.03,
-      "current_price": 761.4,
+      "current_price": 760.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 22.41,
-      "pnl_pct": 10.03,
-      "pnl_r": 0.99,
-      "note": "Safe \u20b9761.40 | +0.99R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 22.21,
+      "pnl_pct": 9.86,
+      "pnl_r": 0.97,
+      "note": "Safe \u20b9760.20 | +0.97R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ONGC.NS",
@@ -281,7 +281,7 @@
       "pnl_pct": 1.49,
       "pnl_r": 0.12,
       "note": "Safe \u20b9289.00 | +0.12R",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TATAPOWER.NS",
@@ -290,14 +290,14 @@
       "direction": "LONG",
       "entry": 380.8,
       "stop": 361.7,
-      "current_price": 421.95,
+      "current_price": 421.9,
       "alert_level": "SAFE",
       "target_hit": true,
-      "pct_from_stop": 16.66,
-      "pnl_pct": 10.81,
+      "pct_from_stop": 16.64,
+      "pnl_pct": 10.79,
       "pnl_r": 2.15,
-      "note": "Safe \u20b9421.95 | +2.15R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9421.90 | +2.15R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "PAGEIND.NS",
@@ -313,7 +313,7 @@
       "pnl_pct": 9.21,
       "pnl_r": 0.65,
       "note": "Safe \u20b936950.00 | +0.65R",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ALKYLAMINE.NS",
@@ -322,14 +322,14 @@
       "direction": "LONG",
       "entry": 1298.6,
       "stop": 1154.52,
-      "current_price": 1406.3,
+      "current_price": 1407.3,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.81,
-      "pnl_pct": 8.29,
+      "pct_from_stop": 21.89,
+      "pnl_pct": 8.37,
       "pnl_r": 0.75,
-      "note": "Safe \u20b91406.30 | +0.75R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91407.30 | +0.75R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "VINATIORGA.NS",
@@ -345,7 +345,7 @@
       "pnl_pct": 5.62,
       "pnl_r": 0.42,
       "note": "Safe \u20b91230.00 | +0.42R",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "VGUARD.NS",
@@ -354,14 +354,14 @@
       "direction": "SHORT",
       "entry": 318.85,
       "stop": 344.43,
-      "current_price": 318.75,
+      "current_price": 319.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 7.46,
-      "pnl_pct": 0.03,
-      "pnl_r": 0.0,
-      "note": "Safe \u20b9318.75 | +0.00R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 7.38,
+      "pnl_pct": -0.05,
+      "pnl_r": -0.01,
+      "note": "Safe \u20b9319.00 | -0.01R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "BHARTIARTL.NS",
@@ -370,14 +370,14 @@
       "direction": "LONG",
       "entry": 1788.4,
       "stop": 1728.46,
-      "current_price": 1862.3,
+      "current_price": 1859.8,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 7.74,
-      "pnl_pct": 4.13,
-      "pnl_r": 1.23,
-      "note": "Safe \u20b91862.30 | +1.23R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 7.6,
+      "pnl_pct": 3.99,
+      "pnl_r": 1.19,
+      "note": "Safe \u20b91859.80 | +1.19R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "NAUKRI.NS",
@@ -386,14 +386,14 @@
       "direction": "LONG",
       "entry": 990.1,
       "stop": 898.87,
-      "current_price": 1024.15,
+      "current_price": 1024.35,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 13.94,
-      "pnl_pct": 3.44,
-      "pnl_r": 0.37,
-      "note": "Safe \u20b91024.15 | +0.37R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 13.96,
+      "pnl_pct": 3.46,
+      "pnl_r": 0.38,
+      "note": "Safe \u20b91024.35 | +0.38R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "JIOFIN.NS",
@@ -402,14 +402,14 @@
       "direction": "SHORT",
       "entry": 226.86,
       "stop": 258.35,
-      "current_price": 243.47,
+      "current_price": 243.49,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 5.76,
-      "pnl_pct": -7.32,
+      "pct_from_stop": 5.75,
+      "pnl_pct": -7.33,
       "pnl_r": -0.53,
-      "note": "Safe \u20b9243.47 | -0.53R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9243.49 | -0.53R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "MCX.NS",
@@ -418,14 +418,14 @@
       "direction": "SHORT",
       "entry": 2430.7,
       "stop": 2803.27,
-      "current_price": 2878.9,
+      "current_price": 2878.2,
       "alert_level": "BREACHED",
       "target_hit": false,
-      "pct_from_stop": 2.7,
-      "pnl_pct": -18.44,
+      "pct_from_stop": 2.67,
+      "pnl_pct": -18.41,
       "pnl_r": -1.2,
-      "note": "STOP BREACHED \u2014 \u20b92878.90 above stop \u20b92803.27",
-      "check_time": "07:42 AM IST"
+      "note": "STOP BREACHED \u2014 \u20b92878.20 above stop \u20b92803.27",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "OIL.NS",
@@ -434,14 +434,14 @@
       "direction": "LONG",
       "entry": 475.05,
       "stop": 435.43,
-      "current_price": 465.55,
+      "current_price": 464.65,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 6.92,
-      "pnl_pct": -2.0,
-      "pnl_r": -0.24,
-      "note": "Safe \u20b9465.55 | -0.24R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 6.71,
+      "pnl_pct": -2.19,
+      "pnl_r": -0.26,
+      "note": "Safe \u20b9464.65 | -0.26R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "OIL.NS",
@@ -450,14 +450,14 @@
       "direction": "LONG",
       "entry": 475.05,
       "stop": 443.43,
-      "current_price": 465.55,
+      "current_price": 464.65,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 4.99,
-      "pnl_pct": -2.0,
-      "pnl_r": -0.3,
-      "note": "Safe \u20b9465.55 | -0.30R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 4.79,
+      "pnl_pct": -2.19,
+      "pnl_r": -0.33,
+      "note": "Safe \u20b9464.65 | -0.33R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "MUTHOOTFIN.NS",
@@ -466,14 +466,14 @@
       "direction": "SHORT",
       "entry": 3178.5,
       "stop": 3608.8,
-      "current_price": 3592.6,
-      "alert_level": "AT",
+      "current_price": 3588.2,
+      "alert_level": "NEAR",
       "target_hit": false,
-      "pct_from_stop": 0.45,
-      "pnl_pct": -13.03,
-      "pnl_r": -0.96,
-      "note": "AT STOP \u2014 within 0.5% of stop",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 0.57,
+      "pnl_pct": -12.89,
+      "pnl_r": -0.95,
+      "note": "NEAR STOP \u2014 within 2% of stop",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "PFC.NS",
@@ -482,14 +482,14 @@
       "direction": "SHORT",
       "entry": 399.9,
       "stop": 451.03,
-      "current_price": 442.7,
+      "current_price": 442.65,
       "alert_level": "NEAR",
       "target_hit": false,
-      "pct_from_stop": 1.85,
-      "pnl_pct": -10.7,
+      "pct_from_stop": 1.86,
+      "pnl_pct": -10.69,
       "pnl_r": -0.84,
       "note": "NEAR STOP \u2014 within 2% of stop",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "INFY.NS",
@@ -498,14 +498,14 @@
       "direction": "LONG",
       "entry": 1310.5,
       "stop": 1181.81,
-      "current_price": 1303.6,
+      "current_price": 1304.4,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 10.31,
-      "pnl_pct": -0.53,
+      "pct_from_stop": 10.37,
+      "pnl_pct": -0.47,
       "pnl_r": -0.05,
-      "note": "Safe \u20b91303.60 | -0.05R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91304.40 | -0.05R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "HCLTECH.NS",
@@ -514,14 +514,14 @@
       "direction": "LONG",
       "entry": 1403.7,
       "stop": 1262.71,
-      "current_price": 1440.9,
+      "current_price": 1442.6,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 14.11,
-      "pnl_pct": 2.65,
-      "pnl_r": 0.26,
-      "note": "Safe \u20b91440.90 | +0.26R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 14.25,
+      "pnl_pct": 2.77,
+      "pnl_r": 0.28,
+      "note": "Safe \u20b91442.60 | +0.28R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "COFORGE.NS",
@@ -530,14 +530,14 @@
       "direction": "LONG",
       "entry": 1207.5,
       "stop": 955.71,
-      "current_price": 1269.7,
+      "current_price": 1270.4,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 32.85,
-      "pnl_pct": 5.15,
+      "pct_from_stop": 32.93,
+      "pnl_pct": 5.21,
       "pnl_r": 0.25,
-      "note": "Safe \u20b91269.70 | +0.25R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91270.40 | +0.25R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "OFSS.NS",
@@ -546,14 +546,14 @@
       "direction": "LONG",
       "entry": 6965.5,
       "stop": 6042.44,
-      "current_price": 7540.0,
+      "current_price": 7520.5,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 24.78,
-      "pnl_pct": 8.25,
-      "pnl_r": 0.62,
-      "note": "Safe \u20b97540.00 | +0.62R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 24.46,
+      "pnl_pct": 7.97,
+      "pnl_r": 0.6,
+      "note": "Safe \u20b97520.50 | +0.60R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "LTTS.NS",
@@ -562,14 +562,14 @@
       "direction": "LONG",
       "entry": 3341.6,
       "stop": 2820.35,
-      "current_price": 3447.4,
+      "current_price": 3449.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 22.23,
-      "pnl_pct": 3.17,
-      "pnl_r": 0.2,
-      "note": "Safe \u20b93447.40 | +0.20R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 22.3,
+      "pnl_pct": 3.22,
+      "pnl_r": 0.21,
+      "note": "Safe \u20b93449.20 | +0.21R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "KPITTECH.NS",
@@ -578,14 +578,14 @@
       "direction": "LONG",
       "entry": 688.35,
       "stop": 594.83,
-      "current_price": 730.55,
+      "current_price": 729.95,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 22.82,
-      "pnl_pct": 6.13,
-      "pnl_r": 0.45,
-      "note": "Safe \u20b9730.55 | +0.45R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 22.72,
+      "pnl_pct": 6.04,
+      "pnl_r": 0.44,
+      "note": "Safe \u20b9729.95 | +0.44R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "M&M.NS",
@@ -594,14 +594,14 @@
       "direction": "LONG",
       "entry": 2976.5,
       "stop": 2779.63,
-      "current_price": 3274.4,
+      "current_price": 3272.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 17.8,
-      "pnl_pct": 10.01,
-      "pnl_r": 1.51,
-      "note": "Safe \u20b93274.40 | +1.51R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 17.71,
+      "pnl_pct": 9.93,
+      "pnl_r": 1.5,
+      "note": "Safe \u20b93272.00 | +1.50R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "BAJAJ-AUTO.NS",
@@ -610,14 +610,14 @@
       "direction": "LONG",
       "entry": 8792.0,
       "stop": 8448.8,
-      "current_price": 9848.0,
+      "current_price": 9850.0,
       "alert_level": "SAFE",
       "target_hit": true,
-      "pct_from_stop": 16.56,
-      "pnl_pct": 12.01,
+      "pct_from_stop": 16.58,
+      "pnl_pct": 12.03,
       "pnl_r": 3.08,
-      "note": "Safe \u20b99848.00 | +3.08R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b99850.00 | +3.08R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TVSMOTOR.NS",
@@ -626,14 +626,14 @@
       "direction": "LONG",
       "entry": 3425.1,
       "stop": 3141.58,
-      "current_price": 3777.2,
+      "current_price": 3777.3,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 20.23,
+      "pct_from_stop": 20.24,
       "pnl_pct": 10.28,
       "pnl_r": 1.24,
-      "note": "Safe \u20b93777.20 | +1.24R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b93777.30 | +1.24R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "APOLLOTYRE.NS",
@@ -642,14 +642,14 @@
       "direction": "LONG",
       "entry": 402.5,
       "stop": 375.74,
-      "current_price": 443.85,
+      "current_price": 444.25,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 18.13,
-      "pnl_pct": 10.27,
-      "pnl_r": 1.55,
-      "note": "Safe \u20b9443.85 | +1.55R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 18.23,
+      "pnl_pct": 10.37,
+      "pnl_r": 1.56,
+      "note": "Safe \u20b9444.25 | +1.56R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "GLENMARK.NS",
@@ -658,14 +658,14 @@
       "direction": "LONG",
       "entry": 2039.6,
       "stop": 1847.2,
-      "current_price": 2243.1,
+      "current_price": 2243.9,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.43,
-      "pnl_pct": 9.98,
+      "pct_from_stop": 21.48,
+      "pnl_pct": 10.02,
       "pnl_r": 1.06,
-      "note": "Safe \u20b92243.10 | +1.06R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b92243.90 | +1.06R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TATASTEEL.NS",
@@ -674,14 +674,14 @@
       "direction": "LONG",
       "entry": 190.4,
       "stop": 174.15,
-      "current_price": 208.17,
+      "current_price": 208.13,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 19.53,
-      "pnl_pct": 9.33,
+      "pct_from_stop": 19.51,
+      "pnl_pct": 9.31,
       "pnl_r": 1.09,
-      "note": "Safe \u20b9208.17 | +1.09R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9208.13 | +1.09R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "VEDL.NS",
@@ -690,14 +690,14 @@
       "direction": "LONG",
       "entry": 692.0,
       "stop": 622.03,
-      "current_price": 761.4,
+      "current_price": 760.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 22.41,
-      "pnl_pct": 10.03,
-      "pnl_r": 0.99,
-      "note": "Safe \u20b9761.40 | +0.99R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 22.18,
+      "pnl_pct": 9.83,
+      "pnl_r": 0.97,
+      "note": "Safe \u20b9760.00 | +0.97R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ONGC.NS",
@@ -706,14 +706,14 @@
       "direction": "LONG",
       "entry": 284.75,
       "stop": 249.78,
-      "current_price": 289.0,
+      "current_price": 289.05,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 15.7,
-      "pnl_pct": 1.49,
+      "pct_from_stop": 15.72,
+      "pnl_pct": 1.51,
       "pnl_r": 0.12,
-      "note": "Safe \u20b9289.00 | +0.12R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9289.05 | +0.12R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TATAPOWER.NS",
@@ -722,14 +722,14 @@
       "direction": "LONG",
       "entry": 380.8,
       "stop": 361.7,
-      "current_price": 421.95,
+      "current_price": 421.75,
       "alert_level": "SAFE",
       "target_hit": true,
-      "pct_from_stop": 16.66,
-      "pnl_pct": 10.81,
-      "pnl_r": 2.15,
-      "note": "Safe \u20b9421.95 | +2.15R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 16.6,
+      "pnl_pct": 10.75,
+      "pnl_r": 2.14,
+      "note": "Safe \u20b9421.75 | +2.14R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ADANIGREEN.NS",
@@ -738,14 +738,14 @@
       "direction": "SHORT",
       "entry": 863.3,
       "stop": 937.06,
-      "current_price": 1102.0,
+      "current_price": 1101.0,
       "alert_level": "BREACHED",
       "target_hit": false,
-      "pct_from_stop": 17.6,
-      "pnl_pct": -27.65,
-      "pnl_r": -3.24,
-      "note": "STOP BREACHED \u2014 \u20b91102.00 above stop \u20b9937.06",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 17.5,
+      "pnl_pct": -27.53,
+      "pnl_r": -3.22,
+      "note": "STOP BREACHED \u2014 \u20b91101.00 above stop \u20b9937.06",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "PAGEIND.NS",
@@ -761,7 +761,7 @@
       "pnl_pct": 9.21,
       "pnl_r": 0.65,
       "note": "Safe \u20b936950.00 | +0.65R",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ALKYLAMINE.NS",
@@ -770,14 +770,14 @@
       "direction": "LONG",
       "entry": 1298.6,
       "stop": 1154.52,
-      "current_price": 1406.3,
+      "current_price": 1407.3,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.81,
-      "pnl_pct": 8.29,
+      "pct_from_stop": 21.89,
+      "pnl_pct": 8.37,
       "pnl_r": 0.75,
-      "note": "Safe \u20b91406.30 | +0.75R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91407.30 | +0.75R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "VINATIORGA.NS",
@@ -793,7 +793,7 @@
       "pnl_pct": 5.62,
       "pnl_r": 0.42,
       "note": "Safe \u20b91230.00 | +0.42R",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "VGUARD.NS",
@@ -802,14 +802,14 @@
       "direction": "SHORT",
       "entry": 318.85,
       "stop": 344.43,
-      "current_price": 318.75,
+      "current_price": 319.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 7.46,
-      "pnl_pct": 0.03,
-      "pnl_r": 0.0,
-      "note": "Safe \u20b9318.75 | +0.00R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 7.38,
+      "pnl_pct": -0.05,
+      "pnl_r": -0.01,
+      "note": "Safe \u20b9319.00 | -0.01R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "BHARTIARTL.NS",
@@ -818,14 +818,14 @@
       "direction": "LONG",
       "entry": 1788.4,
       "stop": 1728.46,
-      "current_price": 1862.3,
+      "current_price": 1859.9,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 7.74,
-      "pnl_pct": 4.13,
-      "pnl_r": 1.23,
-      "note": "Safe \u20b91862.30 | +1.23R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 7.6,
+      "pnl_pct": 4.0,
+      "pnl_r": 1.19,
+      "note": "Safe \u20b91859.90 | +1.19R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "NAUKRI.NS",
@@ -834,14 +834,14 @@
       "direction": "LONG",
       "entry": 990.1,
       "stop": 898.87,
-      "current_price": 1024.15,
+      "current_price": 1024.25,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 13.94,
-      "pnl_pct": 3.44,
+      "pct_from_stop": 13.95,
+      "pnl_pct": 3.45,
       "pnl_r": 0.37,
-      "note": "Safe \u20b91024.15 | +0.37R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91024.25 | +0.37R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "JIOFIN.NS",
@@ -850,14 +850,14 @@
       "direction": "SHORT",
       "entry": 226.86,
       "stop": 258.35,
-      "current_price": 243.5,
+      "current_price": 243.49,
       "alert_level": "SAFE",
       "target_hit": false,
       "pct_from_stop": 5.75,
       "pnl_pct": -7.33,
       "pnl_r": -0.53,
-      "note": "Safe \u20b9243.50 | -0.53R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9243.49 | -0.53R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "BSE.NS",
@@ -866,14 +866,14 @@
       "direction": "SHORT",
       "entry": 2827.5,
       "stop": 3105.3,
-      "current_price": 3416.3,
+      "current_price": 3412.4,
       "alert_level": "BREACHED",
       "target_hit": false,
-      "pct_from_stop": 10.02,
-      "pnl_pct": -20.82,
-      "pnl_r": -2.12,
-      "note": "STOP BREACHED \u2014 \u20b93416.30 above stop \u20b93105.30",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 9.89,
+      "pnl_pct": -20.69,
+      "pnl_r": -2.11,
+      "note": "STOP BREACHED \u2014 \u20b93412.40 above stop \u20b93105.30",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "MCX.NS",
@@ -882,14 +882,14 @@
       "direction": "SHORT",
       "entry": 2430.7,
       "stop": 2803.27,
-      "current_price": 2878.9,
+      "current_price": 2878.5,
       "alert_level": "BREACHED",
       "target_hit": false,
-      "pct_from_stop": 2.7,
-      "pnl_pct": -18.44,
+      "pct_from_stop": 2.68,
+      "pnl_pct": -18.42,
       "pnl_r": -1.2,
-      "note": "STOP BREACHED \u2014 \u20b92878.90 above stop \u20b92803.27",
-      "check_time": "07:42 AM IST"
+      "note": "STOP BREACHED \u2014 \u20b92878.50 above stop \u20b92803.27",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "APLAPOLLO.NS",
@@ -905,7 +905,7 @@
       "pnl_pct": 8.83,
       "pnl_r": 2.23,
       "note": "Safe \u20b92033.00 | +2.23R",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "OIL.NS",
@@ -914,14 +914,14 @@
       "direction": "LONG",
       "entry": 475.05,
       "stop": 435.43,
-      "current_price": 465.55,
+      "current_price": 464.5,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 6.92,
-      "pnl_pct": -2.0,
-      "pnl_r": -0.24,
-      "note": "Safe \u20b9465.55 | -0.24R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 6.68,
+      "pnl_pct": -2.22,
+      "pnl_r": -0.27,
+      "note": "Safe \u20b9464.50 | -0.27R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ETERNAL.NS",
@@ -930,14 +930,14 @@
       "direction": "LONG",
       "entry": 232.4,
       "stop": 202.89,
-      "current_price": 244.8,
+      "current_price": 244.79,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 20.66,
-      "pnl_pct": 5.34,
+      "pct_from_stop": 20.65,
+      "pnl_pct": 5.33,
       "pnl_r": 0.42,
-      "note": "Safe \u20b9244.80 | +0.42R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9244.79 | +0.42R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "BERGEPAINT.NS",
@@ -946,14 +946,14 @@
       "direction": "LONG",
       "entry": 417.8,
       "stop": 377.13,
-      "current_price": 472.4,
+      "current_price": 472.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 25.26,
-      "pnl_pct": 13.07,
-      "pnl_r": 1.34,
-      "note": "Safe \u20b9472.40 | +1.34R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 25.16,
+      "pnl_pct": 12.97,
+      "pnl_r": 1.33,
+      "note": "Safe \u20b9472.00 | +1.33R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ETERNAL.NS",
@@ -962,14 +962,14 @@
       "direction": "LONG",
       "entry": 232.4,
       "stop": 202.89,
-      "current_price": 244.8,
+      "current_price": 244.79,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 20.66,
-      "pnl_pct": 5.34,
+      "pct_from_stop": 20.65,
+      "pnl_pct": 5.33,
       "pnl_r": 0.42,
-      "note": "Safe \u20b9244.80 | +0.42R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9244.79 | +0.42R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "BERGEPAINT.NS",
@@ -978,14 +978,14 @@
       "direction": "LONG",
       "entry": 417.8,
       "stop": 377.13,
-      "current_price": 472.4,
+      "current_price": 472.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 25.26,
-      "pnl_pct": 13.07,
-      "pnl_r": 1.34,
-      "note": "Safe \u20b9472.40 | +1.34R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 25.16,
+      "pnl_pct": 12.97,
+      "pnl_r": 1.33,
+      "note": "Safe \u20b9472.00 | +1.33R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "IPCALAB.NS",
@@ -994,14 +994,14 @@
       "direction": "SHORT",
       "entry": 1488.3,
       "stop": 1674.55,
-      "current_price": 1451.5,
+      "current_price": 1452.9,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 13.32,
-      "pnl_pct": 2.47,
-      "pnl_r": 0.2,
-      "note": "Safe \u20b91451.50 | +0.20R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 13.24,
+      "pnl_pct": 2.38,
+      "pnl_r": 0.19,
+      "note": "Safe \u20b91452.90 | +0.19R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "IPCALAB.NS",
@@ -1010,14 +1010,14 @@
       "direction": "SHORT",
       "entry": 1488.3,
       "stop": 1674.55,
-      "current_price": 1451.5,
+      "current_price": 1452.9,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 13.32,
-      "pnl_pct": 2.47,
-      "pnl_r": 0.2,
-      "note": "Safe \u20b91451.50 | +0.20R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 13.24,
+      "pnl_pct": 2.38,
+      "pnl_r": 0.19,
+      "note": "Safe \u20b91452.90 | +0.19R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "MANAPPURAM.NS",
@@ -1026,14 +1026,14 @@
       "direction": "SHORT",
       "entry": 255.55,
       "stop": 283.98,
-      "current_price": 268.4,
+      "current_price": 268.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 5.49,
-      "pnl_pct": -5.03,
-      "pnl_r": -0.45,
-      "note": "Safe \u20b9268.40 | -0.45R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 5.56,
+      "pnl_pct": -4.95,
+      "pnl_r": -0.44,
+      "note": "Safe \u20b9268.20 | -0.44R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "LAURUSLABS.NS",
@@ -1042,14 +1042,14 @@
       "direction": "LONG",
       "entry": 1062.2,
       "stop": 896.34,
-      "current_price": 1118.0,
+      "current_price": 1117.5,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 24.73,
-      "pnl_pct": 5.25,
-      "pnl_r": 0.34,
-      "note": "Safe \u20b91118.00 | +0.34R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 24.67,
+      "pnl_pct": 5.21,
+      "pnl_r": 0.33,
+      "note": "Safe \u20b91117.50 | +0.33R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "POWERGRID.NS",
@@ -1058,14 +1058,14 @@
       "direction": "LONG",
       "entry": 293.5,
       "stop": 279.89,
-      "current_price": 311.75,
+      "current_price": 311.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 11.38,
-      "pnl_pct": 6.22,
-      "pnl_r": 1.34,
-      "note": "Safe \u20b9311.75 | +1.34R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 11.12,
+      "pnl_pct": 5.96,
+      "pnl_r": 1.29,
+      "note": "Safe \u20b9311.00 | +1.29R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "BAJAJ-AUTO.NS",
@@ -1074,14 +1074,14 @@
       "direction": "LONG",
       "entry": 9427.0,
       "stop": 8895.45,
-      "current_price": 9849.0,
+      "current_price": 9850.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 10.72,
-      "pnl_pct": 4.48,
-      "pnl_r": 0.79,
-      "note": "Safe \u20b99849.00 | +0.79R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 10.73,
+      "pnl_pct": 4.49,
+      "pnl_r": 0.8,
+      "note": "Safe \u20b99850.00 | +0.80R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TVSMOTOR.NS",
@@ -1090,14 +1090,14 @@
       "direction": "LONG",
       "entry": 3699.5,
       "stop": 3471.78,
-      "current_price": 3777.1,
+      "current_price": 3777.3,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 8.79,
+      "pct_from_stop": 8.8,
       "pnl_pct": 2.1,
       "pnl_r": 0.34,
-      "note": "Safe \u20b93777.10 | +0.34R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b93777.30 | +0.34R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TATAPOWER.NS",
@@ -1106,14 +1106,14 @@
       "direction": "SHORT",
       "entry": 392.95,
       "stop": 431.21,
-      "current_price": 422.0,
+      "current_price": 421.7,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 2.14,
-      "pnl_pct": -7.39,
-      "pnl_r": -0.76,
-      "note": "Safe \u20b9422.00 | -0.76R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 2.21,
+      "pnl_pct": -7.32,
+      "pnl_r": -0.75,
+      "note": "Safe \u20b9421.70 | -0.75R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "AARTIIND.NS",
@@ -1122,14 +1122,14 @@
       "direction": "LONG",
       "entry": 423.45,
       "stop": 388.88,
-      "current_price": 425.35,
+      "current_price": 430.05,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 9.38,
-      "pnl_pct": 0.45,
-      "pnl_r": 0.05,
-      "note": "Safe \u20b9425.35 | +0.05R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 10.59,
+      "pnl_pct": 1.56,
+      "pnl_r": 0.19,
+      "note": "Safe \u20b9430.05 | +0.19R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "FEDERALBNK.NS",
@@ -1138,14 +1138,14 @@
       "direction": "LONG",
       "entry": 282.3,
       "stop": 244.02,
-      "current_price": 287.85,
+      "current_price": 288.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 17.96,
-      "pnl_pct": 1.97,
-      "pnl_r": 0.14,
-      "note": "Safe \u20b9287.85 | +0.14R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 18.02,
+      "pnl_pct": 2.02,
+      "pnl_r": 0.15,
+      "note": "Safe \u20b9288.00 | +0.15R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "RBLBANK.NS",
@@ -1154,14 +1154,14 @@
       "direction": "LONG",
       "entry": 315.9,
       "stop": 278.1,
-      "current_price": 318.2,
+      "current_price": 318.4,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 14.42,
-      "pnl_pct": 0.73,
-      "pnl_r": 0.06,
-      "note": "Safe \u20b9318.20 | +0.06R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 14.49,
+      "pnl_pct": 0.79,
+      "pnl_r": 0.07,
+      "note": "Safe \u20b9318.40 | +0.07R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "BAJFINANCE.NS",
@@ -1170,14 +1170,14 @@
       "direction": "LONG",
       "entry": 903.9,
       "stop": 755.47,
-      "current_price": 917.0,
+      "current_price": 914.9,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.38,
-      "pnl_pct": 1.45,
-      "pnl_r": 0.09,
-      "note": "Safe \u20b9917.00 | +0.09R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 21.1,
+      "pnl_pct": 1.22,
+      "pnl_r": 0.07,
+      "note": "Safe \u20b9914.90 | +0.07R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "MUTHOOTFIN.NS",
@@ -1186,14 +1186,14 @@
       "direction": "LONG",
       "entry": 3453.6,
       "stop": 2905.65,
-      "current_price": 3592.0,
+      "current_price": 3588.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 23.62,
-      "pnl_pct": 4.01,
+      "pct_from_stop": 23.49,
+      "pnl_pct": 3.9,
       "pnl_r": 0.25,
-      "note": "Safe \u20b93592.00 | +0.25R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b93588.20 | +0.25R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "LICHSGFIN.NS",
@@ -1202,14 +1202,14 @@
       "direction": "LONG",
       "entry": 526.0,
       "stop": 442.72,
-      "current_price": 526.3,
+      "current_price": 526.9,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 18.88,
-      "pnl_pct": 0.06,
-      "pnl_r": 0.0,
-      "note": "Safe \u20b9526.30 | +0.00R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 19.01,
+      "pnl_pct": 0.17,
+      "pnl_r": 0.01,
+      "note": "Safe \u20b9526.90 | +0.01R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "MANAPPURAM.NS",
@@ -1218,14 +1218,14 @@
       "direction": "LONG",
       "entry": 264.5,
       "stop": 234.11,
-      "current_price": 268.4,
+      "current_price": 268.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 14.65,
-      "pnl_pct": 1.47,
-      "pnl_r": 0.13,
-      "note": "Safe \u20b9268.40 | +0.13R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 14.56,
+      "pnl_pct": 1.4,
+      "pnl_r": 0.12,
+      "note": "Safe \u20b9268.20 | +0.12R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "JSWSTEEL.NS",
@@ -1234,14 +1234,14 @@
       "direction": "LONG",
       "entry": 1200.1,
       "stop": 1059.26,
-      "current_price": 1218.3,
+      "current_price": 1220.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 15.01,
-      "pnl_pct": 1.52,
-      "pnl_r": 0.13,
-      "note": "Safe \u20b91218.30 | +0.13R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 15.17,
+      "pnl_pct": 1.66,
+      "pnl_r": 0.14,
+      "note": "Safe \u20b91220.00 | +0.14R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "HINDALCO.NS",
@@ -1250,14 +1250,14 @@
       "direction": "LONG",
       "entry": 980.0,
       "stop": 800.91,
-      "current_price": 1010.4,
+      "current_price": 1010.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 26.16,
-      "pnl_pct": 3.1,
+      "pct_from_stop": 26.11,
+      "pnl_pct": 3.06,
       "pnl_r": 0.17,
-      "note": "Safe \u20b91010.40 | +0.17R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91010.00 | +0.17R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "VEDL.NS",
@@ -1266,14 +1266,14 @@
       "direction": "LONG",
       "entry": 732.25,
       "stop": 606.78,
-      "current_price": 761.4,
+      "current_price": 760.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 25.48,
-      "pnl_pct": 3.98,
-      "pnl_r": 0.23,
-      "note": "Safe \u20b9761.40 | +0.23R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 25.28,
+      "pnl_pct": 3.82,
+      "pnl_r": 0.22,
+      "note": "Safe \u20b9760.20 | +0.22R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "NMDC.NS",
@@ -1282,14 +1282,14 @@
       "direction": "LONG",
       "entry": 83.3,
       "stop": 71.55,
-      "current_price": 87.06,
+      "current_price": 87.09,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.68,
-      "pnl_pct": 4.51,
+      "pct_from_stop": 21.72,
+      "pnl_pct": 4.55,
       "pnl_r": 0.32,
-      "note": "Safe \u20b987.06 | +0.32R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b987.09 | +0.32R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "SAIL.NS",
@@ -1298,14 +1298,14 @@
       "direction": "LONG",
       "entry": 165.24,
       "stop": 134.98,
-      "current_price": 166.24,
+      "current_price": 166.4,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 23.16,
-      "pnl_pct": 0.61,
-      "pnl_r": 0.03,
-      "note": "Safe \u20b9166.24 | +0.03R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 23.28,
+      "pnl_pct": 0.7,
+      "pnl_r": 0.04,
+      "note": "Safe \u20b9166.40 | +0.04R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "NATIONALUM.NS",
@@ -1314,14 +1314,14 @@
       "direction": "LONG",
       "entry": 406.75,
       "stop": 327.9,
-      "current_price": 424.2,
+      "current_price": 424.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 29.37,
-      "pnl_pct": 4.29,
+      "pct_from_stop": 29.31,
+      "pnl_pct": 4.24,
       "pnl_r": 0.22,
-      "note": "Safe \u20b9424.20 | +0.22R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9424.00 | +0.22R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "HINDCOPPER.NS",
@@ -1330,14 +1330,14 @@
       "direction": "LONG",
       "entry": 525.85,
       "stop": 418.2,
-      "current_price": 554.4,
+      "current_price": 557.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 32.57,
-      "pnl_pct": 5.43,
-      "pnl_r": 0.27,
-      "note": "Safe \u20b9554.40 | +0.27R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 33.19,
+      "pnl_pct": 5.92,
+      "pnl_r": 0.29,
+      "note": "Safe \u20b9557.00 | +0.29R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "GAIL.NS",
@@ -1346,14 +1346,14 @@
       "direction": "LONG",
       "entry": 151.86,
       "stop": 128.54,
-      "current_price": 156.63,
+      "current_price": 156.6,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.85,
-      "pnl_pct": 3.14,
+      "pct_from_stop": 21.83,
+      "pnl_pct": 3.12,
       "pnl_r": 0.2,
-      "note": "Safe \u20b9156.63 | +0.20R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9156.60 | +0.20R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "CESC.NS",
@@ -1362,14 +1362,14 @@
       "direction": "LONG",
       "entry": 155.61,
       "stop": 141.37,
-      "current_price": 163.77,
+      "current_price": 163.51,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 15.84,
-      "pnl_pct": 5.24,
-      "pnl_r": 0.57,
-      "note": "Safe \u20b9163.77 | +0.57R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 15.66,
+      "pnl_pct": 5.08,
+      "pnl_r": 0.55,
+      "note": "Safe \u20b9163.51 | +0.55R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "MARICO.NS",
@@ -1378,14 +1378,14 @@
       "direction": "LONG",
       "entry": 745.2,
       "stop": 707.22,
-      "current_price": 758.2,
+      "current_price": 756.85,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 7.21,
-      "pnl_pct": 1.74,
-      "pnl_r": 0.34,
-      "note": "Safe \u20b9758.20 | +0.34R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 7.02,
+      "pnl_pct": 1.56,
+      "pnl_r": 0.31,
+      "note": "Safe \u20b9756.85 | +0.31R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "TITAN.NS",
@@ -1394,14 +1394,14 @@
       "direction": "LONG",
       "entry": 4442.2,
       "stop": 3695.67,
-      "current_price": 4493.2,
+      "current_price": 4493.1,
       "alert_level": "SAFE",
       "target_hit": false,
       "pct_from_stop": 21.58,
       "pnl_pct": 1.15,
       "pnl_r": 0.07,
-      "note": "Safe \u20b94493.20 | +0.07R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b94493.10 | +0.07R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "DMART.NS",
@@ -1410,14 +1410,14 @@
       "direction": "LONG",
       "entry": 4367.4,
       "stop": 3517.07,
-      "current_price": 4453.1,
+      "current_price": 4449.1,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 26.61,
-      "pnl_pct": 1.96,
+      "pct_from_stop": 26.5,
+      "pnl_pct": 1.87,
       "pnl_r": 0.1,
-      "note": "Safe \u20b94453.10 | +0.10R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b94449.10 | +0.10R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ULTRACEMCO.NS",
@@ -1426,14 +1426,14 @@
       "direction": "LONG",
       "entry": 11405.0,
       "stop": 9959.41,
-      "current_price": 11803.0,
+      "current_price": 11810.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 18.51,
-      "pnl_pct": 3.49,
+      "pct_from_stop": 18.58,
+      "pnl_pct": 3.55,
       "pnl_r": 0.28,
-      "note": "Safe \u20b911803.00 | +0.28R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b911810.00 | +0.28R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "AMBUJACEM.NS",
@@ -1442,14 +1442,14 @@
       "direction": "LONG",
       "entry": 432.75,
       "stop": 378.33,
-      "current_price": 454.45,
+      "current_price": 453.8,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 20.12,
-      "pnl_pct": 5.01,
-      "pnl_r": 0.4,
-      "note": "Safe \u20b9454.45 | +0.40R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 19.95,
+      "pnl_pct": 4.86,
+      "pnl_r": 0.39,
+      "note": "Safe \u20b9453.80 | +0.39R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "SHREECEM.NS",
@@ -1458,14 +1458,14 @@
       "direction": "LONG",
       "entry": 23810.0,
       "stop": 21897.69,
-      "current_price": 24940.0,
+      "current_price": 24970.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 13.89,
-      "pnl_pct": 4.75,
-      "pnl_r": 0.59,
-      "note": "Safe \u20b924940.00 | +0.59R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 14.03,
+      "pnl_pct": 4.87,
+      "pnl_r": 0.61,
+      "note": "Safe \u20b924970.00 | +0.61R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "LT.NS",
@@ -1474,14 +1474,14 @@
       "direction": "LONG",
       "entry": 3932.0,
       "stop": 3148.18,
-      "current_price": 4099.9,
+      "current_price": 4102.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 30.23,
-      "pnl_pct": 4.27,
-      "pnl_r": 0.21,
-      "note": "Safe \u20b94099.90 | +0.21R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 30.3,
+      "pnl_pct": 4.32,
+      "pnl_r": 0.22,
+      "note": "Safe \u20b94102.00 | +0.22R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ADANIPORTS.NS",
@@ -1490,14 +1490,14 @@
       "direction": "LONG",
       "entry": 1432.2,
       "stop": 1245.34,
-      "current_price": 1509.8,
+      "current_price": 1509.7,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.24,
-      "pnl_pct": 5.42,
-      "pnl_r": 0.42,
-      "note": "Safe \u20b91509.80 | +0.42R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 21.23,
+      "pnl_pct": 5.41,
+      "pnl_r": 0.41,
+      "note": "Safe \u20b91509.70 | +0.41R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ASIANPAINT.NS",
@@ -1506,14 +1506,14 @@
       "direction": "LONG",
       "entry": 2275.0,
       "stop": 2055.34,
-      "current_price": 2409.5,
+      "current_price": 2408.6,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 17.23,
-      "pnl_pct": 5.91,
+      "pct_from_stop": 17.19,
+      "pnl_pct": 5.87,
       "pnl_r": 0.61,
-      "note": "Safe \u20b92409.50 | +0.61R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b92408.60 | +0.61R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "WHIRLPOOL.NS",
@@ -1529,7 +1529,7 @@
       "pnl_pct": 2.96,
       "pnl_r": 0.27,
       "note": "Safe \u20b9851.50 | +0.27R",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "CONCOR.NS",
@@ -1538,14 +1538,14 @@
       "direction": "LONG",
       "entry": 464.7,
       "stop": 406.04,
-      "current_price": 489.7,
+      "current_price": 489.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 20.6,
-      "pnl_pct": 5.38,
-      "pnl_r": 0.43,
-      "note": "Safe \u20b9489.70 | +0.43R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 20.48,
+      "pnl_pct": 5.27,
+      "pnl_r": 0.42,
+      "note": "Safe \u20b9489.20 | +0.42R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "CAMS.NS",
@@ -1554,14 +1554,14 @@
       "direction": "LONG",
       "entry": 708.0,
       "stop": 588.79,
-      "current_price": 728.05,
+      "current_price": 728.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 23.65,
-      "pnl_pct": 2.83,
+      "pct_from_stop": 23.68,
+      "pnl_pct": 2.85,
       "pnl_r": 0.17,
-      "note": "Safe \u20b9728.05 | +0.17R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9728.20 | +0.17R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "MCX.NS",
@@ -1570,14 +1570,14 @@
       "direction": "LONG",
       "entry": 2626.0,
       "stop": 2144.79,
-      "current_price": 2879.0,
+      "current_price": 2878.5,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 34.23,
-      "pnl_pct": 9.63,
-      "pnl_r": 0.53,
-      "note": "Safe \u20b92879.00 | +0.53R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 34.21,
+      "pnl_pct": 9.62,
+      "pnl_r": 0.52,
+      "note": "Safe \u20b92878.50 | +0.52R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "HINDZINC.NS",
@@ -1586,14 +1586,14 @@
       "direction": "LONG",
       "entry": 560.35,
       "stop": 461.23,
-      "current_price": 584.3,
+      "current_price": 584.25,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 26.68,
+      "pct_from_stop": 26.67,
       "pnl_pct": 4.27,
       "pnl_r": 0.24,
-      "note": "Safe \u20b9584.30 | +0.24R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9584.25 | +0.24R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "WELCORP.NS",
@@ -1602,14 +1602,14 @@
       "direction": "LONG",
       "entry": 933.85,
       "stop": 727.53,
-      "current_price": 1055.0,
+      "current_price": 1053.8,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 45.01,
-      "pnl_pct": 12.97,
-      "pnl_r": 0.59,
-      "note": "Safe \u20b91055.00 | +0.59R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 44.85,
+      "pnl_pct": 12.84,
+      "pnl_r": 0.58,
+      "note": "Safe \u20b91053.80 | +0.58R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "HINDPETRO.NS",
@@ -1618,14 +1618,14 @@
       "direction": "LONG",
       "entry": 356.6,
       "stop": 297.04,
-      "current_price": 368.55,
+      "current_price": 368.45,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 24.07,
-      "pnl_pct": 3.35,
+      "pct_from_stop": 24.04,
+      "pnl_pct": 3.32,
       "pnl_r": 0.2,
-      "note": "Safe \u20b9368.55 | +0.20R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9368.45 | +0.20R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "VBL.NS",
@@ -1634,14 +1634,14 @@
       "direction": "LONG",
       "entry": 415.05,
       "stop": 367.05,
-      "current_price": 449.25,
+      "current_price": 448.7,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 22.39,
-      "pnl_pct": 8.24,
-      "pnl_r": 0.71,
-      "note": "Safe \u20b9449.25 | +0.71R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 22.24,
+      "pnl_pct": 8.11,
+      "pnl_r": 0.7,
+      "note": "Safe \u20b9448.70 | +0.70R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "JKCEMENT.NS",
@@ -1650,14 +1650,14 @@
       "direction": "LONG",
       "entry": 5489.5,
       "stop": 4651.26,
-      "current_price": 5475.0,
+      "current_price": 5474.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 17.71,
-      "pnl_pct": -0.26,
+      "pct_from_stop": 17.69,
+      "pnl_pct": -0.28,
       "pnl_r": -0.02,
-      "note": "Safe \u20b95475.00 | -0.02R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b95474.00 | -0.02R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "RAMCOCEM.NS",
@@ -1666,14 +1666,14 @@
       "direction": "LONG",
       "entry": 977.55,
       "stop": 815.71,
-      "current_price": 993.05,
+      "current_price": 993.15,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.74,
-      "pnl_pct": 1.59,
+      "pct_from_stop": 21.75,
+      "pnl_pct": 1.6,
       "pnl_r": 0.1,
-      "note": "Safe \u20b9993.05 | +0.10R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9993.15 | +0.10R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "KPIL.NS",
@@ -1682,14 +1682,14 @@
       "direction": "LONG",
       "entry": 1140.9,
       "stop": 958.18,
-      "current_price": 1213.3,
+      "current_price": 1212.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 26.63,
-      "pnl_pct": 6.35,
-      "pnl_r": 0.4,
-      "note": "Safe \u20b91213.30 | +0.40R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 26.51,
+      "pnl_pct": 6.25,
+      "pnl_r": 0.39,
+      "note": "Safe \u20b91212.20 | +0.39R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "COROMANDEL.NS",
@@ -1698,14 +1698,14 @@
       "direction": "LONG",
       "entry": 2137.5,
       "stop": 1733.85,
-      "current_price": 2099.8,
+      "current_price": 2101.1,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 21.11,
-      "pnl_pct": -1.76,
+      "pct_from_stop": 21.18,
+      "pnl_pct": -1.7,
       "pnl_r": -0.09,
-      "note": "Safe \u20b92099.80 | -0.09R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b92101.10 | -0.09R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "APOLLOHOSP.NS",
@@ -1714,14 +1714,14 @@
       "direction": "LONG",
       "entry": 7441.5,
       "stop": 6883.36,
-      "current_price": 7666.0,
+      "current_price": 7673.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 11.37,
-      "pnl_pct": 3.02,
-      "pnl_r": 0.4,
-      "note": "Safe \u20b97666.00 | +0.40R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 11.47,
+      "pnl_pct": 3.11,
+      "pnl_r": 0.41,
+      "note": "Safe \u20b97673.00 | +0.41R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "LALPATHLAB.NS",
@@ -1730,14 +1730,14 @@
       "direction": "LONG",
       "entry": 1382.1,
       "stop": 1231.16,
-      "current_price": 1445.5,
+      "current_price": 1446.2,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 17.41,
-      "pnl_pct": 4.59,
+      "pct_from_stop": 17.47,
+      "pnl_pct": 4.64,
       "pnl_r": 0.42,
-      "note": "Safe \u20b91445.50 | +0.42R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91446.20 | +0.42R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "BALKRISIND.NS",
@@ -1746,14 +1746,14 @@
       "direction": "LONG",
       "entry": 2255.3,
       "stop": 1935.09,
-      "current_price": 2262.4,
+      "current_price": 2260.9,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 16.91,
-      "pnl_pct": 0.31,
+      "pct_from_stop": 16.84,
+      "pnl_pct": 0.25,
       "pnl_r": 0.02,
-      "note": "Safe \u20b92262.40 | +0.02R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b92260.90 | +0.02R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ADANIGREEN.NS",
@@ -1762,14 +1762,14 @@
       "direction": "LONG",
       "entry": 1048.0,
       "stop": 764.49,
-      "current_price": 1101.65,
+      "current_price": 1100.65,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 44.1,
-      "pnl_pct": 5.12,
+      "pct_from_stop": 43.97,
+      "pnl_pct": 5.02,
       "pnl_r": 0.19,
-      "note": "Safe \u20b91101.65 | +0.19R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b91100.65 | +0.19R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "PHOENIXLTD.NS",
@@ -1778,14 +1778,14 @@
       "direction": "LONG",
       "entry": 1741.6,
       "stop": 1410.12,
-      "current_price": 1788.4,
+      "current_price": 1785.8,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 26.83,
-      "pnl_pct": 2.69,
-      "pnl_r": 0.14,
-      "note": "Safe \u20b91788.40 | +0.14R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 26.64,
+      "pnl_pct": 2.54,
+      "pnl_r": 0.13,
+      "note": "Safe \u20b91785.80 | +0.13R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "ABBOTINDIA.NS",
@@ -1801,7 +1801,7 @@
       "pnl_pct": 0.54,
       "pnl_r": 0.1,
       "note": "Safe \u20b926000.00 | +0.10R",
-      "check_time": "07:42 AM IST"
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "APOLLOHOSP.NS",
@@ -1810,14 +1810,14 @@
       "direction": "LONG",
       "entry": 7517.0,
       "stop": 7253.63,
-      "current_price": 7666.0,
+      "current_price": 7673.0,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 5.69,
-      "pnl_pct": 1.98,
-      "pnl_r": 0.57,
-      "note": "Safe \u20b97666.00 | +0.57R",
-      "check_time": "07:42 AM IST"
+      "pct_from_stop": 5.78,
+      "pnl_pct": 2.08,
+      "pnl_r": 0.59,
+      "note": "Safe \u20b97673.00 | +0.59R",
+      "check_time": "07:47 AM IST"
     },
     {
       "symbol": "AUBANK.NS",
@@ -1826,14 +1826,14 @@
       "direction": "LONG",
       "entry": 979.05,
       "stop": 922.28,
-      "current_price": 987.2,
+      "current_price": 987.15,
       "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": 7.04,
+      "pct_from_stop": 7.03,
       "pnl_pct": 0.83,
       "pnl_r": 0.14,
-      "note": "Safe \u20b9987.20 | +0.14R",
-      "check_time": "07:42 AM IST"
+      "note": "Safe \u20b9987.15 | +0.14R",
+      "check_time": "07:47 AM IST"
     }
   ]
 }
