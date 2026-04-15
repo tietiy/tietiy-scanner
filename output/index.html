@@ -40,6 +40,8 @@
   <title>TIE TIY Scanner</title>
 
   <!-- ── BASE STYLES ───────────────────────────── -->
+  <!-- Minimal styles only — component styles      -->
+  <!-- live in each JS file via innerHTML           -->
   <style>
     * {
       box-sizing: border-box;
@@ -133,212 +135,14 @@
     .safe-bottom {
       padding-bottom: env(safe-area-inset-bottom);
     }
-
-    /* ── PIN GATE ───────────────────────────── */
-    #pin-gate {
-      position:        fixed;
-      top:             0;
-      left:            0;
-      right:           0;
-      bottom:          0;
-      background:      #07070f;
-      z-index:         9999;
-      display:         flex;
-      flex-direction:  column;
-      align-items:     center;
-      justify-content: center;
-      font-family:     -apple-system, BlinkMacSystemFont,
-                       'Segoe UI', Arial, sans-serif;
-    }
-
-    #pin-gate .pin-card {
-      text-align:    center;
-      max-width:     320px;
-      width:         90%;
-      padding:       36px 28px;
-      background:    #0d1117;
-      border:        1px solid #21262d;
-      border-radius: 20px;
-    }
-
-    #pin-gate .pin-lock {
-      font-size:     44px;
-      margin-bottom: 12px;
-    }
-
-    #pin-gate .pin-title {
-      color:         #ffd700;
-      font-size:     22px;
-      font-weight:   700;
-      margin-bottom: 4px;
-    }
-
-    #pin-gate .pin-sub {
-      color:         #444;
-      font-size:     11px;
-      margin-bottom: 28px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-
-    #pin-input {
-      width:          100%;
-      background:     #07070f;
-      border:         1px solid #30363d;
-      border-radius:  10px;
-      color:          #c9d1d9;
-      font-size:      28px;
-      letter-spacing: 12px;
-      padding:        14px 12px;
-      text-align:     center;
-      outline:        none;
-      margin-bottom:  8px;
-      transition:     border-color 0.2s;
-      -webkit-text-security: disc;
-    }
-
-    #pin-input:focus {
-      border-color: #ffd700;
-    }
-
-    #pin-error {
-      color:         #f85149;
-      font-size:     11px;
-      height:        18px;
-      margin-bottom: 12px;
-      transition:    opacity 0.2s;
-    }
-
-    #pin-remember-row {
-      display:         flex;
-      align-items:     center;
-      justify-content: center;
-      gap:             8px;
-      color:           #555;
-      font-size:       12px;
-      margin-bottom:   20px;
-      cursor:          pointer;
-    }
-
-    #pin-remember-row input[type="checkbox"] {
-      width:          15px;
-      height:         15px;
-      accent-color:   #ffd700;
-      cursor:         pointer;
-    }
-
-    #pin-unlock-btn {
-      width:          100%;
-      background:     #ffd700;
-      color:          #000;
-      border:         none;
-      border-radius:  10px;
-      padding:        14px;
-      font-size:      15px;
-      font-weight:    700;
-      cursor:         pointer;
-      transition:     opacity 0.2s;
-      -webkit-tap-highlight-color: transparent;
-    }
-
-    #pin-unlock-btn:active {
-      opacity: 0.8;
-    }
   </style>
 
 </head>
 <body>
 
-  <!-- ── PIN GATE ─────────────────────────────────── -->
-  <!-- Secret injected by deploy.yml via sed          -->
-  <!-- Never stored in repo — only in GitHub secrets  -->
-  <div id="pin-gate">
-    <div class="pin-card">
-      <div class="pin-lock">🔒</div>
-      <div class="pin-title">TIE TIY</div>
-      <div class="pin-sub">NSE Scanner</div>
-
-      <input id="pin-input"
-        type="password"
-        inputmode="numeric"
-        maxlength="4"
-        autocomplete="off"
-        placeholder="● ● ● ●"
-        onkeydown="if(event.key==='Enter')
-          _pinUnlock()">
-
-      <div id="pin-error"></div>
-
-      <label id="pin-remember-row">
-        <input type="checkbox" id="pin-remember">
-        Remember this device
-      </label>
-
-      <button id="pin-unlock-btn"
-        onclick="_pinUnlock()">
-        Unlock
-      </button>
-    </div>
-  </div>
-
-  <!-- ── PIN GATE SCRIPT ──────────────────────────── -->
-  <!-- Runs immediately — before any app code         -->
-  <script>
-  (function() {
-    var S = 'PWA_PIN_PLACEHOLDER';
-
-    try {
-      if (localStorage.getItem('tietiy_pin') === S) {
-        var gate = document.getElementById('pin-gate');
-        if (gate) gate.style.display = 'none';
-        return;
-      }
-    } catch(e) {}
-
-    document.addEventListener('DOMContentLoaded',
-      function() {
-        var inp = document.getElementById('pin-input');
-        if (inp) setTimeout(function() {
-          inp.focus();
-        }, 100);
-      }
-    );
-
-    window._pinUnlock = function() {
-      var inp      = document.getElementById('pin-input');
-      var err      = document.getElementById('pin-error');
-      var remember = document.getElementById('pin-remember');
-      var gate     = document.getElementById('pin-gate');
-      if (!inp || !gate) return;
-
-      if (inp.value === S) {
-        if (remember && remember.checked) {
-          try {
-            localStorage.setItem('tietiy_pin', S);
-          } catch(e) {}
-        }
-        gate.style.display = 'none';
-        if (err) err.textContent = '';
-      } else {
-        if (err) err.textContent = 'Incorrect PIN';
-        inp.value = '';
-        inp.focus();
-        var card = gate.querySelector('.pin-card');
-        if (card) {
-          card.style.transform = 'translateX(-8px)';
-          setTimeout(function() {
-            card.style.transform = 'translateX(8px)';
-            setTimeout(function() {
-              card.style.transform = 'translateX(0)';
-            }, 80);
-          }, 80);
-        }
-      }
-    };
-  })();
-  </script>
-
   <!-- ── LOADING SCREEN ──────────────────────────── -->
+  <!-- Shown while JS fetches all JSON files          -->
+  <!-- Replaced by app-root once data loads           -->
   <div id="app-loader">
     <div class="logo">🎯 TIE TIY</div>
     <div class="spinner"></div>
@@ -346,6 +150,7 @@
   </div>
 
   <!-- ── ERROR SCREEN ────────────────────────────── -->
+  <!-- Shown if JSON fetch fails completely           -->
   <div id="app-error">
     <div class="err-title">Scanner data unavailable</div>
     <div id="error-detail">Could not load scan data.</div>
@@ -362,6 +167,8 @@
   </div>
 
   <!-- ── MAIN APP ROOT ───────────────────────────── -->
+  <!-- Hidden until all data loaded                   -->
+  <!-- ui.js renders all content inside here          -->
   <div id="app-root">
 
     <!-- STATUS BAR — rendered by ui.js -->
@@ -369,12 +176,6 @@
 
     <!-- STOP ALERT BANNER — rendered by ui.js -->
     <div id="alert-banner"></div>
-
-    <!-- MOBILE NEWS — phone/fold only              -->
-    <!-- Hidden on iPad where left panel is used    -->
-    <div id="mobile-news-section"
-         style="display:none;">
-    </div>
 
     <!-- TAB CONTENT — rendered by active tab JS -->
     <div id="tab-content"></div>
@@ -416,45 +217,8 @@
 
   </div><!-- end app-root -->
 
-  <!-- ── SIDEBAR — right panel iPad/large ───────── -->
-  <div id="sidebar"
-       style="display:none;position:fixed;
-              top:0;overflow-y:auto;
-              z-index:10;">
-  </div>
-
-  <!-- ── NEWS PANEL — left panel iPad >1000px ───── -->
-  <div id="news-panel"
-       style="display:none;position:fixed;
-              top:0;overflow-y:auto;
-              padding-bottom:80px;z-index:10;">
-  </div>
-
-  <!-- ── NEWS OVERLAY ────────────────────────────── -->
-  <!-- Darkens screen when news drawer is open       -->
-  <div id="news-overlay"
-       style="display:none;position:fixed;
-              top:0;left:0;right:0;bottom:0;
-              background:rgba(0,0,0,0.85);
-              z-index:400;"
-       onclick="_closeNewsCard()">
-  </div>
-
-  <!-- ── NEWS DRAWER ─────────────────────────────── -->
-  <!-- Slide-up panel for full headline + link       -->
-  <div id="news-drawer"
-       style="display:none;position:fixed;
-              bottom:0;left:0;right:0;
-              background:#0d1117;
-              border-top:2px solid #30363d;
-              border-radius:16px 16px 0 0;
-              padding:20px 16px 48px;
-              z-index:401;
-              max-height:60vh;
-              overflow-y:auto;">
-  </div>
-
   <!-- ── SERVICE WORKER REGISTRATION ────────────── -->
+  <!-- Enables Web Push + offline cache              -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -471,10 +235,17 @@
   </script>
 
   <!-- ── JS FILES ────────────────────────────────── -->
-  <script src="ui.js?v=202604160200"></script>
-  <script src="app.js?v=202604160200"></script>
-  <script src="journal.js?v=202604160200"></script>
-  <script src="stats.js?v=202604160200"></script>
+  <!-- Load order is critical — do not change        -->
+  <!-- ui.js loads first — sets up fetch manager     -->
+  <!-- app.js, journal.js, stats.js depend on ui.js  -->
+  <!-- build_time appended for cache busting         -->
+  <!-- When app_version in meta.json changes,        -->
+  <!-- ui.js forces a full reload automatically      -->
+
+  <script src="ui.js?v=202604150317"></script>
+  <script src="app.js?v=202604150317"></script>
+  <script src="journal.js?v=202604150317"></script>
+  <script src="stats.js?v=202604150317"></script>
 
 </body>
 </html>
