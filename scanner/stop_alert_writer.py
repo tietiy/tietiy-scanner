@@ -19,6 +19,11 @@
 # - BX7: Same stock same direction dedup —
 #         if stock has multiple signals, only
 #         send ONE alert per stock per cycle
+#
+# V1.2 FIXES:
+# - BX8: Stop alert dedup persisted to file —
+#         stop_alerts_sent.json resets daily.
+#         Prevents same breach firing every 5 min.
 # ─────────────────────────────────────────────────────
 
 import json
@@ -42,6 +47,8 @@ OUT_FILE           = os.path.join(
     _OUTPUT, 'stop_alerts.json')
 TARGET_ALERTS_FILE = os.path.join(
     _OUTPUT, 'target_alerts_sent.json')
+STOP_ALERTS_FILE   = os.path.join(
+    _OUTPUT, 'stop_alerts_sent.json')
 
 # ── THRESHOLDS ────────────────────────────────────────
 NEAR_STOP_PCT = 2.0
@@ -50,16 +57,9 @@ AT_STOP_PCT   = 0.5
 
 # ── BX2: TRADING DAY GUARD ────────────────────────────
 def _is_trading_day() -> bool:
-    """
-    Returns True only on weekdays that are
-    not NSE holidays.
-    Reads nse_holidays.json from output/.
-    """
     today = date.today()
-    # Weekend check
     if today.weekday() >= 5:
         return False
-    # Holiday check
     try:
         holidays_file = os.path.join(
             _OUTPUT, 'nse_holidays.json')
@@ -76,10 +76,6 @@ def _is_trading_day() -> bool:
 
 # ── TARGET ALERT DEDUP ────────────────────────────────
 def _load_target_alerts_sent():
-    """
-    Load set of signal IDs that already got
-    target alert today. Resets daily.
-    """
     try:
         with open(TARGET_ALERTS_FILE, 'r') as f:
             data = json.load(f)
@@ -91,7 +87,6 @@ def _load_target_alerts_sent():
 
 
 def _save_target_alert_sent(signal_id, sent_ids):
-    """Persist updated sent_ids set."""
     sent_ids.add(signal_id)
     try:
         with open(TARGET_ALERTS_FILE, 'w') as f:
@@ -103,12 +98,37 @@ def _save_target_alert_sent(signal_id, sent_ids):
         print(f"[stop_alert] Dedup save error: {e}")
 
 
+# ── BX8: STOP ALERT DEDUP ─────────────────────────────
+# Persists sent stop alerts to file so dedup
+# survives across 5-min cron runs.
+# Resets automatically each new day.
+
+def _load_stop_alerts_sent():
+    try:
+        with open(STOP_ALERTS_FILE, 'r') as f:
+            data = json.load(f)
+        if data.get('date') != date.today().isoformat():
+            return set()
+        return set(data.get('sent_keys', []))
+    except Exception:
+        return set()
+
+
+def _save_stop_alert_sent(key, sent_keys):
+    sent_keys.add(key)
+    try:
+        with open(STOP_ALERTS_FILE, 'w') as f:
+            json.dump({
+                'date':      date.today().isoformat(),
+                'sent_keys': list(sent_keys),
+            }, f)
+    except Exception as e:
+        print(
+            f"[stop_alert] Stop dedup save error: {e}")
+
+
 # ── HELPERS ───────────────────────────────────────────
 def _fetch_current_price(symbol, retries=2):
-    """
-    Fetch current intraday price.
-    Returns (price, fetch_time_IST) or (None, None).
-    """
     for attempt in range(retries + 1):
         try:
             df = yf.download(
@@ -130,7 +150,6 @@ def _fetch_current_price(symbol, retries=2):
                     '%I:%M %p IST')
                 return price, fetch_time
 
-            # Fallback daily
             df = yf.download(
                 symbol,
                 period='5d',
@@ -158,11 +177,6 @@ def _fetch_current_price(symbol, retries=2):
 
 
 def _assess_stop_level(trade, current_price):
-    """
-    Assess stop proximity.
-    Returns (alert_level, pct_from_stop,
-             pnl_pct, pnl_r, note)
-    """
     try:
         stop      = float(
             trade.get('stop', 0) or 0)
@@ -254,10 +268,6 @@ def _assess_stop_level(trade, current_price):
 
 
 def _assess_target_hit(trade, current_price):
-    """
-    B3 FIX: Check if target has been hit intraday.
-    Returns (hit: bool, pnl_pct: float or None)
-    """
     try:
         target    = float(
             trade.get('target_price', 0) or 0)
@@ -294,10 +304,6 @@ def _assess_target_hit(trade, current_price):
 
 def _send_target_hit_alert(trade, current_price,
                            pnl_pct, check_time):
-    """
-    F1 FIX: Fire Telegram alert when target hit.
-    Signal continues observing till Day 6 (dual track).
-    """
     sym    = (trade.get('symbol') or '?')\
               .replace('.NS', '')
     stype  = trade.get('signal', '?')
@@ -342,7 +348,6 @@ def _send_target_hit_alert(trade, current_price,
 
 def _send_stop_alert_msg(trade, current_price,
                          alert_level, check_time):
-    """Send stop proximity alert via Telegram."""
     sym   = (trade.get('symbol') or '?')\
              .replace('.NS', '')
     stype = trade.get('signal', '?')
@@ -389,27 +394,13 @@ def _send_stop_alert_msg(trade, current_price,
 
 # ── MAIN FUNCTION ─────────────────────────────────────
 def run_stop_check():
-    """
-    Main entry point. Called by stop_check.yml.
-
-    V1.1 FIXES:
-    BX2: Exits immediately on holidays/weekends.
-    BX6: Skips entry_valid=False signals.
-    BX7: Deduplicates same stock same direction —
-         only fires ONE Telegram alert per stock.
-    BX4: Target hit dedup already via sig_id (F1).
-    """
-
     os.makedirs(_OUTPUT, exist_ok=True)
 
     # BX2 FIX: Holiday/weekend guard
-    # Stop check should never run when market is closed
     if not _is_trading_day():
         today_str = date.today().isoformat()
         print(f"[stop_alert] {today_str} is a "
               f"holiday or weekend — skipping")
-        # Write a clean empty file so PWA
-        # doesn't show stale alerts
         _write_empty(
             date.today().isoformat(),
             datetime.now().strftime('%I:%M %p IST'))
@@ -429,12 +420,12 @@ def run_stop_check():
         return
 
     # BX6 FIX: Exclude entry_valid=False signals
-    # These were never entered — no stop to monitor
     valid_trades = [
         t for t in open_trades
         if t.get('entry_valid') is not False
     ]
-    skipped_invalid = len(open_trades) - len(valid_trades)
+    skipped_invalid = (len(open_trades)
+                       - len(valid_trades))
     if skipped_invalid > 0:
         print(f"[stop_alert] Skipping "
               f"{skipped_invalid} entry_valid=False "
@@ -443,22 +434,19 @@ def run_stop_check():
     print(f"[stop_alert] Checking "
           f"{len(valid_trades)} positions")
 
-    # Load target alerts already sent today
+    # Load dedup sets — both persist across runs
     target_alerts_sent = _load_target_alerts_sent()
 
-    # BX7 FIX: Track which stocks already had
-    # a stop alert sent this cycle
-    # Key: symbol_clean + direction
-    # Prevents BSE DOWN_TRI + BSE DOWN_TRI_SA
-    # both firing separate alerts
-    stop_alerted_stocks = set()
+    # BX8 FIX: Load stop alerts sent today from file
+    # Replaces in-memory set that reset every 5 min
+    stop_alerted_stocks = _load_stop_alerts_sent()
 
-    alerts         = []
-    fetch_failed   = []
-    breached_count = 0
-    at_count       = 0
-    near_count     = 0
-    safe_count     = 0
+    alerts           = []
+    fetch_failed     = []
+    breached_count   = 0
+    at_count         = 0
+    near_count       = 0
+    safe_count       = 0
     target_hit_count = 0
 
     for trade in valid_trades:
@@ -506,11 +494,12 @@ def run_stop_check():
          note) = _assess_stop_level(
             trade, current_price)
 
-        # BX7 FIX: dedup key — one alert per
-        # stock per direction per cycle
-        sym_clean  = symbol.replace('.NS', '')
-        dedup_key  = f"{sym_clean}_{direction}"
-        already_alerted = dedup_key in stop_alerted_stocks
+        # BX7 + BX8: dedup key — one alert per
+        # stock per direction per DAY (persisted)
+        sym_clean       = symbol.replace('.NS', '')
+        dedup_key       = f"{sym_clean}_{direction}"
+        already_alerted = (
+            dedup_key in stop_alerted_stocks)
 
         if alert_level == 'BREACHED':
             breached_count += 1
@@ -519,10 +508,11 @@ def run_stop_check():
                     trade, current_price,
                     alert_level,
                     fetch_time or check_time)
-                stop_alerted_stocks.add(dedup_key)
+                _save_stop_alert_sent(
+                    dedup_key, stop_alerted_stocks)
             else:
                 print(f"[stop_alert] Dedup: "
-                      f"skip duplicate alert "
+                      f"skip duplicate BREACHED "
                       f"for {sym_clean}")
         elif alert_level == 'AT':
             at_count += 1
@@ -531,7 +521,12 @@ def run_stop_check():
                     trade, current_price,
                     alert_level,
                     fetch_time or check_time)
-                stop_alerted_stocks.add(dedup_key)
+                _save_stop_alert_sent(
+                    dedup_key, stop_alerted_stocks)
+            else:
+                print(f"[stop_alert] Dedup: "
+                      f"skip duplicate AT "
+                      f"for {sym_clean}")
         elif alert_level == 'NEAR':
             near_count += 1
         elif alert_level == 'SAFE':
@@ -546,8 +541,6 @@ def run_stop_check():
             print(f"[stop_alert] TARGET HIT: "
                   f"{symbol} @ {current_price:.2f}")
 
-            # F1/BX4 FIX: Send alert only once
-            # per signal per day via sig_id dedup
             if (sig_id
                     and sig_id
                     not in target_alerts_sent):
