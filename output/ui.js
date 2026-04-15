@@ -22,6 +22,8 @@
 //   Source: Google News RSS via rss2json proxy.
 //   Last 30 days. Session cache 30 min.
 // - HEALTH_LINK: Sidebar bottom card → health.html
+// - LTP_FIX: LTP time reads from ltp_prices.json
+//   fetch_time — updates every 5 min guaranteed.
 //
 // PRIOR FIXES RETAINED:
 // - Default filter is 'top'
@@ -267,7 +269,6 @@ function _countTodaySignals() {
   if (!hist || !hist.history) return 0;
   return hist.history.filter(
     s => s.date === today
-      && s.result === 'PENDING'
   ).length;
 }
 
@@ -1155,10 +1156,13 @@ function _renderStatusBar(meta) {
     : meta.scan_time || null;
   const newToday  = _countTodaySignals();
 
-  const stopAlerts  = window.TIETIY.stopAlerts;
-  const ltpUpdated  = stopAlerts
-    ? (stopAlerts.ltp_updated_at
-       || stopAlerts.check_time || null)
+  // LTP_FIX: Read from ltp_prices.json fetch_time
+  // Updates every 5 min guaranteed via ltp_updater
+  // Previously read from stop_alerts.json which
+  // only updates when breaches occur
+  const ltpPrices  = window.TIETIY.ltpPrices;
+  const ltpUpdated = ltpPrices
+    ? ltpPrices.fetch_time || null
     : null;
 
   const openPrices  = window.TIETIY.openPrices;
