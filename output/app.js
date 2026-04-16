@@ -22,6 +22,18 @@
 // - J2  : TradingView link in tap panel fixed for
 //         iOS PWA — window.open() replaces
 //         target="_blank" which is blocked in PWA
+//
+// V2 FIXES:
+// - AJ1 : New Today badge count fix — age0 filter
+//         count used s.age === _todayIST() (always
+//         false, number vs string). Fixed to
+//         s.date === _todayIST(). Fixes "New Today (0)"
+//         showing while 1 signal exists in content.
+// - AJ2 : Stock-regime conflict note on signal card —
+//         when signal direction conflicts with
+//         stock_regime (e.g. DOWN_TRI on Bull stock),
+//         shows a brief plain-language explanation so
+//         the trader understands the setup context.
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
@@ -167,10 +179,6 @@ function _scoreColor(score) {
 }
 
 // ── H1: SCORE VISUAL WEIGHT ───────────────────────────
-// Score 8-10: large gold bold — unmissable
-// Score 5-7:  medium green
-// Score 3-4:  small grey
-// Score 1-2:  tiny dim
 function _scoreDisplay(score) {
   const n = parseFloat(score) || 0;
   if (n >= 8) {
@@ -218,12 +226,59 @@ function _scoreDisplay(score) {
 }
 
 // ── H2: SCORE-BASED CARD BORDER ───────────────────────
-// gold 8-10, faint white 5-7, grey below 5
 function _cardBorderColor(score) {
   const n = parseFloat(score) || 0;
   if (n >= 8) return '#FFD700';
   if (n >= 5) return '#30363d';
   return '#21262d';
+}
+
+// ── AJ2: STOCK REGIME CONFLICT NOTE ──────────────────
+// AJ2 FIX: When signal direction conflicts with the
+// stock's own trend structure, show a brief note so
+// the trader understands why the setup exists.
+// Examples: DOWN_TRI on a Bull stock, UP_TRI on Bear.
+// This is valid — counter-trend setups can work —
+// but the trader deserves the context explicitly shown.
+function _stockRegimeConflictNote(sig) {
+  const signal     = (sig.signal || '').toUpperCase();
+  const stkRegime  = (sig.stock_regime || '').toLowerCase();
+  if (!stkRegime) return '';
+
+  const isBullishSig =
+    signal.startsWith('UP_TRI') ||
+    signal.startsWith('BULL_PROXY');
+  const isBearishSig =
+    signal.startsWith('DOWN_TRI');
+
+  const stkIsBull = stkRegime === 'bull';
+  const stkIsBear = stkRegime === 'bear';
+
+  let note = '';
+
+  if (isBearishSig && stkIsBull) {
+    note = 'Short signal on a bullish stock — '
+         + 'counter-trend setup. '
+         + 'Pattern must be convincing. '
+         + 'Age 0 only.';
+  } else if (isBullishSig && stkIsBear) {
+    note = 'Long signal on a bearish stock — '
+         + 'counter-trend setup. '
+         + 'Requires strong volume and '
+         + 'regime support.';
+  } else {
+    return '';
+  }
+
+  return `
+    <div style="margin-top:5px;background:#1a1a0a;
+      border:1px solid #ffd70033;border-radius:4px;
+      padding:4px 8px;font-size:10px;color:#8b949e;
+      line-height:1.5;">
+      ⚡ <b style="color:#ffd700;">
+        stk:${sig.stock_regime}
+      </b> — ${note}
+    </div>`;
 }
 
 // ── SCORE BREAKDOWN ───────────────────────────────────
@@ -418,8 +473,11 @@ function _buildFilterBar(signals,
       s => s.signal === 'BULL_PROXY').length,
     SA:         signals.filter(
       s => (s.signal || '').endsWith('_SA')).length,
+    // AJ1 FIX: was s.age === _todayIST() — comparing
+    // a number to a date string, always false.
+    // Correct field is s.date, not s.age.
     age0:       signals.filter(
-      s => s.age === _todayIST()
+      s => s.date === _todayIST()
         && s.generation !== 0).length,
     top:        signals.filter(
       s => (s.score || 0) >= TOP_SCORE_MIN).length,
@@ -755,7 +813,6 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
   const lowConv   = score <= 2;
   const cardOp    = lowConv ? 'opacity:0.6;' : '';
 
-  // H2: outer card border based on score
   const scoreBorder = _cardBorderColor(score);
 
   let borderGlow = '';
@@ -844,6 +901,10 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
       font-size:10px;">LTP —</span>`;
   }
 
+  // AJ2 FIX: stock regime conflict note
+  const regimeConflictNote =
+    _stockRegimeConflictNote(sig);
+
   const sigData = encodeURIComponent(
     JSON.stringify(sig));
 
@@ -908,7 +969,7 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
         </div>
       </div>
 
-      <!-- Row 2: Signal info + H1 score display -->
+      <!-- Row 2: Signal info + score display -->
       <div style="display:flex;align-items:center;
         gap:8px;flex-wrap:wrap;margin-bottom:7px;">
         <span style="color:${cfg.color};
@@ -981,6 +1042,9 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
              overnight cash shorts
            </div>`
         : ''}
+
+      ${regimeConflictNote}
+
     </div>`;
 }
 
@@ -1096,7 +1160,6 @@ function openTapPanel(el) {
          padding:2px 8px;">2ND ATT</span>`
     : '';
 
-  // J2 FIX: use window.open — works in iOS PWA
   const tvUrl =
     `https://www.tradingview.com/chart/` +
     `?symbol=NSE%3A${sym}`;
@@ -1570,13 +1633,13 @@ function renderSignals(data) {
     headerLabel    =
       `2ND ATTEMPT SIGNALS `
       + `(${displaySignals.length})`;
-   } else if (currentFilter === 'age0') {
+  } else if (currentFilter === 'age0') {
+    // AJ1 FIX: s.date === _todayIST() (not s.age)
     displaySignals = sectorFiltered.filter(
       s => s.date === _todayIST()
         && s.generation !== 0);
     headerLabel    =
       `NEW TODAY SIGNALS (${displaySignals.length})`;
-
   }
 
   const conflictMap = _buildConflictMap(allSorted);
