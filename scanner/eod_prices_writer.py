@@ -9,12 +9,22 @@
 #   days_left == 1 (exit is tomorrow only).
 #   Previously <= 1 caused EXIT TOMORROW to fire on
 #   exit day itself (days_left=0) — wrong label + duplicate.
+#
+# V2 FIXES:
+#   EP1: Timezone fix — all timestamps now use
+#        UTC+5:30 (IST) instead of server UTC.
+#        Fixes "04:21 AM IST" showing UTC time.
+#   EP2: Deduplicate yfinance fetches — build unique
+#        ticker price map first, fetch once per ticker,
+#        reuse close/high/low for all signals of same
+#        stock. Prevents rate limiting as signal count
+#        grows and cuts EOD run time significantly.
 # ─────────────────────────────────────────────────────
 
 import json
 import os
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 
 import yfinance as yf
 import pandas as pd
@@ -31,6 +41,29 @@ OUT_FILE = os.path.join(_OUTPUT, 'eod_prices.json')
 
 # ── THRESHOLDS ────────────────────────────────────────
 STOP_BREACH_BUFFER = 0.005
+
+
+# ── EP1: IST TIMESTAMP HELPERS ────────────────────────
+
+def _now_ist():
+    """
+    EP1 FIX: Returns current datetime in IST.
+    GitHub Actions runners use UTC — datetime.now()
+    returns UTC. Applying +5:30 gives correct IST.
+    """
+    ist_offset = timezone(timedelta(hours=5,
+                                    minutes=30))
+    return datetime.now(tz=ist_offset)
+
+
+def _now_ist_str():
+    """EP1 FIX: Current time as IST string."""
+    return _now_ist().strftime('%I:%M %p IST')
+
+
+def _today_ist():
+    """EP1 FIX: Current date in IST."""
+    return _now_ist().date()
 
 
 # ── HELPERS ───────────────────────────────────────────
@@ -57,7 +90,8 @@ def _fetch_eod_price(symbol, retries=2):
             if df.index.tzinfo:
                 df.index = df.index.tz_localize(None)
 
-            today_str  = date.today().isoformat()
+            # EP1 FIX: use IST date for today_str
+            today_str  = _today_ist().isoformat()
             today_rows = df[
                 df.index.strftime('%Y-%m-%d')
                 == today_str
@@ -83,6 +117,39 @@ def _fetch_eod_price(symbol, retries=2):
                   f"{attempt+1} failed {symbol}: {e}")
 
     return None, None, None
+
+
+# EP2: BATCH PRICE FETCHER ─────────────────────────────
+
+def _fetch_all_prices(symbols):
+    """
+    EP2 FIX: Fetch EOD prices for all unique symbols
+    in a single pass. Returns dict:
+      { 'SYMBOL.NS': (close, high, low) or (None, None, None) }
+
+    Previously each signal triggered its own yfinance
+    call — if ADANIGREEN had 3 signals, it fetched 3x.
+    With 89 open signals across ~70 unique tickers,
+    this deduplication cuts API calls by ~20%.
+    """
+    price_map = {}
+    unique_symbols = list(set(symbols))
+
+    print(f"[eod_writer] Fetching {len(unique_symbols)} "
+          f"unique tickers "
+          f"({len(symbols)} total signals)")
+
+    for symbol in unique_symbols:
+        close, high, low = _fetch_eod_price(symbol)
+        price_map[symbol] = (close, high, low)
+        if close is not None:
+            print(f"[eod_writer] {symbol} | "
+                  f"Close: {close:.2f}")
+        else:
+            print(f"[eod_writer] {symbol} | "
+                  f"Fetch FAILED")
+
+    return price_map
 
 
 def _assess_stop(trade, close, high, low):
@@ -169,12 +236,14 @@ def _assess_exit_due(trade):
     (exit is exactly tomorrow).
     Previously used <= 1 which fired on exit day itself
     (days_left=0) causing "EXIT TOMORROW" on wrong day.
+    EP1 FIX: Uses IST date not UTC date.
     """
     try:
         exit_date = trade.get('exit_date', '')
         if not exit_date:
             return False
-        today     = date.today()
+        # EP1 FIX: IST date
+        today     = _today_ist()
         exit_dt   = date.fromisoformat(exit_date)
         days_left = (exit_dt - today).days
         # Only fire when exit is exactly tomorrow
@@ -189,7 +258,8 @@ def _count_day(trade):
         if not signal_date:
             return None
         start         = date.fromisoformat(signal_date)
-        today         = date.today()
+        # EP1 FIX: IST date
+        today         = _today_ist()
         calendar_days = (today - start).days
         trading_days  = max(1, int(calendar_days * 5/7))
         return min(trading_days + 1, 6)
@@ -202,8 +272,9 @@ def _count_day(trade):
 def run_eod_update():
     os.makedirs(_OUTPUT, exist_ok=True)
 
-    today      = date.today().isoformat()
-    fetch_time = datetime.now().strftime('%I:%M %p IST')
+    # EP1 FIX: IST date and time
+    today      = _today_ist().isoformat()
+    fetch_time = _now_ist_str()
 
     print(f"[eod_writer] Starting EOD update "
           f"for {today} at {fetch_time}")
@@ -217,6 +288,16 @@ def run_eod_update():
 
     print(f"[eod_writer] Checking "
           f"{len(open_trades)} open positions")
+
+    # EP2 FIX: Collect all symbols first, fetch once
+    # per unique ticker, reuse prices across all signals
+    # of the same stock.
+    all_symbols = [
+        t.get('symbol', '')
+        for t in open_trades
+        if t.get('symbol', '')
+    ]
+    price_map = _fetch_all_prices(all_symbols)
 
     results            = []
     fetch_failed       = []
@@ -236,12 +317,11 @@ def run_eod_update():
         if not symbol:
             continue
 
-        print(f"[eod_writer] Fetching EOD: {symbol}")
-
-        close, high, low = _fetch_eod_price(symbol)
+        # EP2 FIX: Reuse cached price — no re-fetch
+        close, high, low = price_map.get(
+            symbol, (None, None, None))
 
         if close is None:
-            print(f"[eod_writer] Fetch failed: {symbol}")
             fetch_failed.append(symbol)
             results.append({
                 'symbol':        symbol,
@@ -317,14 +397,15 @@ def run_eod_update():
             'fetch_time':    fetch_time,
         })
 
-        print(f"[eod_writer] {symbol} | "
-              f"Close: {close:.2f} | "
-              f"Stop: {stop_status} | "
-              f"P&L: {pnl_r:+.2f}R"
-              if pnl_r is not None
-              else f"[eod_writer] {symbol} | "
-                   f"Close: {close:.2f} | "
-                   f"Stop: {stop_status}")
+        if pnl_r is not None:
+            print(f"[eod_writer] {symbol} | "
+                  f"Close: {close:.2f} | "
+                  f"Stop: {stop_status} | "
+                  f"P&L: {pnl_r:+.2f}R")
+        else:
+            print(f"[eod_writer] {symbol} | "
+                  f"Close: {close:.2f} | "
+                  f"Stop: {stop_status}")
 
     output = {
         'date':           today,
@@ -346,8 +427,7 @@ def run_eod_update():
           f"EXIT_DUE:{exit_due_count} "
           f"FAILED:{len(fetch_failed)}")
 
-    # Fire exit-tomorrow alert — exit_today=False always
-    # because _assess_exit_due only fires when days_left==1
+    # Fire exit-tomorrow alert
     if exit_tomorrow_list:
         print(f"[eod_writer] Sending exit-tomorrow "
               f"alert for {len(exit_tomorrow_list)} "
