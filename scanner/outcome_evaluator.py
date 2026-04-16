@@ -30,6 +30,16 @@
 #        classifier writes failure_reason field at
 #        resolution time for every resolved signal.
 #   H13: failure_reason field added to schema.
+#
+# V2 FIXES:
+#   OE1: _calc_r_multiple() added — STOP_HIT always
+#        stores r_multiple=-1.0, TARGET_HIT=+2.0.
+#        Impossible R values (e.g. -9.70R) prevented.
+#   OE2: _evaluate_signal() returns early if signal
+#        already has a terminal outcome — prevents
+#        duplicate resolution of closed signals.
+#   OE3: STOP_HIT pnl_pct forced negative — a stop
+#        hit can never produce a positive P&L.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -54,6 +64,16 @@ HOLIDAYS_FILE = os.path.join(
     _OUTPUT, 'nse_holidays.json')
 
 FLAT_PCT = 0.5
+
+# OE2: Terminal outcomes — signals with these are
+# fully closed and must never be re-evaluated.
+_TERMINAL_OUTCOMES = {
+    'STOP_HIT',
+    'TARGET_HIT',
+    'DAY6_WIN',
+    'DAY6_LOSS',
+    'DAY6_FLAT',
+}
 
 
 # ── HOLIDAY HELPERS ───────────────────────────────────
@@ -221,6 +241,42 @@ def _calc_pnl_pct(entry, outcome_price, direction):
         return None
 
 
+# OE1: R-MULTIPLE CALCULATOR ──────────────────────────
+
+def _calc_r_multiple(entry, stop,
+                     outcome_price, direction,
+                     outcome_type=None):
+    """
+    OE1 FIX: Calculate R-multiple from entry/stop/
+    outcome_price. Caps at fixed values for terminal
+    outcomes to prevent impossible R values:
+      STOP_HIT   → always -1.0R (stop = 1R loss)
+      TARGET_HIT → always +2.0R (target = 2R win)
+    For DAY6 outcomes, calculated from actual move.
+    """
+    # Hard caps for fixed-exit outcomes
+    if outcome_type == 'STOP_HIT':
+        return -1.0
+    if outcome_type == 'TARGET_HIT':
+        return 2.0
+
+    # DAY6 outcomes — calculated from actual move
+    try:
+        entry         = float(entry)
+        stop          = float(stop)
+        outcome_price = float(outcome_price)
+        risk          = abs(entry - stop)
+        if risk <= 0:
+            return None
+        if direction == 'LONG':
+            pnl = outcome_price - entry
+        else:
+            pnl = entry - outcome_price
+        return round(pnl / risk, 2)
+    except Exception:
+        return None
+
+
 # ── H12/H13: FAILURE REASON CLASSIFIER ───────────────
 
 def _classify_failure_reason(signal, outcome,
@@ -326,6 +382,15 @@ def _classify_failure_reason(signal, outcome,
 # ── EVALUATE SINGLE SIGNAL ────────────────────────────
 
 def _evaluate_signal(signal, holidays):
+
+    # OE2 FIX: Early return if already resolved.
+    # Prevents duplicate resolution of closed signals
+    # across multiple EOD runs (dead signal re-alert
+    # root cause).
+    current_outcome = signal.get('outcome', 'OPEN')
+    if current_outcome in _TERMINAL_OUTCOMES:
+        return signal
+
     sym       = signal.get('symbol', '')
     direction = signal.get('direction', 'LONG')
     det_date  = signal.get('date', '')
@@ -550,6 +615,27 @@ def _evaluate_signal(signal, holidays):
         pnl_pct = _calc_pnl_pct(
             entry, real_exit_price, direction)
 
+        # OE3 FIX: STOP_HIT pnl_pct must always be
+        # negative. A stop hit cannot produce a
+        # positive P&L — force negative if wrong.
+        if real_exit_outcome == 'STOP_HIT':
+            if pnl_pct is not None and pnl_pct > 0:
+                print(f"[outcome] OE3 fix {sym} — "
+                      f"STOP_HIT had positive pnl "
+                      f"{pnl_pct}%, forcing negative")
+                pnl_pct = -abs(pnl_pct)
+
+        # OE1 FIX: Calculate R-multiple with hard
+        # caps for STOP_HIT and TARGET_HIT outcomes.
+        # Prevents impossible values like -9.70R.
+        r_multiple = _calc_r_multiple(
+            entry         = entry,
+            stop          = stop,
+            outcome_price = real_exit_price,
+            direction     = direction,
+            outcome_type  = real_exit_outcome,
+        )
+
         # H13: failure_reason field
         failure_reason = _classify_failure_reason(
             signal        = signal,
@@ -562,6 +648,7 @@ def _evaluate_signal(signal, holidays):
             real_exit_date)[:10]
         signal['outcome_price']  = real_exit_price
         signal['pnl_pct']        = pnl_pct
+        signal['r_multiple']     = r_multiple
         signal['mfe_pct']        = round(max_fav, 2)
         signal['mae_pct']        = round(max_adv, 2)
         signal['exit_type']      = real_exit_outcome
@@ -643,11 +730,15 @@ def run_outcome_evaluation():
     history = data.get('history', [])
 
     # V1 BUG FIX: exclude entry_valid=False signals
+    # OE2 FIX: exclude terminal outcomes — signals
+    # already resolved must never be re-evaluated.
     open_signals = [
         s for s in history
         if s.get('outcome', 'OPEN') == 'OPEN'
         and s.get('result') == 'PENDING'
         and s.get('entry_valid') is not False
+        and s.get('outcome', 'OPEN')
+            not in _TERMINAL_OUTCOMES
     ]
 
     invalid_skipped = len([
