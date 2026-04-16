@@ -40,6 +40,13 @@
 # Q2: send_message retry + exponential backoff
 # Q3: send_heartbeat shows workflow status
 # Q4: send_message auto-chunks > 4000 chars
+#
+# V2 FIXES:
+# - TB1: Timezone fix — all date.today() calls replaced
+#   with _ist_date() (UTC+5:30). On GitHub Actions,
+#   date.today() returns UTC date which can be one day
+#   behind IST after 6:30 PM UTC. Affects exit lists,
+#   EOD summary date label, heartbeat, weekend summary.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -54,6 +61,29 @@ TELEGRAM_CHAT_ID = os.environ.get(
     'TELEGRAM_CHAT_ID', '8493010921')
 
 PWA_URL = 'https://tietiy.github.io/tietiy-scanner/'
+
+# TB1: IST offset constant
+_IST_OFFSET = timedelta(hours=5, minutes=30)
+
+
+# ── TB1: IST DATE/TIME HELPERS ────────────────────────
+def _ist_now() -> datetime:
+    """
+    TB1 FIX: Returns current datetime in IST.
+    GitHub Actions runners use UTC — datetime.utcnow()
+    returns UTC. Applying +5:30 gives correct IST.
+    """
+    return datetime.utcnow() + _IST_OFFSET
+
+
+def _ist_date() -> date:
+    """
+    TB1 FIX: Returns current date in IST.
+    Replaces date.today() throughout — on GitHub Actions
+    date.today() is UTC and can be one calendar day
+    behind IST after 6:30 PM UTC (12:00 AM IST).
+    """
+    return _ist_now().date()
 
 
 # ── HC1/HC2/HC3: UTC → IST CONVERTER ─────────────────
@@ -446,9 +476,6 @@ def poll_and_respond(meta: dict,
 
 
 # ── TG6: GET UPDATES WITH OFFSET TRACKING ────────────
-# Persists last seen update_id in output/tg_offset.json
-# so each poll cycle only sees NEW commands.
-# Without this, old updates block new commands.
 def _get_updates() -> list:
     url = (f'https://api.telegram.org/'
            f'bot{TELEGRAM_TOKEN}/getUpdates')
@@ -458,7 +485,6 @@ def _get_updates() -> list:
     offset_file = os.path.join(
         _root, 'output', 'tg_offset.json')
 
-    # Read last known offset
     offset = None
     try:
         if os.path.exists(offset_file):
@@ -478,8 +504,6 @@ def _get_updates() -> list:
         if r.status_code == 200:
             updates = r.json().get('result', [])
 
-            # Acknowledge — write next offset
-            # so next poll skips already seen updates
             if updates:
                 next_offset = (
                     updates[-1]['update_id'] + 1)
@@ -682,9 +706,13 @@ def _respond_today(chat_id, meta: dict,
     scan_ist  = _to_ist_safe(
         meta.get('scan_time', ''))
     active    = meta.get('active_signals_count', 0)
-    today_str = date.today().strftime('%a %d %b')
 
-    today_iso   = date.today().isoformat()
+    # TB1 FIX: use IST date
+    today_str = _ist_date().strftime('%a %d %b')
+    today_iso = _ist_date().isoformat()
+    tomorrow  = (_ist_date() +
+                 timedelta(days=1)).isoformat()
+
     exits_today = [
         s for s in history
         if s.get('action') == 'TOOK'
@@ -692,8 +720,6 @@ def _respond_today(chat_id, meta: dict,
         and s.get('exit_date', '') == today_iso
     ]
 
-    tomorrow   = (date.today() +
-                  timedelta(days=1)).isoformat()
     exits_tmrw = [
         s for s in history
         if s.get('action') == 'TOOK'
@@ -792,8 +818,9 @@ def _respond_today(chat_id, meta: dict,
 # ── TG2: /exits ───────────────────────────────────────
 def _respond_exits(chat_id, history: list,
                    ltp_prices: dict):
-    today_iso = date.today().isoformat()
-    tomorrow  = (date.today() +
+    # TB1 FIX: use IST date
+    today_iso = _ist_date().isoformat()
+    tomorrow  = (_ist_date() +
                  timedelta(days=1)).isoformat()
 
     exits_today = [
@@ -1465,7 +1492,8 @@ def send_exit_tomorrow(signals: list,
 # ── 5. EOD SUMMARY ────────────────────────────────────
 def send_eod_summary(outcomes: list,
                      still_open: int):
-    today_str = date.today().strftime('%Y-%m-%d')
+    # TB1 FIX: use IST date
+    today_str = _ist_date().strftime('%Y-%m-%d')
 
     resolved = [
         o for o in outcomes
@@ -1562,10 +1590,10 @@ def send_eod_summary(outcomes: list,
 
 
 # ── NEXT EXIT DATE HELPER ─────────────────────────────
-# BX1 FIX: exit_date may be None in some signals —
-# guard with 'or' to prevent NoneType comparison crash
+# BX1 FIX: exit_date may be None — guard with 'or'
 def _find_next_exit(outcomes):
-    today = date.today().isoformat()
+    # TB1 FIX: use IST date
+    today = _ist_date().isoformat()
     dates = [
         o.get('exit_date') or ''
         for o in outcomes
@@ -1585,12 +1613,10 @@ def _find_next_exit(outcomes):
 
 # ── 6. HEARTBEAT ──────────────────────────────────────
 def send_heartbeat(meta: dict):
-    today_str = date.today().strftime('%Y-%m-%d')
-
-    now_utc  = datetime.utcnow()
-    now_ist  = now_utc + timedelta(
-        hours=5, minutes=30)
-    now_time = now_ist.strftime('%I:%M %p IST')
+    # TB1 FIX: use IST date and time consistently
+    now_ist  = _ist_now()
+    today_str = now_ist.strftime('%Y-%m-%d')
+    now_time  = now_ist.strftime('%I:%M %p IST')
 
     regime     = meta.get('regime', '—')
     active     = meta.get(
@@ -1645,12 +1671,10 @@ def send_heartbeat(meta: dict):
 # ── 7. WORKFLOW FAILURE ALERT ─────────────────────────
 def send_workflow_failure(workflow_name: str,
                           run_url: str = None):
-    today_str = date.today().strftime('%Y-%m-%d')
-
-    now_utc  = datetime.utcnow()
-    now_ist  = now_utc + timedelta(
-        hours=5, minutes=30)
-    now_time = now_ist.strftime('%I:%M %p IST')
+    # TB1 FIX: use IST date and time
+    now_ist   = _ist_now()
+    today_str = now_ist.strftime('%Y-%m-%d')
+    now_time  = now_ist.strftime('%I:%M %p IST')
 
     lines = []
     lines.append('🚨 *WORKFLOW FAILED*')
@@ -1675,12 +1699,8 @@ def send_workflow_failure(workflow_name: str,
 
 # ── 8. WEEKEND SUMMARY ────────────────────────────────
 def send_weekend_summary(stats: dict):
-    """
-    W1/TR5: Now shows phase progress, signal type
-    breakdown, and week date range in addition to
-    standard W/L/F stats.
-    """
-    today_str   = date.today().strftime('%Y-%m-%d')
+    # TB1 FIX: use IST date
+    today_str   = _ist_date().strftime('%Y-%m-%d')
 
     resolved    = stats.get('resolved',    0)
     wins        = stats.get('wins',        0)
