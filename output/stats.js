@@ -19,20 +19,15 @@
 // - D6-4 : Day 6 outcome breakdown section
 //
 // V2 FIXES:
-// - SS1  : Phase 2 unlocked banner — when resolvedLive
-//          >= 30 a prominent green banner appears at top
-//          of stats confirming gate is open and WR is
-//          statistically valid. Progress section also
-//          shows unlocked state explicitly.
-// - SS2  : Preliminary WR shown when below 30 threshold
-//          — combined gen=0+gen=1 WR shown with caveat
-//          note so user knows the number exists but
-//          isn't statistically valid yet. Replaces
-//          complete blackout which contradicted Journal.
-// - SS3  : Score bucket section gets Phase 2 header
-//          when data is available — signals the section
-//          is now a live input to Phase 2 decisions,
-//          not just a future placeholder.
+// - SS1  : Phase 2 unlocked banner
+// - SS2  : Preliminary WR shown when below threshold
+// - SS3  : Score bucket Phase 2 header when unlocked
+// - CSV1 : _downloadCSV field names corrected —
+//          'stock' → 'symbol' (was blank for all 147 rows)
+//          'entry_price' → 'entry'
+//          'stop_price'  → 'stop'
+//          Also fixed bestTrade/worstTrade display in
+//          _renderPerfDashboard (same wrong field name).
 // ─────────────────────────────────────────────────────
 (function () {
 
@@ -167,12 +162,19 @@ function _divider() {
 
 // ── L8: CSV EXPORT ────────────────────────────────────
 function _downloadCSV(raw) {
+  // CSV1 FIX: field names corrected to match actual
+  // signal_history.json schema. Previously used wrong
+  // names causing all 147 rows to export blank stock,
+  // entry, and stop columns — unusable in Colab.
+  // stock → symbol  (JSON field is 'symbol')
+  // entry_price → entry  (JSON field is 'entry')
+  // stop_price → stop    (JSON field is 'stop')
   const cols = [
-    'date', 'stock', 'signal', 'score', 'outcome',
+    'date', 'symbol', 'signal', 'score', 'outcome',
     'pnl_pct', 'stock_regime', 'regime', 'sector',
     'generation', 'bear_bonus', 'vol_confirm',
     'sec_leading', 'rs_strong', 'grade_A',
-    'entry_price', 'stop_price', 'target_price',
+    'entry', 'stop', 'target_price',
     'age', 'mae_pct', 'mfe_pct', 'action', 'layer',
     'rejection_reason', 'failure_reason'
   ];
@@ -249,8 +251,6 @@ function _analyse(raw, shadowMode) {
   const openLive     = tookLive.filter(
     s => !OUTCOME_DONE.has(s.outcome || ''));
 
-  // SS2: combined (all generations) resolved for
-  // preliminary WR display when below threshold.
   const resolvedAll  = took.filter(
     s => OUTCOME_DONE.has(s.outcome || ''));
   const winsAll      = resolvedAll.filter(
@@ -354,7 +354,6 @@ function _analyse(raw, shadowMode) {
       (byDate[s.date] || 0) + 1;
   });
 
-  // L1: win rate by regime
   const regimeResolved = {};
   resolvedLive.forEach(function (s) {
     const r = _normaliseRegime(s);
@@ -372,7 +371,6 @@ function _analyse(raw, shadowMode) {
       (regimeFired[r] || 0) + 1;
   });
 
-  // L2: MAE / MFE
   const maeSamples = resolvedLive.filter(
     s => s.mae_pct != null && s.mae_pct !== '');
   const mfeSamples = resolvedLive.filter(
@@ -419,7 +417,6 @@ function _analyse(raw, shadowMode) {
        / mfeSamples.length).toFixed(2)
     : null;
 
-  // H10: detect MAE outliers (gap-through stops)
   const maeOutlierCount = maeVals.filter(
     v => v > 10).length;
   const maeWithoutOutliers = maeVals.filter(
@@ -429,7 +426,6 @@ function _analyse(raw, shadowMode) {
        / maeWithoutOutliers.length).toFixed(2)
     : null;
 
-  // L9: performance dashboard
   const pnlRes  = resolvedLive.filter(
     s => s.pnl_pct != null);
   const pnlWArr = pnlRes.filter(
@@ -486,7 +482,6 @@ function _analyse(raw, shadowMode) {
 
   const shadowModeActive = shadowMode !== false;
 
-  // M9: failure pattern summary
   const failureCounts = {};
   resolvedLive.forEach(function (s) {
     const fr = s.failure_reason;
@@ -497,7 +492,6 @@ function _analyse(raw, shadowMode) {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5);
 
-  // D6-4: Day 6 exit breakdown
   const day6Signals = resolvedLive.filter(
     s => OUTCOME_DAY6.has(s.outcome));
   const day6Win  = day6Signals.filter(
@@ -564,7 +558,6 @@ function _analyse(raw, shadowMode) {
     day6WinAvgPnl:   _avgPnlArr(day6Win),
     day6LossAvgPnl:  _avgPnlArr(day6Loss),
     day6FlatAvgPnl:  _avgPnlArr(day6Flat),
-    // SS2: combined all-gen WR for preliminary display
     resolvedAll:     resolvedAll.length,
     winsAll:         winsAll.length,
     wrAllCombined,
@@ -572,9 +565,6 @@ function _analyse(raw, shadowMode) {
 }
 
 // ── SS1: PHASE 2 UNLOCKED BANNER ──────────────────────
-// SS1 FIX: When resolvedLive >= 30, show a prominent
-// green banner confirming the gate is open and win
-// rate data is now statistically valid.
 function _renderPhase2Banner(d) {
   if (d.resolvedLive < RESOLVED_TARGET) return '';
   const wrColor = d.wrTotal !== null
@@ -649,9 +639,6 @@ function _renderProgress(d) {
     Math.round((n / target) * 100), 100);
   const left   = Math.max(target - n, 0);
 
-  // SS1 FIX: unlocked state gets green color and
-  // explicit "30+ live resolved — win rate is valid"
-  // message instead of vague collecting language.
   const color  = n >= target ? '#00C851'
     : pct >= 50 ? '#FFD700' : '#58a6ff';
 
@@ -712,12 +699,6 @@ function _renderWinRate(d) {
   let content = '';
 
   if (!ready) {
-    // SS2 FIX: Show preliminary combined WR row
-    // instead of complete blackout. Includes gen=0
-    // signals with a caveat note. This resolves the
-    // contradiction between Journal (shows 68% WR)
-    // and Stats tab (shows nothing) — same data,
-    // same number, but now context is given.
     const prelimBlock = d.wrAllCombined !== null
       ? `<div style="background:#1c2128;
            border:1px solid #30363d;
@@ -786,8 +767,6 @@ function _renderWinRate(d) {
         ${_lockedRow('Avg R multiple')}
       </div>`;
   } else {
-    // SS1 FIX: gate is open at 47 resolved —
-    // show all win rate data fully unlocked
     content = `
       <div style="display:flex;gap:8px;flex-wrap:wrap;
         margin-bottom:12px;">
@@ -866,12 +845,14 @@ function _renderPerfDashboard(d) {
       ? '+' : '') + f + '%';
   };
 
+  // CSV1 FIX: was .stock — field is .symbol in JSON.
+  // Same root cause as the CSV export blank column.
   const bestStr = d.bestTrade
-    ? (d.bestTrade.stock || '?') + '  +' +
+    ? (d.bestTrade.symbol || '?') + '  +' +
       parseFloat(d.bestTrade.pnl_pct).toFixed(1) + '%'
     : '—';
   const worstStr = d.worstTrade
-    ? (d.worstTrade.stock || '?') + '  ' +
+    ? (d.worstTrade.symbol || '?') + '  ' +
       parseFloat(d.worstTrade.pnl_pct).toFixed(1) + '%'
     : '—';
 
@@ -1039,10 +1020,6 @@ function _renderScoreDist(d) {
 }
 
 // ── 7. SCORE BUCKET PERFORMANCE ───────────────────────
-// SS3 FIX: When resolvedLive >= 30, section gets a
-// Phase 2 active header indicating this data is now
-// a live input to Phase 2 mini scanner decisions,
-// not a future placeholder.
 function _renderScoreBucketPerf(d) {
   const hasAnyData  = d.bucketPerf.some(b => b.hasData);
   const phase2Ready = d.resolvedLive >= RESOLVED_TARGET;
@@ -1092,7 +1069,6 @@ function _renderScoreBucketPerf(d) {
     }
   });
 
-  // SS3 FIX: phase2 active note vs collecting note
   const footerNote = phase2Ready && hasAnyData
     ? `<div style="background:#0d2a0d;
          border:1px solid #00C85133;
@@ -1516,9 +1492,6 @@ window.renderStats = function (tietiy) {
 
   window._tietiyCSVData = raw;
 
-  // SS1 FIX: Phase 2 banner is the first thing
-  // rendered in the content area when unlocked.
-  // Stats tab header label also reflects phase state.
   const phase2Unlocked = d.resolvedLive >= RESOLVED_TARGET;
   const headerLabel    = phase2Unlocked
     ? 'STATS — PHASE 2 ACTIVE'
