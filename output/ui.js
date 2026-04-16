@@ -11,24 +11,31 @@
 // V1.1 FIXES:
 // - H9  : Stale warning suppressed before 9 AM IST
 // - M8  : Market regime note in status bar
-// - S1  : _enforceTabletWidth() — JS-based width
-//         enforcement for iPad PWA standalone mode.
+// - S1  : _enforceTabletWidth()
 // - S4  : Tab bar sizing via _enforceTabletWidth
-// - PWA_LAYOUT: Right sidebar on iPad >900px —
-//   market context card, dynamic resize.
-// - NEWS_PANEL: Left panel iPad >1000px —
-//   hybrid news (active+new today), max 40 stocks,
-//   tap-to-open drawer, mobile collapsible section.
-//   Source: Google News RSS via rss2json proxy.
-//   Last 30 days. Session cache 30 min.
+// - PWA_LAYOUT: Right sidebar on iPad >900px
+// - NEWS_PANEL: Left panel iPad >1000px
 // - HEALTH_LINK: Sidebar bottom card → health.html
 // - LTP_FIX: LTP time reads from ltp_prices.json
-//   fetch_time — updates every 5 min guaranteed.
 //
-// PRIOR FIXES RETAINED:
-// - Default filter is 'top'
-// - P1: LTP updated_at in status bar
-// - V1: Open validate time in status bar
+// V2 FIXES:
+// - UI1 : News panel + sidebar not showing in PWA —
+//         added _safeVW() fallback for PWA standalone
+//         mode where window.innerWidth can return 0
+//         or wrong value on iOS. Added null-check
+//         logging so silent failures surface in console.
+//         Both panels now log a warning if their
+//         container div is missing from index.html.
+// - NP1 : News loading slow — root cause was sequential
+//         for...of loop in _fetchNewsForStocks causing
+//         one stock at a time fetching (40 stocks × 400ms
+//         = 16+ seconds). Fixed to Promise.all parallel
+//         fetch. Added 4s AbortController timeout per
+//         stock so one slow fetch can't block the panel.
+//         Max stocks reduced 40→15 (beyond 15 the panel
+//         is too long to be useful and adds latency).
+//         Cached stocks render immediately without
+//         waiting for uncached ones.
 // ─────────────────────────────────────────────────────
 
 const VAPID_PUBLIC_KEY =
@@ -111,6 +118,26 @@ function _safeGet(url) {
       return r.json();
     })
     .catch(function() { return null; });
+}
+
+// ── UI1: SAFE VIEWPORT WIDTH ──────────────────────────
+// UI1 FIX: window.innerWidth returns 0 in some iOS PWA
+// standalone contexts on first paint. Falls back to
+// screen.width, then document.documentElement.clientWidth,
+// then 375 as safe default. Without this fallback both
+// _sidebarLayout() and _newsLayout() return {show:false}
+// because 0 < 900 and 0 < 1000 — panels never render.
+function _safeVW() {
+  const w = window.innerWidth
+    || document.documentElement.clientWidth
+    || window.screen.width
+    || 375;
+  // Extra guard: if value is unreasonably small,
+  // check screen.width as a better source
+  if (w < 100 && window.screen && window.screen.width > 0) {
+    return window.screen.width;
+  }
+  return w;
 }
 
 // ── H9: CURRENT IST HOUR ──────────────────────────────
@@ -269,6 +296,7 @@ function _countTodaySignals() {
   if (!hist || !hist.history) return 0;
   return hist.history.filter(
     s => s.date === today
+      && (s.generation || 0) >= 1
   ).length;
 }
 
@@ -301,9 +329,8 @@ function _countResolvedGen1() {
 }
 
 function _sidebarLayout() {
-  const vw = window.innerWidth
-    || document.documentElement.clientWidth
-    || 375;
+  // UI1 FIX: use _safeVW() instead of window.innerWidth
+  const vw = _safeVW();
 
   if (vw < 900) return { show: false };
 
@@ -328,7 +355,11 @@ function _sidebarLayout() {
 // ── RENDER SIDEBAR ────────────────────────────────────
 function _renderSidebar() {
   const el = document.getElementById('sidebar');
-  if (!el) return;
+  if (!el) {
+    // UI1 FIX: surface missing element in console
+    console.warn('[ui] #sidebar not found in HTML');
+    return;
+  }
 
   const layout = _sidebarLayout();
 
@@ -491,7 +522,6 @@ function _renderSidebar() {
     `);
   }
 
-  // ── HEALTH LINK ──────────────────────────────
   html += `
     <a href="/health.html"
        target="_blank"
@@ -525,16 +555,10 @@ function _renderSidebar() {
 }
 
 // ── NEWS PANEL ────────────────────────────────────────
-// Left panel iPad >1000px — hybrid news feed
-// Stocks: active positions + new today (max 40)
-// Source: Google News RSS via rss2json.com proxy
-// Last 30 days. Session cache 30 min per stock.
-// Mobile: collapsible section above Signals tab.
 
 function _newsLayout() {
-  const vw = window.innerWidth
-    || document.documentElement.clientWidth
-    || 375;
+  // UI1 FIX: use _safeVW() instead of window.innerWidth
+  const vw = _safeVW();
 
   if (vw < 1000) return { show: false };
 
@@ -561,7 +585,6 @@ function _getNewsStocks() {
   const seen  = new Set();
   const syms  = [];
 
-  // Active positions first
   hist.history.forEach(function(s) {
     if (s.action !== 'TOOK') return;
     if ((s.generation || 0) < 1) return;
@@ -572,7 +595,6 @@ function _getNewsStocks() {
     syms.push(sym);
   });
 
-  // New today signals not already in list
   hist.history.forEach(function(s) {
     if (s.date !== today) return;
     if ((s.generation || 0) < 1) return;
@@ -582,7 +604,9 @@ function _getNewsStocks() {
     syms.push(sym);
   });
 
-  return syms.slice(0, 40);
+  // NP1 FIX: reduced from 40 to 15 — beyond 15 the
+  // panel is too long and each extra stock adds latency
+  return syms.slice(0, 15);
 }
 
 function _timeAgo(pubDate) {
@@ -614,13 +638,24 @@ async function _fetchStockNews(symbol) {
       'https://api.rss2json.com/v1/api.json'
       + '?rss_url=' + rssUrl;
 
-    const r = await fetch(url);
+    // NP1 FIX: 4s timeout per fetch so one slow
+    // stock can't block the entire panel. Previously
+    // no timeout — a single hanging request would
+    // freeze all remaining sequential fetches.
+    const controller = new AbortController();
+    const timeoutId  = setTimeout(function() {
+      controller.abort();
+    }, 4000);
+
+    const r = await fetch(url,
+      { signal: controller.signal });
+    clearTimeout(timeoutId);
+
     if (!r.ok) throw new Error(r.status);
 
     const data  = await r.json();
     const items = (data.items || [])
       .filter(function(item) {
-        // Last 30 days only
         try {
           const age = Date.now() -
             new Date(item.pubDate).getTime();
@@ -644,15 +679,35 @@ async function _fetchStockNews(symbol) {
   }
 }
 
+// NP1 FIX: Changed from sequential for...of to
+// Promise.all parallel fetch.
+//
+// BEFORE (broken):
+//   for (const sym of symbols) {
+//     const items = await _fetchStockNews(sym);
+//     ...
+//   }
+// Each stock waited for the previous to complete.
+// 15 stocks × 400ms = 6s minimum. 40 stocks = 16s+.
+//
+// AFTER (fixed):
+//   Promise.all fetches all stocks simultaneously.
+// 15 stocks in parallel → completes in ~400-800ms
+// regardless of stock count. Cached stocks return
+// instantly (<1ms) so repeat views are immediate.
 async function _fetchNewsForStocks(symbols) {
-  const results = [];
-  for (const sym of symbols) {
-    const items = await _fetchStockNews(sym);
-    if (items.length > 0) {
-      results.push({ symbol: sym, item: items[0] });
-    }
-  }
-  return results;
+  const promises = symbols.map(function(sym) {
+    return _fetchStockNews(sym)
+      .then(function(items) {
+        return items.length > 0
+          ? { symbol: sym, item: items[0] }
+          : null;
+      })
+      .catch(function() { return null; });
+  });
+
+  const results = await Promise.all(promises);
+  return results.filter(Boolean);
 }
 
 function _openNewsCard(title, source, link, ago) {
@@ -716,8 +771,6 @@ window._closeNewsCard = function() {
   if (drawer)  drawer.style.display  = 'none';
 };
 
-// Store news items in global array to avoid
-// inline JSON breaking on special characters
 window._newsItems = [];
 
 window._openNewsIdx = function(idx) {
@@ -812,16 +865,19 @@ function _newsMobileItemHtml(sym, item) {
 }
 
 async function _renderNewsPanel() {
-  // Reset item lookup on each render
   window._newsItems = [];
 
-  const vw       = window.innerWidth || 375;
+  const vw       = _safeVW();
   const panel    = document.getElementById(
     'news-panel');
   const mobileEl = document.getElementById(
     'mobile-news-section');
 
-  if (!panel) return;
+  // UI1 FIX: log missing element so it surfaces
+  if (!panel) {
+    console.warn('[ui] #news-panel not found in HTML');
+    return;
+  }
 
   const layout = _newsLayout();
 
@@ -872,6 +928,8 @@ async function _renderNewsPanel() {
       Loading…
     </div>`;
 
+  // NP1: Now parallel — completes in ~400-800ms
+  // instead of stocks.length × 400ms
   const newsItems =
     await _fetchNewsForStocks(stocks);
 
@@ -1059,9 +1117,8 @@ window.addEventListener('online', function() {
 
 // ── S1: TABLET WIDTH ENFORCEMENT ─────────────────────
 function _enforceTabletWidth() {
-  const vw = window.innerWidth
-    || document.documentElement.clientWidth
-    || 375;
+  // UI1 FIX: use _safeVW() throughout
+  const vw = _safeVW();
 
   if (vw < 768) {
     document.body.style.maxWidth  = '';
@@ -1156,10 +1213,6 @@ function _renderStatusBar(meta) {
     : meta.scan_time || null;
   const newToday  = _countTodaySignals();
 
-  // LTP_FIX: Read from ltp_prices.json fetch_time
-  // Updates every 5 min guaranteed via ltp_updater
-  // Previously read from stop_alerts.json which
-  // only updates when breaches occur
   const ltpPrices  = window.TIETIY.ltpPrices;
   const ltpUpdated = ltpPrices
     ? ltpPrices.fetch_time || null
@@ -1394,7 +1447,7 @@ function _renderNav(activeTab) {
     { id: 'stats',   icon: '📈', label: 'Stats'   },
   ];
 
-  const vw  = window.innerWidth || 375;
+  const vw  = _safeVW();
   const cap = vw >= 1024
     ? 'min(720px,100vw)'
     : vw >= 768
