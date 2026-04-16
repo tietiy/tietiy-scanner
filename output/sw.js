@@ -21,10 +21,19 @@
 // Network state:
 // Fetch failure → broadcast OFFLINE to all clients
 // Fetch success after failure → broadcast ONLINE
+//
+// V2 FIXES:
+// - SW1: Cache version bumped v5 → v6 — forces full
+//        cache invalidation on all clients. Kills the
+//        stale no-sidebar layout that was being served
+//        from cache after the news panel deploy.
+//        Old cache deleted on activate as usual.
 // ─────────────────────────────────────────────────────
 
-const CACHE_NAME = 'tietiy-shell-v5';
-// Bumped v1→v2: JS files now included in cache scope
+// SW1 FIX: bumped v5 → v6 to invalidate stale cache.
+// Every user's old cache (including no-sidebar layout)
+// will be deleted and rebuilt on next load.
+const CACHE_NAME = 'tietiy-shell-v6';
 
 const SHELL_FILES = [
   '/tietiy-scanner/',
@@ -33,7 +42,6 @@ const SHELL_FILES = [
   '/tietiy-scanner/icon-192.png',
   '/tietiy-scanner/icon-512.png',
   '/tietiy-scanner/badge-72.png',
-  // L4: JS files cached at install for offline support
   '/tietiy-scanner/ui.js',
   '/tietiy-scanner/app.js',
   '/tietiy-scanner/journal.js',
@@ -45,10 +53,8 @@ let _lastNetworkOk = true;
 
 
 // ── R3: BROADCAST NETWORK STATE ───────────────────────
-// Posts {type:'OFFLINE'} or {type:'ONLINE'} to all
-// controlled clients so ui.js can show/hide the banner.
 function _broadcastNetworkState(isOnline) {
-  if (isOnline === _lastNetworkOk) return; // no change
+  if (isOnline === _lastNetworkOk) return;
   _lastNetworkOk = isOnline;
 
   const msg = { type: isOnline ? 'ONLINE' : 'OFFLINE' };
@@ -66,7 +72,6 @@ function _broadcastNetworkState(isOnline) {
 
 // ── HELPERS ───────────────────────────────────────────
 function _isCacheable(response) {
-  // Never cache opaque responses (cross-origin, status 0)
   return response && response.status === 200;
 }
 
@@ -119,19 +124,17 @@ function _offlineJS() {
 
 // ── INSTALL ───────────────────────────────────────────
 self.addEventListener('install', function(event) {
-  console.log('[SW] Installing v2...');
+  console.log('[SW] Installing v6...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
         console.log('[SW] Caching shell + JS files');
-        // L4: JS files included in install cache
         return cache.addAll(SHELL_FILES);
       })
       .then(function() {
         return self.skipWaiting();
       })
       .catch(function(err) {
-        // Non-fatal: proceed even if some assets missing
         console.warn('[SW] Cache install partial:', err);
         return self.skipWaiting();
       })
@@ -141,7 +144,7 @@ self.addEventListener('install', function(event) {
 
 // ── ACTIVATE ──────────────────────────────────────────
 self.addEventListener('activate', function(event) {
-  console.log('[SW] Activating v2...');
+  console.log('[SW] Activating v6...');
   event.waitUntil(
     caches.keys()
       .then(function(cacheNames) {
@@ -167,13 +170,9 @@ self.addEventListener('activate', function(event) {
 self.addEventListener('fetch', function(event) {
   const url = event.request.url;
 
-  // Only handle GET requests
   if (event.request.method !== 'GET') return;
 
   // ── JS FILES — NETWORK FIRST + CACHE FALLBACK ─────
-  // L4 FIX: was never-cached (broke offline entirely).
-  // Now: try network first for freshness, fall back to
-  // cached version if offline. Cache updated on success.
   if (url.includes('.js')) {
     event.respondWith(
       fetch(event.request)
@@ -183,12 +182,12 @@ self.addEventListener('fetch', function(event) {
             caches.open(CACHE_NAME).then(function(cache) {
               cache.put(event.request, clone);
             });
-            _broadcastNetworkState(true);   // R3
+            _broadcastNetworkState(true);
           }
           return response;
         })
         .catch(function() {
-          _broadcastNetworkState(false);    // R3
+          _broadcastNetworkState(false);
           return caches.match(event.request)
             .then(function(cached) {
               return cached || _offlineJS();
@@ -199,9 +198,6 @@ self.addEventListener('fetch', function(event) {
   }
 
   // ── JSON FILES — NETWORK FIRST + CACHE FALLBACK ───
-  // Try network for fresh data every time.
-  // Cache updated on success.
-  // Falls back to last cached version if offline.
   if (url.includes('.json')) {
     event.respondWith(
       fetch(event.request)
@@ -211,12 +207,12 @@ self.addEventListener('fetch', function(event) {
             caches.open(CACHE_NAME).then(function(cache) {
               cache.put(event.request, clone);
             });
-            _broadcastNetworkState(true);   // R3
+            _broadcastNetworkState(true);
           }
           return response;
         })
         .catch(function() {
-          _broadcastNetworkState(false);    // R3
+          _broadcastNetworkState(false);
           return caches.match(event.request)
             .then(function(cached) {
               return cached || new Response(
@@ -259,13 +255,9 @@ self.addEventListener('fetch', function(event) {
   }
 
   // ── HTML + ICONS — CACHE FIRST ────────────────────
-  // Shell loads instantly from cache.
-  // Network fetch updates cache in background.
-  // R3: offline fallback HTML if nothing cached.
   event.respondWith(
     caches.match(event.request)
       .then(function(cached) {
-        // Serve cached immediately, refresh in background
         const networkFetch = fetch(event.request)
           .then(function(response) {
             if (_isCacheable(response)) {
@@ -273,20 +265,18 @@ self.addEventListener('fetch', function(event) {
               caches.open(CACHE_NAME).then(function(cache) {
                 cache.put(event.request, clone);
               });
-              _broadcastNetworkState(true);  // R3
+              _broadcastNetworkState(true);
             }
             return response;
           })
           .catch(function() {
-            _broadcastNetworkState(false);   // R3
+            _broadcastNetworkState(false);
             return null;
           });
 
         if (cached) return cached;
 
-        // Nothing cached — must wait for network
         return networkFetch.then(function(response) {
-          // R3: offline fallback for HTML requests
           if (!response) {
             const isHTML = event.request.headers.get(
               'Accept') || '';
@@ -302,13 +292,10 @@ self.addEventListener('fetch', function(event) {
 
 
 // ── R3: MESSAGE FROM CLIENT ───────────────────────────
-// Client can ask SW to attempt a network probe
-// to verify connectivity (used on manual refresh).
 self.addEventListener('message', function(event) {
   if (!event.data) return;
 
   if (event.data.type === 'PROBE_NETWORK') {
-    // Lightweight probe — fetch meta.json
     fetch('/tietiy-scanner/meta.json?probe=' + Date.now())
       .then(function() {
         _broadcastNetworkState(true);
