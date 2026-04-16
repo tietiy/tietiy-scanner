@@ -27,13 +27,15 @@
 // - AJ1 : New Today badge count fix — age0 filter
 //         count used s.age === _todayIST() (always
 //         false, number vs string). Fixed to
-//         s.date === _todayIST(). Fixes "New Today (0)"
-//         showing while 1 signal exists in content.
-// - AJ2 : Stock-regime conflict note on signal card —
-//         when signal direction conflicts with
-//         stock_regime (e.g. DOWN_TRI on Bull stock),
-//         shows a brief plain-language explanation so
-//         the trader understands the setup context.
+//         s.date === _todayIST().
+// - AJ2 : Stock-regime conflict note on signal card.
+// - AJ3 : _buildMorningBrief exit detection fix —
+//         was using getDayNumber(s.date) >= 6 which
+//         gave 32 exits on Signals tab while Journal
+//         showed 6. Fixed to use exit_date field
+//         comparison (same source as Telegram bot
+//         and journal.js JJ1 fix). All three sources
+//         now agree on exit counts.
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
@@ -234,12 +236,6 @@ function _cardBorderColor(score) {
 }
 
 // ── AJ2: STOCK REGIME CONFLICT NOTE ──────────────────
-// AJ2 FIX: When signal direction conflicts with the
-// stock's own trend structure, show a brief note so
-// the trader understands why the setup exists.
-// Examples: DOWN_TRI on a Bull stock, UP_TRI on Bear.
-// This is valid — counter-trend setups can work —
-// but the trader deserves the context explicitly shown.
 function _stockRegimeConflictNote(sig) {
   const signal     = (sig.signal || '').toUpperCase();
   const stkRegime  = (sig.stock_regime || '').toLowerCase();
@@ -473,9 +469,6 @@ function _buildFilterBar(signals,
       s => s.signal === 'BULL_PROXY').length,
     SA:         signals.filter(
       s => (s.signal || '').endsWith('_SA')).length,
-    // AJ1 FIX: was s.age === _todayIST() — comparing
-    // a number to a date string, always false.
-    // Correct field is s.date, not s.age.
     age0:       signals.filter(
       s => s.date === _todayIST()
         && s.generation !== 0).length,
@@ -649,19 +642,33 @@ function _buildSACallout(sig) {
 }
 
 // ── M5: MORNING BRIEF ────────────────────────────────
+// AJ3 FIX: exit detection now uses exit_date field
+// comparison instead of getDayNumber(s.date) >= 6.
+// getDayNumber was giving 32 exits on Signals tab
+// while Journal showed 6 — inconsistent counts.
+// exit_date comparison is the same method used by
+// Telegram bot and journal.js (JJ1 fix).
+// All three sources now agree on exit counts.
 function _buildMorningBrief(allSignals, stopAlerts) {
   const today = _todayIST();
-  const dayFn = typeof getDayNumber === 'function'
-    ? getDayNumber : null;
-  if (!dayFn) return '';
 
   const open = allSignals.filter(
     s => s.result === 'PENDING');
 
+  // AJ3 FIX: use exit_date field, not getDayNumber
+  const tomorrow = (function() {
+    const d = new Date();
+    d.setDate(d.getDate() + 1);
+    return d.getFullYear() + '-'
+      + String(d.getMonth() + 1).padStart(2, '0')
+      + '-'
+      + String(d.getDate()).padStart(2, '0');
+  })();
+
   const exitsToday = open.filter(
-    s => dayFn(s.date) >= 6);
+    s => (s.exit_date || '') === today);
   const exitsTmrw  = open.filter(
-    s => dayFn(s.date) === 5);
+    s => (s.exit_date || '') === tomorrow);
   const newToday   = open.filter(
     s => s.date === today);
 
@@ -901,7 +908,6 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
       font-size:10px;">LTP —</span>`;
   }
 
-  // AJ2 FIX: stock regime conflict note
   const regimeConflictNote =
     _stockRegimeConflictNote(sig);
 
@@ -929,7 +935,6 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
         ${cardOp}
         transition:opacity 0.2s;">
 
-      <!-- Row 1: Stock header -->
       <div style="display:flex;
         justify-content:space-between;
         align-items:flex-start;margin-bottom:5px;">
@@ -969,7 +974,6 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
         </div>
       </div>
 
-      <!-- Row 2: Signal info + score display -->
       <div style="display:flex;align-items:center;
         gap:8px;flex-wrap:wrap;margin-bottom:7px;">
         <span style="color:${cfg.color};
@@ -993,7 +997,6 @@ function _buildCard(sig, isNew, dayNum, conflictMap) {
           : ''}
       </div>
 
-      <!-- Row 3: Price row -->
       <div style="display:flex;align-items:center;
         background:#161b22;border-radius:6px;
         padding:6px 10px;font-size:11px;">
@@ -1387,7 +1390,6 @@ function openTapPanel(el) {
          </div>`
       : ''}
 
-    <!-- J2 FIX: window.open for iOS PWA -->
     <div style="display:flex;gap:8px;
       margin-bottom:6px;">
       <button
@@ -1634,7 +1636,6 @@ function renderSignals(data) {
       `2ND ATTEMPT SIGNALS `
       + `(${displaySignals.length})`;
   } else if (currentFilter === 'age0') {
-    // AJ1 FIX: s.date === _todayIST() (not s.age)
     displaySignals = sectorFiltered.filter(
       s => s.date === _todayIST()
         && s.generation !== 0);
