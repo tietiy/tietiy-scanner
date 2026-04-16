@@ -13,18 +13,26 @@
 //
 // V1.1 FIXES:
 // - HC6  : shadowModeActive reads tietiy.meta.shadow_mode
-//          instead of broken heuristic — funnel banner
-//          now correctly shows shadow vs active mode
-// - H10  : MAE outlier note shown when avg skewed by
-//          gap-through stops (MAE > 10%)
-// - M9   : Failure pattern summary section — groups
-//          resolved signals by failure_reason field
-//          written by outcome_evaluator classifier
-// - MC1  : WIN RATE BY REGIME section now explains
-//          market regime vs stock regime distinction
-// - D6-4 : Day 6 outcome breakdown section —
-//          DAY6_WIN vs DAY6_LOSS vs DAY6_FLAT
-//          with counts and avg P&L
+// - H10  : MAE outlier note shown when avg skewed
+// - M9   : Failure pattern summary section
+// - MC1  : WIN RATE BY REGIME explains market vs stock
+// - D6-4 : Day 6 outcome breakdown section
+//
+// V2 FIXES:
+// - SS1  : Phase 2 unlocked banner — when resolvedLive
+//          >= 30 a prominent green banner appears at top
+//          of stats confirming gate is open and WR is
+//          statistically valid. Progress section also
+//          shows unlocked state explicitly.
+// - SS2  : Preliminary WR shown when below 30 threshold
+//          — combined gen=0+gen=1 WR shown with caveat
+//          note so user knows the number exists but
+//          isn't statistically valid yet. Replaces
+//          complete blackout which contradicted Journal.
+// - SS3  : Score bucket section gets Phase 2 header
+//          when data is available — signals the section
+//          is now a live input to Phase 2 decisions,
+//          not just a future placeholder.
 // ─────────────────────────────────────────────────────
 (function () {
 
@@ -240,6 +248,16 @@ function _analyse(raw, shadowMode) {
     s => OUTCOME_LOSS.has(s.outcome));
   const openLive     = tookLive.filter(
     s => !OUTCOME_DONE.has(s.outcome || ''));
+
+  // SS2: combined (all generations) resolved for
+  // preliminary WR display when below threshold.
+  const resolvedAll  = took.filter(
+    s => OUTCOME_DONE.has(s.outcome || ''));
+  const winsAll      = resolvedAll.filter(
+    s => OUTCOME_WIN.has(s.outcome));
+  const wrAllCombined = resolvedAll.length
+    ? _pct(winsAll.length, resolvedAll.length)
+    : null;
 
   const byType = {};
   took.forEach(function (s) {
@@ -466,9 +484,6 @@ function _analyse(raw, shadowMode) {
     }
   });
 
-  // HC6 FIX: shadowModeActive comes from meta param
-  // not from broken heuristic on signal counts.
-  // Default true — system is in observation phase.
   const shadowModeActive = shadowMode !== false;
 
   // M9: failure pattern summary
@@ -502,26 +517,26 @@ function _analyse(raw, shadowMode) {
   }
 
   return {
-    totalLive:    tookLive.length,
-    resolvedLive: resolvedLive.length,
-    openLive:     openLive.length,
-    winsLive:     winsLive.length,
-    lossesLive:   lossesLive.length,
+    totalLive:       tookLive.length,
+    resolvedLive:    resolvedLive.length,
+    openLive:        openLive.length,
+    winsLive:        winsLive.length,
+    lossesLive:      lossesLive.length,
     wrTotal,
     wrByType,
     avgPnl,
     bearCount,
     byScore,
-    totalAll:     took.length,
+    totalAll:        took.length,
     byType,
     bySector,
     byRej,
     dates,
     byDate,
-    tookCount:    took.length,
-    rejCount:     rej.length,
+    tookCount:       took.length,
+    rejCount:        rej.length,
     hasBackfill,
-    backfillCount: tookBackfill.length,
+    backfillCount:   tookBackfill.length,
     bucketPerf,
     shadowModeActive,
     regimeResolved,
@@ -546,10 +561,63 @@ function _analyse(raw, shadowMode) {
     day6Win,
     day6Loss,
     day6Flat,
-    day6WinAvgPnl:  _avgPnlArr(day6Win),
-    day6LossAvgPnl: _avgPnlArr(day6Loss),
-    day6FlatAvgPnl: _avgPnlArr(day6Flat),
+    day6WinAvgPnl:   _avgPnlArr(day6Win),
+    day6LossAvgPnl:  _avgPnlArr(day6Loss),
+    day6FlatAvgPnl:  _avgPnlArr(day6Flat),
+    // SS2: combined all-gen WR for preliminary display
+    resolvedAll:     resolvedAll.length,
+    winsAll:         winsAll.length,
+    wrAllCombined,
   };
+}
+
+// ── SS1: PHASE 2 UNLOCKED BANNER ──────────────────────
+// SS1 FIX: When resolvedLive >= 30, show a prominent
+// green banner confirming the gate is open and win
+// rate data is now statistically valid.
+function _renderPhase2Banner(d) {
+  if (d.resolvedLive < RESOLVED_TARGET) return '';
+  const wrColor = d.wrTotal !== null
+    ? (d.wrTotal >= 60 ? '#00C851' : '#f85149')
+    : '#555';
+  return `
+    <div style="background:#0d2a0d;
+      border:1px solid #00C85166;
+      border-radius:8px;padding:12px 14px;
+      margin-bottom:12px;">
+      <div style="color:#00C851;font-size:12px;
+        font-weight:700;margin-bottom:6px;">
+        🏁 PHASE 2 UNLOCKED
+      </div>
+      <div style="font-size:11px;color:#8b949e;
+        line-height:1.7;">
+        ${d.resolvedLive} live signals resolved
+        (${d.resolvedLive - RESOLVED_TARGET} above
+        threshold) · Win rate is now statistically
+        valid · Score bucket performance and regime
+        analysis active · Phase 2 mini scanner
+        rules can now be evaluated.
+      </div>
+      <div style="display:flex;gap:12px;
+        margin-top:10px;flex-wrap:wrap;
+        font-size:12px;">
+        <span style="color:${wrColor};font-weight:700;">
+          ${d.wrTotal !== null
+            ? d.wrTotal + '% WR' : '—'}
+        </span>
+        <span style="color:#555;">
+          W:${d.winsLive} L:${d.lossesLive}
+        </span>
+        ${d.avgPnl !== null
+          ? `<span style="color:${
+               parseFloat(d.avgPnl) > 0
+                 ? '#00C851' : '#f85149'};">
+               avg ${parseFloat(d.avgPnl) >= 0
+                 ? '+' : ''}${d.avgPnl}% / trade
+             </span>`
+          : ''}
+      </div>
+    </div>`;
 }
 
 // ── DATA QUALITY BANNER ───────────────────────────────
@@ -580,8 +648,18 @@ function _renderProgress(d) {
   const pct    = Math.min(
     Math.round((n / target) * 100), 100);
   const left   = Math.max(target - n, 0);
-  const color  = pct >= 100 ? '#00C851'
-    : pct >= 50  ? '#FFD700' : '#58a6ff';
+
+  // SS1 FIX: unlocked state gets green color and
+  // explicit "30+ live resolved — win rate is valid"
+  // message instead of vague collecting language.
+  const color  = n >= target ? '#00C851'
+    : pct >= 50 ? '#FFD700' : '#58a6ff';
+
+  const statusMsg = n === 0
+    ? 'Collecting first live outcomes — first signals exit ~Apr 14.'
+    : n >= target
+      ? `30+ live resolved — win rate data is valid. Phase 2 unlocked.`
+      : `${left} more live signals needed for statistical significance.`;
 
   return _section('📊 PHASE 1 — SIGNAL VALIDATION', `
     <div style="margin-bottom:10px;">
@@ -590,6 +668,12 @@ function _renderProgress(d) {
         <span>Live resolved signals</span>
         <span style="color:${color};font-weight:700;">
           ${n} / ${target}
+          ${n >= target
+            ? `<span style="font-size:10px;
+                 color:#00C851;margin-left:4px;">
+                 ✓ UNLOCKED
+               </span>`
+            : ''}
         </span>
       </div>
       <div style="background:#21262d;border-radius:4px;
@@ -598,12 +682,10 @@ function _renderProgress(d) {
           width:${pct}%;border-radius:4px;
           transition:width 0.3s ease;"></div>
       </div>
-      <div style="font-size:10px;color:#555;margin-top:6px;">
-        ${n === 0
-          ? 'Collecting first live outcomes — first signals exit ~Apr 14.'
-          : left > 0
-            ? `${left} more live signals needed for statistical significance.`
-            : '30+ live resolved — win rate data is valid.'}
+      <div style="font-size:10px;color:${
+        n >= target ? '#00C851' : '#555'};
+        margin-top:6px;">
+        ${statusMsg}
       </div>
     </div>
 
@@ -630,27 +712,73 @@ function _renderWinRate(d) {
   let content = '';
 
   if (!ready) {
+    // SS2 FIX: Show preliminary combined WR row
+    // instead of complete blackout. Includes gen=0
+    // signals with a caveat note. This resolves the
+    // contradiction between Journal (shows 68% WR)
+    // and Stats tab (shows nothing) — same data,
+    // same number, but now context is given.
+    const prelimBlock = d.wrAllCombined !== null
+      ? `<div style="background:#1c2128;
+           border:1px solid #30363d;
+           border-radius:6px;padding:8px 10px;
+           margin-bottom:10px;font-size:11px;">
+           <div style="color:#555;font-size:10px;
+             margin-bottom:5px;letter-spacing:0.5px;">
+             PRELIMINARY — NOT STATISTICALLY VALID
+           </div>
+           <div style="display:flex;gap:12px;
+             flex-wrap:wrap;margin-bottom:4px;">
+             <span style="color:${
+               d.wrAllCombined >= 60
+                 ? '#00C851' : '#f85149'};
+               font-weight:700;font-size:14px;">
+               ${d.wrAllCombined}% WR
+             </span>
+             <span style="color:#555;font-size:11px;">
+               W:${d.winsAll}
+               L:${d.resolvedAll - d.winsAll}
+               · ${d.resolvedAll} resolved
+             </span>
+           </div>
+           <div style="color:#555;font-size:10px;
+             line-height:1.5;">
+             Includes gen=0 backfill data.
+             Statistically valid WR unlocks
+             at 30 live-only (gen=1) resolved.
+             Currently ${n} live resolved,
+             ${RESOLVED_TARGET - n} more needed.
+           </div>
+         </div>`
+      : '';
+
     content = `
-      <div style="text-align:center;padding:16px 0;color:#555;">
-        <div style="font-size:28px;margin-bottom:6px;">🔒</div>
-        <div style="font-size:12px;">
-          Win rate unlocks at ${RESOLVED_TARGET}
-          live resolved signals.
+      ${prelimBlock}
+      <div style="text-align:center;padding:10px 0 8px;
+        color:#555;">
+        <div style="font-size:22px;margin-bottom:6px;">
+          🔒
         </div>
-        <div style="font-size:11px;color:#555;margin-top:4px;">
+        <div style="font-size:12px;">
+          Live-only win rate unlocks at
+          ${RESOLVED_TARGET} live resolved signals.
+        </div>
+        <div style="font-size:11px;color:#555;
+          margin-top:4px;">
           Currently: ${n} live resolved.
           ${RESOLVED_TARGET - n} more needed.
         </div>
         ${d.hasBackfill
           ? `<div style="font-size:10px;color:#444;
                margin-top:6px;">
-               ${d.backfillCount} backfill signals not counted
+               ${d.backfillCount} backfill signals
+               not counted toward threshold
              </div>`
           : ''}
       </div>
       <div style="border-top:1px solid #21262d;
         padding-top:10px;margin-top:4px;">
-        ${_lockedRow('Overall win rate')}
+        ${_lockedRow('Live-only win rate')}
         ${_lockedRow('UP_TRI win rate')}
         ${_lockedRow('DOWN_TRI win rate')}
         ${_lockedRow('BULL_PROXY win rate')}
@@ -658,6 +786,8 @@ function _renderWinRate(d) {
         ${_lockedRow('Avg R multiple')}
       </div>`;
   } else {
+    // SS1 FIX: gate is open at 47 resolved —
+    // show all win rate data fully unlocked
     content = `
       <div style="display:flex;gap:8px;flex-wrap:wrap;
         margin-bottom:12px;">
@@ -688,6 +818,13 @@ function _renderWinRate(d) {
               wr.wr + '%',
               `${wr.n} resolved`, col);
           }).join('')}
+        ${!['UP_TRI','DOWN_TRI','BULL_PROXY']
+            .some(t => d.wrByType[t])
+          ? `<div style="color:#555;font-size:11px;">
+               Min ${BUCKET_MIN_N} resolved per type
+               needed to show breakdown.
+             </div>`
+          : ''}
       </div>`;
   }
 
@@ -813,7 +950,6 @@ function _renderRegimeWR(d) {
       </div>`;
   });
 
-  // MC1 FIX: explain market regime vs stock regime
   return _section('🌡️ WIN RATE BY REGIME', `
     <div style="font-size:10px;color:#555;margin-bottom:8px;">
       Market regime at signal time ·
@@ -903,8 +1039,13 @@ function _renderScoreDist(d) {
 }
 
 // ── 7. SCORE BUCKET PERFORMANCE ───────────────────────
+// SS3 FIX: When resolvedLive >= 30, section gets a
+// Phase 2 active header indicating this data is now
+// a live input to Phase 2 mini scanner decisions,
+// not a future placeholder.
 function _renderScoreBucketPerf(d) {
-  const hasAnyData = d.bucketPerf.some(b => b.hasData);
+  const hasAnyData  = d.bucketPerf.some(b => b.hasData);
+  const phase2Ready = d.resolvedLive >= RESOLVED_TARGET;
 
   let rows = '';
   d.bucketPerf.forEach(function (b) {
@@ -951,13 +1092,30 @@ function _renderScoreBucketPerf(d) {
     }
   });
 
-  const note = hasAnyData ? '' : `
-    <div style="font-size:10px;color:#555;margin-top:8px;">
-      Data populates as live signals resolve.
-      Used in Phase 2 to validate score-based filtering.
-    </div>`;
+  // SS3 FIX: phase2 active note vs collecting note
+  const footerNote = phase2Ready && hasAnyData
+    ? `<div style="background:#0d2a0d;
+         border:1px solid #00C85133;
+         border-radius:6px;padding:6px 8px;
+         margin-top:8px;font-size:10px;
+         color:#00C851;line-height:1.6;">
+         ✓ Phase 2 active — this data feeds into
+         mini scanner rule evaluation. Scores with
+         higher WR and avg P&L validate the scoring
+         system. Use Colab to analyse full distribution.
+       </div>`
+    : `<div style="font-size:10px;color:#555;
+         margin-top:8px;">
+         Data populates as live signals resolve.
+         Used in Phase 2 to validate score-based
+         filtering.
+       </div>`;
 
-  return _section('📐 PERFORMANCE BY SCORE BUCKET', `
+  const sectionTitle = phase2Ready && hasAnyData
+    ? '📐 PERFORMANCE BY SCORE BUCKET — PHASE 2 ACTIVE'
+    : '📐 PERFORMANCE BY SCORE BUCKET';
+
+  return _section(sectionTitle, `
     <div style="font-size:10px;color:#555;
       margin-bottom:10px;">
       Win rate and avg P&L by score range ·
@@ -965,7 +1123,7 @@ function _renderScoreBucketPerf(d) {
       Key input for Phase 2 mini-scanner rules
     </div>
     ${rows}
-    ${note}`);
+    ${footerNote}`);
 }
 
 // ── 8. MAE / MFE ANALYSIS (L2) ────────────────────────
@@ -992,8 +1150,6 @@ function _renderMAEMFE(d) {
       </div>`);
   }
 
-  // H10 FIX: show outlier note when gap-through stops
-  // skew the MAE average significantly
   const maeOutlierNote = (hasMAE
     && d.maeOutlierCount > 0
     && d.avgMAEAdjusted !== null)
@@ -1217,15 +1373,12 @@ function _renderDay6Breakdown(d) {
 function _renderFailurePatterns(d) {
   const resolved = d.resolvedLive;
   if (resolved < 5 || !d.failurePatterns.length) {
-    return '';   // Don't show until meaningful data
+    return '';
   }
 
   const hasReasons = d.failurePatterns.some(
     ([, n]) => n > 0);
   if (!hasReasons) return '';
-
-  const totalWithReason = d.failurePatterns
-    .reduce((sum, [, n]) => sum + n, 0);
 
   const rows = d.failurePatterns.map(
     function ([reason, count]) {
@@ -1273,12 +1426,7 @@ function _renderFailurePatterns(d) {
 
 // ── 13. SIGNAL FUNNEL ─────────────────────────────────
 function _renderFunnel(d) {
-  const total    = d.tookCount + d.rejCount;
-
-  // HC6 FIX: use shadowModeActive from _analyse()
-  // which reads tietiy.meta.shadow_mode correctly.
-  // Old heuristic was broken when 43 signals were
-  // accidentally rejected during shadow mode.
+  const total  = d.tookCount + d.rejCount;
   const shadow = d.shadowModeActive;
 
   const rejLabel   = shadow
@@ -1359,9 +1507,6 @@ window.renderStats = function (tietiy) {
     return;
   }
 
-  // HC6 FIX: read shadow_mode from meta.
-  // If not present in meta, default to true
-  // (system is in shadow/observation phase).
   const shadowMode = (tietiy.meta
     && tietiy.meta.shadow_mode !== undefined)
     ? tietiy.meta.shadow_mode
@@ -1371,6 +1516,14 @@ window.renderStats = function (tietiy) {
 
   window._tietiyCSVData = raw;
 
+  // SS1 FIX: Phase 2 banner is the first thing
+  // rendered in the content area when unlocked.
+  // Stats tab header label also reflects phase state.
+  const phase2Unlocked = d.resolvedLive >= RESOLVED_TARGET;
+  const headerLabel    = phase2Unlocked
+    ? 'STATS — PHASE 2 ACTIVE'
+    : 'STATS — PHASE 1 COLLECTION';
+
   el.innerHTML = `
     <div style="position:sticky;top:0;z-index:10;
       background:#07070f;
@@ -1378,9 +1531,11 @@ window.renderStats = function (tietiy) {
       border-bottom:1px solid #21262d;
       display:flex;justify-content:space-between;
       align-items:center;">
-      <div style="font-size:11px;color:#555;
-        letter-spacing:1px;">
-        📈 STATS — PHASE 1 COLLECTION
+      <div style="font-size:11px;
+        color:${phase2Unlocked ? '#00C851' : '#555'};
+        letter-spacing:1px;font-weight:${
+          phase2Unlocked ? '700' : '400'};">
+        📈 ${headerLabel}
       </div>
       <button
         onclick="if(window._tietiyCSVData)
@@ -1397,6 +1552,7 @@ window.renderStats = function (tietiy) {
     </div>
 
     <div style="padding:12px 16px 80px;">
+      ${_renderPhase2Banner(d)}
       ${_renderDataQualityBanner(d)}
       ${_renderProgress(d)}
       ${_renderWinRate(d)}
