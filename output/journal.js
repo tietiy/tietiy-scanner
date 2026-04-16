@@ -27,6 +27,19 @@
 // - TR1  : Duplicate signal same stock same date
 //          grouped — shows ×N count badge, keeps
 //          highest score signal as primary card
+//
+// V2 FIXES:
+// - JJ1  : EXIT TOMORROW count fixed — _renderExpiryAlert
+//          and _buildPnlSummary now use exit_date field
+//          comparison (same as Telegram bot) instead of
+//          getDayNumber(). Fixes Journal showing 3 while
+//          Telegram shows 40.
+// - JJ2  : Capital deployed > 100% shows red warning
+//          banner, not just a color change on the text.
+// - JJ3  : Header "took" counter now reads user
+//          localStorage decisions, not raw signal count.
+//          136 was system signals; now shows genuine
+//          user Took-it presses.
 // ──────────────────────────────────────────────────────
 (function () {
 
@@ -70,6 +83,43 @@ window._jTookSkip = function(cardId, action) {
   if (window.TIETIY)
     window.renderJournal(window.TIETIY);
 };
+
+// ── JJ3: USER TOOK COUNT FROM LOCALSTORAGE ────────────
+// JJ3 FIX: Count only signals where user explicitly
+// pressed "Took it" — stored in localStorage.
+// Previously counted all system TOOK-flagged signals
+// (inflated to 136). Now counts genuine user decisions.
+function _countUserTook(signals) {
+  const ud = _loadUD();
+  return signals.filter(function(s) {
+    const sym = _sym(s.symbol || '');
+    const cardId = (s.id ||
+      (sym + '-' + (s.signal||'')
+         + '-' + (s.date||'')))
+      .replace(/[^a-zA-Z0-9-]/g, '-');
+    return ud[cardId] === 'TOOK';
+  }).length;
+}
+
+// ── JJ1: DATE HELPERS ─────────────────────────────────
+// JJ1 FIX: Use device local date (IST on user's iPad)
+// not ISO string which gives UTC date.
+function _todayISO() {
+  const d = new Date();
+  return d.getFullYear() + '-'
+    + String(d.getMonth() + 1).padStart(2, '0')
+    + '-'
+    + String(d.getDate()).padStart(2, '0');
+}
+
+function _tomorrowISO() {
+  const d = new Date();
+  d.setDate(d.getDate() + 1);
+  return d.getFullYear() + '-'
+    + String(d.getMonth() + 1).padStart(2, '0')
+    + '-'
+    + String(d.getDate()).padStart(2, '0');
+}
 
 // ── HELPERS ───────────────────────────────────────────
 function _sym(s) {
@@ -491,8 +541,6 @@ function _buildPostTargetSection(sig) {
 }
 
 // ── J2: SIGNAL DETAIL MODAL ───────────────────────────
-// J2 FIX: window.open() replaces target="_blank"
-// target="_blank" is blocked in iOS PWA standalone mode
 function _buildModalHTML(sig) {
   const sym      = _sym(sig.symbol || sig.stock || '?');
   const stype    = sig.signal    || '?';
@@ -542,11 +590,10 @@ function _buildModalHTML(sig) {
     (regime === 'BULL' || regime === 'Bull')
       ? '#00C851' : '#FFD700';
 
-  // J2 FIX: use window.open — works in iOS PWA
   const tvURL = 'https://www.tradingview.com/chart/'
     + '?symbol=NSE:' + sym;
 
-  const whyLines     = _whyThisTrade(sig);
+  const whyLines      = _whyThisTrade(sig);
   const failureReason = isResolved && sig.failure_reason
     ? sig.failure_reason : null;
 
@@ -1058,17 +1105,21 @@ function _renderTookSkipRow(sig, cardId) {
 }
 
 // ── R5: EXPIRY ALERT BANNER ───────────────────────────
+// JJ1 FIX: Use exit_date field comparison instead of
+// getDayNumber() — matches Telegram bot source of truth.
+// Fixes EXIT TOMORROW showing 3 instead of 40.
 function _renderExpiryAlert(took) {
-  const dayFn = typeof getDayNumber === 'function'
-    ? getDayNumber : null;
-  if (!dayFn) return '';
-
-  const open  = took.filter(
+  const open     = took.filter(
     s => !OUTCOME_DONE.has(s.outcome || ''));
+
+  // JJ1 FIX: compare exit_date to today/tomorrow ISO
+  const todayISO    = _todayISO();
+  const tomorrowISO = _tomorrowISO();
+
   const today = open.filter(
-    s => dayFn(s.date) >= 6);
+    s => (s.exit_date || '') === todayISO);
   const tmrw  = open.filter(
-    s => dayFn(s.date) === 5);
+    s => (s.exit_date || '') === tomorrowISO);
 
   if (!today.length && !tmrw.length) return '';
 
@@ -1176,6 +1227,8 @@ function _renderRejectionSummary(rej) {
 }
 
 // ── H5: CAPITAL AT RISK / PORTFOLIO SUMMARY ───────────
+// JJ1 FIX: urgency uses exit_date comparison.
+// JJ2 FIX: capital > 100% shows red warning banner.
 function _buildPnlSummary(took, ltpPrices) {
   const open     = took.filter(
     s => s.outcome === 'OPEN' || !s.outcome);
@@ -1215,32 +1268,51 @@ function _buildPnlSummary(took, ltpPrices) {
       / losses.length
     : null;
 
-  const exitToday = open.filter(s => {
-    const d = typeof getDayNumber === 'function'
-      ? getDayNumber(s.date) : 0;
-    return d >= 6;
-  }).length;
-  const exitTomorrow = open.filter(s => {
-    const d = typeof getDayNumber === 'function'
-      ? getDayNumber(s.date) : 0;
-    return d === 5;
-  }).length;
+  // JJ1 FIX: use exit_date field comparison
+  const todayISO    = _todayISO();
+  const tomorrowISO = _tomorrowISO();
+
+  const exitToday = open.filter(
+    s => (s.exit_date || '') === todayISO).length;
+  const exitTomorrow = open.filter(
+    s => (s.exit_date || '') === tomorrowISO).length;
 
   const unrealColor = avgUnreal === null ? '#555' :
     avgUnreal > 0 ? '#00C851' :
     avgUnreal < 0 ? '#f85149' : '#FFD700';
 
-  const capitalPct  = open.length * 5;
+  const capitalPct = open.length * 5;
+
+  // JJ2 FIX: capital > 100% = red warning banner.
+  // > 100% means leveraged beyond full capital.
+  // Previously just changed text color passively.
   const capitalNote = open.length > 0
-    ? `<div style="font-size:10px;color:#555;
-         margin-top:3px;">
-         ${open.length} positions × 5% =
-         <span style="color:${
-           capitalPct > 50 ? '#f85149' :
-           capitalPct > 30 ? '#FF8C00' : '#8b949e'};">
-           ~${capitalPct}% deployed
-         </span>
-       </div>`
+    ? capitalPct > 100
+      ? `<div style="background:#2a0808;
+           border:1px solid #f8514966;
+           border-radius:6px;padding:6px 8px;
+           margin-top:6px;font-size:10px;">
+           <span style="color:#f85149;font-weight:700;">
+             ⚠️ CAPITAL EXCEEDED
+           </span>
+           <div style="color:#8b949e;margin-top:2px;">
+             ${open.length} positions × 5% =
+             ~${capitalPct}% deployed
+           </div>
+           <div style="color:#555;margin-top:1px;
+             font-size:9px;">
+             This is tracking mode. Not all signals
+             are expected to be taken simultaneously.
+           </div>
+         </div>`
+      : `<div style="font-size:10px;color:#555;
+           margin-top:3px;">
+           ${open.length} positions × 5% =
+           <span style="color:${
+             capitalPct > 50 ? '#FF8C00' : '#8b949e'};">
+             ~${capitalPct}% deployed
+           </span>
+         </div>`
     : '';
 
   const urgencyHtml = (exitToday > 0
@@ -1431,9 +1503,6 @@ function _buildResolvedSummary(resolved) {
 }
 
 // ── TR1: DEDUPLICATE SAME STOCK ───────────────────────
-// Same symbol + same date + same direction = duplicates.
-// Keep highest score signal as primary card.
-// Show ×N count badge if duplicates found.
 function _deduplicateSignals(signals) {
   const keyMap = {};
 
@@ -1447,7 +1516,6 @@ function _deduplicateSignals(signals) {
       keyMap[key] = { primary: sig, count: 1 };
     } else {
       keyMap[key].count++;
-      // Keep highest score as primary
       const existScore = parseFloat(
         keyMap[key].primary.score || 0);
       const newScore   = parseFloat(
@@ -1524,7 +1592,6 @@ function _compactCard(sig, isRejView,
   const reasonHtml = isResolved
     ? _reasonTag(sig) : '';
 
-  // TR1: duplicate count badge
   const dupBadge = (dupCount && dupCount > 1)
     ? `<span style="background:#1a1a0a;
          color:#ffd700;font-size:9px;
@@ -1546,7 +1613,6 @@ function _compactCard(sig, isRejView,
       margin-bottom:8px;
       ${isBackfill ? 'opacity:0.75;' : ''}">
 
-      <!-- ROW 1: symbol + badges + modal button -->
       <div style="display:flex;
         justify-content:space-between;
         align-items:flex-start;margin-bottom:5px;">
@@ -1613,7 +1679,6 @@ function _compactCard(sig, isRejView,
         </div>
       </div>
 
-      <!-- ROW 2: signal type + score + P&L -->
       <div style="display:flex;align-items:center;
         gap:6px;flex-wrap:wrap;margin-bottom:6px;
         font-size:11px;">
@@ -1643,7 +1708,6 @@ function _compactCard(sig, isRejView,
           : ''}
       </div>
 
-      <!-- ROW 3: levels + Day X/6 -->
       <div style="display:flex;gap:8px;
         flex-wrap:wrap;font-size:11px;
         color:#8b949e;">
@@ -1753,11 +1817,13 @@ window.renderJournal = function(tietiy) {
     s => s.layer === 'ALPHA'
       && s.action === 'REJECTED');
 
-  // J1: resolved signals (subset of took)
   const resolved = took.filter(
     s => OUTCOME_DONE.has(s.outcome || ''));
 
-  // Determine which list to show
+  // JJ3 FIX: Count user-confirmed trades from
+  // localStorage, not raw system signal count.
+  const userTookCount = _countUserTook(took);
+
   let entries;
   if (_jFilter === 'resolved') {
     entries = resolved;
@@ -1770,8 +1836,6 @@ window.renderJournal = function(tietiy) {
   const isRejView      = _jFilter === 'rejected';
   const isResolvedView = _jFilter === 'resolved';
 
-  // TR1: deduplicate for Took and Resolved views
-  // Rejected view shows all (each rejection is unique)
   let groupedEntries;
   if (!isRejView) {
     groupedEntries = _deduplicateSignals(entries);
@@ -1780,7 +1844,6 @@ window.renderJournal = function(tietiy) {
       s => ({ sig: s, count: 1 }));
   }
 
-  // Group by date
   const byDate = {};
   groupedEntries.forEach(function(item) {
     const d = item.sig.date || 'Unknown';
@@ -1797,6 +1860,17 @@ window.renderJournal = function(tietiy) {
       - (parseFloat(a.sig.score) || 0));
   });
 
+  // JJ3 FIX: header shows user confirmed count
+  // alongside total tracked count.
+  const headerCountStr = userTookCount > 0
+    ? `${userTookCount} confirmed · `
+      + `${took.length} tracked · `
+      + `${resolved.length} resolved · `
+      + `${rej.length} rejected`
+    : `${took.length} took · `
+      + `${resolved.length} resolved · `
+      + `${rej.length} rejected`;
+
   let html = `
     <div style="padding-bottom:80px;">
 
@@ -1809,9 +1883,7 @@ window.renderJournal = function(tietiy) {
           <span style="font-size:11px;color:#555;
             letter-spacing:1px;">📓 JOURNAL</span>
           <span style="font-size:10px;color:#555;">
-            ${took.length} took ·
-            ${resolved.length} resolved ·
-            ${rej.length} rejected
+            ${headerCountStr}
           </span>
         </div>
         ${_filterBar(
@@ -1820,7 +1892,6 @@ window.renderJournal = function(tietiy) {
           resolved.length)}
       </div>`;
 
-  // J1: resolved summary at top of resolved view
   if (isResolvedView && resolved.length > 0) {
     html += _buildResolvedSummary(resolved);
   }
