@@ -12,6 +12,16 @@
 # - BX3: Holiday/weekend guard — exits immediately
 #        if market is closed, no fetch attempted
 #
+# V2 FIXES:
+# - LW1: Terminal outcome filter — signals already
+#        resolved (STOP_HIT, TARGET_HIT, DAY6_*)
+#        excluded from LTP monitoring entirely.
+#        Prevents dead signals being tracked and
+#        re-alerted on subsequent days.
+# - LW1+: date.today() replaced with _ist_now().date()
+#        throughout — IST helper already existed,
+#        applied consistently for correctness.
+#
 # Schema:
 #   {
 #     "date": "2026-04-07",
@@ -57,6 +67,16 @@ _IST = timedelta(hours=5, minutes=30)
 # S3: Stale threshold
 STALE_MINUTES = 30
 
+# LW1: Terminal outcomes — signals with these are
+# fully closed and must never be LTP-monitored.
+_TERMINAL_OUTCOMES = {
+    'STOP_HIT',
+    'TARGET_HIT',
+    'DAY6_WIN',
+    'DAY6_LOSS',
+    'DAY6_FLAT',
+}
+
 
 def _ist_now():
     """Returns current IST datetime."""
@@ -66,6 +86,15 @@ def _ist_now():
 def _ist_now_str():
     """Returns current IST time as HH:MM AM/PM."""
     return _ist_now().strftime('%I:%M %p')
+
+
+def _ist_today():
+    """
+    LW1+ FIX: Returns current date in IST.
+    Replaces date.today() which returns UTC date
+    on GitHub Actions runners.
+    """
+    return _ist_now().date()
 
 
 def _is_market_hours():
@@ -91,7 +120,8 @@ def _is_trading_day() -> bool:
     yfinance returns no data and wastes Actions
     minutes.
     """
-    today = date.today()
+    # LW1+ FIX: use IST date not UTC date
+    today = _ist_today()
     # Weekend check
     if today.weekday() >= 5:
         return False
@@ -288,14 +318,16 @@ def run_ltp_update():
     V1.1 BX3 FIX: Exits immediately on holidays
     and weekends — no fetch attempted, no stale
     data written.
+
+    V2 LW1 FIX: Excludes terminal outcome signals
+    from pending list — dead signals never tracked.
     """
     print("[ltp] Starting LTP update...")
 
     # BX3 FIX: Holiday/weekend guard
-    # LTP fetch is meaningless on closed days —
-    # NSE is not trading, yfinance returns no data
     if not _is_trading_day():
-        today_str = date.today().isoformat()
+        # LW1+ FIX: use IST date
+        today_str = _ist_today().isoformat()
         print(f"[ltp] {today_str} is a holiday "
               f"or weekend — skipping LTP fetch")
         return
@@ -303,15 +335,34 @@ def run_ltp_update():
     # ── S3: Check for stale data before update ────────
     _check_stale_ltp()
 
-    today_str  = date.today().isoformat()
+    # LW1+ FIX: use IST date
+    today_str  = _ist_today().isoformat()
     fetch_time = _ist_now_str()
 
-    # Load PENDING signals only
+    # Load signals — PENDING result only
+    # LW1 FIX: Also exclude terminal outcome signals.
+    # result=PENDING can lag behind outcome field
+    # if EOD hasn't updated result yet. Checking
+    # outcome field directly closes the gap and
+    # prevents resolved signals being LTP-tracked.
     history = load_history()
     pending = [
         s for s in history
         if s.get('result') == 'PENDING'
+        and s.get('outcome', 'OPEN')
+            not in _TERMINAL_OUTCOMES
     ]
+
+    skipped_resolved = len([
+        s for s in history
+        if s.get('result') == 'PENDING'
+        and s.get('outcome', 'OPEN')
+            in _TERMINAL_OUTCOMES
+    ])
+    if skipped_resolved > 0:
+        print(f"[ltp] LW1: Skipping "
+              f"{skipped_resolved} resolved signals "
+              f"(terminal outcome, result lag)")
 
     if not pending:
         print("[ltp] No pending signals")
