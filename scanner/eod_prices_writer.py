@@ -7,21 +7,19 @@
 #
 # B1 FIX: _assess_exit_due now returns True only when
 #   days_left == 1 (exit is tomorrow only).
-#   Previously <= 1 caused EXIT TOMORROW to fire on
-#   exit day itself (days_left=0) — wrong label + duplicate.
 #
 # V2 FIXES:
-#   EP1: Timezone fix — all timestamps now use
-#        UTC+5:30 (IST) instead of server UTC.
-#        Fixes "04:21 AM IST" showing UTC time.
-#   EP2: Deduplicate yfinance fetches — build unique
-#        ticker price map first, fetch once per ticker,
-#        reuse close/high/low for all signals of same
-#        stock. Prevents rate limiting as signal count
-#        grows and cuts EOD run time significantly.
+#   EP1: Timezone fix — UTC+5:30 IST timestamps.
+#   EP2: Deduplicate yfinance fetches — unique ticker
+#        price map, fetch once per ticker.
+#   EP3: nan guard in _assess_stop — close=nan was
+#        triggering false HIT:7 when EOD runs before
+#        market open (1 AM run). Any nan price now
+#        returns UNKNOWN immediately, no assessment.
 # ─────────────────────────────────────────────────────
 
 import json
+import math
 import os
 import sys
 from datetime import date, datetime, timedelta, timezone
@@ -46,24 +44,34 @@ STOP_BREACH_BUFFER = 0.005
 # ── EP1: IST TIMESTAMP HELPERS ────────────────────────
 
 def _now_ist():
-    """
-    EP1 FIX: Returns current datetime in IST.
-    GitHub Actions runners use UTC — datetime.now()
-    returns UTC. Applying +5:30 gives correct IST.
-    """
     ist_offset = timezone(timedelta(hours=5,
                                     minutes=30))
     return datetime.now(tz=ist_offset)
 
 
 def _now_ist_str():
-    """EP1 FIX: Current time as IST string."""
     return _now_ist().strftime('%I:%M %p IST')
 
 
 def _today_ist():
-    """EP1 FIX: Current date in IST."""
     return _now_ist().date()
+
+
+# ── EP3: NAN HELPER ───────────────────────────────────
+
+def _is_nan(v):
+    """
+    EP3 FIX: Returns True if value is None or
+    float NaN. yfinance returns float('nan') when
+    market is closed or data unavailable.
+    Used to guard _assess_stop before any arithmetic.
+    """
+    if v is None:
+        return True
+    try:
+        return math.isnan(float(v))
+    except (TypeError, ValueError):
+        return True
 
 
 # ── HELPERS ───────────────────────────────────────────
@@ -90,7 +98,6 @@ def _fetch_eod_price(symbol, retries=2):
             if df.index.tzinfo:
                 df.index = df.index.tz_localize(None)
 
-            # EP1 FIX: use IST date for today_str
             today_str  = _today_ist().isoformat()
             today_rows = df[
                 df.index.strftime('%Y-%m-%d')
@@ -122,16 +129,6 @@ def _fetch_eod_price(symbol, retries=2):
 # EP2: BATCH PRICE FETCHER ─────────────────────────────
 
 def _fetch_all_prices(symbols):
-    """
-    EP2 FIX: Fetch EOD prices for all unique symbols
-    in a single pass. Returns dict:
-      { 'SYMBOL.NS': (close, high, low) or (None, None, None) }
-
-    Previously each signal triggered its own yfinance
-    call — if ADANIGREEN had 3 signals, it fetched 3x.
-    With 89 open signals across ~70 unique tickers,
-    this deduplication cuts API calls by ~20%.
-    """
     price_map = {}
     unique_symbols = list(set(symbols))
 
@@ -142,17 +139,29 @@ def _fetch_all_prices(symbols):
     for symbol in unique_symbols:
         close, high, low = _fetch_eod_price(symbol)
         price_map[symbol] = (close, high, low)
-        if close is not None:
+        if close is not None and not _is_nan(close):
             print(f"[eod_writer] {symbol} | "
                   f"Close: {close:.2f}")
         else:
             print(f"[eod_writer] {symbol} | "
-                  f"Fetch FAILED")
+                  f"Close: nan")
 
     return price_map
 
 
 def _assess_stop(trade, close, high, low):
+    # EP3 FIX: nan guard — must be first check.
+    # yfinance returns float('nan') when market is
+    # closed or EOD runs before market open.
+    # nan fails all comparisons silently, causing
+    # false HIT:7 (nan <= stop evaluates unpredictably).
+    # Return UNKNOWN immediately — do not assess.
+    if _is_nan(close):
+        return (False, False, 'UNKNOWN',
+                'No price data — market closed '
+                'or fetch before open',
+                None, None)
+
     try:
         stop      = float(trade.get('stop', 0) or 0)
         entry     = float(trade.get('entry', 0)
@@ -185,10 +194,14 @@ def _assess_stop(trade, close, high, low):
             pnl_r   = round(
                 (entry - close) / risk, 2)
 
+        # EP3 FIX: also guard high/low before use
+        low_safe  = low  if not _is_nan(low)  else None
+        high_safe = high if not _is_nan(high) else None
+
         if direction == 'LONG':
-            if low is not None and low <= stop:
+            if low_safe is not None and low_safe <= stop:
                 return (True, True, 'HIT',
-                        f"Intraday low ₹{low:.2f} "
+                        f"Intraday low ₹{low_safe:.2f} "
                         f"hit stop ₹{stop:.2f} — "
                         f"exit confirmed",
                         pnl_pct, pnl_r)
@@ -202,9 +215,9 @@ def _assess_stop(trade, close, high, low):
                         pnl_pct, pnl_r)
 
         elif direction == 'SHORT':
-            if high is not None and high >= stop:
+            if high_safe is not None and high_safe >= stop:
                 return (True, True, 'HIT',
-                        f"Intraday high ₹{high:.2f} "
+                        f"Intraday high ₹{high_safe:.2f} "
                         f"hit stop ₹{stop:.2f} — "
                         f"exit confirmed",
                         pnl_pct, pnl_r)
@@ -232,21 +245,16 @@ def _assess_stop(trade, close, high, low):
 
 def _assess_exit_due(trade):
     """
-    B1 FIX: Returns True only when days_left == 1
-    (exit is exactly tomorrow).
-    Previously used <= 1 which fired on exit day itself
-    (days_left=0) causing "EXIT TOMORROW" on wrong day.
+    B1 FIX: Returns True only when days_left == 1.
     EP1 FIX: Uses IST date not UTC date.
     """
     try:
         exit_date = trade.get('exit_date', '')
         if not exit_date:
             return False
-        # EP1 FIX: IST date
         today     = _today_ist()
         exit_dt   = date.fromisoformat(exit_date)
         days_left = (exit_dt - today).days
-        # Only fire when exit is exactly tomorrow
         return days_left == 1
     except Exception:
         return False
@@ -258,7 +266,6 @@ def _count_day(trade):
         if not signal_date:
             return None
         start         = date.fromisoformat(signal_date)
-        # EP1 FIX: IST date
         today         = _today_ist()
         calendar_days = (today - start).days
         trading_days  = max(1, int(calendar_days * 5/7))
@@ -272,7 +279,6 @@ def _count_day(trade):
 def run_eod_update():
     os.makedirs(_OUTPUT, exist_ok=True)
 
-    # EP1 FIX: IST date and time
     today      = _today_ist().isoformat()
     fetch_time = _now_ist_str()
 
@@ -289,9 +295,6 @@ def run_eod_update():
     print(f"[eod_writer] Checking "
           f"{len(open_trades)} open positions")
 
-    # EP2 FIX: Collect all symbols first, fetch once
-    # per unique ticker, reuse prices across all signals
-    # of the same stock.
     all_symbols = [
         t.get('symbol', '')
         for t in open_trades
@@ -317,11 +320,11 @@ def run_eod_update():
         if not symbol:
             continue
 
-        # EP2 FIX: Reuse cached price — no re-fetch
         close, high, low = price_map.get(
             symbol, (None, None, None))
 
-        if close is None:
+        # EP3 FIX: treat nan same as None — no data
+        if close is None or _is_nan(close):
             fetch_failed.append(symbol)
             results.append({
                 'symbol':        symbol,
@@ -336,7 +339,7 @@ def run_eod_update():
                 'stop_hit':      False,
                 'stop_probable': False,
                 'stop_status':   'UNKNOWN',
-                'note':          'Price fetch failed',
+                'note':          'No price data',
                 'pnl_pct':       None,
                 'pnl_r':         None,
                 'exit_due':      _assess_exit_due(trade),
@@ -383,9 +386,11 @@ def run_eod_update():
             'stop':          stop,
             'close':         round(close, 2),
             'high':          round(high, 2)
-                             if high else None,
+                             if high and not _is_nan(high)
+                             else None,
             'low':           round(low, 2)
-                             if low else None,
+                             if low and not _is_nan(low)
+                             else None,
             'stop_hit':      stop_hit,
             'stop_probable': stop_probable,
             'stop_status':   stop_status,
@@ -427,7 +432,6 @@ def run_eod_update():
           f"EXIT_DUE:{exit_due_count} "
           f"FAILED:{len(fetch_failed)}")
 
-    # Fire exit-tomorrow alert
     if exit_tomorrow_list:
         print(f"[eod_writer] Sending exit-tomorrow "
               f"alert for {len(exit_tomorrow_list)} "
