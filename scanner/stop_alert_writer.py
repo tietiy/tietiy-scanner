@@ -24,12 +24,21 @@
 # - BX8: Stop alert dedup persisted to file —
 #         stop_alerts_sent.json resets daily.
 #         Prevents same breach firing every 5 min.
+#
+# V2 FIXES:
+# - SA1: Terminal outcome filter — signals already
+#         resolved (STOP_HIT, TARGET_HIT, DAY6_*)
+#         are excluded from stop monitoring entirely.
+#         Prevents dead signals re-alerting next day.
+# - SA2: Timezone fix — all timestamps now use
+#         UTC+5:30 (IST) instead of server UTC.
+#         Fixes "03:02 AM IST" showing UTC time.
 # ─────────────────────────────────────────────────────
 
 import json
 import os
 import sys
-from datetime import date, datetime
+from datetime import date, datetime, timedelta, timezone
 
 import yfinance as yf
 import pandas as pd
@@ -54,10 +63,41 @@ STOP_ALERTS_FILE   = os.path.join(
 NEAR_STOP_PCT = 2.0
 AT_STOP_PCT   = 0.5
 
+# SA1: Terminal outcomes — signals with these are
+# fully closed and must never be monitored.
+_TERMINAL_OUTCOMES = {
+    'STOP_HIT',
+    'TARGET_HIT',
+    'DAY6_WIN',
+    'DAY6_LOSS',
+    'DAY6_FLAT',
+}
+
+
+# SA2: IST TIMESTAMP HELPER ───────────────────────────
+def _now_ist_str():
+    """
+    SA2 FIX: Returns current time as IST string.
+    GitHub Actions runners are UTC — datetime.now()
+    returns UTC, not IST. This applies +5:30 offset
+    so all alert timestamps show correct IST time.
+    """
+    ist_offset = timezone(timedelta(hours=5,
+                                    minutes=30))
+    return datetime.now(tz=ist_offset).strftime(
+        '%I:%M %p IST')
+
+
+def _now_ist_date():
+    """SA2 FIX: Returns current date in IST."""
+    ist_offset = timezone(timedelta(hours=5,
+                                    minutes=30))
+    return datetime.now(tz=ist_offset).date()
+
 
 # ── BX2: TRADING DAY GUARD ────────────────────────────
 def _is_trading_day() -> bool:
-    today = date.today()
+    today = _now_ist_date()
     if today.weekday() >= 5:
         return False
     try:
@@ -79,7 +119,8 @@ def _load_target_alerts_sent():
     try:
         with open(TARGET_ALERTS_FILE, 'r') as f:
             data = json.load(f)
-        if data.get('date') != date.today().isoformat():
+        if data.get('date') != \
+                _now_ist_date().isoformat():
             return set()
         return set(data.get('sent_ids', []))
     except Exception:
@@ -91,7 +132,7 @@ def _save_target_alert_sent(signal_id, sent_ids):
     try:
         with open(TARGET_ALERTS_FILE, 'w') as f:
             json.dump({
-                'date':     date.today().isoformat(),
+                'date':     _now_ist_date().isoformat(),
                 'sent_ids': list(sent_ids),
             }, f)
     except Exception as e:
@@ -107,7 +148,8 @@ def _load_stop_alerts_sent():
     try:
         with open(STOP_ALERTS_FILE, 'r') as f:
             data = json.load(f)
-        if data.get('date') != date.today().isoformat():
+        if data.get('date') != \
+                _now_ist_date().isoformat():
             return set()
         return set(data.get('sent_keys', []))
     except Exception:
@@ -119,7 +161,7 @@ def _save_stop_alert_sent(key, sent_keys):
     try:
         with open(STOP_ALERTS_FILE, 'w') as f:
             json.dump({
-                'date':      date.today().isoformat(),
+                'date':      _now_ist_date().isoformat(),
                 'sent_keys': list(sent_keys),
             }, f)
     except Exception as e:
@@ -146,8 +188,8 @@ def _fetch_current_price(symbol, retries=2):
                         c[0] for c in df.columns]
                 price      = float(
                     df.iloc[-1]['Close'])
-                fetch_time = datetime.now().strftime(
-                    '%I:%M %p IST')
+                # SA2 FIX: use IST time
+                fetch_time = _now_ist_str()
                 return price, fetch_time
 
             df = yf.download(
@@ -165,8 +207,8 @@ def _fetch_current_price(symbol, retries=2):
                         c[0] for c in df.columns]
                 price      = float(
                     df.iloc[-1]['Close'])
-                fetch_time = datetime.now().strftime(
-                    '%I:%M %p IST')
+                # SA2 FIX: use IST time
+                fetch_time = _now_ist_str()
                 return price, fetch_time
 
         except Exception as e:
@@ -398,17 +440,16 @@ def run_stop_check():
 
     # BX2 FIX: Holiday/weekend guard
     if not _is_trading_day():
-        today_str = date.today().isoformat()
+        today_str = _now_ist_date().isoformat()
         print(f"[stop_alert] {today_str} is a "
               f"holiday or weekend — skipping")
         _write_empty(
-            date.today().isoformat(),
-            datetime.now().strftime('%I:%M %p IST'))
+            _now_ist_date().isoformat(),
+            _now_ist_str())
         return
 
-    today      = date.today().isoformat()
-    check_time = datetime.now().strftime(
-        '%I:%M %p IST')
+    today      = _now_ist_date().isoformat()
+    check_time = _now_ist_str()
 
     print(f"[stop_alert] Stop check at {check_time}")
 
@@ -420,16 +461,34 @@ def run_stop_check():
         return
 
     # BX6 FIX: Exclude entry_valid=False signals
+    # SA1 FIX: Exclude terminal outcome signals —
+    #   already resolved signals must never be
+    #   monitored. Prevents dead signal re-alerts.
     valid_trades = [
         t for t in open_trades
         if t.get('entry_valid') is not False
+        and t.get('outcome', 'OPEN')
+            not in _TERMINAL_OUTCOMES
     ]
-    skipped_invalid = (len(open_trades)
-                       - len(valid_trades))
+
+    skipped_invalid = len([
+        t for t in open_trades
+        if t.get('entry_valid') is False
+    ])
+    skipped_resolved = len([
+        t for t in open_trades
+        if t.get('outcome', 'OPEN')
+            in _TERMINAL_OUTCOMES
+    ])
+
     if skipped_invalid > 0:
         print(f"[stop_alert] Skipping "
               f"{skipped_invalid} entry_valid=False "
               f"signals")
+    if skipped_resolved > 0:
+        print(f"[stop_alert] SA1: Skipping "
+              f"{skipped_resolved} already-resolved "
+              f"signals (terminal outcome)")
 
     print(f"[stop_alert] Checking "
           f"{len(valid_trades)} positions")
@@ -600,7 +659,8 @@ def run_stop_check():
           f"NEAR:{near_count} "
           f"TARGET_HIT:{target_hit_count} "
           f"FAILED:{len(fetch_failed)} "
-          f"SKIPPED_INVALID:{skipped_invalid}")
+          f"SKIPPED_INVALID:{skipped_invalid} "
+          f"SKIPPED_RESOLVED:{skipped_resolved}")
 
 
 def _write_empty(today, check_time):
