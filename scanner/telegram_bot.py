@@ -47,6 +47,13 @@
 #   date.today() returns UTC date which can be one day
 #   behind IST after 6:30 PM UTC. Affects exit lists,
 #   EOD summary date label, heartbeat, weekend summary.
+# - TB2: EOD summary today-only filter — send_eod_summary
+#   was showing ALL 47+ historical resolved signals every
+#   single day. Added outcome_date == today filter so
+#   only signals resolved TODAY appear in the message.
+#   Without this fix the EOD message grows by ~40 lines
+#   today and will eventually hit Telegram's 4000 char
+#   limit and start failing silently.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -68,21 +75,10 @@ _IST_OFFSET = timedelta(hours=5, minutes=30)
 
 # ── TB1: IST DATE/TIME HELPERS ────────────────────────
 def _ist_now() -> datetime:
-    """
-    TB1 FIX: Returns current datetime in IST.
-    GitHub Actions runners use UTC — datetime.utcnow()
-    returns UTC. Applying +5:30 gives correct IST.
-    """
     return datetime.utcnow() + _IST_OFFSET
 
 
 def _ist_date() -> date:
-    """
-    TB1 FIX: Returns current date in IST.
-    Replaces date.today() throughout — on GitHub Actions
-    date.today() is UTC and can be one calendar day
-    behind IST after 6:30 PM UTC (12:00 AM IST).
-    """
     return _ist_now().date()
 
 
@@ -707,7 +703,6 @@ def _respond_today(chat_id, meta: dict,
         meta.get('scan_time', ''))
     active    = meta.get('active_signals_count', 0)
 
-    # TB1 FIX: use IST date
     today_str = _ist_date().strftime('%a %d %b')
     today_iso = _ist_date().isoformat()
     tomorrow  = (_ist_date() +
@@ -818,7 +813,6 @@ def _respond_today(chat_id, meta: dict,
 # ── TG2: /exits ───────────────────────────────────────
 def _respond_exits(chat_id, history: list,
                    ltp_prices: dict):
-    # TB1 FIX: use IST date
     today_iso = _ist_date().isoformat()
     tomorrow  = (_ist_date() +
                  timedelta(days=1)).isoformat()
@@ -1495,6 +1489,15 @@ def send_eod_summary(outcomes: list,
     # TB1 FIX: use IST date
     today_str = _ist_date().strftime('%Y-%m-%d')
 
+    # TB2 FIX: filter to TODAY's resolutions only.
+    # Previously showed ALL ever-resolved signals
+    # (47 historical) on every single EOD run.
+    # outcome_date is written by outcome_evaluator
+    # when a signal resolves. Filtering by this
+    # ensures only signals closed TODAY appear.
+    # Without this fix, message grows by ~40 lines
+    # today and will eventually exceed Telegram's
+    # 4000 char limit and start failing silently.
     resolved = [
         o for o in outcomes
         if o.get('outcome')
@@ -1502,6 +1505,8 @@ def send_eod_summary(outcomes: list,
            not in ('OPEN', None)
         and o.get('result') != 'REJECTED'
         and o.get('action') == 'TOOK'
+        and o.get('outcome_date', '')
+           == today_str
     ]
 
     lines = []
@@ -1592,7 +1597,6 @@ def send_eod_summary(outcomes: list,
 # ── NEXT EXIT DATE HELPER ─────────────────────────────
 # BX1 FIX: exit_date may be None — guard with 'or'
 def _find_next_exit(outcomes):
-    # TB1 FIX: use IST date
     today = _ist_date().isoformat()
     dates = [
         o.get('exit_date') or ''
@@ -1613,7 +1617,6 @@ def _find_next_exit(outcomes):
 
 # ── 6. HEARTBEAT ──────────────────────────────────────
 def send_heartbeat(meta: dict):
-    # TB1 FIX: use IST date and time consistently
     now_ist  = _ist_now()
     today_str = now_ist.strftime('%Y-%m-%d')
     now_time  = now_ist.strftime('%I:%M %p IST')
@@ -1671,7 +1674,6 @@ def send_heartbeat(meta: dict):
 # ── 7. WORKFLOW FAILURE ALERT ─────────────────────────
 def send_workflow_failure(workflow_name: str,
                           run_url: str = None):
-    # TB1 FIX: use IST date and time
     now_ist   = _ist_now()
     today_str = now_ist.strftime('%Y-%m-%d')
     now_time  = now_ist.strftime('%I:%M %p IST')
@@ -1699,7 +1701,6 @@ def send_workflow_failure(workflow_name: str,
 
 # ── 8. WEEKEND SUMMARY ────────────────────────────────
 def send_weekend_summary(stats: dict):
-    # TB1 FIX: use IST date
     today_str   = _ist_date().strftime('%Y-%m-%d')
 
     resolved    = stats.get('resolved',    0)
