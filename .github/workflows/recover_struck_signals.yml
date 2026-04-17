@@ -55,8 +55,9 @@ jobs:
       - name: Run recovery
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+
         run: |
           cd $GITHUB_WORKSPACE
           python scanner/recover_stuck_signals.py
