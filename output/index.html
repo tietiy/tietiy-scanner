@@ -40,6 +40,8 @@
   <title>TIE TIY Scanner</title>
 
   <!-- ── BASE STYLES ───────────────────────────── -->
+  <!-- Minimal styles only — component styles      -->
+  <!-- live in each JS file via innerHTML           -->
   <style>
     * {
       box-sizing: border-box;
@@ -116,27 +118,6 @@
       display: none;
     }
 
-    /* ── SIDEBAR ────────────────────────────── */
-    #sidebar {
-      display:   none;
-      position:  fixed;
-      top:       0;
-      z-index:   20;
-      background:#07070f;
-      padding:   10px 6px;
-    }
-
-    /* ── NEWS PANEL ─────────────────────────── */
-    #news-panel {
-      display:    none;
-      position:   fixed;
-      top:        0;
-      z-index:    20;
-      background: #07070f;
-      overflow-y: auto;
-      padding-bottom: 80px;
-    }
-
     /* ── SCROLLBAR ──────────────────────────── */
     ::-webkit-scrollbar {
       width:  4px;
@@ -159,9 +140,9 @@
 </head>
 <body>
 
-  <!-- PWA_PIN_PLACEHOLDER -->
-
   <!-- ── LOADING SCREEN ──────────────────────────── -->
+  <!-- Shown while JS fetches all JSON files          -->
+  <!-- Replaced by app-root once data loads           -->
   <div id="app-loader">
     <div class="logo">🎯 TIE TIY</div>
     <div class="spinner"></div>
@@ -169,6 +150,7 @@
   </div>
 
   <!-- ── ERROR SCREEN ────────────────────────────── -->
+  <!-- Shown if JSON fetch fails completely           -->
   <div id="app-error">
     <div class="err-title">Scanner data unavailable</div>
     <div id="error-detail">Could not load scan data.</div>
@@ -184,15 +166,9 @@
     </button>
   </div>
 
-  <!-- ── NEWS PANEL — left sidebar iPad >1000px ──── -->
-  <!-- Populated by _renderNewsPanel() in ui.js       -->
-  <div id="news-panel"></div>
-
-  <!-- ── RIGHT SIDEBAR — iPad >900px ────────────── -->
-  <!-- Populated by _renderSidebar() in ui.js         -->
-  <div id="sidebar"></div>
-
   <!-- ── MAIN APP ROOT ───────────────────────────── -->
+  <!-- Hidden until all data loaded                   -->
+  <!-- ui.js renders all content inside here          -->
   <div id="app-root">
 
     <!-- STATUS BAR — rendered by ui.js -->
@@ -200,10 +176,6 @@
 
     <!-- STOP ALERT BANNER — rendered by ui.js -->
     <div id="alert-banner"></div>
-
-    <!-- MOBILE NEWS SECTION — below alert, above signals -->
-    <!-- Shown on phone only when news panel hidden      -->
-    <div id="mobile-news-section"></div>
 
     <!-- TAB CONTENT — rendered by active tab JS -->
     <div id="tab-content"></div>
@@ -243,31 +215,10 @@
                 overflow-y:auto;">
     </div>
 
-    <!-- NEWS DRAWER — tap-to-open article panel -->
-    <div id="news-overlay"
-         style="display:none;position:fixed;
-                top:0;left:0;right:0;bottom:0;
-                background:rgba(0,0,0,0.75);
-                z-index:300;"
-         onclick="_closeNewsCard()">
-    </div>
-    <div id="news-drawer"
-         style="display:none;position:fixed;
-                bottom:0;left:50%;
-                transform:translateX(-50%);
-                width:100%;max-width:600px;
-                background:#0d1117;
-                border-top:2px solid #30363d;
-                border-radius:16px 16px 0 0;
-                padding:20px 16px 40px;
-                z-index:301;
-                overflow-y:auto;
-                max-height:70vh;">
-    </div>
-
   </div><!-- end app-root -->
 
   <!-- ── SERVICE WORKER REGISTRATION ────────────── -->
+  <!-- Enables Web Push + offline cache              -->
   <script>
     if ('serviceWorker' in navigator) {
       window.addEventListener('load', function() {
@@ -284,10 +235,17 @@
   </script>
 
   <!-- ── JS FILES ────────────────────────────────── -->
-  <script src="ui.js?v=202604160317"></script>
-  <script src="app.js?v=202604160317"></script>
-  <script src="journal.js?v=202604160317"></script>
-  <script src="stats.js?v=202604160317"></script>
+  <!-- Load order is critical — do not change        -->
+  <!-- ui.js loads first — sets up fetch manager     -->
+  <!-- app.js, journal.js, stats.js depend on ui.js  -->
+  <!-- build_time appended for cache busting         -->
+  <!-- When app_version in meta.json changes,        -->
+  <!-- ui.js forces a full reload automatically      -->
+
+  <script src="ui.js?v=202604170317"></script>
+  <script src="app.js?v=202604170317"></script>
+  <script src="journal.js?v=202604170317"></script>
+  <script src="stats.js?v=202604170317"></script>
 
 </body>
 </html>
