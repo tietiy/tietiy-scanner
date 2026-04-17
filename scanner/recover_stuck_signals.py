@@ -10,10 +10,13 @@
 # data exists and is fresh).
 #
 # Logic:
-#   1. Find signals: result=="PENDING",
-#      outcome in (OPEN, None), entry_valid!=False,
-#      effective_exit_date <= today
-#   2. Match to eod_prices.json entry by
+#   1. Find stuck signals: PENDING result, OPEN or
+#      null outcome, entry_valid not False, AND
+#      present in eod_prices.json with day_number>=6
+#      (day_number is the source of truth — not
+#      effective_exit_date which can be stretched
+#      by holiday rollover math).
+#   2. Match to eod_prices entry by
 #      symbol + signal + signal_date
 #   3. If stop_hit:true → STOP_HIT
 #      Else → DAY6_WIN / DAY6_LOSS / DAY6_FLAT by
@@ -213,8 +216,8 @@ def _resolve_from_eod(signal, eod_rec,
         # STOP_HIT — trust stop_alert_writer flag
         outcome     = 'STOP_HIT'
         exit_price  = round(stop, 2)
-        exit_day    = 6  # (recovered at Day 6 EOD,
-                         # may have hit earlier)
+        exit_day    = 6  # recovered at Day 6 EOD,
+                         # may have hit earlier
         exit_date_v = eod_date
         print(f"[recover] {sym} → STOP_HIT "
               f"(from eod stop_hit flag)")
@@ -359,10 +362,13 @@ def run_recovery():
     today   = date.today()
 
     # Find stuck signals
-    # Criteria: PENDING, OPEN outcome (or null),
-    # entry_valid not False, effective_exit_date
-    # <= today (or tracking_end <= today if
-    # no effective_exit_date yet)
+    # CRITERIA: PENDING result, OPEN or null outcome,
+    # entry_valid not False, AND present in
+    # eod_prices.json with day_number >= 6.
+    # day_number from eod_prices is the source of
+    # truth — not effective_exit_date which can be
+    # stretched past the real Day 6 by holiday
+    # rollover math in outcome_evaluator.
     stuck = []
     for s in history:
         if s.get('result') != 'PENDING':
@@ -375,27 +381,32 @@ def run_recovery():
         if outcome_val not in (None, 'OPEN'):
             continue
 
-        # Check exit date window
-        exit_date_str = (
-            s.get('effective_exit_date')
-            or s.get('exit_date')
-            or s.get('tracking_end')
-            or '')
-        if not exit_date_str:
+        # Only resolve signals that have reached
+        # Day 6 per eod_prices.json tracking
+        key = (
+            s.get('symbol', ''),
+            s.get('signal', ''),
+            s.get('date', ''),
+        )
+        eod_rec = eod_lookup.get(key)
+        if eod_rec is None:
+            # Not tracked in eod_prices — cannot
+            # resolve from this data source
             continue
         try:
-            exit_d = datetime.strptime(
-                exit_date_str[:10],
-                '%Y-%m-%d').date()
+            day_num = int(eod_rec.get(
+                'day_number', 0) or 0)
         except Exception:
-            continue
-        if exit_d > today:
+            day_num = 0
+        if day_num < 6:
+            # Signal not yet at Day 6 — leave
+            # for future EOD run to resolve
             continue
 
         stuck.append(s)
 
     print(f"[recover] Found {len(stuck)} "
-          f"stuck signals")
+          f"stuck signals (day_number>=6)")
 
     if not stuck:
         _send_telegram(
