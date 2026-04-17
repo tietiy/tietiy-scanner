@@ -33,7 +33,7 @@
 // SW1 FIX: bumped v5 → v6 to invalidate stale cache.
 // Every user's old cache (including no-sidebar layout)
 // will be deleted and rebuilt on next load.
-const CACHE_NAME = 'tietiy-shell-v6';
+const CACHE_NAME = 'tietiy-shell-v7';
 
 const SHELL_FILES = [
   '/tietiy-scanner/',
