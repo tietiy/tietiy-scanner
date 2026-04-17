@@ -5706,20 +5706,20 @@
       "adjusted_rr": null,
       "entry_valid": true,
       "gap_pct": -1.12,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
+      "outcome": "DAY6_LOSS",
+      "outcome_date": "2026-04-17",
+      "outcome_price": 268.85,
       "tracking_start": "2026-04-08",
       "tracking_end": "2026-04-17",
       "mfe_pct": 0.0,
       "mae_pct": 6.33,
-      "days_to_outcome": null,
+      "days_to_outcome": 6,
       "exit_price": null,
-      "exit_type": null,
+      "exit_type": "DAY6_LOSS",
       "exit_date_actual": null,
-      "pnl_pct": null,
+      "pnl_pct": -4.04,
       "pnl_rs": null,
-      "result": "PENDING",
+      "result": "EXITED",
       "action": "TOOK",
       "attempt_number": 1,
       "parent_signal_id": null,
@@ -5738,7 +5738,11 @@
       "rs_strong": false,
       "grade_A": false,
       "sec_leading": false,
-      "effective_exit_date": "2026-04-17"
+      "effective_exit_date": "2026-04-17",
+      "r_multiple": -0.41,
+      "exit_day": 6,
+      "failure_reason": "Short setup failed to follow through in 6 days",
+      "day6_open": 268.85
     },
     {
       "id": "2026-04-07-LAURUSLABS-UP_TRI",
@@ -5772,20 +5776,20 @@
       "adjusted_rr": null,
       "entry_valid": true,
       "gap_pct": -0.22,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
+      "outcome": "DAY6_WIN",
+      "outcome_date": "2026-04-17",
+      "outcome_price": 1130.0,
       "tracking_start": "2026-04-08",
       "tracking_end": "2026-04-17",
-      "mfe_pct": 7.16,
+      "mfe_pct": 7.78,
       "mae_pct": 0.0,
-      "days_to_outcome": null,
+      "days_to_outcome": 6,
       "exit_price": null,
-      "exit_type": null,
+      "exit_type": "DAY6_WIN",
       "exit_date_actual": null,
-      "pnl_pct": null,
+      "pnl_pct": 6.61,
       "pnl_rs": null,
-      "result": "PENDING",
+      "result": "EXITED",
       "action": "TOOK",
       "attempt_number": 1,
       "parent_signal_id": null,
@@ -5804,7 +5808,11 @@
       "rs_strong": false,
       "grade_A": false,
       "sec_leading": false,
-      "effective_exit_date": "2026-04-17"
+      "effective_exit_date": "2026-04-17",
+      "r_multiple": 0.43,
+      "exit_day": 6,
+      "failure_reason": "Bear regime \u2014 gradual move held through 6 days",
+      "day6_open": 1130.0
     },
     {
       "id": "2026-04-07-POWERGRID-BULL_PROXY",
@@ -5838,20 +5846,20 @@
       "adjusted_rr": null,
       "entry_valid": true,
       "gap_pct": -0.34,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
+      "outcome": "DAY6_WIN",
+      "outcome_date": "2026-04-17",
+      "outcome_price": 313.3,
       "tracking_start": "2026-04-08",
       "tracking_end": "2026-04-17",
-      "mfe_pct": 8.38,
+      "mfe_pct": 9.04,
       "mae_pct": 0.0,
-      "days_to_outcome": null,
+      "days_to_outcome": 6,
       "exit_price": null,
-      "exit_type": null,
+      "exit_type": "DAY6_WIN",
       "exit_date_actual": null,
-      "pnl_pct": null,
+      "pnl_pct": 7.11,
       "pnl_rs": null,
-      "result": "PENDING",
+      "result": "EXITED",
       "action": "TOOK",
       "attempt_number": 1,
       "parent_signal_id": null,
@@ -5870,7 +5878,11 @@
       "rs_strong": false,
       "grade_A": false,
       "sec_leading": false,
-      "effective_exit_date": "2026-04-17"
+      "effective_exit_date": "2026-04-17",
+      "r_multiple": 1.65,
+      "exit_day": 6,
+      "failure_reason": "Gradual move to target \u2014 held through full window",
+      "day6_open": 313.3
     },
     {
       "id": "2026-04-08-BAJAJ-AUTO-BULL_PROXY",
@@ -6038,20 +6050,20 @@
       "adjusted_rr": null,
       "entry_valid": true,
       "gap_pct": -0.51,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
+      "outcome": "STOP_HIT",
+      "outcome_date": "2026-04-17",
+      "outcome_price": 431.21,
       "tracking_start": "2026-04-09",
       "tracking_end": "2026-04-20",
       "mfe_pct": 1.19,
-      "mae_pct": 8.79,
-      "days_to_outcome": null,
+      "mae_pct": 9.38,
+      "days_to_outcome": 5,
       "exit_price": null,
-      "exit_type": null,
+      "exit_type": "STOP_HIT",
       "exit_date_actual": null,
-      "pnl_pct": null,
+      "pnl_pct": -9.18,
       "pnl_rs": null,
-      "result": "PENDING",
+      "result": "STOPPED",
       "action": "TOOK",
       "attempt_number": 1,
       "parent_signal_id": null,
@@ -6068,7 +6080,10 @@
       "rs_strong": false,
       "grade_A": false,
       "sec_leading": false,
-      "effective_exit_date": "2026-04-20"
+      "effective_exit_date": "2026-04-20",
+      "r_multiple": -1.0,
+      "exit_day": 5,
+      "failure_reason": "Strong directional move against \u2014 stop correctly hit"
     },
     {
       "id": "2026-04-08-AARTIIND-BULL_PROXY",
@@ -6109,7 +6124,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-09",
       "tracking_end": "2026-04-20",
-      "mfe_pct": 4.8,
+      "mfe_pct": 5.13,
       "mae_pct": 2.59,
       "days_to_outcome": null,
       "exit_price": null,
@@ -6557,7 +6572,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 2.56,
+      "mfe_pct": 3.4,
       "mae_pct": 1.95,
       "days_to_outcome": null,
       "exit_price": null,
@@ -6821,7 +6836,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 7.12,
+      "mfe_pct": 7.57,
       "mae_pct": 0.2,
       "days_to_outcome": null,
       "exit_price": null,
@@ -6887,7 +6902,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 5.84,
+      "mfe_pct": 7.62,
       "mae_pct": 0.78,
       "days_to_outcome": null,
       "exit_price": null,
@@ -6953,7 +6968,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 5.58,
+      "mfe_pct": 7.37,
       "mae_pct": 1.37,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7019,7 +7034,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 5.3,
+      "mfe_pct": 6.02,
       "mae_pct": 1.55,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7085,7 +7100,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 9.58,
+      "mfe_pct": 10.71,
       "mae_pct": 0.87,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7151,7 +7166,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 6.19,
+      "mfe_pct": 6.67,
       "mae_pct": 1.0,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7217,7 +7232,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 10.31,
+      "mfe_pct": 13.06,
       "mae_pct": 0.15,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7350,7 +7365,7 @@
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
       "mfe_pct": 2.45,
-      "mae_pct": 1.21,
+      "mae_pct": 2.58,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -7415,7 +7430,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 4.57,
+      "mfe_pct": 7.68,
       "mae_pct": 0.66,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7547,7 +7562,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 6.29,
+      "mfe_pct": 6.69,
       "mae_pct": 1.27,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7613,7 +7628,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 5.2,
+      "mfe_pct": 5.41,
       "mae_pct": 1.77,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7745,7 +7760,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 9.0,
+      "mfe_pct": 10.59,
       "mae_pct": 0.44,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7876,7 +7891,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 6.79,
+      "mfe_pct": 8.51,
       "mae_pct": 1.27,
       "days_to_outcome": null,
       "exit_price": null,
@@ -7942,7 +7957,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 5.52,
+      "mfe_pct": 10.43,
       "mae_pct": 2.09,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8008,7 +8023,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 6.6,
+      "mfe_pct": 8.04,
       "mae_pct": 1.32,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8074,7 +8089,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 6.06,
+      "mfe_pct": 8.39,
       "mae_pct": 1.1,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8272,7 +8287,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 14.35,
+      "mfe_pct": 16.1,
       "mae_pct": 1.57,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8338,7 +8353,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 6.76,
+      "mfe_pct": 7.02,
       "mae_pct": 2.17,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8404,7 +8419,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 10.24,
+      "mfe_pct": 12.42,
       "mae_pct": 1.31,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8536,7 +8551,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 3.77,
+      "mfe_pct": 4.18,
       "mae_pct": 1.4,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8602,7 +8617,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 5.24,
+      "mfe_pct": 5.74,
       "mae_pct": 1.91,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8669,7 +8684,7 @@
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
       "mfe_pct": 3.24,
-      "mae_pct": 1.33,
+      "mae_pct": 2.95,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -8734,7 +8749,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 3.03,
+      "mfe_pct": 3.35,
       "mae_pct": 0.76,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8931,7 +8946,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 5.54,
+      "mfe_pct": 5.59,
       "mae_pct": 1.15,
       "days_to_outcome": null,
       "exit_price": null,
@@ -8997,7 +9012,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 6.95,
+      "mfe_pct": 8.22,
       "mae_pct": 0.99,
       "days_to_outcome": null,
       "exit_price": null,
@@ -9326,7 +9341,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-13",
       "tracking_end": "2026-04-21",
-      "mfe_pct": 3.03,
+      "mfe_pct": 3.35,
       "mae_pct": 0.76,
       "days_to_outcome": null,
       "exit_price": null,
@@ -9461,8 +9476,8 @@
       "outcome_price": null,
       "tracking_start": "2026-04-17",
       "tracking_end": "2026-04-24",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 0.69,
+      "mae_pct": 0.82,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -9525,8 +9540,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -9548,7 +9563,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-SBIN-UP_TRI",
@@ -9590,8 +9606,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -9613,7 +9629,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-INDUSINDBK-UP_TRI",
@@ -9655,8 +9672,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -9678,7 +9695,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-RECLTD-UP_TRI",
@@ -9720,8 +9738,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -9743,7 +9761,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-PFC-UP_TRI",
@@ -9785,8 +9804,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -9808,7 +9827,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-TCS-UP_TRI",
@@ -9850,8 +9870,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -9873,7 +9893,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-WIPRO-UP_TRI",
@@ -9915,8 +9936,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -9938,7 +9959,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-MPHASIS-UP_TRI",
@@ -9980,8 +10002,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10003,7 +10025,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-LTIM-UP_TRI",
@@ -10045,8 +10068,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10068,7 +10091,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-MARUTI-UP_TRI",
@@ -10110,8 +10134,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10133,7 +10157,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-ITC-UP_TRI",
@@ -10175,8 +10200,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10198,7 +10223,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-TRENT-UP_TRI",
@@ -10240,8 +10266,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10263,7 +10289,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-ACC-UP_TRI",
@@ -10305,8 +10332,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10328,7 +10355,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-ABB-UP_TRI",
@@ -10370,8 +10398,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10393,7 +10421,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-HAL-UP_TRI",
@@ -10435,8 +10464,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10458,7 +10487,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-BEL-UP_TRI",
@@ -10500,8 +10530,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10523,7 +10553,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-COCHINSHIP-UP_TRI",
@@ -10565,8 +10596,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10588,7 +10619,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-GRSE-UP_TRI",
@@ -10630,8 +10662,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10653,7 +10685,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-DEEPAKNTR-UP_TRI",
@@ -10695,8 +10728,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10718,7 +10751,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-TATACHEM-UP_TRI",
@@ -10760,8 +10794,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10783,7 +10817,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-DIXON-UP_TRI",
@@ -10825,8 +10860,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10848,7 +10883,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-VGUARD-UP_TRI",
@@ -10890,8 +10926,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10913,7 +10949,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-CROMPTON-UP_TRI",
@@ -10955,8 +10992,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -10978,7 +11015,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-BATAINDIA-UP_TRI",
@@ -11020,8 +11058,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11043,7 +11081,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-IRCTC-UP_TRI",
@@ -11085,8 +11124,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11108,7 +11147,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-TMPV-UP_TRI",
@@ -11150,8 +11190,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11173,7 +11213,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-PVRINOX-UP_TRI",
@@ -11215,8 +11256,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11238,7 +11279,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-GMRAIRPORT-UP_TRI",
@@ -11280,8 +11322,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11303,7 +11345,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-IRFC-UP_TRI",
@@ -11345,8 +11388,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11368,7 +11411,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-JIOFIN-UP_TRI",
@@ -11410,8 +11454,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11433,7 +11477,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-SUNDARMFIN-UP_TRI",
@@ -11475,8 +11520,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11498,7 +11543,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-YESBANK-UP_TRI",
@@ -11540,8 +11586,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11563,7 +11609,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-BSE-UP_TRI",
@@ -11605,8 +11652,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11628,7 +11675,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-CDSL-UP_TRI",
@@ -11670,8 +11718,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11693,7 +11741,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-TATAELXSI-UP_TRI",
@@ -11735,8 +11784,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11758,7 +11807,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-CYIENT-UP_TRI",
@@ -11800,8 +11850,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11823,7 +11873,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-ADANIENT-UP_TRI",
@@ -11865,8 +11916,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11888,7 +11939,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-OIL-DOWN_TRI",
@@ -11930,8 +11982,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -11953,7 +12005,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-COLPAL-UP_TRI",
@@ -11995,8 +12048,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -12018,7 +12071,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-NYKAA-UP_TRI",
@@ -12060,8 +12114,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -12083,7 +12137,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-RVNL-UP_TRI",
@@ -12125,8 +12180,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -12148,7 +12203,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-PIIND-UP_TRI",
@@ -12190,8 +12246,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -12213,7 +12269,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-SUMICHEM-UP_TRI",
@@ -12255,8 +12312,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -12278,7 +12335,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     },
     {
       "id": "2026-04-17-GNFC-UP_TRI",
@@ -12320,8 +12378,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-04-20",
+      "tracking_end": "2026-04-27",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -12343,7 +12401,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-04-27"
     }
   ]
 }
