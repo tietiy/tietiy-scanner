@@ -1,0 +1,37 @@
+{
+  "shadow_mode": true,
+  "rules": {
+    "min_score": {
+      "active": false,
+      "threshold": 7,
+      "sa_threshold": 5,
+      "description": "Minimum score to pass. SA = second attempt threshold. DO NOT activate until 30 resolved signals show score correlates with WR."
+    },
+    "min_rr": {
+      "active": false,
+      "threshold": 2.0,
+      "description": "Minimum R:R ratio required."
+    },
+    "regime_alignment": {
+      "active": false,
+      "description": "PERMANENTLY DISABLED — backtest proves Bear regime UP_TRI is highest conviction trade (avg 4.85%). Activating this rule kills the best signals. Never enable without explicit backtest evidence per signal type."
+    },
+    "require_volume": {
+      "active": false,
+      "description": "vol_confirm must be true. Do not activate until Phase 1 shows volume correlates with WR."
+    },
+    "grade_gate": {
+      "active": false,
+      "allowed": ["A", "B", "C"],
+      "description": "Only listed grades pass. Phase 2 candidate after Grade A vs B WR comparison."
+    },
+    "clean_air": {
+      "active": false,
+      "description": "Clean air above target required. Phase 2 candidate."
+    },
+    "delivery_volume": {
+      "active": false,
+      "description": "Phase 3 only — delivery_pct filter. Requires NSE Bhavcopy scraping. Do not activate yet."
+    }
+  }
+}
