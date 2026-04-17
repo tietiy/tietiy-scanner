@@ -1,25 +1,42 @@
 """
-migrate_rej_duplicates.py — ONE-TIME MIGRATION
+migrate_rej_duplicates.py — RESOLVE -REJ RECORDS FROM PARENTS
 
-Problem: Apr 6 2026 shadow mode created duplicate records with '-REJ' suffix.
-These have action='TOOK', result='PENDING', layer='MINI' — identical fields
-to real signals. Stats.js and journal.js count them as open positions,
-inflating "Open Now" count by ~32 phantom positions.
+Apr 6 2026 shadow mode created 32 -REJ duplicates that never got outcomes.
+Strategy: inherit outcome from parent signal (same symbol + signal, no -REJ suffix).
+Result: these count as real trades in Stats (Option C — shadow mode is real data).
 
-Fix: Find all records where id ends with '-REJ' AND result='PENDING'.
-Mark them as action='REJECTED', layer='ALPHA', result='REJECTED'.
-They disappear from open positions but remain in history for audit.
-
-Run: Manual dispatch only. Safe to re-run (idempotent).
+Safe to re-run (idempotent): skips records that already have terminal outcomes.
 """
 
 import json
 import os
 import sys
+from collections import Counter
 from datetime import datetime, timezone
 
 HISTORY_FILE = 'output/signal_history.json'
 BACKUP_DIR = 'backups'
+
+# Fields we copy from parent into -REJ child
+INHERIT_FIELDS = [
+    'outcome', 'outcome_date', 'outcome_price',
+    'exit_type', 'exit_date_actual', 'exit_price',
+    'pnl_pct', 'pnl_rs',
+    'mfe_pct', 'mae_pct',
+    'tracking_start', 'tracking_end',
+    'days_to_outcome', 'exit_day',
+    'result',
+    'effective_exit_date',
+    'failure_reason',
+    'day6_open', 'post_target_move',
+    'r_multiple',
+    'adjusted_rr', 'entry_valid', 'gap_pct', 'actual_open',
+]
+
+TERMINAL_OUTCOMES = {
+    'DAY6_WIN', 'DAY6_LOSS', 'DAY6_FLAT',
+    'STOP_HIT', 'TARGET_HIT',
+}
 
 
 def log(msg):
@@ -28,10 +45,9 @@ def log(msg):
 
 
 def backup_file():
-    """Create timestamped backup before migration."""
     os.makedirs(BACKUP_DIR, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime('%Y-%m-%d-%H%M%S')
-    backup_path = f'{BACKUP_DIR}/signal_history.{stamp}.pre-rej-migrate.json'
+    backup_path = f'{BACKUP_DIR}/signal_history.{stamp}.pre-rej-resolve.json'
 
     with open(HISTORY_FILE, 'r') as f:
         content = f.read()
@@ -43,6 +59,14 @@ def backup_file():
     return backup_path
 
 
+def find_parent(rej_id, records_by_id):
+    """Given '2026-04-06-INFY-UP_TRI-REJ', return the parent record dict."""
+    if not rej_id.endswith('-REJ'):
+        return None
+    parent_id = rej_id[:-4]  # strip '-REJ'
+    return records_by_id.get(parent_id)
+
+
 def migrate():
     log('Loading signal_history.json...')
     with open(HISTORY_FILE, 'r') as f:
@@ -52,60 +76,97 @@ def migrate():
     total = len(history)
     log(f'Total records: {total}')
 
-    migrated = 0
-    skipped = 0
-    already_rejected = 0
+    # Build parent lookup
+    records_by_id = {r.get('id'): r for r in history if r.get('id')}
+
+    resolved = 0
+    skipped_already_terminal = 0
+    skipped_no_parent = 0
+    skipped_parent_pending = 0
+    skipped_not_rej = 0
+    skipped_already_rejected = 0
+
+    resolve_details = []
+    no_parent_details = []
 
     for record in history:
         sid = record.get('id', '')
 
         if not sid.endswith('-REJ'):
+            skipped_not_rej += 1
             continue
 
-        current_action = record.get('action')
-        current_result = record.get('result')
-
-        # Already handled (Apr 1 backfill has action=REJECTED already)
-        if current_action == 'REJECTED' and current_result == 'REJECTED':
-            already_rejected += 1
+        # Skip Apr 1 properly-rejected records (action=REJECTED, result=REJECTED)
+        if record.get('action') == 'REJECTED' and record.get('result') == 'REJECTED':
+            skipped_already_rejected += 1
             continue
 
-        # Only migrate those still flagged as TOOK+PENDING
-        if current_action == 'TOOK' and current_result == 'PENDING':
-            record['action'] = 'REJECTED'
-            record['result'] = 'REJECTED'
-            record['layer'] = 'ALPHA'
-            if not record.get('rejection_reason'):
-                record['rejection_reason'] = (
-                    'shadow_mode_duplicate_migrated_2026-04-18'
-                )
-            record['migration_applied'] = (
-                'rej_duplicate_cleanup_2026-04-18'
-            )
-            migrated += 1
-        else:
-            # Terminal outcomes — leave alone
-            skipped += 1
+        # Already has terminal outcome? Skip (idempotent re-runs)
+        if record.get('outcome') in TERMINAL_OUTCOMES:
+            skipped_already_terminal += 1
+            continue
 
-    log(f'Migrated: {migrated}')
-    log(f'Already rejected (skipped): {already_rejected}')
-    log(f'Other -REJ records (skipped): {skipped}')
+        # Find parent
+        parent = find_parent(sid, records_by_id)
+        if not parent:
+            skipped_no_parent += 1
+            no_parent_details.append(sid)
+            continue
 
-    if migrated == 0:
-        log('No records needed migration. Exiting without write.')
+        # Parent must have terminal outcome
+        parent_outcome = parent.get('outcome')
+        if parent_outcome not in TERMINAL_OUTCOMES:
+            skipped_parent_pending += 1
+            continue
+
+        # Inherit fields from parent
+        for field in INHERIT_FIELDS:
+            if field in parent:
+                record[field] = parent[field]
+
+        # Tag migration
+        record['migration_source'] = 'rej_resolved_from_parent_2026-04-18'
+        record['migration_applied'] = 'rej_resolve_2026-04-18'
+        record['parent_signal_id'] = parent.get('id')
+
+        resolved += 1
+        resolve_details.append(
+            f'  {sid}: outcome={parent_outcome}, '
+            f'pnl={parent.get("pnl_pct")}, '
+            f'day6_open={parent.get("day6_open")}'
+        )
+
+    log(f'Resolved from parent: {resolved}')
+    log(f'Skipped - already terminal: {skipped_already_terminal}')
+    log(f'Skipped - already REJECTED: {skipped_already_rejected}')
+    log(f'Skipped - parent still pending: {skipped_parent_pending}')
+    log(f'Skipped - no parent found: {skipped_no_parent}')
+    log(f'Skipped - not -REJ: {skipped_not_rej}')
+
+    if no_parent_details:
+        log('--- -REJ with no parent ---')
+        for sid in no_parent_details[:20]:
+            log(f'  {sid}')
+
+    if resolve_details:
+        log('--- resolved records (first 40) ---')
+        for line in resolve_details[:40]:
+            log(line)
+        log('--- end ---')
+
+    if resolved == 0:
+        log('No records needed resolving. Exiting without write.')
         return 0
 
-    # Write back
     log('Writing updated signal_history.json...')
     with open(HISTORY_FILE, 'w') as f:
         json.dump(data, f, indent=2)
 
-    log(f'✓ Migration complete. {migrated} records updated.')
-    return migrated
+    log(f'Migration complete. {resolved} records resolved from parents.')
+    return resolved
 
 
 def send_telegram(message):
-    """Best-effort Telegram notification."""
     try:
         import urllib.request
         import urllib.parse
@@ -135,7 +196,7 @@ def send_telegram(message):
 
 
 def main():
-    log('=== REJ Duplicate Migration ===')
+    log('=== REJ Resolve Migration ===')
 
     if not os.path.exists(HISTORY_FILE):
         log(f'ERROR: {HISTORY_FILE} not found')
@@ -143,20 +204,20 @@ def main():
 
     try:
         backup_path = backup_file()
-        migrated = migrate()
+        resolved = migrate()
 
         msg = (
-            f'<b>🧹 REJ Migration Complete</b>\n'
-            f'Records cleaned: <b>{migrated}</b>\n'
-            f'Backup: {os.path.basename(backup_path)}\n'
-            f'Open Now count should drop by ~{migrated}.'
+            f'<b>REJ Resolve Complete</b>\n'
+            f'Records resolved from parent: <b>{resolved}</b>\n'
+            f'These now count as real trades in Stats.\n'
+            f'Backup: {os.path.basename(backup_path)}'
         )
         send_telegram(msg)
 
     except Exception as e:
         log(f'ERROR: {e}')
         send_telegram(
-            f'<b>❌ REJ Migration Failed</b>\n{str(e)[:200]}'
+            f'<b>REJ Resolve Failed</b>\n{str(e)[:200]}'
         )
         sys.exit(1)
 
