@@ -1,23 +1,21 @@
 """
-migrate_rej_duplicates.py — RESOLVE -REJ RECORDS FROM PARENTS
+migrate_rej_duplicates.py — RESOLVE -REJ + SYNC RESULT FIELD
 
-Apr 6 2026 shadow mode created 32 -REJ duplicates that never got outcomes.
-Strategy: inherit outcome from parent signal (same symbol + signal, no -REJ suffix).
-Result: these count as real trades in Stats (Option C — shadow mode is real data).
+v3: Previous version inherited outcome but not result field.
+This version ensures ALL fields sync from parent including 'result',
+so stats.js correctly counts these as resolved.
 
-Safe to re-run (idempotent): skips records that already have terminal outcomes.
+Idempotent: safe to re-run.
 """
 
 import json
 import os
 import sys
-from collections import Counter
 from datetime import datetime, timezone
 
 HISTORY_FILE = 'output/signal_history.json'
 BACKUP_DIR = 'backups'
 
-# Fields we copy from parent into -REJ child
 INHERIT_FIELDS = [
     'outcome', 'outcome_date', 'outcome_price',
     'exit_type', 'exit_date_actual', 'exit_price',
@@ -38,6 +36,8 @@ TERMINAL_OUTCOMES = {
     'STOP_HIT', 'TARGET_HIT',
 }
 
+TERMINAL_RESULTS = {'EXITED', 'STOPPED', 'WON'}
+
 
 def log(msg):
     ts = datetime.now(timezone.utc).strftime('%H:%M:%S')
@@ -47,7 +47,7 @@ def log(msg):
 def backup_file():
     os.makedirs(BACKUP_DIR, exist_ok=True)
     stamp = datetime.now(timezone.utc).strftime('%Y-%m-%d-%H%M%S')
-    backup_path = f'{BACKUP_DIR}/signal_history.{stamp}.pre-rej-resolve.json'
+    backup_path = f'{BACKUP_DIR}/signal_history.{stamp}.pre-rej-resync.json'
 
     with open(HISTORY_FILE, 'r') as f:
         content = f.read()
@@ -60,10 +60,9 @@ def backup_file():
 
 
 def find_parent(rej_id, records_by_id):
-    """Given '2026-04-06-INFY-UP_TRI-REJ', return the parent record dict."""
     if not rej_id.endswith('-REJ'):
         return None
-    parent_id = rej_id[:-4]  # strip '-REJ'
+    parent_id = rej_id[:-4]
     return records_by_id.get(parent_id)
 
 
@@ -76,18 +75,16 @@ def migrate():
     total = len(history)
     log(f'Total records: {total}')
 
-    # Build parent lookup
     records_by_id = {r.get('id'): r for r in history if r.get('id')}
 
-    resolved = 0
-    skipped_already_terminal = 0
-    skipped_no_parent = 0
-    skipped_parent_pending = 0
+    synced = 0
     skipped_not_rej = 0
     skipped_already_rejected = 0
+    skipped_no_parent = 0
+    skipped_parent_pending = 0
+    skipped_fully_synced = 0
 
-    resolve_details = []
-    no_parent_details = []
+    sync_details = []
 
     for record in history:
         sid = record.get('id', '')
@@ -96,74 +93,67 @@ def migrate():
             skipped_not_rej += 1
             continue
 
-        # Skip Apr 1 properly-rejected records (action=REJECTED, result=REJECTED)
         if record.get('action') == 'REJECTED' and record.get('result') == 'REJECTED':
             skipped_already_rejected += 1
             continue
 
-        # Already has terminal outcome? Skip (idempotent re-runs)
-        if record.get('outcome') in TERMINAL_OUTCOMES:
-            skipped_already_terminal += 1
-            continue
-
-        # Find parent
         parent = find_parent(sid, records_by_id)
         if not parent:
             skipped_no_parent += 1
-            no_parent_details.append(sid)
             continue
 
-        # Parent must have terminal outcome
         parent_outcome = parent.get('outcome')
         if parent_outcome not in TERMINAL_OUTCOMES:
             skipped_parent_pending += 1
             continue
 
-        # Inherit fields from parent
+        # Check if this -REJ already matches parent fully
+        current_result = record.get('result')
+        current_outcome = record.get('outcome')
+        if (current_result in TERMINAL_RESULTS and
+                current_outcome == parent_outcome):
+            # Already properly synced — no change needed
+            skipped_fully_synced += 1
+            continue
+
+        # Sync ALL fields from parent
+        before = f'result={current_result!r}, outcome={current_outcome!r}'
         for field in INHERIT_FIELDS:
             if field in parent:
                 record[field] = parent[field]
 
-        # Tag migration
+        after = f'result={record.get("result")!r}, outcome={record.get("outcome")!r}'
+
         record['migration_source'] = 'rej_resolved_from_parent_2026-04-18'
-        record['migration_applied'] = 'rej_resolve_2026-04-18'
+        record['migration_applied'] = 'rej_resync_2026-04-18'
         record['parent_signal_id'] = parent.get('id')
 
-        resolved += 1
-        resolve_details.append(
-            f'  {sid}: outcome={parent_outcome}, '
-            f'pnl={parent.get("pnl_pct")}, '
-            f'day6_open={parent.get("day6_open")}'
-        )
+        synced += 1
+        sync_details.append(f'  {sid}: {before} -> {after}')
 
-    log(f'Resolved from parent: {resolved}')
-    log(f'Skipped - already terminal: {skipped_already_terminal}')
+    log(f'Synced from parent: {synced}')
+    log(f'Already fully synced (no change): {skipped_fully_synced}')
     log(f'Skipped - already REJECTED: {skipped_already_rejected}')
     log(f'Skipped - parent still pending: {skipped_parent_pending}')
     log(f'Skipped - no parent found: {skipped_no_parent}')
     log(f'Skipped - not -REJ: {skipped_not_rej}')
 
-    if no_parent_details:
-        log('--- -REJ with no parent ---')
-        for sid in no_parent_details[:20]:
-            log(f'  {sid}')
-
-    if resolve_details:
-        log('--- resolved records (first 40) ---')
-        for line in resolve_details[:40]:
+    if sync_details:
+        log('--- synced records ---')
+        for line in sync_details[:40]:
             log(line)
         log('--- end ---')
 
-    if resolved == 0:
-        log('No records needed resolving. Exiting without write.')
+    if synced == 0:
+        log('No records needed syncing. Exiting without write.')
         return 0
 
     log('Writing updated signal_history.json...')
     with open(HISTORY_FILE, 'w') as f:
         json.dump(data, f, indent=2)
 
-    log(f'Migration complete. {resolved} records resolved from parents.')
-    return resolved
+    log(f'Migration complete. {synced} records synced from parents.')
+    return synced
 
 
 def send_telegram(message):
@@ -196,7 +186,7 @@ def send_telegram(message):
 
 
 def main():
-    log('=== REJ Resolve Migration ===')
+    log('=== REJ Resync Migration v3 ===')
 
     if not os.path.exists(HISTORY_FILE):
         log(f'ERROR: {HISTORY_FILE} not found')
@@ -204,20 +194,19 @@ def main():
 
     try:
         backup_path = backup_file()
-        resolved = migrate()
+        synced = migrate()
 
         msg = (
-            f'<b>REJ Resolve Complete</b>\n'
-            f'Records resolved from parent: <b>{resolved}</b>\n'
-            f'These now count as real trades in Stats.\n'
-            f'Backup: {os.path.basename(backup_path)}'
+            f'<b>REJ Resync Complete</b>\n'
+            f'Records synced: <b>{synced}</b>\n'
+            f'Stats should now show these as resolved.'
         )
         send_telegram(msg)
 
     except Exception as e:
         log(f'ERROR: {e}')
         send_telegram(
-            f'<b>REJ Resolve Failed</b>\n{str(e)[:200]}'
+            f'<b>REJ Resync Failed</b>\n{str(e)[:200]}'
         )
         sys.exit(1)
 
