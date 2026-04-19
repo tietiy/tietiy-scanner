@@ -8,10 +8,20 @@
 # Rejection reasons logged for future analysis
 # Rules activate one by one as live data validates them
 #
+# KILL PATTERNS (NEW — Session 3, Apr 19 2026):
+# Hard-block patterns that bypass shadow_mode
+# When a signal matches a kill_pattern (signal+sector combo)
+# it is REJECTED regardless of shadow_mode
+# Also triggers contra_tracker to record inverted shadow
+#
 # HOW TO ACTIVATE A RULE:
 # Edit data/mini_scanner_rules.json only
 # Set the rule's "active" field to true
 # Zero Python changes needed
+#
+# HOW TO ADD A KILL PATTERN:
+# Add entry to kill_patterns array in mini_scanner_rules.json
+# OR approve a rule_proposer proposal via Telegram /approve_rule
 #
 # NEVER hardcode thresholds in this file
 # ALL thresholds live in mini_scanner_rules.json
@@ -75,7 +85,10 @@ DEFAULT_RULES = {
                 "Delivery volume filter — Phase 3"
             )
         }
-    }
+    },
+    "kill_patterns": [],
+    "warn_patterns": [],
+    "boost_patterns": []
 }
 
 
@@ -136,6 +149,78 @@ def _calculate_rr(sig):
         return None
     except Exception:
         return None
+
+
+# ── KILL PATTERNS CHECK (NEW — Session 3) ─────────────
+# Runs BEFORE rule evaluation. Hard-blocks matched signals
+# regardless of shadow_mode. Triggers contra_tracker for
+# DOWN_TRI+Bank pattern (can extend to more later).
+
+def _check_kill_patterns(sig, rules):
+    """
+    Check if signal matches any active kill_pattern.
+    Returns (matched: bool, kill_rule: dict or None)
+    """
+    kill_patterns = rules.get('kill_patterns', [])
+    if not kill_patterns:
+        return False, None
+
+    sig_type   = sig.get('signal', '')
+    sig_sector = sig.get('sector', '')
+
+    for kill_rule in kill_patterns:
+        # Skip inactive kill rules
+        if not kill_rule.get('active', True):
+            continue
+
+        rule_signal = kill_rule.get('signal')
+        rule_sector = kill_rule.get('sector')
+
+        # Match logic: signal+sector combo
+        signal_match = (rule_signal is None or
+                        rule_signal == sig_type)
+        sector_match = (rule_sector is None or
+                        rule_sector == sig_sector)
+
+        if signal_match and sector_match:
+            return True, kill_rule
+
+    return False, None
+
+
+def _trigger_contra_shadow(sig, kill_rule):
+    """
+    Record inverted shadow trade via contra_tracker.
+    Only for kill_patterns flagged with contra_shadow_tracked.
+    Gracefully handles import failure.
+    """
+    if not kill_rule.get('contra_shadow_tracked', False):
+        return
+
+    try:
+        from contra_tracker import record_contra_shadow
+        shadow = record_contra_shadow(
+            sig,
+            kill_rule_id=kill_rule.get('id')
+        )
+        if shadow:
+            print(f"[mini_scanner] Contra shadow recorded: "
+                  f"{shadow.get('id')}")
+    except ImportError as e:
+        print(f"[mini_scanner] contra_tracker not available: {e}")
+    except Exception as e:
+        # Never let contra tracking break the scanner
+        print(f"[mini_scanner] Contra tracker error: {e}")
+
+
+def get_active_kill_patterns():
+    """
+    Public helper for telegram_bot /status command.
+    Returns list of currently active kill patterns.
+    """
+    rules = _load_rules()
+    kills = rules.get('kill_patterns', [])
+    return [k for k in kills if k.get('active', True)]
 
 
 # ── EVALUATE SINGLE SIGNAL ────────────────────────────
@@ -300,10 +385,11 @@ def filter_signals(signals):
         mini_signals    : passed conviction filter
         alpha_signals   : all signals (same as input)
         rejection_log   : what was rejected and why
-                          includes shadow hits
+                          includes shadow hits + kill hits
 
-    In shadow mode all signals appear in mini_signals.
-    Rejection log still fills with shadow analysis.
+    In shadow mode most signals appear in mini_signals.
+    Exception: kill_patterns hard-block regardless of
+    shadow_mode.
 
     Parameters:
         signals : list of signal dicts from scorer.py
@@ -320,7 +406,55 @@ def filter_signals(signals):
     alpha_signals = list(signals)  # full copy
     rejection_log = []
 
+    # ── Count kill hits separately for logging ────
+    kill_count = 0
+
     for sig in signals:
+        # ── NEW (Session 3): Kill patterns check FIRST
+        # Bypasses shadow_mode — hard block
+        killed, kill_rule = _check_kill_patterns(
+            sig, rules)
+
+        if killed:
+            kill_count += 1
+            # Trigger contra shadow tracking if flagged
+            _trigger_contra_shadow(sig, kill_rule)
+
+            # Log as rejection (NOT shadow — actual block)
+            rejection_log.append({
+                'date':              _today(),
+                'symbol':            sig.get(
+                                         'symbol', ''),
+                'signal':            sig.get(
+                                         'signal', ''),
+                'alpha_score':       sig.get(
+                                         'score', 0),
+                'regime':            sig.get(
+                                         'regime', ''),
+                'grade':             sig.get(
+                                         'grade', 'C'),
+                'passed':            False,
+                'shadow_only':       False,
+                'rejection_reason':  'kill_switch',
+                'rejection_filter':  'kill_patterns',
+                'threshold':         kill_rule.get('id'),
+                'actual_value':      (
+                    f"{sig.get('signal', '')}+"
+                    f"{sig.get('sector', '')}"
+                ),
+                'kill_rule_id':      kill_rule.get('id'),
+                'kill_reason':       kill_rule.get(
+                                         'reason', ''),
+                'contra_tracked':    kill_rule.get(
+                                 'contra_shadow_tracked',
+                                 False),
+                'scanner_version':   sig.get(
+                                 'scanner_version', 'v2.0'),
+            })
+            # Skip rule evaluation — signal is killed
+            continue
+
+        # ── Regular rule evaluation ───────────────
         passes, reason, filt, threshold, shadows = \
             _evaluate(sig, rules)
 
@@ -379,7 +513,8 @@ def filter_signals(signals):
     print(f"[mini_scanner] Mode: {mode_str} | "
           f"In: {len(signals)} | "
           f"Mini: {len(mini_signals)} | "
-          f"Shadow hits: {len(rejection_log)}")
+          f"Killed: {kill_count} | "
+          f"Shadow hits: {len(rejection_log) - kill_count}")
 
     return mini_signals, alpha_signals, rejection_log
 
