@@ -20,16 +20,16 @@
 #
 # NEW FIXES (Phase 2 Session 2):
 #   EOD1   — Read eod_prices.json FIRST for OHLC data.
-#            Falls back to yfinance only if symbol not
-#            in eod_prices. Prevents Apr 17-style stuck
-#            signals when yfinance returns nan.
-#   EOD2   — data_quality tagging on resolution:
-#            "eod_primary"         — resolved via eod_prices
-#            "yfinance_primary"    — resolved via yfinance
-#            "recovery_close_fallback" — recovered via close
+#   EOD2   — data_quality tagging on resolution.
 #   D6A    — Day 6 OPEN price reads open_prices.json FIRST.
-#            yfinance OHLC is secondary source. Enables
-#            same-day Day 6 resolution at 9:30 AM.
+#
+# SESSION 3 ADDITION (Apr 19 2026):
+#   CS3    — Resolve contra_shadow.json entries at Day 6.
+#            Reuses all existing helpers (holidays,
+#            _resolve_day6_open, eod_prices, open_prices).
+#            Wrapped in try/except — never blocks main
+#            outcome evaluation. Contra shadows track
+#            INVERTED direction of killed signals.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -50,9 +50,10 @@ _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
 _OUTPUT = os.path.join(_ROOT, 'output')
 
-HOLIDAYS_FILE    = os.path.join(_OUTPUT, 'nse_holidays.json')
-EOD_PRICES_FILE  = os.path.join(_OUTPUT, 'eod_prices.json')
-OPEN_PRICES_FILE = os.path.join(_OUTPUT, 'open_prices.json')
+HOLIDAYS_FILE     = os.path.join(_OUTPUT, 'nse_holidays.json')
+EOD_PRICES_FILE   = os.path.join(_OUTPUT, 'eod_prices.json')
+OPEN_PRICES_FILE  = os.path.join(_OUTPUT, 'open_prices.json')
+CONTRA_SHADOW_FILE = os.path.join(_OUTPUT, 'contra_shadow.json')
 
 FLAT_PCT = 0.5
 
@@ -449,35 +450,6 @@ def _resolve_day6_open(symbol, effective_tracking_end,
 
     return None, 'unavailable'
 
-    """
-    D6A: Day 6 open price lookup.
-    Primary:   open_prices.json (written 9:27 AM)
-    Secondary: ohlc dataframe (yfinance or eod-derived)
-
-    Returns (day6_open, source) tuple.
-    """
-    date_str = effective_tracking_end.strftime('%Y-%m-%d')
-
-    # Primary: open_prices.json
-    symbol_opens = open_prices.get(symbol, {})
-    op = symbol_opens.get(date_str)
-    if op is not None:
-        try:
-            return float(op), 'open_prices'
-        except Exception:
-            pass
-
-    # Secondary: ohlc dataframe
-    if ohlc is not None and not ohlc.empty:
-        day6_ts = pd.Timestamp(effective_tracking_end)
-        if day6_ts in ohlc.index:
-            try:
-                return float(ohlc.loc[day6_ts, 'Open']), 'ohlc'
-            except Exception:
-                pass
-
-    return None, 'unavailable'
-
 
 # ── EVALUATE SINGLE SIGNAL ────────────────────────────
 
@@ -728,10 +700,180 @@ def _propagate_sa_outcome(history, parent_id, parent_outcome):
     return updated
 
 
+# ── NEW: CS3 — CONTRA SHADOW RESOLUTION ──────────────
+# Runs after regular signal evaluation. Resolves
+# contra_shadow.json entries using the same Day 6
+# open-price logic as real signals.
+#
+# A contra shadow is an INVERTED direction trade recorded
+# when a kill_pattern fires. Tracking proves whether the
+# inversion hypothesis actually holds — if contra WR is
+# high after n=30, that signal+sector can be promoted
+# to a real CONTRA signal type in Phase 3.
+#
+# Wrapped in try/except at run_outcome_evaluation level
+# so failure here NEVER blocks main signal resolution.
+
+def _resolve_contra_shadows(holidays, eod_prices,
+                            open_prices):
+    """
+    Resolve contra_shadow.json entries that have
+    reached Day 6. Uses same logic as real signals.
+    """
+    if not os.path.exists(CONTRA_SHADOW_FILE):
+        print("[contra] No contra_shadow.json yet — "
+              "nothing to resolve")
+        return
+
+    try:
+        with open(CONTRA_SHADOW_FILE, 'r') as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"[contra] Load error: {e}")
+        return
+
+    shadows = data.get('shadows', [])
+    if not shadows:
+        print("[contra] No shadows to process")
+        return
+
+    # Only resolve shadows without terminal outcome yet
+    unresolved = [
+        s for s in shadows
+        if s.get('outcome') is None
+        or s.get('outcome') == 'OPEN'
+    ]
+
+    if not unresolved:
+        print(f"[contra] All {len(shadows)} shadows "
+              f"already resolved")
+        return
+
+    print(f"[contra] Evaluating {len(unresolved)} "
+          f"contra shadows...")
+
+    today          = date.today()
+    resolved_count = 0
+    updates        = 0
+
+    for shadow in unresolved:
+        sym           = shadow.get('symbol', '')
+        original_dir  = shadow.get(
+            'original_direction', 'SHORT')
+        inverted_dir  = shadow.get(
+            'inverted_direction', 'LONG')
+        entry         = shadow.get('entry_est')
+        det_date      = shadow.get('date', '')
+        shadow_id     = shadow.get('id', '')
+
+        if not sym or not entry or not det_date:
+            print(f"[contra] Skip {shadow_id} — "
+                  f"missing fields")
+            continue
+
+        try:
+            entry = float(entry)
+        except Exception:
+            continue
+
+        # Compute Day 6 date using same logic as real signals
+        try:
+            entry_date = _get_entry_date(det_date, holidays)
+            tracking_end = _get_nth_trading_day(
+                entry_date, 6, holidays)
+            effective_end = _next_trading_day(
+                tracking_end, holidays)
+        except Exception as e:
+            print(f"[contra] Date error {shadow_id}: {e}")
+            continue
+
+        # Write effective_exit_date back to shadow
+        shadow['effective_exit_date'] = \
+            effective_end.strftime('%Y-%m-%d')
+
+        # Not Day 6 yet — nothing to do
+        if today < effective_end:
+            days_left = (effective_end - today).days
+            print(f"[contra] {sym} ({shadow_id}) — "
+                  f"Day 6 in {days_left} days")
+            continue
+
+        # Resolve Day 6 open using shared helper
+        # Need ohlc for secondary fallback
+        ohlc, _ = _fetch_ohlc(
+            sym, entry_date, effective_end,
+            eod_prices, open_prices)
+
+        day6_open, day6_source = _resolve_day6_open(
+            sym, effective_end, ohlc, open_prices)
+
+        if day6_open is None:
+            print(f"[contra] {sym} ({shadow_id}) — "
+                  f"Day 6 open unavailable")
+            continue
+
+        # Calculate P&L for INVERTED direction
+        pnl_pct = _calc_pnl_pct(
+            entry, day6_open, inverted_dir)
+
+        if pnl_pct is None:
+            continue
+
+        # Classify outcome
+        if pnl_pct > FLAT_PCT:
+            outcome = 'CONTRA_WIN'
+        elif pnl_pct < -FLAT_PCT:
+            outcome = 'CONTRA_LOSS'
+        else:
+            outcome = 'CONTRA_FLAT'
+
+        shadow['outcome']       = outcome
+        shadow['outcome_date']  = effective_end.strftime(
+            '%Y-%m-%d')
+        shadow['outcome_price'] = round(day6_open, 2)
+        shadow['pnl_pct']       = pnl_pct
+        shadow['day6_source']   = day6_source
+        shadow['resolved_at']   = datetime.utcnow().isoformat() + 'Z'
+
+        print(f"[contra] {sym} ({shadow_id}) → "
+              f"{outcome} {pnl_pct:+.2f}% "
+              f"(inverted {original_dir}→{inverted_dir})")
+
+        resolved_count += 1
+        updates += 1
+
+    # Save back only if anything changed
+    if updates > 0:
+        data['shadows']   = shadows
+        data['updated_at'] = datetime.utcnow().isoformat() + 'Z'
+
+        # Count totals for logging
+        total_resolved = sum(
+            1 for s in shadows
+            if s.get('outcome') is not None
+            and s.get('outcome') != 'OPEN')
+        wins = sum(
+            1 for s in shadows
+            if s.get('outcome') == 'CONTRA_WIN')
+
+        tmp = CONTRA_SHADOW_FILE + '.tmp'
+        try:
+            with open(tmp, 'w') as f:
+                json.dump(data, f, indent=2, default=str)
+            os.replace(tmp, CONTRA_SHADOW_FILE)
+            print(f"[contra] Saved — resolved this run: "
+                  f"{resolved_count}. Total resolved: "
+                  f"{total_resolved} (wins: {wins})")
+        except Exception as e:
+            print(f"[contra] Save failed: {e}")
+    else:
+        print("[contra] No updates")
+
+
 # ── MAIN FUNCTION ─────────────────────────────────────
 
 def run_outcome_evaluation():
-    print("[outcome] Starting evaluation (v3 - EOD1+EOD2+D6A)...")
+    print("[outcome] Starting evaluation (v3 - EOD1+EOD2+D6A+CS3)...")
 
     holidays = _load_holidays()
     if not holidays:
@@ -774,6 +916,12 @@ def run_outcome_evaluation():
 
     if not open_signals:
         print("[outcome] No open signals")
+        # CS3: still try to resolve contra shadows
+        try:
+            _resolve_contra_shadows(
+                holidays, eod_prices, open_prices)
+        except Exception as e:
+            print(f"[contra] Non-fatal error: {e}")
         return
 
     print(f"[outcome] Evaluating {len(open_signals)} signals...")
@@ -832,6 +980,16 @@ def run_outcome_evaluation():
             print(f"[outcome] Save failed: {e}")
     else:
         print("[outcome] No updates needed")
+
+    # ── CS3: NEW — resolve contra shadows ─────────────
+    # Runs after regular signal resolution.
+    # Wrapped in try/except — NEVER blocks main flow
+    # even if contra_shadow.json is corrupt or missing.
+    try:
+        _resolve_contra_shadows(
+            holidays, eod_prices, open_prices)
+    except Exception as e:
+        print(f"[contra] Non-fatal error: {e}")
 
 
 if __name__ == '__main__':
