@@ -2,6 +2,14 @@
 # Deploys output/ to tietiy.in via GitHub Pages
 # Injects PWA PIN from GitHub secret before upload
 # Triggered on any push to output/
+#
+# Phase 2 Session 2:
+#   DPL1 — Added pre-upload verification step.
+#          Lists every file in output/, counts them,
+#          shows total size. Turns "1 file uploaded"
+#          (which is the tarball count) into an
+#          auditable log of everything being deployed.
+#          Fails the deploy if critical files missing.
 
 name: "🚀 Deploy | PIN-inject+output to tietiy.in GitHub Pages | On Push Auto"
 
@@ -43,6 +51,85 @@ jobs:
           sed -i "s/PWA_PIN_PLACEHOLDER/${PWA_PIN}/g" \
             output/index.html
 
+      - name: DPL1 — Verify output/ contents before upload
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  DEPLOY VERIFICATION — output/ contents"
+          echo "════════════════════════════════════════"
+
+          if [ ! -d "output" ]; then
+            echo "::error::output/ directory missing!"
+            exit 1
+          fi
+
+          echo ""
+          echo "── All files in output/ ──"
+          find output -type f | sort
+          echo ""
+
+          TOTAL=$(find output -type f | wc -l)
+          SIZE=$(du -sh output | cut -f1)
+          echo "Total files: $TOTAL"
+          echo "Total size:  $SIZE"
+          echo ""
+
+          # Verify critical files
+          echo "── Critical file check ──"
+          CRITICAL_FILES=(
+            "output/index.html"
+            "output/app.js"
+            "output/ui.js"
+            "output/journal.js"
+            "output/stats.js"
+            "output/sw.js"
+            "output/manifest.json"
+            "output/signal_history.json"
+            "output/meta.json"
+          )
+
+          MISSING=0
+          for f in "${CRITICAL_FILES[@]}"; do
+            if [ -f "$f" ]; then
+              SZ=$(stat -c%s "$f")
+              echo "  ✓ $f ($SZ bytes)"
+            else
+              echo "  ✗ MISSING: $f"
+              MISSING=$((MISSING + 1))
+            fi
+          done
+
+          if [ $MISSING -gt 0 ]; then
+            echo ""
+            echo "::error::$MISSING critical files missing — deploy aborted"
+            exit 1
+          fi
+
+          echo ""
+          echo "── JSON validity check ──"
+          for json in output/*.json; do
+            if [ -f "$json" ]; then
+              if python3 -c "import json; json.load(open('$json'))" 2>/dev/null; then
+                echo "  ✓ valid: $(basename $json)"
+              else
+                echo "  ✗ INVALID JSON: $(basename $json)"
+                echo "::warning::$(basename $json) is not valid JSON"
+              fi
+            fi
+          done
+
+          echo ""
+          echo "── PIN injection check ──"
+          if grep -q "PWA_PIN_PLACEHOLDER" output/index.html; then
+            echo "::warning::PWA_PIN_PLACEHOLDER still in index.html — PIN not injected"
+          else
+            echo "  ✓ PWA PIN successfully injected"
+          fi
+
+          echo ""
+          echo "════════════════════════════════════════"
+          echo "  Ready to deploy $TOTAL files ($SIZE)"
+          echo "════════════════════════════════════════"
+
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
@@ -51,3 +138,14 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+      - name: Deploy summary
+        if: always()
+        run: |
+          if [ "${{ steps.deployment.outcome }}" = "success" ]; then
+            echo "✓ Deployed to: ${{ steps.deployment.outputs.page_url }}"
+            echo "  Commit: ${{ github.sha }}"
+            echo "  Time:   $(date -u '+%Y-%m-%d %H:%M:%S UTC')"
+          else
+            echo "::error::Deploy failed — check logs above"
+          fi
