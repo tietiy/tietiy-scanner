@@ -1,0 +1,103 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-04-19T20:35:28.087839Z",
+  "week_range": [
+    "2026-04-12",
+    "2026-04-19"
+  ],
+  "patterns": {
+    "total": 148,
+    "validated_count": 8,
+    "preliminary_count": 14,
+    "emerging_count": 126,
+    "total_resolved_signals": 118,
+    "baselines": {
+      "DOWN_TRI": {
+        "wr": 20.0,
+        "avg_pnl": -7.29,
+        "n": 20,
+        "wins": 4,
+        "losses": 16
+      },
+      "BULL_PROXY": {
+        "wr": 86.7,
+        "avg_pnl": 7.2,
+        "n": 15,
+        "wins": 13,
+        "losses": 2
+      },
+      "UP_TRI": {
+        "wr": 95.2,
+        "avg_pnl": 6.18,
+        "n": 83,
+        "wins": 79,
+        "losses": 4
+      }
+    },
+    "top_validated": [
+      {
+        "id": "age=0_grade=B",
+        "wr": 69.8,
+        "n": 63,
+        "edge": -25.4,
+        "direction": "negative",
+        "insight": "age=0 + Grade B underperforms UP_TRI baseline by 25.4pp (69.8% WR in 63 trades)"
+      },
+      {
+        "id": "regime=Bear_age=0_grade=B",
+        "wr": 69.8,
+        "n": 63,
+        "edge": -25.4,
+        "direction": "negative",
+        "insight": "Bear regime + age=0 + Grade B underperforms UP_TRI baseline by 25.4pp (69.8% WR in 63 trades)"
+      },
+      {
+        "id": "sector=Bank",
+        "wr": 45.0,
+        "n": 20,
+        "edge": 25.0,
+        "direction": "positive",
+        "insight": "Bank sector outperforms DOWN_TRI baseline by 25.0pp (45.0% WR in 20 trades)"
+      }
+    ]
+  },
+  "proposals": {
+    "total": 0,
+    "pending_count": 0,
+    "approved_count": 0,
+    "already_active_count": 0,
+    "rejected_count": 0,
+    "pending_items": []
+  },
+  "contra": {
+    "total": 0,
+    "resolved": 0,
+    "pending": 0,
+    "wr": 0,
+    "avg_pnl": 0,
+    "unlocked": false,
+    "unlock_threshold": 30,
+    "recent_3": []
+  },
+  "regime": null,
+  "health": {
+    "overall": "skipped",
+    "last_validated": "2026-04-19T05:15:59.741293+00:00",
+    "checks_passed": 0,
+    "checks_failed": 0
+  },
+  "kill_rules": {
+    "count": 1,
+    "rules": [
+      {
+        "id": "kill_001",
+        "signal": "DOWN_TRI",
+        "sector": "Bank",
+        "reason": "0/11 WR live (Phase B pattern miner). Avg P&L -11.12%, MFE 0"
+      }
+    ]
+  },
+  "suggestions": [
+    "\ud83d\udd2c 8 validated patterns found. Review top items above."
+  ]
+}
