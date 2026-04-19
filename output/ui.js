@@ -2,40 +2,19 @@
 // Master controller for TIE TIY Scanner frontend
 // Loads first — all other JS files depend on this
 //
-// V1 FIXES APPLIED:
-// - L5  : _seedDefaultTook()
-// - L7  : switchTab() closes signal detail modal
-// - R3  : Offline banner
-// - R8  : _isSA() + _renderSABadge() global helpers
+// V1 FIXES: L5, L7, R3, R8
+// V1.1 FIXES: H9, M8, S1, S4, PWA_LAYOUT, NEWS_PANEL,
+//             HEALTH_LINK, LTP_FIX
+// V2 FIXES: UI1, NP1
 //
-// V1.1 FIXES:
-// - H9  : Stale warning suppressed before 9 AM IST
-// - M8  : Market regime note in status bar
-// - S1  : _enforceTabletWidth()
-// - S4  : Tab bar sizing via _enforceTabletWidth
-// - PWA_LAYOUT: Right sidebar on iPad >900px
-// - NEWS_PANEL: Left panel iPad >1000px
-// - HEALTH_LINK: Sidebar bottom card → health.html
-// - LTP_FIX: LTP time reads from ltp_prices.json
-//
-// V2 FIXES:
-// - UI1 : News panel + sidebar not showing in PWA —
-//         added _safeVW() fallback for PWA standalone
-//         mode where window.innerWidth can return 0
-//         or wrong value on iOS. Added null-check
-//         logging so silent failures surface in console.
-//         Both panels now log a warning if their
-//         container div is missing from index.html.
-// - NP1 : News loading slow — root cause was sequential
-//         for...of loop in _fetchNewsForStocks causing
-//         one stock at a time fetching (40 stocks × 400ms
-//         = 16+ seconds). Fixed to Promise.all parallel
-//         fetch. Added 4s AbortController timeout per
-//         stock so one slow fetch can't block the panel.
-//         Max stocks reduced 40→15 (beyond 15 the panel
-//         is too long to be useful and adds latency).
-//         Cached stocks render immediately without
-//         waiting for uncached ones.
+// PHASE 2 SESSION 2 FIXES:
+// - AR1 (support): Defines window._tietiyReload(reason)
+//   which app.js calls when SW broadcasts DATA_REFRESH.
+//   Re-fetches all data JSONs bypassing cache and
+//   re-renders current tab. No page reload needed.
+// - AR4: Pull-to-refresh gesture. User pulls down from
+//   top of signals view → visual indicator → threshold
+//   triggers refreshData(). Native-feeling on iPad/iOS.
 // ─────────────────────────────────────────────────────
 
 const VAPID_PUBLIC_KEY =
@@ -70,6 +49,11 @@ window.TIETIY = {
   lastFetch:    null,
   newsCache:    {},
 };
+
+// Track boot time globally for reload-loop protection
+if (!window._tietiyBootTime) {
+  window._tietiyBootTime = Date.now();
+}
 
 // ── UTILITY ───────────────────────────────────────────
 function fmt(n) {
@@ -112,7 +96,7 @@ function _bust(url) {
 }
 
 function _safeGet(url) {
-  return fetch(_bust(url))
+  return fetch(_bust(url), { cache: 'no-store' })
     .then(function(r) {
       if (!r.ok) throw new Error(r.status);
       return r.json();
@@ -121,19 +105,11 @@ function _safeGet(url) {
 }
 
 // ── UI1: SAFE VIEWPORT WIDTH ──────────────────────────
-// UI1 FIX: window.innerWidth returns 0 in some iOS PWA
-// standalone contexts on first paint. Falls back to
-// screen.width, then document.documentElement.clientWidth,
-// then 375 as safe default. Without this fallback both
-// _sidebarLayout() and _newsLayout() return {show:false}
-// because 0 < 900 and 0 < 1000 — panels never render.
 function _safeVW() {
   const w = window.innerWidth
     || document.documentElement.clientWidth
     || window.screen.width
     || 375;
-  // Extra guard: if value is unreasonably small,
-  // check screen.width as a better source
   if (w < 100 && window.screen && window.screen.width > 0) {
     return window.screen.width;
   }
@@ -329,7 +305,6 @@ function _countResolvedGen1() {
 }
 
 function _sidebarLayout() {
-  // UI1 FIX: use _safeVW() instead of window.innerWidth
   const vw = _safeVW();
 
   if (vw < 900) return { show: false };
@@ -356,7 +331,6 @@ function _sidebarLayout() {
 function _renderSidebar() {
   const el = document.getElementById('sidebar');
   if (!el) {
-    // UI1 FIX: surface missing element in console
     console.warn('[ui] #sidebar not found in HTML');
     return;
   }
@@ -557,7 +531,6 @@ function _renderSidebar() {
 // ── NEWS PANEL ────────────────────────────────────────
 
 function _newsLayout() {
-  // UI1 FIX: use _safeVW() instead of window.innerWidth
   const vw = _safeVW();
 
   if (vw < 1000) return { show: false };
@@ -604,8 +577,6 @@ function _getNewsStocks() {
     syms.push(sym);
   });
 
-  // NP1 FIX: reduced from 40 to 15 — beyond 15 the
-  // panel is too long and each extra stock adds latency
   return syms.slice(0, 15);
 }
 
@@ -638,10 +609,6 @@ async function _fetchStockNews(symbol) {
       'https://api.rss2json.com/v1/api.json'
       + '?rss_url=' + rssUrl;
 
-    // NP1 FIX: 4s timeout per fetch so one slow
-    // stock can't block the entire panel. Previously
-    // no timeout — a single hanging request would
-    // freeze all remaining sequential fetches.
     const controller = new AbortController();
     const timeoutId  = setTimeout(function() {
       controller.abort();
@@ -679,22 +646,6 @@ async function _fetchStockNews(symbol) {
   }
 }
 
-// NP1 FIX: Changed from sequential for...of to
-// Promise.all parallel fetch.
-//
-// BEFORE (broken):
-//   for (const sym of symbols) {
-//     const items = await _fetchStockNews(sym);
-//     ...
-//   }
-// Each stock waited for the previous to complete.
-// 15 stocks × 400ms = 6s minimum. 40 stocks = 16s+.
-//
-// AFTER (fixed):
-//   Promise.all fetches all stocks simultaneously.
-// 15 stocks in parallel → completes in ~400-800ms
-// regardless of stock count. Cached stocks return
-// instantly (<1ms) so repeat views are immediate.
 async function _fetchNewsForStocks(symbols) {
   const promises = symbols.map(function(sym) {
     return _fetchStockNews(sym)
@@ -873,7 +824,6 @@ async function _renderNewsPanel() {
   const mobileEl = document.getElementById(
     'mobile-news-section');
 
-  // UI1 FIX: log missing element so it surfaces
   if (!panel) {
     console.warn('[ui] #news-panel not found in HTML');
     return;
@@ -928,8 +878,6 @@ async function _renderNewsPanel() {
       Loading…
     </div>`;
 
-  // NP1: Now parallel — completes in ~400-800ms
-  // instead of stocks.length × 400ms
   const newsItems =
     await _fetchNewsForStocks(stocks);
 
@@ -1104,6 +1052,9 @@ function _hideOfflineBanner() {
   }, 2000);
 }
 
+window._showOfflineBanner = _showOfflineBanner;
+window._hideOfflineBanner = _hideOfflineBanner;
+
 window.addEventListener('offline', function() {
   _showOfflineBanner();
 });
@@ -1117,7 +1068,6 @@ window.addEventListener('online', function() {
 
 // ── S1: TABLET WIDTH ENFORCEMENT ─────────────────────
 function _enforceTabletWidth() {
-  // UI1 FIX: use _safeVW() throughout
   const vw = _safeVW();
 
   if (vw < 768) {
@@ -1555,6 +1505,218 @@ async function refreshData() {
   }
 }
 
+// ── AR1: GLOBAL RELOAD TRIGGER ────────────────────────
+// Called by app.js when SW broadcasts DATA_REFRESH.
+// Also callable manually from console for debugging.
+// Lighter than refreshData() — skips button animation
+// and news refetch. Just re-loads data JSONs and
+// re-renders current tab.
+window._tietiyReload = async function(reason) {
+  console.log('[ui] _tietiyReload triggered', reason || '');
+
+  try {
+    const ok = await _fetchAll();
+    if (!ok) {
+      console.warn('[ui] _tietiyReload: fetch failed');
+      return;
+    }
+
+    _renderStatusBar(window.TIETIY.meta);
+    _renderAlertBanner(window.TIETIY.stopAlerts);
+    _renderSidebar();
+
+    // Re-render current tab with fresh data
+    const tab = window.TIETIY.activeTab || 'signals';
+    if (tab === 'signals' && typeof renderSignals === 'function') {
+      renderSignals(window.TIETIY);
+    } else if (tab === 'journal' && typeof renderJournal === 'function') {
+      renderJournal(window.TIETIY);
+    } else if (tab === 'stats' && typeof renderStats === 'function') {
+      renderStats(window.TIETIY);
+    }
+
+    // Flash a small toast so user knows data was updated
+    _showReloadToast(reason);
+
+  } catch(e) {
+    console.error('[ui] _tietiyReload error:', e);
+  }
+};
+
+function _showReloadToast(reason) {
+  let el = document.getElementById('reload-toast');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'reload-toast';
+    el.style.cssText = [
+      'position:fixed',
+      'bottom:80px',
+      'left:50%',
+      'transform:translateX(-50%)',
+      'background:#0d2a0d',
+      'border:1px solid #00C851',
+      'color:#00C851',
+      'font-size:11px',
+      'font-weight:700',
+      'padding:6px 14px',
+      'border-radius:16px',
+      'z-index:999',
+      'opacity:0',
+      'transition:opacity 0.3s',
+      '-webkit-tap-highlight-color:transparent',
+    ].join(';');
+    document.body.appendChild(el);
+  }
+  el.textContent = reason === 'sw_refresh'
+    ? '✓ Data refreshed'
+    : '✓ Updated';
+  el.style.opacity = '1';
+  setTimeout(function() {
+    el.style.opacity = '0';
+  }, 1800);
+}
+
+// ── AR4: PULL-TO-REFRESH ──────────────────────────────
+// Native-feeling gesture for iPad/iOS. User pulls
+// down from top of scroll, sees indicator, release
+// past 80px threshold → triggers refreshData().
+let _ptrStartY   = 0;
+let _ptrPulling  = false;
+let _ptrTriggered = false;
+const PTR_THRESHOLD = 80;
+const PTR_MAX_PULL  = 150;
+
+function _ensurePtrIndicator() {
+  let el = document.getElementById('ptr-indicator');
+  if (!el) {
+    el = document.createElement('div');
+    el.id = 'ptr-indicator';
+    el.style.cssText = [
+      'position:fixed',
+      'top:0',
+      'left:50%',
+      'transform:translateX(-50%) translateY(-40px)',
+      'background:#161b22',
+      'border:1px solid #ffd70033',
+      'color:#ffd700',
+      'font-size:11px',
+      'font-weight:700',
+      'padding:6px 14px',
+      'border-radius:0 0 16px 16px',
+      'z-index:998',
+      'transition:transform 0.15s ease',
+      '-webkit-tap-highlight-color:transparent',
+      'pointer-events:none',
+    ].join(';');
+    el.innerHTML = '↓ Pull to refresh';
+    document.body.appendChild(el);
+  }
+  return el;
+}
+
+function _updatePtrIndicator(distance) {
+  const el = _ensurePtrIndicator();
+  const ratio = Math.min(distance / PTR_THRESHOLD, 1);
+  const visible = Math.min(distance / 2, 40);
+  el.style.transform =
+    `translateX(-50%) translateY(${visible - 40}px)`;
+  if (ratio >= 1) {
+    el.innerHTML = '↑ Release to refresh';
+    el.style.color = '#00C851';
+    el.style.borderColor = '#00C85166';
+  } else {
+    el.innerHTML = '↓ Pull to refresh';
+    el.style.color = '#ffd700';
+    el.style.borderColor = '#ffd70033';
+  }
+}
+
+function _hidePtrIndicator() {
+  const el = document.getElementById('ptr-indicator');
+  if (el) {
+    el.style.transform =
+      'translateX(-50%) translateY(-40px)';
+  }
+}
+
+function _onTouchStart(e) {
+  if (!e.touches || !e.touches[0]) return;
+  // Only activate when at top of scroll
+  if (window.scrollY > 0) return;
+  _ptrStartY = e.touches[0].clientY;
+  _ptrPulling = true;
+  _ptrTriggered = false;
+}
+
+function _onTouchMove(e) {
+  if (!_ptrPulling) return;
+  if (!e.touches || !e.touches[0]) return;
+
+  const deltaY = e.touches[0].clientY - _ptrStartY;
+
+  // Only respond to downward pulls
+  if (deltaY <= 0) {
+    _ptrPulling = false;
+    _hidePtrIndicator();
+    return;
+  }
+
+  // User scrolled since — cancel
+  if (window.scrollY > 0) {
+    _ptrPulling = false;
+    _hidePtrIndicator();
+    return;
+  }
+
+  if (deltaY > PTR_MAX_PULL) {
+    _updatePtrIndicator(PTR_MAX_PULL);
+  } else {
+    _updatePtrIndicator(deltaY);
+  }
+}
+
+function _onTouchEnd(e) {
+  if (!_ptrPulling) return;
+  _ptrPulling = false;
+
+  if (!e.changedTouches || !e.changedTouches[0]) {
+    _hidePtrIndicator();
+    return;
+  }
+
+  const deltaY = e.changedTouches[0].clientY - _ptrStartY;
+
+  if (deltaY >= PTR_THRESHOLD && !_ptrTriggered) {
+    _ptrTriggered = true;
+    const el = document.getElementById('ptr-indicator');
+    if (el) {
+      el.innerHTML = '⟳ Refreshing…';
+      el.style.color = '#00C851';
+    }
+    refreshData().finally(function() {
+      setTimeout(_hidePtrIndicator, 400);
+    });
+  } else {
+    _hidePtrIndicator();
+  }
+}
+
+function _initPullToRefresh() {
+  // Passive for perf, except touchmove where we need
+  // to know position to show indicator
+  document.addEventListener('touchstart', _onTouchStart,
+    { passive: true });
+  document.addEventListener('touchmove', _onTouchMove,
+    { passive: true });
+  document.addEventListener('touchend', _onTouchEnd,
+    { passive: true });
+  document.addEventListener('touchcancel', function() {
+    _ptrPulling = false;
+    _hidePtrIndicator();
+  }, { passive: true });
+  console.log('[ui] Pull-to-refresh initialized');
+}
+
 // ── HELP OVERLAY ──────────────────────────────────────
 function showHelp() {
   const el = document.getElementById('help-overlay');
@@ -1985,6 +2147,9 @@ async function initApp() {
     _renderNewsPanel();
     _renderNav(window.TIETIY.activeTab);
     switchTab(window.TIETIY.activeTab);
+
+    // AR4: Initialize pull-to-refresh gesture
+    _initPullToRefresh();
 
     if (!navigator.onLine) _showOfflineBanner();
 
