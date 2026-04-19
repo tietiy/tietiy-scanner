@@ -1,0 +1,105 @@
+name: "🔄 Rebuild HTML on Frontend Changes"
+
+# ─────────────────────────────────────────────────
+# Purpose: Automatically regenerate index.html with
+# fresh cache-bust timestamp whenever any frontend
+# file is committed to main. Prevents stale PWA
+# caches after ui.js / stats.js / app.js changes.
+#
+# How it works:
+#   1. You commit ui.js (or any watched file)
+#   2. This workflow triggers automatically
+#   3. build_html() writes new timestamp into
+#      <script src="ui.js?v=YYYYMMDDHHMM"> tags
+#   4. PWA picks up new query string → refetches
+#
+# [skip ci] in commit message prevents infinite loop
+# (this workflow's own commit wouldn't re-trigger).
+# ─────────────────────────────────────────────────
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'output/ui.js'
+      - 'output/app.js'
+      - 'output/journal.js'
+      - 'output/stats.js'
+      - 'output/sw.js'
+      - 'output/manifest.json'
+      - 'scanner/html_builder.py'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: rebuild_html
+  cancel-in-progress: true
+
+jobs:
+  rebuild:
+    name: 🔄 Rebuild index.html
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 2
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install pandas yfinance requests
+
+      - name: Create folders
+        run: mkdir -p output
+
+      - name: Rebuild index.html with fresh timestamp
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  REBUILDING index.html"
+          echo "════════════════════════════════════════"
+          cd scanner
+          python -c "from html_builder import build_html; build_html()"
+          echo ""
+          echo "Frontend files triggering rebuild:"
+          cd ..
+          git diff --name-only HEAD~1 HEAD | grep -E 'output/(ui|app|journal|stats|sw)\.js|output/manifest\.json|scanner/html_builder\.py' || echo '(initial commit or no JS changes)'
+
+      - name: Show new timestamp in index.html
+        run: |
+          echo "New cache-bust strings in index.html:"
+          grep -oP 'v=\d{12}' output/index.html | head -4 || echo "(timestamps not found)"
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name  "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+
+          git add output/index.html 2>/dev/null || true
+
+          if git diff --staged --quiet; then
+            echo "✓ No changes to index.html — already up to date"
+          else
+            git commit -m "chore: rebuild index.html for cache-bust [skip ci]"
+
+            for i in 1 2 3; do
+              if git pull --rebase origin main && git push origin HEAD:main; then
+                echo "✅ Push succeeded on attempt $i"
+                break
+              else
+                echo "⚠️ Push attempt $i failed, retrying in 5s..."
+                sleep 5
+              fi
+            done
+          fi
