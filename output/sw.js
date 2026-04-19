@@ -1,39 +1,32 @@
 // ── sw.js ────────────────────────────────────────────
 // Service Worker for TIE TIY Scanner
 //
-// V1 FIXES APPLIED:
-// - L4  : Offline caching strategy improved
-//         JS files now network-first + cache fallback
-//         (was never-cached → broke app offline entirely)
-//         JS added to install-time shell cache
-//         Cache name bumped to v2 for clean reinstall
-// - R3  : SW-side offline support
-//         _broadcastNetworkState() posts OFFLINE/ONLINE
-//         messages to all clients on fetch failure/recovery
-//         Offline fallback HTML when shell unavailable
-//
-// CACHING STRATEGY (updated):
-// JS files    → Network first, cache fallback (L4 fix)
-// JSON files  → Network first, cache as fallback
-// HTML/icons  → Cache first for offline support
-// CSS files   → Network first, cache fallback
-//
-// Network state:
-// Fetch failure → broadcast OFFLINE to all clients
-// Fetch success after failure → broadcast ONLINE
+// V1 FIXES: L4, R3 (offline support, network state)
 //
 // V2 FIXES:
-// - SW1: Cache version bumped v5 → v6 — forces full
-//        cache invalidation on all clients. Kills the
-//        stale no-sidebar layout that was being served
-//        from cache after the news panel deploy.
-//        Old cache deleted on activate as usual.
+// - SW1 (v6): cache version bump for stale layout
+//
+// PHASE 2 SESSION 2 FIXES:
+// - SW1 (v8): Data JSON files are NEVER SW-cached.
+//   signal_history.json, meta.json, open_prices.json,
+//   eod_prices.json, ltp.json, patterns.json,
+//   system_health.json — all fetched with
+//   cache: 'no-store' and a cache-bust query param.
+//   This permanently eliminates "I refreshed but Stats
+//   still shows old numbers" problem.
+//
+// - SW2: On activate, SW messages all clients with
+//   type: 'DATA_REFRESH'. app.js/stats.js listen for
+//   this and force-reload their JSON data. No more
+//   manual SW version bumps to push data changes.
+//
+// - Cache version bumped v7 → v8 (one-time reinstall
+//   to deploy these fixes; after this, data staleness
+//   stops being a cache version problem).
 // ─────────────────────────────────────────────────────
 
-// SW1 FIX: bumped v5 → v6 to invalidate stale cache.
-// Every user's old cache (including no-sidebar layout)
-// will be deleted and rebuilt on next load.
-const CACHE_NAME = 'tietiy-shell-v7';
+const CACHE_VERSION = 'v8';
+const CACHE_NAME    = 'tietiy-shell-' + CACHE_VERSION;
 
 const SHELL_FILES = [
   '/tietiy-scanner/',
@@ -47,6 +40,27 @@ const SHELL_FILES = [
   '/tietiy-scanner/journal.js',
   '/tietiy-scanner/stats.js',
 ];
+
+// SW1: Data JSON files — NEVER cached at SW level
+// These files change multiple times per day via workflows.
+// Treating them as regular JSON caused the Apr 18 stale
+// Stats display bug. Always fetch fresh.
+const DATA_JSON_PATTERNS = [
+  'signal_history.json',
+  'meta.json',
+  'open_prices.json',
+  'eod_prices.json',
+  'ltp.json',
+  'patterns.json',
+  'system_health.json',
+  'stop_alerts.json',
+];
+
+function _isDataJson(url) {
+  return DATA_JSON_PATTERNS.some(function(pattern) {
+    return url.indexOf(pattern) !== -1;
+  });
+}
 
 // R3: track last known network state
 let _lastNetworkOk = true;
@@ -63,6 +77,27 @@ function _broadcastNetworkState(isOnline) {
     includeUncontrolled: true,
     type: 'window',
   }).then(function(clients) {
+    clients.forEach(function(client) {
+      client.postMessage(msg);
+    });
+  });
+}
+
+
+// ── SW2: BROADCAST DATA REFRESH ───────────────────────
+function _broadcastDataRefresh() {
+  const msg = {
+    type: 'DATA_REFRESH',
+    version: CACHE_VERSION,
+    timestamp: Date.now(),
+  };
+
+  self.clients.matchAll({
+    includeUncontrolled: true,
+    type: 'window',
+  }).then(function(clients) {
+    console.log('[SW] Broadcasting DATA_REFRESH to',
+                clients.length, 'clients');
     clients.forEach(function(client) {
       client.postMessage(msg);
     });
@@ -124,7 +159,7 @@ function _offlineJS() {
 
 // ── INSTALL ───────────────────────────────────────────
 self.addEventListener('install', function(event) {
-  console.log('[SW] Installing v6...');
+  console.log('[SW] Installing ' + CACHE_VERSION + '...');
   event.waitUntil(
     caches.open(CACHE_NAME)
       .then(function(cache) {
@@ -144,7 +179,7 @@ self.addEventListener('install', function(event) {
 
 // ── ACTIVATE ──────────────────────────────────────────
 self.addEventListener('activate', function(event) {
-  console.log('[SW] Activating v6...');
+  console.log('[SW] Activating ' + CACHE_VERSION + '...');
   event.waitUntil(
     caches.keys()
       .then(function(cacheNames) {
@@ -162,6 +197,12 @@ self.addEventListener('activate', function(event) {
       .then(function() {
         return self.clients.claim();
       })
+      .then(function() {
+        // SW2: Tell all clients to reload their data JSONs.
+        // New SW is now in charge, any stale in-memory data
+        // should be refreshed.
+        _broadcastDataRefresh();
+      })
   );
 });
 
@@ -171,6 +212,51 @@ self.addEventListener('fetch', function(event) {
   const url = event.request.url;
 
   if (event.request.method !== 'GET') return;
+
+  // ── SW1: DATA JSON FILES — BYPASS ALL CACHES ──────
+  // signal_history.json, meta.json, open_prices.json, etc.
+  // These change multiple times per day. Never cache.
+  if (_isDataJson(url)) {
+    // Build cache-busted request
+    const urlObj = new URL(url);
+    urlObj.searchParams.set('sw', Date.now().toString());
+
+    const freshRequest = new Request(urlObj.toString(), {
+      method:       'GET',
+      headers:      event.request.headers,
+      credentials:  event.request.credentials,
+      cache:        'no-store',
+      mode:         'cors',
+    });
+
+    event.respondWith(
+      fetch(freshRequest, { cache: 'no-store' })
+        .then(function(response) {
+          if (_isCacheable(response)) {
+            _broadcastNetworkState(true);
+          }
+          return response;
+        })
+        .catch(function() {
+          _broadcastNetworkState(false);
+          // No fallback — fail fast so client knows
+          // it needs to handle offline state
+          return new Response(
+            JSON.stringify({
+              error: 'offline',
+              sw_cache_bypass: true
+            }),
+            {
+              status: 503,
+              headers: {
+                'Content-Type': 'application/json'
+              }
+            }
+          );
+        })
+    );
+    return;
+  }
 
   // ── JS FILES — NETWORK FIRST + CACHE FALLBACK ─────
   if (url.includes('.js')) {
@@ -197,7 +283,8 @@ self.addEventListener('fetch', function(event) {
     return;
   }
 
-  // ── JSON FILES — NETWORK FIRST + CACHE FALLBACK ───
+  // ── OTHER JSON (not data) — NETWORK FIRST ─────────
+  // Catches things like external JSON requests.
   if (url.includes('.json')) {
     event.respondWith(
       fetch(event.request)
@@ -296,7 +383,8 @@ self.addEventListener('message', function(event) {
   if (!event.data) return;
 
   if (event.data.type === 'PROBE_NETWORK') {
-    fetch('/tietiy-scanner/meta.json?probe=' + Date.now())
+    fetch('/tietiy-scanner/meta.json?probe=' + Date.now(),
+          { cache: 'no-store' })
       .then(function() {
         _broadcastNetworkState(true);
       })
@@ -307,6 +395,11 @@ self.addEventListener('message', function(event) {
 
   if (event.data.type === 'SKIP_WAITING') {
     self.skipWaiting();
+  }
+
+  // SW2: Client can request a manual data refresh
+  if (event.data.type === 'REQUEST_DATA_REFRESH') {
+    _broadcastDataRefresh();
   }
 });
 
