@@ -13,29 +13,26 @@
 // - R8  : SA badge on signal cards + tap panel
 //
 // V1.1 FIXES:
-// - M5  : _buildMorningBrief() — compact urgency bar
-// - H1  : Score visual weight on cards —
-//         font size + background scales with score
-//         9/10 looks clearly stronger than 5/10
-// - H2  : Score-based card border colour —
-//         gold 8-10, faint white 5-7, grey below 5
-// - J2  : TradingView link in tap panel fixed for
-//         iOS PWA — window.open() replaces
-//         target="_blank" which is blocked in PWA
+// - M5  : _buildMorningBrief()
+// - H1  : Score visual weight
+// - H2  : Score-based card border colour
+// - J2  : TradingView link iOS PWA fix
 //
 // V2 FIXES:
-// - AJ1 : New Today badge count fix — age0 filter
-//         count used s.age === _todayIST() (always
-//         false, number vs string). Fixed to
-//         s.date === _todayIST().
-// - AJ2 : Stock-regime conflict note on signal card.
-// - AJ3 : _buildMorningBrief exit detection fix —
-//         was using getDayNumber(s.date) >= 6 which
-//         gave 32 exits on Signals tab while Journal
-//         showed 6. Fixed to use exit_date field
-//         comparison (same source as Telegram bot
-//         and journal.js JJ1 fix). All three sources
-//         now agree on exit counts.
+// - AJ1 : New Today badge count fix
+// - AJ2 : Stock-regime conflict note
+// - AJ3 : _buildMorningBrief exit detection fix
+//
+// PHASE 2 SESSION 2 FIXES:
+// - AR1: SW message listener extended to handle
+//        DATA_REFRESH — forces reload of signal
+//        data JSONs bypassing any cache. Triggered
+//        automatically when SW activates with new
+//        version. No more manual cache bumps.
+// - AR3: _renderLastUpdated() — small header indicator
+//        showing "2m ago" / "just now" based on
+//        meta.json last_scan timestamp. Updates every
+//        30s. Users see data freshness at a glance.
 // ─────────────────────────────────────────────────────
 
 const SIGNAL_CONFIG = {
@@ -642,20 +639,12 @@ function _buildSACallout(sig) {
 }
 
 // ── M5: MORNING BRIEF ────────────────────────────────
-// AJ3 FIX: exit detection now uses exit_date field
-// comparison instead of getDayNumber(s.date) >= 6.
-// getDayNumber was giving 32 exits on Signals tab
-// while Journal showed 6 — inconsistent counts.
-// exit_date comparison is the same method used by
-// Telegram bot and journal.js (JJ1 fix).
-// All three sources now agree on exit counts.
 function _buildMorningBrief(allSignals, stopAlerts) {
   const today = _todayIST();
 
   const open = allSignals.filter(
     s => s.result === 'PENDING');
 
-  // AJ3 FIX: use exit_date field, not getDayNumber
   const tomorrow = (function() {
     const d = new Date();
     d.setDate(d.getDate() + 1);
@@ -1550,6 +1539,72 @@ function _detailRow(label, value, color) {
     </div>`;
 }
 
+// ── AR3: LAST-UPDATED INDICATOR ───────────────────────
+// Shows "2m ago" / "just now" in header. Updates every
+// 30s automatically. Source: meta.json last_scan.
+function _renderLastUpdated() {
+  const meta = (window.TIETIY && window.TIETIY.meta)
+    ? window.TIETIY.meta : {};
+  const lastScan = meta.last_scan;
+  if (!lastScan) return '';
+
+  let ago = '—';
+  let color = '#555';
+  try {
+    const scanTime = new Date(lastScan).getTime();
+    const nowTime  = Date.now();
+    const diffSec  = Math.floor(
+      (nowTime - scanTime) / 1000);
+
+    if (diffSec < 60) {
+      ago   = 'just now';
+      color = '#00C851';
+    } else if (diffSec < 3600) {
+      const m = Math.floor(diffSec / 60);
+      ago   = `${m}m ago`;
+      color = m < 30 ? '#00C851' : '#FFD700';
+    } else if (diffSec < 86400) {
+      const h = Math.floor(diffSec / 3600);
+      ago   = `${h}h ago`;
+      color = '#FF8C00';
+    } else {
+      const d = Math.floor(diffSec / 86400);
+      ago   = `${d}d ago`;
+      color = '#f85149';
+    }
+  } catch(e) {}
+
+  return `
+    <div id="last-updated"
+      style="font-size:10px;color:${color};
+        display:inline-block;
+        margin-left:8px;opacity:0.8;">
+      ● ${ago}
+    </div>`;
+}
+
+// Auto-tick the last-updated indicator every 30s
+let _lastUpdatedTimer = null;
+function _startLastUpdatedTicker() {
+  if (_lastUpdatedTimer) return;
+  _lastUpdatedTimer = setInterval(function() {
+    const el = document.getElementById('last-updated');
+    if (!el) return;
+    const fresh = _renderLastUpdated();
+    if (fresh) {
+      const wrapper = document.createElement('div');
+      wrapper.innerHTML = fresh;
+      const newEl = wrapper.firstElementChild;
+      if (newEl && el.parentNode) {
+        el.parentNode.replaceChild(newEl, el);
+      }
+    }
+  }, 30000);
+}
+
+// Expose so ui.js can inject indicator into header
+window._renderLastUpdated = _renderLastUpdated;
+
 // ── MAIN RENDER ───────────────────────────────────────
 function renderSignals(data) {
   const content =
@@ -1695,6 +1750,7 @@ function renderSignals(data) {
           ? _buildRejectedSection(rejected) : ''}
       </div>`;
     _renderNav('signals');
+    _startLastUpdatedTicker();
     return;
   }
 
@@ -1724,6 +1780,7 @@ function renderSignals(data) {
             font-weight:400;">
             ${riskStr}${sectorLabel}
           </span>
+          ${_renderLastUpdated()}
         </div>
 
         ${displaySignals.map(sig => {
@@ -1760,6 +1817,7 @@ function renderSignals(data) {
     </div>`;
 
   _renderNav('signals');
+  _startLastUpdatedTicker();
 }
 
 // ── REJECTED SECTION ──────────────────────────────────
@@ -1931,7 +1989,13 @@ function _urlB64ToUint8Array(base64String) {
   return arr;
 }
 
-// ── R3: SERVICE WORKER MESSAGE LISTENER ───────────────
+// ── R3 + AR1: SERVICE WORKER MESSAGE LISTENER ─────────
+// AR1: Added DATA_REFRESH handler. When SW activates
+// with a new version, it broadcasts DATA_REFRESH to all
+// clients. On receipt, app.js calls window._tietiyReload()
+// (defined in ui.js) which re-fetches all data JSONs
+// bypassing any cache. This eliminates the need to
+// manually bump SW cache versions when data changes.
 let _swListenerAttached = false;
 
 function _initSWMessageListener() {
@@ -1943,6 +2007,7 @@ function _initSWMessageListener() {
     function(event) {
       if (!event.data) return;
       const type = event.data.type;
+
       if (type === 'OFFLINE') {
         if (typeof window._showOfflineBanner
             === 'function') {
@@ -1953,12 +2018,34 @@ function _initSWMessageListener() {
             === 'function') {
           window._hideOfflineBanner();
         }
+      } else if (type === 'DATA_REFRESH') {
+        // AR1: SW telling us fresh data is available.
+        // Reload all JSONs and re-render current tab.
+        console.log('[app] DATA_REFRESH received',
+          'v=' + (event.data.version || '?'));
+        if (typeof window._tietiyReload === 'function') {
+          window._tietiyReload('sw_refresh');
+        } else {
+          console.warn('[app] _tietiyReload not yet '
+            + 'defined, falling back to location.reload');
+          // Gentle fallback — only if page has been
+          // live for at least 30s (avoid reload loops)
+          if (window._tietiyBootTime &&
+              Date.now() - window._tietiyBootTime > 30000) {
+            location.reload();
+          }
+        }
       }
     }
   );
 
   _swListenerAttached = true;
   console.log('[app] SW message listener attached');
+}
+
+// Track boot time for reload-loop protection
+if (!window._tietiyBootTime) {
+  window._tietiyBootTime = Date.now();
 }
 
 if ('serviceWorker' in navigator) {
