@@ -2,14 +2,17 @@
 # All Telegram message formatting and sending
 #
 # Message designs:
-# 1. Morning scan   — spoiler price details, stock regime visible
-# 2. Open validate  — gap focused, silent if all OK
-# 3. Stop alert     — compact, urgent
-# 4. Exit tomorrow  — entry + ltp + % vs entry
-# 5. EOD summary    — signal type + outcome + P&L
-# 6. Heartbeat      — daily alive signal + workflow status
-# 7. Workflow fail  — alert on GitHub Action failure
-# 8. Weekend summary — weekly recap
+# 1. Morning scan     — spoiler price details, stock regime visible
+# 2. Open validate    — gap focused, silent if all OK
+# 3. Stop alert       — compact, urgent
+# 4. Exit tomorrow    — entry + ltp + % vs entry
+# 5. EOD summary      — signal type + outcome + P&L
+# 6. Heartbeat        — daily alive signal + workflow status
+# 7. Workflow fail    — alert on GitHub Action failure
+# 8. Weekend summary  — weekly recap
+# 9. Morning brief    — consolidated one-message summary (NEW Session 3)
+# 10. Pattern report  — on-demand pattern_miner findings (NEW Session 3)
+# 11. Weekly intel    — Sunday AI analysis (NEW Session 3)
 #
 # V1 FIXES APPLIED:
 # - R2  : Telegram command handler (/status /signals /stats)
@@ -17,43 +20,21 @@
 # - M11 : /health command — system health detail
 #
 # V1.1 FIXES:
-# - HC1/HC2/HC3: _to_ist() converts all UTC timestamps
-#   to IST (UTC+5:30) before display in Telegram.
+# - HC1/HC2/HC3: _to_ist() converts all UTC timestamps to IST.
 # - MC2: send_exit_tomorrow deduplicates same stock
 # - MC3: send_open_validation deduplicates same stock
-# - TG1: /today command — morning brief
-# - TG2: /exits command — today + tomorrow exits
-# - TG3: /stops command — stop proximity from LTP
-# - TG4: /pnl command — unrealized P&L on open positions
-# - poll_and_respond() accepts ltp_prices param
-# - W1/TR5: send_weekend_summary now shows phase_note,
-#   type_counts breakdown, week date range
-# - BX1: _find_next_exit crash when exit_date is None
-#   fixed — None guarded with or ''
-# - TG6: _get_updates now tracks offset in
-#   output/tg_offset.json — commands never missed
-#   across cron cycles
-#
-# PRIOR FIXES RETAINED:
-# D1: send_morning_scan reads active_signals_count from meta
-# B1: send_exit_tomorrow accepts exit_today flag
-# Q2: send_message retry + exponential backoff
-# Q3: send_heartbeat shows workflow status
-# Q4: send_message auto-chunks > 4000 chars
+# - TG1-TG6: /today /exits /stops /pnl commands + offset tracking
 #
 # V2 FIXES:
-# - TB1: Timezone fix — all date.today() calls replaced
-#   with _ist_date() (UTC+5:30). On GitHub Actions,
-#   date.today() returns UTC date which can be one day
-#   behind IST after 6:30 PM UTC. Affects exit lists,
-#   EOD summary date label, heartbeat, weekend summary.
-# - TB2: EOD summary today-only filter — send_eod_summary
-#   was showing ALL 47+ historical resolved signals every
-#   single day. Added outcome_date == today filter so
-#   only signals resolved TODAY appear in the message.
-#   Without this fix the EOD message grows by ~40 lines
-#   today and will eventually hit Telegram's 4000 char
-#   limit and start failing silently.
+# - TB1: Timezone fix — _ist_date() replaces date.today()
+# - TB2: EOD summary today-only filter
+#
+# SESSION 3 ADDITIONS (Apr 19 2026):
+# - MB1: send_morning_brief() — one-message consolidated brief
+# - RP2: /approve_rule command handler
+# - RP3: send_pattern_report() — on-demand pattern findings
+# - WI3: send_weekly_intelligence() — accepts pre-formatted message
+#        from weekly_intelligence.py
 # ─────────────────────────────────────────────────────
 
 import os
@@ -439,7 +420,10 @@ def poll_and_respond(meta: dict,
         if not text.startswith('/') or not chat_id:
             continue
 
-        cmd = text.split('@')[0].split()[0].lower()
+        # Preserve full command line for commands
+        # that take arguments (e.g. /approve_rule prop_001)
+        full_text = text.split('@')[0]
+        cmd = full_text.split()[0].lower()
         print(f'[telegram] Command: {cmd} '
               f'from chat {chat_id}')
 
@@ -460,6 +444,13 @@ def poll_and_respond(meta: dict,
             _respond_stops(chat_id, history, ltp_prices)
         elif cmd == '/pnl':
             _respond_pnl(chat_id, history, ltp_prices)
+        # NEW (Session 3): rule approval + proposals
+        elif cmd == '/approve_rule':
+            _respond_approve_rule(chat_id, full_text)
+        elif cmd == '/proposals':
+            _respond_proposals(chat_id)
+        elif cmd == '/patterns':
+            _respond_patterns(chat_id)
         elif cmd == '/help':
             _respond_help(chat_id)
         else:
@@ -545,13 +536,24 @@ def _respond_status(chat_id, meta: dict):
     status_str = ('Trading day' if is_trading
                   else 'Market closed')
 
+    # NEW (Session 3): include active kill rules
+    kill_info = ''
+    try:
+        from mini_scanner import get_active_kill_patterns
+        kills = get_active_kill_patterns()
+        if kills:
+            kill_info = (
+                f'\nKill rules: {len(kills)} active')
+    except Exception:
+        pass
+
     lines = [
         '📊 TIE TIY STATUS',
         '',
         f'Regime    : {regime}',
         f'Active    : {active} signals',
         f'Last scan : {date_fmt} at {scan_ist}',
-        f'Today     : {status_str}',
+        f'Today     : {status_str}' + kill_info,
         '',
         PWA_URL,
     ]
@@ -1083,20 +1085,136 @@ def _respond_pnl(chat_id, history: list,
     _reply_message(chat_id, '\n'.join(lines))
 
 
+# ── NEW (Session 3): /approve_rule <prop_id> ─────────
+def _respond_approve_rule(chat_id, full_text: str):
+    """
+    Approve a rule_proposer proposal.
+    Usage: /approve_rule prop_001
+    """
+    parts = full_text.split()
+    if len(parts) < 2:
+        _reply_message(chat_id,
+            'Usage: /approve_rule <proposal_id>\n'
+            'Example: /approve_rule prop_001\n'
+            'Use /proposals to see pending IDs.')
+        return
+
+    prop_id = parts[1].strip()
+
+    try:
+        from rule_proposer import approve_proposal
+        result = approve_proposal(prop_id)
+
+        if result.get('success'):
+            msg = (
+                f'✅ Approved: {prop_id}\n'
+                f'Action: {result.get("action", "—")}\n'
+                f'Target: {result.get("target", "—")}\n'
+                f'Effect takes place on next scan.')
+        else:
+            msg = (
+                f'❌ Could not approve {prop_id}\n'
+                f'Reason: {result.get("error", "unknown")}')
+
+    except ImportError:
+        msg = ('⚠️ rule_proposer module not available. '
+               'Deploy scanner/rule_proposer.py first.')
+    except Exception as e:
+        msg = f'❌ Error approving {prop_id}: {e}'
+
+    _reply_message(chat_id, msg)
+
+
+# ── NEW (Session 3): /proposals ───────────────────────
+def _respond_proposals(chat_id):
+    """Show pending rule proposals."""
+    _root = os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__)))
+    path  = os.path.join(
+        _root, 'output', 'proposed_rules.json')
+
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        _reply_message(chat_id,
+            'No proposals file yet. '
+            'Run EOD master to generate.')
+        return
+    except Exception as e:
+        _reply_message(chat_id,
+            f'Error reading proposals: {e}')
+        return
+
+    proposals = data.get('proposals', [])
+    pending = [p for p in proposals
+               if p.get('status') == 'pending']
+
+    if not pending:
+        _reply_message(chat_id,
+            'No pending proposals.\n'
+            f'Active: {len([p for p in proposals if p.get("status") == "already_active"])}\n'
+            f'Approved: {len([p for p in proposals if p.get("status") == "approved"])}')
+        return
+
+    lines = [f'⚡ PENDING PROPOSALS ({len(pending)})', '']
+    for p in pending[:10]:
+        pid    = p.get('id', '?')
+        action = (p.get('action') or '').upper()
+        sig    = p.get('target_signal') or ''
+        sec    = p.get('target_sector') or ''
+        ev     = p.get('evidence', {})
+        wr     = ev.get('wr', 0)
+        n      = ev.get('n', 0)
+
+        target = sig + (f'+{sec}' if sec else '')
+        lines.append(f'{pid}')
+        lines.append(f'  {action} {target}')
+        lines.append(f'  {wr}% WR, n={n}')
+        lines.append(f'  /approve_rule {pid}')
+        lines.append('')
+
+    if len(pending) > 10:
+        lines.append(f'... +{len(pending)-10} more')
+
+    _reply_message(chat_id, '\n'.join(lines))
+
+
+# ── NEW (Session 3): /patterns ────────────────────────
+def _respond_patterns(chat_id):
+    """Trigger on-demand pattern report."""
+    try:
+        send_pattern_report()
+        _reply_message(chat_id,
+            '🔬 Pattern report sent.')
+    except Exception as e:
+        _reply_message(chat_id,
+            f'Error sending patterns: {e}')
+
+
 # ── /help ─────────────────────────────────────────────
 def _respond_help(chat_id):
     lines = [
         '🤖 TIE TIY BOT COMMANDS',
         '',
-        '/today   — morning brief: exits + new signals',
-        '/exits   — who exits today + tomorrow',
-        '/pnl     — unrealized P&L on open positions',
-        '/stops   — stop proximity check',
-        '/signals — all open positions + day count',
-        '/stats   — resolved count + win rate',
-        '/status  — regime + active + last scan',
-        '/health  — system diagnostics',
-        '/help    — this message',
+        'TRADING',
+        '/today    — morning brief',
+        '/exits    — today + tomorrow exits',
+        '/pnl      — unrealized P&L',
+        '/stops    — stop proximity',
+        '/signals  — all open positions',
+        '/stats    — win rate + counts',
+        '',
+        'SYSTEM',
+        '/status   — regime + active + kill rules',
+        '/health   — workflow diagnostics',
+        '',
+        'INTELLIGENCE (Session 3)',
+        '/proposals          — pending rule proposals',
+        '/approve_rule <id>  — apply proposal',
+        '/patterns           — pattern_miner findings',
+        '',
+        '/help     — this message',
         '',
         PWA_URL,
     ]
@@ -1490,14 +1608,6 @@ def send_eod_summary(outcomes: list,
     today_str = _ist_date().strftime('%Y-%m-%d')
 
     # TB2 FIX: filter to TODAY's resolutions only.
-    # Previously showed ALL ever-resolved signals
-    # (47 historical) on every single EOD run.
-    # outcome_date is written by outcome_evaluator
-    # when a signal resolves. Filtering by this
-    # ensures only signals closed TODAY appear.
-    # Without this fix, message grows by ~40 lines
-    # today and will eventually exceed Telegram's
-    # 4000 char limit and start failing silently.
     resolved = [
         o for o in outcomes
         if o.get('outcome')
@@ -1788,6 +1898,306 @@ def send_weekend_summary(stats: dict):
     lines.append('Good trading next week\\! 📈')
 
     send_message('\n'.join(lines))
+
+
+# ── 9. NEW (Session 3 · MB1): MORNING BRIEF ──────────
+# Consolidated one-message summary sent after
+# send_morning_scan. Shows the 5 things that matter:
+#  1. Today's exits (and their current P&L)
+#  2. Tomorrow's exits (heads-up)
+#  3. Top new signals today
+#  4. Kill rules active + any warnings
+#  5. Open positions P&L summary
+# Never breaks morning flow (caller wraps in try/except).
+def send_morning_brief(signals: list,
+                       market_info: dict,
+                       history: list):
+    today_iso = _ist_date().isoformat()
+    tomorrow  = (_ist_date() +
+                 timedelta(days=1)).isoformat()
+    regime    = market_info.get('regime', '—')
+    active    = market_info.get(
+        'active_signals_count', 0)
+    new_count = len(signals)
+
+    # Exits today (need immediate attention)
+    exits_today = [
+        s for s in history
+        if s.get('action') == 'TOOK'
+        and (s.get('outcome') or '') not in _DONE
+        and s.get('exit_date', '') == today_iso
+    ]
+
+    # Exits tomorrow (heads-up)
+    exits_tmrw = [
+        s for s in history
+        if s.get('action') == 'TOOK'
+        and (s.get('outcome') or '') not in _DONE
+        and s.get('exit_date', '') == tomorrow
+    ]
+
+    # Top 3 new signals by score
+    top_new = sorted(
+        signals,
+        key=lambda x: float(
+            x.get('score', 0) or 0),
+        reverse=True)[:3]
+
+    # Kill rules active
+    active_kills = []
+    try:
+        from mini_scanner import get_active_kill_patterns
+        active_kills = get_active_kill_patterns()
+    except Exception:
+        pass
+
+    lines = []
+    lines.append(
+        f'☀️ *MORNING BRIEF · '
+        f'{_esc(today_iso)}*')
+    lines.append(
+        f'{_esc(regime)} regime  ·  '
+        f'{_esc(str(active))} active  ·  '
+        f'{_esc(str(new_count))} new')
+    lines.append('')
+
+    # ── 1. EXIT TODAY ─────────────────────────────
+    if exits_today:
+        lines.append(
+            f'🚨 *Exit today: '
+            f'{_esc(str(len(exits_today)))}*')
+        top5 = exits_today[:5]
+        syms = ', '.join(
+            _esc((s.get('symbol', '')
+                  .replace('.NS', '')))
+            for s in top5)
+        lines.append(syms)
+        if len(exits_today) > 5:
+            lines.append(
+                f'\\+{len(exits_today)-5} more · '
+                f'/exits')
+        lines.append('')
+
+    # ── 2. EXIT TOMORROW ──────────────────────────
+    if exits_tmrw:
+        lines.append(
+            f'⏰ Exit tomorrow: '
+            f'{_esc(str(len(exits_tmrw)))}')
+        lines.append('')
+
+    # ── 3. TOP NEW SIGNALS ─────────────────────────
+    if top_new:
+        lines.append(
+            f'🔔 *Top new signals*')
+        for s in top_new:
+            sym   = _esc((s.get('symbol', '?')
+                          .replace('.NS', '')))
+            stype = _esc(s.get('signal', '?'))
+            score = s.get('score', 0)
+            sector = _esc(s.get('sector', '—'))
+            lines.append(
+                f'  {_sig_emoji(s.get("signal",""))} '
+                f'*{sym}* · {stype} · '
+                f'{_esc(str(score))}/10 · '
+                f'{sector}')
+        lines.append('')
+
+    # ── 4. KILL RULES ACTIVE ──────────────────────
+    if active_kills:
+        lines.append(
+            f'🛑 *Kill rules active: '
+            f'{_esc(str(len(active_kills)))}*')
+        for k in active_kills[:3]:
+            sig = _esc(k.get('signal', ''))
+            sec = _esc(k.get('sector', '') or 'ALL')
+            lines.append(f'  {sig} \\+ {sec}')
+        lines.append('')
+
+    # ── 5. OPEN POSITIONS PNL ─────────────────────
+    # Quick count — no LTP here (that's /pnl)
+    open_positions = [
+        s for s in history
+        if s.get('action') == 'TOOK'
+        and (s.get('outcome') or '') not in _DONE
+        and (s.get('generation') or 0) >= 1
+    ]
+    if open_positions:
+        lines.append(
+            f'📍 Open positions: '
+            f'{_esc(str(len(open_positions)))}')
+        lines.append(
+            '_Use /pnl for current P&L_')
+        lines.append('')
+
+    # ── FOOTER ────────────────────────────────────
+    lines.append(
+        '_Commands: /today /exits /pnl /stops_')
+
+    send_message('\n'.join(lines))
+
+
+# ── 10. NEW (Session 3 · RP3): PATTERN REPORT ────────
+# Sends current pattern_miner findings to Telegram.
+# Can be called on-demand via /patterns command.
+def send_pattern_report():
+    _root = os.path.dirname(
+        os.path.dirname(os.path.abspath(__file__)))
+    path  = os.path.join(
+        _root, 'output', 'patterns.json')
+
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+    except FileNotFoundError:
+        send_message(
+            _esc('⚠️ No patterns.json yet. '
+                 'Run EOD master first.'))
+        return
+    except Exception as e:
+        send_message(
+            _esc(f'Error reading patterns: {e}'))
+        return
+
+    patterns = data.get('patterns', [])
+    if not patterns:
+        send_message(
+            _esc('🔬 No patterns discovered yet. '
+                 'Need more resolved signals.'))
+        return
+
+    validated = [p for p in patterns
+                 if p.get('tier') == 'validated']
+    preliminary = [p for p in patterns
+                   if p.get('tier') == 'preliminary']
+    emerging = [p for p in patterns
+                if p.get('tier') == 'emerging']
+
+    lines = []
+    lines.append(
+        f'🔬 *PATTERN REPORT*')
+    lines.append(
+        f'{_esc(str(len(patterns)))} total · '
+        f'{_esc(str(len(validated)))} validated · '
+        f'{_esc(str(len(preliminary)))} preliminary')
+    lines.append('')
+
+    # Top 5 validated by edge magnitude
+    top = sorted(
+        validated,
+        key=lambda p: abs(p.get('edge_pct', 0) or 0),
+        reverse=True)[:5]
+
+    if top:
+        lines.append('*Top validated:*')
+        for p in top:
+            wr     = p.get('wr', 0)
+            n      = p.get('n_resolved', 0)
+            edge   = p.get('edge_pct', 0)
+            direction = p.get('direction', '')
+            d_emoji = '🟢' if direction == 'positive' else '🔴'
+            insight = (p.get('insight', '') or '')[:80]
+            lines.append(
+                f'{d_emoji} {_esc(str(wr))}% WR · '
+                f'n\\={_esc(str(n))} · '
+                f'edge {_esc(f"{edge:+.0f}")}pp')
+            lines.append(
+                f'  _{_esc(insight)}_')
+        lines.append('')
+
+    # Emerging patterns count
+    if emerging:
+        lines.append(
+            f'🌱 {_esc(str(len(emerging)))} '
+            f'emerging patterns tracked')
+        lines.append('')
+
+    lines.append(
+        '_Full analysis: weekly intelligence Sunday 8 PM_')
+
+    send_message('\n'.join(lines))
+
+
+# ── 11. NEW (Session 3 · WI3): WEEKLY INTELLIGENCE ───
+# Called by weekly_intelligence.py's send_weekly_intelligence().
+# Accepts a pre-formatted message string (composed by
+# weekly_intelligence.py which handles the formatting).
+# This is a thin delivery wrapper.
+def send_weekly_intelligence(message: str) -> bool:
+    """
+    Send pre-formatted weekly intelligence message.
+    
+    Called by scanner/weekly_intelligence.py after
+    it composes the full report. Handles MarkdownV2
+    send + auto-chunking via send_message().
+    
+    Returns True if sent successfully, False otherwise.
+    """
+    if not message:
+        print('[telegram] Empty weekly intel message')
+        return False
+    
+    # The message from weekly_intelligence.py uses
+    # standard Markdown (not MarkdownV2). Convert by
+    # escaping special chars.
+    # Since weekly_intelligence.py already uses simple
+    # markdown (*bold*, _italic_, backticks), and we
+    # use MarkdownV2, we need to escape dots, dashes,
+    # parens, etc. in the text portions but preserve
+    # intentional formatting.
+    #
+    # Simplest safe approach: send as plain text via
+    # direct API call, bypassing MarkdownV2 entirely.
+    # Weekly intel uses emojis + structure, not heavy
+    # formatting.
+    
+    if not TELEGRAM_TOKEN:
+        print('[telegram] No token for weekly intel')
+        return False
+    
+    url = (f'https://api.telegram.org/'
+           f'bot{TELEGRAM_TOKEN}/sendMessage')
+    
+    MAX_LENGTH = 4000
+    chunks = ([message]
+              if len(message) <= MAX_LENGTH
+              else _split_message(message, MAX_LENGTH))
+    
+    success = True
+    for i, chunk in enumerate(chunks):
+        try:
+            # Use Markdown (not MarkdownV2) for weekly
+            # intel — matches how the composer formats.
+            payload = {
+                'chat_id':    TELEGRAM_CHAT_ID,
+                'text':       chunk,
+                'parse_mode': 'Markdown',
+                'disable_web_page_preview': True,
+            }
+            r = requests.post(
+                url, json=payload, timeout=15)
+            
+            if r.status_code == 200:
+                print(f'[telegram] Weekly intel chunk '
+                      f'{i+1}/{len(chunks)} sent')
+            else:
+                # Fallback to plain text
+                print(f'[telegram] Markdown failed '
+                      f'({r.status_code}), trying plain')
+                payload['text'] = _strip_markdown(chunk)
+                payload.pop('parse_mode', None)
+                r = requests.post(
+                    url, json=payload, timeout=15)
+                if r.status_code != 200:
+                    success = False
+            
+            if i < len(chunks) - 1:
+                time.sleep(1)
+                
+        except Exception as e:
+            print(f'[telegram] Weekly intel error: {e}')
+            success = False
+    
+    return success
 
 
 # ── TEST ──────────────────────────────────────────────
