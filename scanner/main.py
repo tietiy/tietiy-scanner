@@ -18,6 +18,15 @@
 # HC4: poll_and_respond() wired after morning scan —
 #      reads ltp_prices.json, passes to command handler
 #      so /stops and /pnl commands have live LTP data.
+#
+# SESSION 3 ADDITIONS (Apr 19 2026):
+# RA1: get_nifty_info() appends to regime_debug.json —
+#      collects raw regime values for Phase C classifier
+#      rewrite decision. Wrapped in try/except, NEVER
+#      breaks scanner on write failure.
+# MB1: send_morning_brief() called after send_morning_scan
+#      — one-message consolidated morning summary. Wrapped
+#      in try/except; failure does not affect morning scan.
 # ─────────────────────────────────────────────────────
 
 import sys
@@ -93,6 +102,10 @@ SECTOR_INDICES = {
     "Infra":  "^CNXINFRA",
 }
 
+# NEW (Session 3 — RA1): Regime debug log path
+REGIME_DEBUG_PATH = os.path.join(
+    OUTPUT_DIR, 'regime_debug.json')
+
 
 # ── SHADOW MODE CHECK ─────────────────────────────────
 def _is_shadow_mode():
@@ -160,8 +173,96 @@ def _load_ltp_prices() -> dict:
         return {}
 
 
+# ── RA1: REGIME DEBUG LOGGER (NEW Session 3) ──────────
+def _log_regime_debug(regime_info):
+    """
+    Append regime classification details to
+    output/regime_debug.json for Phase C analysis.
+
+    NEVER breaks scanner on failure.
+    Failure mode: skip silently, log to stdout.
+
+    Args:
+      regime_info: dict with keys expected from
+                   get_nifty_info() extended output
+    """
+    try:
+        today_str = date.today().isoformat()
+
+        # Load existing logs
+        if os.path.exists(REGIME_DEBUG_PATH):
+            with open(REGIME_DEBUG_PATH, 'r') as f:
+                data = json.load(f)
+        else:
+            data = {
+                'schema_version': 1,
+                'description': (
+                    'Regime classifier debug log. '
+                    'Captures raw values for Phase C '
+                    'classifier rewrite. '
+                    'Read-only, never consumed by '
+                    'scanner logic.'
+                ),
+                'logs': []
+            }
+
+        # Skip if already logged today
+        existing_dates = {
+            l.get('date') for l in data.get('logs', [])}
+        if today_str in existing_dates:
+            print(f"[main] Regime debug already "
+                  f"logged for {today_str}")
+            return
+
+        # Append today's entry
+        new_entry = {
+            'date':             today_str,
+            'scan_time_utc':    datetime.utcnow()
+                                .strftime('%H:%M'),
+            'nifty_close':      regime_info.get(
+                'nifty_close', 0),
+            'last_slope':       regime_info.get(
+                'last_slope'),
+            'last_above_ema50': regime_info.get(
+                'last_above_ema50'),
+            'ret20_pct':        regime_info.get(
+                'ret20', 0),
+            'regime_score':     regime_info.get(
+                'regime_score', 0),
+            'classified_as':    regime_info.get(
+                'regime', ''),
+        }
+        data['logs'].append(new_entry)
+
+        # Keep most recent 90 days only
+        if len(data['logs']) > 90:
+            data['logs'] = data['logs'][-90:]
+
+        # Atomic write
+        tmp_path = REGIME_DEBUG_PATH + '.tmp'
+        with open(tmp_path, 'w') as f:
+            json.dump(data, f, indent=2, default=str)
+        os.replace(tmp_path, REGIME_DEBUG_PATH)
+
+        print(f"[main] Regime debug logged: "
+              f"{today_str} {new_entry['classified_as']}")
+
+    except Exception as e:
+        print(f"[main] Regime debug log error "
+              f"(non-fatal): {e}")
+
+
 # ── MARKET DATA ───────────────────────────────────────
 def get_nifty_info():
+    """
+    Fetch Nifty data and classify regime.
+
+    SESSION 3 CHANGE (RA1):
+    - Returns extended dict with last_slope,
+      last_above_ema50 (for regime_debug logging)
+    - Calls _log_regime_debug() at end (never
+      breaks on failure)
+    """
     try:
         df = yf.download(
             NIFTY_SYMBOL, period='3mo',
@@ -191,7 +292,7 @@ def get_nifty_info():
              1 if ret20 >  2 else
             -1 if ret20 < -2 else 0)
 
-        return {
+        result = {
             'regime':         regime,
             'regime_score':   regime_score,
             'nifty_close':    round(
@@ -200,25 +301,39 @@ def get_nifty_info():
                 float(closes.iloc[-1]), 2),
             'nifty_change':   round(ret20, 2),
             'ret20':          round(ret20, 2),
+            # NEW (RA1): raw values for regime_debug
+            'last_slope':     round(last_slope, 6),
+            'last_above_ema50': last_above,
             'today':          date.today().strftime(
                 '%d %b %Y'),
             'market_date':    date.today().isoformat(),
             'sector_leaders': []
         }
+
+        # RA1: Log regime debug (non-fatal on failure)
+        _log_regime_debug(result)
+
+        return result
+
     except Exception as e:
         print(f"[main] Nifty info error: {e}")
-        return {
+        fallback = {
             'regime':         'Choppy',
             'regime_score':   0,
             'nifty_close':    0,
             'nifty_price':    0,
             'nifty_change':   0,
             'ret20':          0,
+            'last_slope':     None,
+            'last_above_ema50': None,
             'today':          date.today().strftime(
                 '%d %b %Y'),
             'market_date':    date.today().isoformat(),
             'sector_leaders': []
         }
+        # Still try to log the failure case
+        _log_regime_debug(fallback)
+        return fallback
 
 
 def get_sector_momentum():
@@ -461,6 +576,8 @@ def run_morning_scan():
     sector_momentum = get_sector_momentum()
     market_info['sector_leaders'] = \
         get_sector_leaders(sector_momentum)
+    # NEW: expose full sector momentum dict for meta.json
+    market_info['sector_momentum'] = sector_momentum
 
     # ── STEP 5: Load universe ─────────────────────────
     universe   = load_universe()
@@ -680,7 +797,30 @@ def run_morning_scan():
             insufficient_data     = insufficient_data,
             corporate_action_skip = corporate_action_skip,
             history_record_count  = get_history_count(),
+            sector_momentum       = sector_momentum,
         )
+    except TypeError:
+        # Backward compat: if write_meta doesn't yet
+        # accept sector_momentum, fall back without it.
+        # meta_writer.py update in Block 5.5 adds support.
+        try:
+            write_meta(
+                output_dir            = OUTPUT_DIR,
+                market_date           = scan_date,
+                regime                = regime,
+                universe_size         = len(universe),
+                signals_found         = len(mini_signals),
+                active_signals_count  = active_now,
+                is_trading_day        = True,
+                scanner_version       = SCANNER_VERSION,
+                app_version           = APP_VERSION,
+                fetch_failed          = fetch_failed,
+                insufficient_data     = insufficient_data,
+                corporate_action_skip = corporate_action_skip,
+                history_record_count  = get_history_count(),
+            )
+        except Exception as e:
+            print(f"[main] Meta write error: {e}")
     except Exception as e:
         print(f"[main] Meta write error: {e}")
 
@@ -715,6 +855,26 @@ def run_morning_scan():
         send_morning_scan(mini_signals, market_info)
     except Exception as e:
         print(f"[main] Telegram morning error: {e}")
+
+    # ── STEP 20b: Morning brief (NEW — MB1) ───────────
+    # One-message consolidated summary.
+    # Wrapped in try/except — NEVER breaks morning flow.
+    # Graceful if telegram_bot.send_morning_brief not
+    # yet deployed (first-run safety).
+    try:
+        from telegram_bot import send_morning_brief
+        send_morning_brief(
+            signals     = mini_signals,
+            market_info = market_info,
+            history     = load_history(),
+        )
+    except ImportError:
+        print("[main] Morning brief not available "
+              "(send_morning_brief not in telegram_bot) "
+              "— skipping gracefully")
+    except Exception as e:
+        print(f"[main] Morning brief error "
+              f"(non-fatal): {e}")
 
     # ── STEP 21: Poll and respond to commands ──────────
     # HC4 FIX: poll_and_respond() wired here so Telegram
