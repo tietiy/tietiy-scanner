@@ -1,13 +1,49 @@
 {
   "schema_version": 2,
   "generated_at": "2026-04-19T23:30:00Z",
-  "description": "Configuration for mini scanner filtering rules. Kill patterns actively block signals. Shadow mode logs everything without filtering.",
-  
+  "description": "Mini scanner rules config. Original rule descriptions preserved (Phase guardrails intact). Kill_patterns added Session 3 for hard-block functionality.",
+
   "shadow_mode": true,
-  
+
+  "rules": {
+    "min_score": {
+      "active": false,
+      "threshold": 7,
+      "sa_threshold": 5,
+      "description": "Minimum score to pass. SA = second attempt threshold. DO NOT activate until 30 resolved signals show score correlates with WR."
+    },
+    "min_rr": {
+      "active": false,
+      "threshold": 2.0,
+      "description": "Minimum R:R ratio required."
+    },
+    "regime_alignment": {
+      "active": false,
+      "description": "PERMANENTLY DISABLED — backtest proves Bear regime UP_TRI is highest conviction trade (avg 4.85%). Activating this rule kills the best signals. Never enable without explicit backtest evidence per signal type."
+    },
+    "require_volume": {
+      "active": false,
+      "description": "vol_confirm must be true. Do not activate until Phase 1 shows volume correlates with WR."
+    },
+    "grade_gate": {
+      "active": false,
+      "allowed": ["A", "B", "C"],
+      "description": "Only listed grades pass. Phase 2 candidate after Grade A vs B WR comparison."
+    },
+    "clean_air": {
+      "active": false,
+      "description": "Clean air above target required. Phase 2 candidate."
+    },
+    "delivery_volume": {
+      "active": false,
+      "description": "Phase 3 only — delivery_pct filter. Requires NSE Bhavcopy scraping. Do not activate yet."
+    }
+  },
+
   "kill_patterns": [
     {
       "id": "kill_001",
+      "active": true,
       "signal": "DOWN_TRI",
       "sector": "Bank",
       "reason": "0/11 WR live (Phase B pattern miner). Avg P&L -11.12%, MFE 0% — every trade went against immediately.",
@@ -24,15 +60,15 @@
       "contra_shadow_tracked": true
     }
   ],
-  
+
   "warn_patterns": [],
-  
   "boost_patterns": [],
-  
+
   "notes": {
-    "kill_patterns": "Signals matching these are REJECTED with reason=kill_switch. Also trigger contra_tracker to record inverted shadow trade.",
-    "warn_patterns": "Signals matching these pass but are flagged in Telegram/PWA with caution note. Not yet implemented.",
-    "boost_patterns": "Signals matching these receive score boost. Not yet implemented.",
-    "shadow_mode": "When true, all signals pass to journal regardless of rules. Used during initial data collection phase."
+    "rules": "Existing 6-rule system from mini_scanner.py DEFAULT_RULES. Each rule has 'active' field. Set to true to activate. Zero Python changes needed. Rules block signals ONLY in active mode — shadow mode lets all pass but logs hits. See each rule's description for phase-based activation guardrails.",
+    "kill_patterns": "NEW (Session 3). Hard-blocks signals matching signal+sector combo REGARDLESS of shadow_mode. Different from 'rules' above — rules are conditional based on shadow_mode, kill_patterns are absolute. When matched, also triggers contra_tracker.record() to log inverted shadow trade. Each kill_pattern has independent 'active' field for disabling without removing.",
+    "warn_patterns": "NEW (Session 3, placeholder). Signals matching these pass but flagged with caution. Not yet implemented.",
+    "boost_patterns": "NEW (Session 3, placeholder). Signals matching these receive score boost. Not yet implemented.",
+    "shadow_mode": "When true, rule system lets all signals pass to mini_log. Used during initial data collection. Kill_patterns bypass shadow_mode and block unconditionally."
   }
 }
