@@ -417,6 +417,40 @@ def _resolve_day6_open(symbol, effective_tracking_end,
                        ohlc, open_prices):
     """
     D6A: Day 6 open price lookup.
+    Primary:   open_prices.json (today only, written 9:27 AM)
+    Secondary: ohlc dataframe (yfinance or eod-derived)
+
+    open_prices.json schema:
+      { "date": "YYYY-MM-DD", "results": [{symbol, actual_open}, ...] }
+
+    Returns (day6_open, source) tuple.
+    """
+    date_str = effective_tracking_end.strftime('%Y-%m-%d')
+
+    # Primary: open_prices.json — only if today matches Day 6
+    if (open_prices.get('date') == date_str):
+        for entry in open_prices.get('results', []):
+            if entry.get('symbol') == symbol:
+                ao = entry.get('actual_open')
+                if ao is not None:
+                    try:
+                        return float(ao), 'open_prices'
+                    except Exception:
+                        pass
+
+    # Secondary: ohlc dataframe
+    if ohlc is not None and not ohlc.empty:
+        day6_ts = pd.Timestamp(effective_tracking_end)
+        if day6_ts in ohlc.index:
+            try:
+                return float(ohlc.loc[day6_ts, 'Open']), 'ohlc'
+            except Exception:
+                pass
+
+    return None, 'unavailable'
+
+    """
+    D6A: Day 6 open price lookup.
     Primary:   open_prices.json (written 9:27 AM)
     Secondary: ohlc dataframe (yfinance or eod-derived)
 
