@@ -1,0 +1,166 @@
+# .github/workflows/eod_master.yml
+# EOD Master — single chained workflow for end-of-day.
+# Replaces old eod_update.yml + absorbs chain_validator
+# and pattern_miner runs.
+#
+# Runs at 3:35 PM IST via cron-job.org (same trigger time
+# as old eod_update.yml, so no cron-job.org change needed).
+#
+# STEPS IN ORDER:
+#   1. Backup manager (preserve history)
+#   2. Outcome evaluation (resolve signals)
+#   3. EOD prices fetch (write eod_prices.json)
+#   4. Telegram EOD summary (main.py eod mode)
+#   5. Chain validator (writes system_health.json)
+#   6. Pattern miner (writes patterns.json)
+#   7. Commit all output/ changes
+#
+# DESIGN:
+# - Critical steps (1-4) use exit-on-error: stop if broken
+# - Aux steps (5-6) use continue-on-error: never block commit
+# - Single commit at end: atomic update for PWA
+#
+# ROLLBACK: If this breaks, rename to eod_master.yml.bak
+# and rename eod_update.yml.bak back to eod_update.yml.
+# Nothing else to revert — same triggers, same outputs.
+
+name: "🌙 EOD Master | Backup+Outcomes+EOD+Chain+Patterns+Telegram | 3:35 PM IST"
+
+on:
+  workflow_dispatch:
+    inputs:
+      skip_patterns:
+        description: 'Skip pattern miner (for debug)'
+        required: false
+        default: false
+        type: boolean
+
+concurrency:
+  group: tietiy-eod-master
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  eod_master:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install yfinance pandas numpy requests
+
+      - name: Create folders
+        run: mkdir -p output data output/backups
+
+      # ── STEP 1: Backup (critical) ─────────────────
+      - name: "1/6 Backup manager"
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  STEP 1/6: BACKUP"
+          echo "════════════════════════════════════════"
+          python scanner/backup_manager.py
+
+      # ── STEP 2-4: Outcome eval + EOD + Telegram ───
+      - name: "2-4/6 EOD chain (main.py eod)"
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          GH_TOKEN:         ${{ secrets.GH_TOKEN }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  STEPS 2-4/6: OUTCOMES + EOD + TELEGRAM"
+          echo "════════════════════════════════════════"
+          cd $GITHUB_WORKSPACE/scanner
+          python main.py eod
+
+      # ── STEP 5: Chain validator (non-critical) ────
+      - name: "5/6 Chain validator"
+        continue-on-error: true
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  STEP 5/6: CHAIN VALIDATOR"
+          echo "════════════════════════════════════════"
+          cd $GITHUB_WORKSPACE/scanner
+          python chain_validator.py
+
+      # ── STEP 6: Pattern miner (non-critical) ──────
+      - name: "6/6 Pattern miner"
+        if: ${{ inputs.skip_patterns != true }}
+        continue-on-error: true
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  STEP 6/6: PATTERN MINER"
+          echo "════════════════════════════════════════"
+          cd $GITHUB_WORKSPACE/scanner
+          python pattern_miner.py
+
+      # ── COMMIT (single atomic update) ──────────────
+      - name: Commit and push all outputs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  COMMITTING ALL CHANGES"
+          echo "════════════════════════════════════════"
+          git config user.name  "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+
+          git add \
+            output/eod_prices.json \
+            output/signal_history.json \
+            output/signal_history.backup.json \
+            output/signal_archive.json \
+            output/colab_export.json \
+            output/meta.json \
+            output/tg_offset.json \
+            output/system_health.json \
+            output/patterns.json \
+            output/backups/ \
+            backups/ \
+            2>/dev/null || true
+
+          git diff --cached --quiet && \
+            echo "No changes to commit" && exit 0
+
+          git commit -m "EOD master $(date '+%Y-%m-%d') IST — backup+outcomes+eod+chain+patterns"
+
+          for i in 1 2 3; do
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
+
+      # ── FAILURE ALERT ─────────────────────────────
+      - name: Alert on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORKFLOW_NAME:    "EOD Master"
+          RUN_URL:          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          pip install requests --quiet
+          python scanner/alert_failure.py
