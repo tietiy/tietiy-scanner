@@ -1,0 +1,169 @@
+name: 🧠 Weekly Intelligence
+
+# ─────────────────────────────────────────────────
+# Purpose: Run weekly_intelligence.py every Sunday
+#   - Generates AI analysis of patterns, proposals, contra, regime
+#   - Sends Telegram intelligence report
+#   - Writes output/weekly_intelligence_latest.json
+#
+# Trigger: workflow_dispatch only (cron-job.org external trigger)
+# Schedule: Sunday 8 PM IST = 14:30 UTC
+#
+# DIFFERENT from weekend_summary (Saturday trader recap):
+#   - weekend_summary.yml → Saturday morning W/L/P&L recap
+#   - weekly_intelligence.yml → Sunday evening pattern/strategy review
+# ─────────────────────────────────────────────────
+
+on:
+  workflow_dispatch:
+    inputs:
+      dry_run:
+        description: 'Skip Telegram send (for testing)'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'false'
+          - 'true'
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly_intelligence
+  cancel-in-progress: false
+
+jobs:
+  weekly_intelligence:
+    name: 🧠 Generate Weekly Intelligence
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      # ─────────────────────────────────────────────
+      # Step 1: Checkout
+      # ─────────────────────────────────────────────
+      - name: 📥 Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 2
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      # ─────────────────────────────────────────────
+      # Step 2: Python setup
+      # ─────────────────────────────────────────────
+      - name: 🐍 Setup Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      # ─────────────────────────────────────────────
+      # Step 3: Install dependencies
+      # ─────────────────────────────────────────────
+      - name: 📦 Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install requests pandas yfinance
+        timeout-minutes: 3
+
+      # ─────────────────────────────────────────────
+      # Step 4: Ensure output directory exists
+      # ─────────────────────────────────────────────
+      - name: 📁 Prepare output directory
+        run: mkdir -p output
+
+      # ─────────────────────────────────────────────
+      # Step 5: Generate weekly intelligence
+      # ─────────────────────────────────────────────
+      - name: 🧠 Generate weekly intelligence
+        id: generate
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+          DRY_RUN: ${{ github.event.inputs.dry_run }}
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  WEEKLY INTELLIGENCE GENERATION"
+          echo "════════════════════════════════════════"
+          echo "Dry run: $DRY_RUN"
+          echo ""
+
+          cd scanner
+
+          if [ "$DRY_RUN" = "true" ]; then
+            echo "[dry-run] Generating report without sending Telegram"
+            python weekly_intelligence.py
+          else
+            echo "[live] Generating and sending Telegram intelligence"
+            python weekly_intelligence.py --send
+          fi
+
+          echo ""
+          echo "════════════════════════════════════════"
+          echo "  GENERATION COMPLETE"
+          echo "════════════════════════════════════════"
+
+      # ─────────────────────────────────────────────
+      # Step 6: Show output snapshot (for logs)
+      # ─────────────────────────────────────────────
+      - name: 📋 Show output snapshot
+        if: always()
+        run: |
+          if [ -f output/weekly_intelligence_latest.json ]; then
+            echo "📄 weekly_intelligence_latest.json created:"
+            echo "────────────────────────────────────────"
+            head -c 500 output/weekly_intelligence_latest.json
+            echo ""
+            echo "────────────────────────────────────────"
+            ls -lh output/weekly_intelligence_latest.json
+          else
+            echo "⚠️ weekly_intelligence_latest.json NOT found"
+          fi
+
+      # ─────────────────────────────────────────────
+      # Step 7: Commit the output JSON
+      # ─────────────────────────────────────────────
+      - name: 💾 Commit weekly intelligence JSON
+        if: success()
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+          
+          git add output/weekly_intelligence_latest.json 2>/dev/null || true
+          
+          if git diff --staged --quiet; then
+            echo "ℹ️ No changes to commit"
+          else
+            TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M UTC")
+            git commit -m "chore: weekly intelligence report $TIMESTAMP [skip ci]"
+            
+            # Retry push up to 3 times (handle concurrent commits)
+            for i in 1 2 3; do
+              if git push; then
+                echo "✅ Push succeeded on attempt $i"
+                break
+              else
+                echo "⚠️ Push failed attempt $i, retrying..."
+                git pull --rebase origin main
+                sleep 2
+              fi
+            done
+          fi
+
+      # ─────────────────────────────────────────────
+      # Step 8: Failure notification (best-effort)
+      # ─────────────────────────────────────────────
+      - name: 🚨 Notify on failure
+        if: failure()
+        env:
+          TG_BOT_TOKEN: ${{ secrets.TG_BOT_TOKEN }}
+          TG_CHAT_ID: ${{ secrets.TG_CHAT_ID }}
+        run: |
+          if [ -n "$TG_BOT_TOKEN" ] && [ -n "$TG_CHAT_ID" ]; then
+            curl -s -X POST "https://api.telegram.org/bot$TG_BOT_TOKEN/sendMessage" \
+              -d "chat_id=$TG_CHAT_ID" \
+              -d "text=⚠️ Weekly Intelligence workflow FAILED at $(date -u). Check GitHub Actions logs." \
+              -d "parse_mode=Markdown" \
+              || true
+          fi
