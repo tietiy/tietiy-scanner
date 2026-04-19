@@ -13,6 +13,12 @@
 # TELEGRAM FIX: Now sends open validation results to Telegram.
 #
 # S1 FIX: Skip if already validated today (for retry crons).
+#
+# Phase 2 Session 2:
+#   D6B — After writing open_prices.json, trigger
+#         outcome_evaluator to resolve any signals whose
+#         effective_exit_date == today. Enables same-day
+#         Day 6 resolution at 9:30 AM instead of 1 AM next day.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -76,11 +82,6 @@ def _next_trading_day(from_date, holidays):
 
 # ── SKIP-IF-DONE CHECK ────────────────────────────────
 def _already_validated_today():
-    """
-    Returns True if open_prices.json exists with today's date
-    and has at least one result OR explicitly marked complete.
-    Used by retry crons to skip if primary run succeeded.
-    """
     today_str = date.today().isoformat()
     
     if not os.path.exists(OPEN_PRICES_FILE):
@@ -93,17 +94,15 @@ def _already_validated_today():
         if data.get('date') != today_str:
             return False
         
-        # Has results OR marked as "no entries today"
         results = data.get('results', [])
         if len(results) > 0:
             print(f"[open_validator] Already validated today "
-                  f"({len(results)} signals) — skipping")
+                  f"({len(results)} signals) — skipping fetch")
             return True
         
-        # Check if it was a "no entries" day
         if data.get('count') == 0:
             print("[open_validator] Already ran today "
-                  "(0 entries) — skipping")
+                  "(0 entries) — skipping fetch")
             return True
         
         return False
@@ -115,11 +114,6 @@ def _already_validated_today():
 
 # ── FETCH OPEN PRICE ──────────────────────────────────
 def _fetch_open(symbol, retries=3):
-    """
-    Fetches actual 9:15 AM open price using 1-minute bars.
-    Takes the FIRST bar of today's session = market open price.
-    Daily bars are NOT used — daily candle not closed at 9:27 AM.
-    """
     for attempt in range(retries):
         try:
             df = yf.download(
@@ -134,7 +128,6 @@ def _fetch_open(symbol, retries=3):
                 if isinstance(df.columns, pd.MultiIndex):
                     df.columns = [c[0] for c in df.columns]
 
-                # Normalize to IST
                 if df.index.tzinfo is not None:
                     df.index = df.index.tz_convert('Asia/Kolkata')
                 else:
@@ -166,7 +159,6 @@ def _fetch_open(symbol, retries=3):
         if attempt < retries - 1:
             time.sleep(3)
 
-    # Fallback: 5-minute bars
     print(f"[open_validator] {symbol.replace('.NS','')} "
           f"— trying 5m fallback")
     try:
@@ -212,7 +204,6 @@ def _calc_gap(scan_price, actual_open, direction):
         if sp <= 0:
             return 0.0
         raw_pct = (op - sp) / sp * 100
-        # Positive = favourable for the trade direction
         return round(raw_pct if direction == 'LONG' else -raw_pct, 2)
     except Exception:
         return 0.0
@@ -227,26 +218,85 @@ def _gap_status(gap_pct):
     return 'OK', ''
 
 
+# ── D6B: DAY 6 RESOLUTION TRIGGER ─────────────────────
+def _trigger_day6_resolution():
+    """
+    D6B: After open_prices.json is written at 9:27 AM,
+    check if any signals have effective_exit_date == today.
+    If yes, run outcome_evaluator to resolve them using
+    today's 9:15 open price (via D6A).
+
+    This enables same-day Day 6 resolution at 9:30 AM
+    instead of waiting for 1 AM next-day EOD run.
+
+    Wrapped in try/except — this must never fail the
+    open_validator workflow.
+    """
+    today_str = date.today().isoformat()
+
+    # Quick check: any signals due today?
+    try:
+        with open(HISTORY_FILE, 'r') as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"[open_validator] D6B: cannot load history: {e}")
+        return
+
+    history = data.get('history', [])
+    due_today = [
+        s for s in history
+        if s.get('outcome', 'OPEN') == 'OPEN'
+        and s.get('result') == 'PENDING'
+        and s.get('entry_valid') is not False
+        and (s.get('effective_exit_date') == today_str
+             or s.get('tracking_end') == today_str)
+    ]
+
+    if not due_today:
+        print(f"[open_validator] D6B: no signals due today — skipping")
+        return
+
+    print(f"[open_validator] D6B: {len(due_today)} signals "
+          f"have effective_exit_date={today_str} — "
+          f"triggering outcome_evaluator for same-day Day 6 resolution")
+
+    for s in due_today[:5]:
+        print(f"[open_validator] D6B: due → "
+              f"{(s.get('symbol') or '').replace('.NS','')} "
+              f"{s.get('signal','')}")
+    if len(due_today) > 5:
+        print(f"[open_validator] D6B: ... and {len(due_today)-5} more")
+
+    try:
+        from outcome_evaluator import run_outcome_evaluation
+        run_outcome_evaluation()
+        print("[open_validator] D6B: outcome_evaluator completed")
+    except Exception as e:
+        print(f"[open_validator] D6B: outcome_evaluator failed: {e}")
+        import traceback
+        traceback.print_exc()
+
+
 # ── MAIN FUNCTION ─────────────────────────────────────
 def run_open_validation():
     """
     Runs at 9:27 AM IST on each trading day.
 
-    Finds PENDING signals whose ENTRY DATE is today.
-    Entry date = next trading day after signal detection date.
-    Example: signal detected Apr 7 → entry date Apr 8 → run Apr 8.
-
-    Fetches actual open price from yfinance 1m bars.
-    Updates actual_open in signal_history.json.
-    Writes open_prices.json for frontend.
-    Sends results to Telegram.
-    
-    S1 FIX: Skips if already validated today (for retry crons).
+    1. Finds PENDING signals entering today
+    2. Fetches actual open prices (yfinance 1m bars)
+    3. Updates actual_open in signal_history.json
+    4. Writes open_prices.json for frontend
+    5. Sends Telegram summary
+    6. D6B — triggers outcome_evaluator for Day 6 resolutions
     """
     print("[open_validator] Starting...")
 
-    # ── S1: Skip if already done today ────────────────
+    # S1: Skip duplicate fetch but STILL trigger D6B
+    # (D6B must run regardless — Day 6 resolution can't be skipped)
     if _already_validated_today():
+        print("[open_validator] Skipping price fetch, "
+              "running D6B trigger only...")
+        _trigger_day6_resolution()
         return
 
     today     = date.today()
@@ -257,7 +307,6 @@ def run_open_validation():
 
     holidays = _load_holidays()
 
-    # Load history
     try:
         with open(HISTORY_FILE, 'r') as f:
             data = json.load(f)
@@ -267,16 +316,11 @@ def run_open_validation():
 
     history = data.get('history', [])
 
-    # ── KEY FIX ───────────────────────────────────────
-    # Find PENDING signals whose entry date == today.
-    # Entry date = next trading day after signal date.
-    # Do NOT filter by signal_date == today.
-    # ─────────────────────────────────────────────────
     pending_entry_today = []
     for s in history:
         if s.get('result')  != 'PENDING': continue
         if s.get('action')  != 'TOOK':    continue
-        if s.get('actual_open') is not None: continue  # already fetched
+        if s.get('actual_open') is not None: continue
 
         sig_date_str = s.get('date', '')
         if not sig_date_str:
@@ -299,16 +343,18 @@ def run_open_validation():
               "— writing empty output")
         _write_open_prices([], today_str, now_ist)
 
-        # ── TELEGRAM: No entries today ────────────────
         if TELEGRAM_AVAILABLE:
             try:
                 send_open_validation([], [])
                 print("[open_validator] Telegram sent (0 entries)")
             except Exception as e:
                 print(f"[open_validator] Telegram error: {e}")
+
+        # D6B still needs to run — signals entering today is different
+        # from signals exiting today (Day 6 resolutions)
+        _trigger_day6_resolution()
         return
 
-    # Log what we're processing
     for s in pending_entry_today:
         sym = (s.get('symbol') or '').replace('.NS', '')
         print(f"[open_validator]   → {sym} "
@@ -320,7 +366,6 @@ def run_open_validation():
     updated     = 0
     history_map = {s.get('id'): i for i, s in enumerate(history)}
 
-    # Deduplicate symbols — fetch each once
     symbol_to_sigs = {}
     for sig in pending_entry_today:
         sym = sig.get('symbol', '')
@@ -328,7 +373,7 @@ def run_open_validation():
             symbol_to_sigs[sym] = []
         symbol_to_sigs[sym].append(sig)
 
-    fetched_prices = {}  # sym → open_price or None
+    fetched_prices = {}
 
     for sym in symbol_to_sigs:
         if not sym:
@@ -336,7 +381,6 @@ def run_open_validation():
         open_price = _fetch_open(sym)
         fetched_prices[sym] = open_price
 
-    # Apply results to all matching signals
     for sym, sigs in symbol_to_sigs.items():
         actual_open = fetched_prices.get(sym)
 
@@ -376,7 +420,6 @@ def run_open_validation():
                 'fetch_time':  now_ist,
             })
 
-            # Update history record
             sig_id = sig.get('id', '')
             if sig_id in history_map:
                 idx = history_map[sig_id]
@@ -392,7 +435,6 @@ def run_open_validation():
                       f"gap={gap_pct:+.1f}% "
                       f"→ {gap_stat}")
 
-    # Save updated history
     if updated > 0:
         data['history'] = history
         _backup_history()
@@ -403,7 +445,6 @@ def run_open_validation():
         except Exception as e:
             print(f"[open_validator] History save failed: {e}")
 
-    # Write open_prices.json
     _write_open_prices(results, today_str, now_ist)
 
     skipped  = sum(1 for r in results if r.get('gap_status') == 'SKIP')
@@ -414,7 +455,6 @@ def run_open_validation():
           f"{len(results)} processed | "
           f"OK:{ok} WARNING:{warnings} SKIP:{skipped}")
 
-    # ── TELEGRAM: Send validation results ─────────────
     if TELEGRAM_AVAILABLE:
         try:
             ok_warn = [r for r in results if r.get('gap_status') != 'SKIP']
@@ -423,6 +463,9 @@ def run_open_validation():
             print("[open_validator] Telegram sent")
         except Exception as e:
             print(f"[open_validator] Telegram error: {e}")
+
+    # D6B: Trigger Day 6 resolution
+    _trigger_day6_resolution()
 
 
 def _write_open_prices(results, today_str, fetch_time):
