@@ -6,6 +6,16 @@
 # ADDED: active_signals_count — total PENDING signals
 #        separate from signals_found (new today only)
 #        Frontend status bar reads this for display.
+#
+# SESSION 3 ADDITION (Apr 19 2026):
+#   SM1 — sector_momentum kwarg.
+#         Accepts dict of {sector_name: "Leading"/"Neutral"/"Lagging"}
+#         from main.py's get_sector_momentum() function.
+#         Exposed in meta.json so PWA can render all 8
+#         sectors (Bank Nifty, IT, Pharma, Auto, Metal,
+#         Energy, FMCG, Infra) as status row.
+#         schema_version bumped 4 → 5 so PWA can detect
+#         the new field's presence.
 # ─────────────────────────────────────────────────────
 
 import json
@@ -48,6 +58,7 @@ def write_meta(
     insufficient_data=None,
     corporate_action_skip=None,
     history_record_count=0,
+    sector_momentum=None,
 ):
     """
     Writes meta.json to output_dir.
@@ -67,11 +78,15 @@ def write_meta(
         insufficient_data     : list symbols with <60 bars
         corporate_action_skip : list symbols skipped for CA
         history_record_count  : int  total records in history
+        sector_momentum       : dict {sector: status} where
+                                status is "Leading"/"Neutral"/"Lagging"
+                                (SM1 — Session 3 addition)
     """
 
     fetch_failed          = fetch_failed or []
     insufficient_data     = insufficient_data or []
     corporate_action_skip = corporate_action_skip or []
+    sector_momentum       = sector_momentum or {}
 
     now_utc = datetime.now(timezone.utc)
 
@@ -92,12 +107,17 @@ def write_meta(
         "is_trading_day":        is_trading_day,
         "scanner_version":       scanner_version,
         "app_version":           app_version,
-        "schema_version":        4,
+        "schema_version":        5,
         "holidays_valid_until":  "2026-12-31",
         "fetch_failed":          fetch_failed,
         "insufficient_data":     insufficient_data,
         "corporate_action_skip": corporate_action_skip,
         "history_record_count":  history_record_count,
+
+        # SM1: Session 3 — all 8 sectors status
+        # Keys: Bank, IT, Pharma, Auto, Metal, Energy, FMCG, Infra
+        # Values: "Leading" / "Neutral" / "Lagging"
+        "sector_momentum":       sector_momentum,
     }
 
     meta_path = os.path.join(
