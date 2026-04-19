@@ -2,8 +2,15 @@
 # Fetches actual 9:15 AM open prices for all entering signals
 # Calculates gap%, sets entry_valid flag
 # Triggered by cron-job.org at 9:27 AM IST + retries 9:57, 10:27
+#
+# Phase 2 Session 2:
+#   D6C — Open validator now internally triggers outcome_evaluator
+#         via _trigger_day6_resolution() for same-day Day 6 resolution.
+#         Workflow commit message and artifacts list updated to reflect
+#         that signal_history.json may contain both entry validations
+#         AND Day 6 outcome resolutions in the same run.
 
-name: "📋 Open Validate | Actual 9:15open gap% entry-valid+Telegram | 9:27 AM IST Auto"
+name: "📋 Open Validate | 9:15 open + Day6 resolve + Telegram | 9:27 AM IST Auto"
 
 on:
   workflow_dispatch:
@@ -35,7 +42,7 @@ jobs:
       - name: Install dependencies
         run: pip install yfinance pandas numpy requests
 
-      - name: Run open validator
+      - name: Run open validator (includes D6B Day 6 trigger)
         env:
           TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -48,10 +55,11 @@ jobs:
           git config user.email "bot@tietiy.com"
           git add output/open_prices.json \
                   output/signal_history.json \
-                  output/signal_history.backup.json || true
+                  output/signal_history.backup.json \
+                  backups/ || true
           git diff --cached --quiet && \
             echo "No changes to commit" && exit 0
-          git commit -m "Open validation $(date +'%Y-%m-%d %H:%M IST')"
+          git commit -m "Open validate + D6 resolve $(date +'%Y-%m-%d %H:%M IST')"
           for i in 1 2 3; do
             git pull --rebase origin main && \
             git push origin HEAD:main && \
