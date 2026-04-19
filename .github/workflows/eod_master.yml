@@ -13,24 +13,30 @@
 #   4. Telegram EOD summary (main.py eod mode)
 #   5. Chain validator (writes system_health.json)
 #   6. Pattern miner (writes patterns.json)
-#   7. Commit all output/ changes
+#   7. Rule proposer (writes proposed_rules.json)  ← NEW
+#   8. Commit all output/ changes
 #
 # DESIGN:
 # - Critical steps (1-4) use exit-on-error: stop if broken
-# - Aux steps (5-6) use continue-on-error: never block commit
+# - Aux steps (5-7) use continue-on-error: never block commit
 # - Single commit at end: atomic update for PWA
 #
 # ROLLBACK: If this breaks, rename to eod_master.yml.bak
 # and rename eod_update.yml.bak back to eod_update.yml.
 # Nothing else to revert — same triggers, same outputs.
 
-name: "🌙 EOD Master | Backup+Outcomes+EOD+Chain+Patterns+Telegram | 3:35 PM IST"
+name: "🌙 EOD Master | Backup+Outcomes+EOD+Chain+Patterns+Proposals+Telegram | 3:35 PM IST"
 
 on:
   workflow_dispatch:
     inputs:
       skip_patterns:
         description: 'Skip pattern miner (for debug)'
+        required: false
+        default: false
+        type: boolean
+      skip_proposals:
+        description: 'Skip rule proposer (for debug)'
         required: false
         default: false
         type: boolean
@@ -66,17 +72,17 @@ jobs:
         run: mkdir -p output data output/backups
 
       # ── STEP 1: Backup (critical) ─────────────────
-      - name: "1/6 Backup manager"
+      - name: "1/7 Backup manager"
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           echo "════════════════════════════════════════"
-          echo "  STEP 1/6: BACKUP"
+          echo "  STEP 1/7: BACKUP"
           echo "════════════════════════════════════════"
           python scanner/backup_manager.py
 
       # ── STEP 2-4: Outcome eval + EOD + Telegram ───
-      - name: "2-4/6 EOD chain (main.py eod)"
+      - name: "2-4/7 EOD chain (main.py eod)"
         env:
           TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
@@ -84,35 +90,52 @@ jobs:
           PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           echo "════════════════════════════════════════"
-          echo "  STEPS 2-4/6: OUTCOMES + EOD + TELEGRAM"
+          echo "  STEPS 2-4/7: OUTCOMES + EOD + TELEGRAM"
           echo "════════════════════════════════════════"
           cd $GITHUB_WORKSPACE/scanner
           python main.py eod
 
       # ── STEP 5: Chain validator (non-critical) ────
-      - name: "5/6 Chain validator"
+      - name: "5/7 Chain validator"
         continue-on-error: true
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           echo "════════════════════════════════════════"
-          echo "  STEP 5/6: CHAIN VALIDATOR"
+          echo "  STEP 5/7: CHAIN VALIDATOR"
           echo "════════════════════════════════════════"
           cd $GITHUB_WORKSPACE/scanner
           python chain_validator.py
 
       # ── STEP 6: Pattern miner (non-critical) ──────
-      - name: "6/6 Pattern miner"
+      - name: "6/7 Pattern miner"
         if: ${{ inputs.skip_patterns != true }}
         continue-on-error: true
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           echo "════════════════════════════════════════"
-          echo "  STEP 6/6: PATTERN MINER"
+          echo "  STEP 6/7: PATTERN MINER"
           echo "════════════════════════════════════════"
           cd $GITHUB_WORKSPACE/scanner
           python pattern_miner.py
+
+      # ── STEP 7: Rule proposer (non-critical) ──────
+      # NEW (Session 3): Reads patterns.json → writes
+      # proposed_rules.json with kill/warn proposals.
+      # Runs AFTER pattern_miner so it has fresh data.
+      # continue-on-error: never block commit.
+      - name: "7/7 Rule proposer"
+        if: ${{ inputs.skip_proposals != true }}
+        continue-on-error: true
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  STEP 7/7: RULE PROPOSER"
+          echo "════════════════════════════════════════"
+          cd $GITHUB_WORKSPACE/scanner
+          python rule_proposer.py
 
       # ── COMMIT (single atomic update) ──────────────
       - name: Commit and push all outputs
@@ -135,6 +158,9 @@ jobs:
             output/tg_offset.json \
             output/system_health.json \
             output/patterns.json \
+            output/proposed_rules.json \
+            output/contra_shadow.json \
+            output/regime_debug.json \
             output/backups/ \
             backups/ \
             2>/dev/null || true
@@ -142,7 +168,7 @@ jobs:
           git diff --cached --quiet && \
             echo "No changes to commit" && exit 0
 
-          git commit -m "EOD master $(date '+%Y-%m-%d') IST — backup+outcomes+eod+chain+patterns"
+          git commit -m "EOD master $(date '+%Y-%m-%d') IST — backup+outcomes+eod+chain+patterns+proposals"
 
           for i in 1 2 3; do
             git pull --rebase origin main && \
