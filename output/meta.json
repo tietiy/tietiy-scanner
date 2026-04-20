@@ -1,15 +1,15 @@
 {
-  "last_scan": "2026-04-17T03:17:41Z",
+  "last_scan": "2026-04-20T03:17:31Z",
   "deployed_at": null,
-  "market_date": "2026-04-17",
+  "market_date": "2026-04-20",
   "regime": "Choppy",
   "universe_size": 188,
-  "signals_found": 44,
-  "active_signals_count": 133,
+  "signals_found": 7,
+  "active_signals_count": 58,
   "is_trading_day": true,
   "scanner_version": "v2.0",
   "app_version": "2.0",
-  "schema_version": 4,
+  "schema_version": 5,
   "holidays_valid_until": "2026-12-31",
   "fetch_failed": [],
   "insufficient_data": [],
@@ -17,5 +17,15 @@
     "ANGELONE.NS",
     "METROPOLIS.NS"
   ],
-  "history_record_count": 191
+  "history_record_count": 198,
+  "sector_momentum": {
+    "Bank": "Leading",
+    "IT": "Leading",
+    "Pharma": "Neutral",
+    "Auto": "Leading",
+    "Metal": "Leading",
+    "Energy": "Leading",
+    "FMCG": "Leading",
+    "Infra": "Leading"
+  }
 }
