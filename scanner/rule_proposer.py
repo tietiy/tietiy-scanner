@@ -23,6 +23,20 @@ Output schema:
     "pending_count": N,
     "proposals": [ {...} ]
   }
+
+FIX C-02 (Apr 21 2026):
+  Replaced bare-relative paths (PATTERNS_PATH / PROPOSED_RULES_PATH /
+  MINI_RULES_PATH) with _HERE/_ROOT absolute paths matching the
+  pattern used by every other scanner module. The relative paths
+  resolved to scanner/output/ and scanner/data/ when main.py ran
+  with cwd=scanner/ (as eod_master.yml step 7 does), causing all
+  reads to miss and all writes to land in disposable locations.
+
+FIX C-04 (Apr 21 2026):
+  approve_proposal() and reject_proposal() now return dicts instead
+  of (bool, str) tuples. telegram_bot._respond_approve_rule calls
+  .get() on the result, which raised AttributeError on every call.
+  New shape: {success, action, target, message, error, kill_rule_id}
 """
 
 import json
@@ -30,9 +44,15 @@ import os
 from datetime import datetime
 from pathlib import Path
 
-PATTERNS_PATH = "output/patterns.json"
-PROPOSED_RULES_PATH = "output/proposed_rules.json"
-MINI_RULES_PATH = "data/mini_scanner_rules.json"
+# ── PATHS (C-02 FIX: absolute paths via _HERE/_ROOT) ─────────
+_HERE   = os.path.dirname(os.path.abspath(__file__))
+_ROOT   = os.path.dirname(_HERE)
+_OUTPUT = os.path.join(_ROOT, 'output')
+_DATA   = os.path.join(_ROOT, 'data')
+
+PATTERNS_PATH       = os.path.join(_OUTPUT, 'patterns.json')
+PROPOSED_RULES_PATH = os.path.join(_OUTPUT, 'proposed_rules.json')
+MINI_RULES_PATH     = os.path.join(_DATA,   'mini_scanner_rules.json')
 
 SCHEMA_VERSION = 1
 
@@ -56,6 +76,8 @@ def _load_json(path, default=None):
 
 def _save_json(path, data):
     """Save JSON atomically."""
+    # Ensure parent directory exists (defensive — should always exist)
+    os.makedirs(os.path.dirname(path), exist_ok=True)
     tmp_path = path + ".tmp"
     with open(tmp_path, 'w') as f:
         json.dump(data, f, indent=2)
@@ -233,6 +255,9 @@ def generate_proposals():
     Returns summary dict.
     """
     print("[rule_proposer] Starting proposal generation...")
+    print(f"[rule_proposer] PATTERNS_PATH       = {PATTERNS_PATH}")
+    print(f"[rule_proposer] PROPOSED_RULES_PATH = {PROPOSED_RULES_PATH}")
+    print(f"[rule_proposer] MINI_RULES_PATH     = {MINI_RULES_PATH}")
 
     # Load patterns
     patterns_data = _load_json(PATTERNS_PATH, default={"patterns": []})
@@ -337,8 +362,15 @@ def approve_proposal(proposal_id, approved_by='telegram_user'):
     Approve a pending proposal and add it to mini_scanner_rules.json kill_patterns.
     Called by telegram_bot.py /approve_rule command.
 
-    Returns:
-      (success: bool, message: str)
+    C-04 FIX: Returns dict (was tuple). Shape:
+      {
+        'success': bool,
+        'action': str,           # 'kill' | 'warn'
+        'target': str,           # human-readable "SIGNAL+sector"
+        'message': str,          # full success message
+        'kill_rule_id': str,     # new kill rule ID (on success)
+        'error': str,            # error message (on failure)
+      }
     """
     data = _load_json(PROPOSED_RULES_PATH, default={"proposals": []})
     proposals = data.get('proposals', [])
@@ -351,13 +383,28 @@ def approve_proposal(proposal_id, approved_by='telegram_user'):
             break
 
     if target is None:
-        return False, f"Proposal {proposal_id} not found"
+        return {
+            'success': False,
+            'error': f"Proposal {proposal_id} not found",
+        }
 
     if target.get('status') != 'pending':
-        return False, f"Proposal {proposal_id} status is '{target.get('status')}', only 'pending' can be approved"
+        return {
+            'success': False,
+            'error': (
+                f"Proposal {proposal_id} status is "
+                f"'{target.get('status')}', only 'pending' "
+                f"can be approved"),
+        }
 
     if target.get('action') not in ('kill', 'warn'):
-        return False, f"Proposal {proposal_id} action '{target.get('action')}' not supported for auto-approval"
+        return {
+            'success': False,
+            'error': (
+                f"Proposal {proposal_id} action "
+                f"'{target.get('action')}' not supported "
+                f"for auto-approval"),
+        }
 
     # Add to mini_scanner_rules.json kill_patterns
     rules = _load_json(MINI_RULES_PATH, default={})
@@ -400,16 +447,32 @@ def approve_proposal(proposal_id, approved_by='telegram_user'):
 
     _save_json(PROPOSED_RULES_PATH, data)
 
-    msg = f"✅ Rule {proposal_id} approved\n"
-    msg += f"Now blocking: {kill_entry['signal']} + {kill_entry['sector']}\n"
-    msg += f"Based on: {target.get('evidence', {}).get('wr', 0)}% WR in {target.get('evidence', {}).get('n', 0)} trades"
+    # Build human-readable target string
+    sig = kill_entry['signal'] or ''
+    sec = kill_entry['sector'] or ''
+    target_str = sig + (f"+{sec}" if sec else '')
 
-    return True, msg
+    msg = (
+        f"✅ Rule {proposal_id} approved\n"
+        f"Now blocking: {target_str}\n"
+        f"Based on: {target.get('evidence', {}).get('wr', 0)}% WR "
+        f"in {target.get('evidence', {}).get('n', 0)} trades"
+    )
+
+    return {
+        'success':      True,
+        'action':       target.get('action', 'kill'),
+        'target':       target_str,
+        'message':      msg,
+        'kill_rule_id': kill_id,
+    }
 
 
 def reject_proposal(proposal_id, reason='No reason given', rejected_by='telegram_user'):
     """
     Reject a pending proposal (keeps it in log but not applied).
+
+    C-04 FIX: Returns dict (was tuple). Shape matches approve_proposal.
     """
     data = _load_json(PROPOSED_RULES_PATH, default={"proposals": []})
     proposals = data.get('proposals', [])
@@ -421,10 +484,18 @@ def reject_proposal(proposal_id, reason='No reason given', rejected_by='telegram
             break
 
     if target is None:
-        return False, f"Proposal {proposal_id} not found"
+        return {
+            'success': False,
+            'error':   f"Proposal {proposal_id} not found",
+        }
 
     if target.get('status') != 'pending':
-        return False, f"Proposal {proposal_id} already in status '{target.get('status')}'"
+        return {
+            'success': False,
+            'error': (
+                f"Proposal {proposal_id} already in status "
+                f"'{target.get('status')}'"),
+        }
 
     target['status'] = 'rejected'
     target['rejected_date'] = datetime.utcnow().isoformat() + "Z"
@@ -436,7 +507,12 @@ def reject_proposal(proposal_id, reason='No reason given', rejected_by='telegram
 
     _save_json(PROPOSED_RULES_PATH, data)
 
-    return True, f"❌ Proposal {proposal_id} rejected: {reason}"
+    return {
+        'success': True,
+        'action':  'reject',
+        'target':  proposal_id,
+        'message': f"❌ Proposal {proposal_id} rejected: {reason}",
+    }
 
 
 def get_pending_proposals():
