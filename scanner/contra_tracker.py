@@ -16,8 +16,24 @@ Key rules:
   - Resolves via outcome_evaluator same as real signals
   - Unlocks for review after n=30 (per stats.js gate)
 
-Schema:
-  Each record in output/contra_shadow.json matches structure below.
+Schema (aligned with outcome_evaluator reader, Apr 21 fix):
+  Each record contains: symbol, date, direction, original_direction,
+  inverted_direction, entry, entry_est (dup for reader), stop, target, etc.
+
+FIX C-01 (Apr 21 2026):
+  Replaced bare-relative CONTRA_SHADOW_PATH = "output/contra_shadow.json"
+  with _HERE/_ROOT absolute path. When main.py runs with cwd=scanner/
+  (as eod_master.yml step 2 does), the relative path resolved to
+  scanner/output/contra_shadow.json — a disposable location — so every
+  shadow recorded since Apr 19 was written to the wrong directory and
+  never read by outcome_evaluator.
+
+FIX C-03 (Apr 21 2026, writer side):
+  Added explicit original_direction / inverted_direction / entry_est
+  fields so the reader side (_resolve_contra_shadows in
+  outcome_evaluator.py) finds what it expects. Previously the record
+  only had `direction` and `origin_signal_direction` which the reader
+  did not check for.
 """
 
 import json
@@ -25,8 +41,14 @@ import os
 from datetime import datetime, timedelta
 from pathlib import Path
 
-CONTRA_SHADOW_PATH = "output/contra_shadow.json"
-SCHEMA_VERSION = 1
+# ── PATHS (C-01 FIX: absolute paths via _HERE/_ROOT) ─────────
+_HERE   = os.path.dirname(os.path.abspath(__file__))
+_ROOT   = os.path.dirname(_HERE)
+_OUTPUT = os.path.join(_ROOT, 'output')
+
+CONTRA_SHADOW_PATH = os.path.join(_OUTPUT, 'contra_shadow.json')
+
+SCHEMA_VERSION = 2  # bumped: adds original_direction/inverted_direction/entry_est
 
 
 def _load_contra_shadow():
@@ -61,6 +83,9 @@ def _load_contra_shadow():
 def _save_contra_shadow(data):
     """Save contra_shadow.json atomically."""
     data["generated_at"] = datetime.utcnow().isoformat() + "Z"
+
+    # Ensure parent directory exists (defensive)
+    os.makedirs(os.path.dirname(CONTRA_SHADOW_PATH), exist_ok=True)
 
     tmp_path = CONTRA_SHADOW_PATH + ".tmp"
     with open(tmp_path, 'w') as f:
@@ -146,57 +171,70 @@ def record_contra_shadow(rejected_signal, kill_rule_id=None):
     date = rejected_signal.get('date', datetime.utcnow().strftime('%Y-%m-%d'))
     sector = rejected_signal.get('sector', 'Unknown')
 
+    # Original was SHORT — inversion is LONG (for DOWN_TRI family)
+    original_direction = rejected_signal.get('direction', 'SHORT')
+    inverted_direction = 'LONG' if original_direction == 'SHORT' else 'SHORT'
+
     shadow_id = f"contra_{date}-{symbol.replace('.NS', '')}-{original_signal}"
 
     shadow_record = {
         "id": shadow_id,
         "origin_signal_id": rejected_signal.get('id', ''),
         "origin_signal_type": original_signal,
-        "origin_signal_direction": rejected_signal.get('direction', 'SHORT'),
+        "origin_signal_direction": original_direction,  # legacy field kept
         "kill_rule_id": kill_rule_id,
 
-        # Trade details (INVERTED)
-        "symbol": symbol,
-        "sector": sector,
-        "date": date,
-        "direction": "LONG",  # INVERTED
-        "entry": inverted["entry"],
-        "stop": inverted["stop"],
-        "target": inverted["target"],
+        # ── C-03 FIX: reader-expected fields ─────────
+        # outcome_evaluator._resolve_contra_shadows reads
+        # original_direction, inverted_direction, entry_est
+        # instead of origin_signal_direction / direction / entry.
+        # Populate both conventions for compatibility.
+        "original_direction": original_direction,
+        "inverted_direction": inverted_direction,
+        "entry_est":          inverted["entry"],
+
+        # Trade details (INVERTED — what we're tracking)
+        "symbol":         symbol,
+        "sector":         sector,
+        "date":           date,
+        "direction":      inverted_direction,
+        "entry":          inverted["entry"],
+        "stop":           inverted["stop"],
+        "target":         inverted["target"],
         "risk_per_share": inverted["risk_per_share"],
-        "rr_ratio": inverted["rr_ratio"],
+        "rr_ratio":       inverted["rr_ratio"],
 
         # Context from original signal
         "original_score": rejected_signal.get('score'),
-        "original_stop": rejected_signal.get('stop'),
-        "regime": rejected_signal.get('regime'),
-        "age": rejected_signal.get('age'),
-        "grade": rejected_signal.get('grade'),
-        "atr": rejected_signal.get('atr'),
+        "original_stop":  rejected_signal.get('stop'),
+        "regime":         rejected_signal.get('regime'),
+        "age":            rejected_signal.get('age'),
+        "grade":          rejected_signal.get('grade'),
+        "atr":            rejected_signal.get('atr'),
 
         # Tracking windows (same as real signals)
-        "exit_date": rejected_signal.get('exit_date'),
-        "effective_exit_date": None,
-        "tracking_start": None,
-        "tracking_end": None,
+        "exit_date":            rejected_signal.get('exit_date'),
+        "effective_exit_date":  None,
+        "tracking_start":       None,
+        "tracking_end":         None,
 
         # Outcome fields (populated by outcome_evaluator)
-        "outcome": None,
-        "outcome_date": None,
+        "outcome":       None,
+        "outcome_date":  None,
         "outcome_price": None,
-        "pnl_pct": None,
-        "mfe_pct": None,
-        "mae_pct": None,
-        "day6_open": None,
+        "pnl_pct":       None,
+        "mfe_pct":       None,
+        "mae_pct":       None,
+        "day6_open":     None,
 
         # Shadow flags
-        "is_shadow": True,
-        "is_tradeable": False,
+        "is_shadow":       True,
+        "is_tradeable":    False,
         "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
         "shadow_version": "v1",
 
         # Metadata
-        "recorded_at": datetime.utcnow().isoformat() + "Z",
+        "recorded_at":    datetime.utcnow().isoformat() + "Z",
         "schema_version": SCHEMA_VERSION
     }
 
@@ -219,7 +257,8 @@ def record_contra_shadow(rejected_signal, kill_rule_id=None):
     _save_contra_shadow(data)
 
     print(f"[contra_tracker] Recorded shadow: {shadow_id}")
-    print(f"  Direction: {original_signal} (SHORT) → INVERTED to LONG")
+    print(f"  Path: {CONTRA_SHADOW_PATH}")
+    print(f"  Direction: {original_signal} ({original_direction}) → INVERTED to {inverted_direction}")
     print(f"  Entry: {inverted['entry']} | Stop: {inverted['stop']} | Target: {inverted['target']}")
     print(f"  Total tracked: {data['total_tracked']} (resolved: {data['resolved_count']}, pending: {data['pending_count']})")
 
@@ -309,9 +348,10 @@ def get_summary_stats():
 if __name__ == "__main__":
     # Standalone test
     print("[contra_tracker] Standalone test mode")
+    print(f"[contra_tracker] CONTRA_SHADOW_PATH = {CONTRA_SHADOW_PATH}")
     print("Current stats:")
     print(json.dumps(get_summary_stats(), indent=2))
     print("\nActive shadows:")
     active = get_active_shadows()
     for s in active[:5]:
-        print(f"  {s['id']}: {s['symbol']} LONG @ {s['entry']}")
+        print(f"  {s['id']}: {s['symbol']} {s.get('direction','?')} @ {s.get('entry','?')}")
