@@ -1,10 +1,22 @@
 # .github/workflows/stop_check.yml
-# Stop proximity check + target hit detection
-# Holiday guard — skips on NSE holidays
-# Deduplicates same stock per cycle
-# Triggered by cron-job.org every 5 min (staggered 2 min from LTP)
+# Purpose: Stop proximity check + target hit detection
+#          Holiday guard — skips on NSE holidays/weekends
+#          Deduplicates same stock per cycle
+# Trigger: cron-job.org every 5 min during market hours
+#          (+2 min offset from ltp_updater to stagger load)
+#          (9:32 AM - 3:32 PM IST = 4:02 - 10:02 UTC)
+# Sequence: Runs 76 times per trading day, 2 min after each LTP update
+# Touches: output/stop_alerts.json, stop_alerts_sent.json,
+#          target_alerts_sent.json + Telegram alerts
+# Failure mode: Telegram alert via send_workflow_failure
+#
+# Architecture v2 (Apr 22 2026):
+# - cron-job.org triggered (precision-critical, 5-min cadence)
+# - workflow_dispatch only (no GitHub schedule)
+# - +2 min stagger from ltp_updater so LTP data is fresh when read
+# - cron-job.org expression: 2-57/5 4-10 * * 1-5
 
-name: "🛑 Stop Check | Stop proximity target-hit dedup holiday-guard | Every 5Min Market"
+name: "🛑 Stop Check | Stop proximity target-hit dedup holiday-guard | Every 5Min +2offset cron-job.org"
 
 on:
   workflow_dispatch:
