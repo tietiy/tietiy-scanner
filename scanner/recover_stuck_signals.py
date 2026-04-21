@@ -39,6 +39,15 @@
 #
 # USAGE: Run via GitHub Actions manual dispatch.
 #        Workflow: recover_stuck_signals.yml
+#
+# FIX M-11 (Apr 21 2026):
+#   Env var renamed from TELEGRAM_BOT_TOKEN to
+#   TELEGRAM_TOKEN to match repo-wide convention.
+#   All other scanner modules read TELEGRAM_TOKEN.
+#   The workflow YAML currently maps
+#   TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+#   — that mapping line is now redundant but harmless
+#   and can be removed in a future cleanup.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -109,10 +118,14 @@ def _load_eod_prices():
 # ── TELEGRAM ──────────────────────────────────────────
 
 def _send_telegram(message):
-    """Send summary to Telegram."""
+    """Send summary to Telegram.
+
+    M-11 FIX: reads TELEGRAM_TOKEN (matches repo-wide
+    convention). Previously read TELEGRAM_BOT_TOKEN.
+    """
     try:
         import requests
-        token = os.environ.get('TELEGRAM_BOT_TOKEN')
+        token = os.environ.get('TELEGRAM_TOKEN')
         chat  = os.environ.get('TELEGRAM_CHAT_ID')
         if not token or not chat:
             print("[recover] Telegram secrets "
