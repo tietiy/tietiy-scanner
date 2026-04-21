@@ -1,41 +1,35 @@
 # .github/workflows/eod_master.yml
-# EOD Master — single chained workflow for end-of-day.
-# Replaces old eod_update.yml + absorbs chain_validator
-# and pattern_miner runs.
+# Purpose: EOD Master — single chained workflow for end-of-day
+#          Replaces old eod_update.yml + absorbs chain_validator,
+#          pattern_miner, rule_proposer runs into one atomic update
+# Trigger: cron-job.org @ 3:35 PM IST Mon-Fri (workflow_dispatch)
+# Sequence: 5 min after market close (3:30 PM IST)
+# Touches: ALL output/*.json files (atomic single commit)
+# Failure mode: Telegram alert via alert_failure.py
 #
-# Runs at 3:35 PM IST via cron-job.org (same trigger time
-# as old eod_update.yml, so no cron-job.org change needed).
+# Architecture v2 (Apr 22 2026):
+# - cron-job.org triggered (precision-critical, post-market)
+# - workflow_dispatch only (no GitHub schedule)
+# - CRIT-03 validation step (5/8) catches schema mismatch + nan-data
+# - skip_validation input for emergency manual override
 #
 # STEPS IN ORDER:
 #   1. Backup manager (preserve history)
-#   2. Outcome evaluation (resolve signals)
-#   3. EOD prices fetch (write eod_prices.json)
-#   4. Telegram EOD summary (main.py eod mode)
-#   5. CRIT-03: Validate eod_prices.json freshness ← NEW
+#   2-4. EOD chain via main.py eod (outcomes + EOD prices + Telegram)
+#   5. EOD VALIDATION (CRIT-03) — verify eod_prices.json valid
 #   6. Chain validator (writes system_health.json)
 #   7. Pattern miner (writes patterns.json)
 #   8. Rule proposer (writes proposed_rules.json)
-#   9. Commit all output/ changes
+#   COMMIT: Single atomic update for PWA
 #
 # DESIGN:
 # - Critical steps (1-5) use exit-on-error: stop if broken
 # - Aux steps (6-8) use continue-on-error: never block commit
 # - Single commit at end: atomic update for PWA
 #
-# CRIT-03 FIX (Apr 21 2026 night):
-# Added validation step after EOD chain to catch silent
-# failures. Previously, "No changes to commit" hid the
-# fact that eod_prices.json was stale (4 days old). Now:
-#   - Validates eod_prices.json exists
-#   - Validates schema_version >= 2 (CRIT-01 schema)
-#   - Validates ohlc_by_symbol has data (>= 50 symbols)
-#   - Validates date matches today
-#   - Fails loudly with Telegram alert if any check fails
-#
-# ROLLBACK: If this breaks, rename to eod_master.yml.bak
-# and rename eod_update.yml.bak back to eod_update.yml.
+# ROLLBACK: Old eod_update.yml.bak preserved as escape hatch
 
-name: "🌙 EOD Master | Backup+Outcomes+EOD+Validate+Chain+Patterns+Proposals+Telegram | 3:35 PM IST"
+name: "🌙 EOD Master | Backup+Outcomes+EOD+Validate+Chain+Patterns+Proposals+Telegram | 3:35 PM IST cron-job.org"
 
 on:
   workflow_dispatch:
@@ -51,7 +45,7 @@ on:
         default: false
         type: boolean
       skip_validation:
-        description: 'Skip eod_prices validation (CRIT-03 emergency override)'
+        description: 'EMERGENCY: Skip CRIT-03 validation (for debug only)'
         required: false
         default: false
         type: boolean
@@ -110,23 +104,11 @@ jobs:
           cd $GITHUB_WORKSPACE/scanner
           python main.py eod
 
-      # ── STEP 5: CRIT-03 EOD prices validation ─────
-      # Validates that eod_prices.json was actually
-      # updated correctly. Catches silent failures
-      # like the 4-day stale file issue from Apr 17-21.
-      #
-      # Validation criteria:
-      #   1. File exists at output/eod_prices.json
-      #   2. schema_version >= 2 (CRIT-01 schema)
-      #   3. date field matches today (IST)
-      #   4. ohlc_by_symbol has at least 50 symbols
-      #      (we have 119 open positions, expect 100+)
-      #
-      # Fails workflow loudly if any check fails.
-      # Sends Telegram alert with details.
-      # Can be bypassed via skip_validation input
-      # for emergency manual runs.
-      - name: "5/8 Validate eod_prices.json (CRIT-03)"
+      # ── STEP 5: EOD VALIDATION (CRIT-03) ──────────
+      # Validates eod_prices.json before allowing commit.
+      # Catches: schema_version<2, date mismatch, insufficient OHLC.
+      # Sends Telegram alert on failure and exits 1.
+      - name: "5/8 EOD validation (CRIT-03)"
         if: ${{ inputs.skip_validation != true }}
         env:
           TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
@@ -134,131 +116,59 @@ jobs:
           PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           echo "════════════════════════════════════════"
-          echo "  STEP 5/8: VALIDATE EOD_PRICES.JSON"
+          echo "  STEP 5/8: EOD VALIDATION (CRIT-03)"
           echo "════════════════════════════════════════"
-
-          python <<'PYEOF'
+          python -c "
           import json
-          import os
           import sys
-          import requests
           from datetime import datetime, timezone, timedelta
-
-          MIN_SYMBOLS = 50
-          EXPECTED_SCHEMA = 2
-          FILE_PATH = "output/eod_prices.json"
-
-          # IST today
-          ist = timezone(timedelta(hours=5, minutes=30))
-          today_ist = datetime.now(tz=ist).date().isoformat()
-
-          errors = []
-          warnings = []
-
-          # Check 1: File exists
-          if not os.path.exists(FILE_PATH):
-              errors.append(f"FILE MISSING: {FILE_PATH}")
-          else:
-              size_kb = os.path.getsize(FILE_PATH) / 1024
-              print(f"[validate] File exists: {size_kb:.1f} KB")
-
-              try:
-                  with open(FILE_PATH, 'r') as f:
-                      data = json.load(f)
-              except Exception as e:
-                  errors.append(f"PARSE ERROR: {e}")
-                  data = None
-
-              if data:
-                  # Check 2: Schema version
-                  schema_v = data.get('schema_version', 1)
-                  print(f"[validate] schema_version: {schema_v}")
-                  if schema_v < EXPECTED_SCHEMA:
-                      errors.append(
-                          f"OLD SCHEMA: v{schema_v} "
-                          f"(expected v{EXPECTED_SCHEMA}+)")
-
-                  # Check 3: Date matches today
-                  file_date = data.get('date', 'MISSING')
-                  print(f"[validate] file date: {file_date}")
-                  print(f"[validate] today (IST): {today_ist}")
-                  if file_date != today_ist:
-                      errors.append(
-                          f"STALE DATE: file={file_date} "
-                          f"today={today_ist}")
-
-                  # Check 4: ohlc_by_symbol size
-                  ohlc = data.get('ohlc_by_symbol', {})
-                  ohlc_count = len(ohlc) if isinstance(ohlc, dict) else 0
-                  print(f"[validate] ohlc_by_symbol: {ohlc_count} symbols")
-                  if ohlc_count < MIN_SYMBOLS:
-                      errors.append(
-                          f"INSUFFICIENT OHLC: {ohlc_count} symbols "
-                          f"(expected >= {MIN_SYMBOLS})")
-
-                  # Check 5: results[] also present (warning only)
-                  results = data.get('results', [])
-                  results_count = len(results) if isinstance(results, list) else 0
-                  print(f"[validate] results[]: {results_count} entries")
-                  if results_count == 0:
-                      warnings.append(
-                          "results[] empty — telegram/stop_check "
-                          "may show stale data")
-
-                  # Check 6: open_positions field
-                  open_pos = data.get('open_positions', 0)
-                  print(f"[validate] open_positions: {open_pos}")
-
-          # Report
-          print("\n" + "=" * 50)
-          print("VALIDATION REPORT")
-          print("=" * 50)
-
-          if warnings:
-              print("\nWARNINGS:")
-              for w in warnings:
-                  print(f"  ⚠ {w}")
-
-          if errors:
-              print("\nERRORS:")
-              for e in errors:
-                  print(f"  ✗ {e}")
-
-              # Send Telegram alert
-              token = os.getenv('TELEGRAM_TOKEN', '')
-              chat  = os.getenv('TELEGRAM_CHAT_ID', '')
-
-              if token and chat:
-                  msg = (
-                      "🚨 EOD VALIDATION FAILED\n\n"
-                      "eod_prices.json failed CRIT-03 checks:\n\n"
-                      + "\n".join(f"• {e}" for e in errors)
-                      + "\n\n"
-                      "Outcome resolution will be degraded.\n"
-                      "Check workflow logs immediately."
-                  )
-                  try:
-                      r = requests.post(
-                          f"https://api.telegram.org/"
-                          f"bot{token}/sendMessage",
-                          data={"chat_id": chat, "text": msg},
-                          timeout=10)
-                      if r.status_code == 200:
-                          print("\n[validate] Telegram alert sent")
-                      else:
-                          print(f"\n[validate] Telegram failed: "
-                                f"{r.status_code}")
-                  except Exception as e:
-                      print(f"\n[validate] Telegram error: {e}")
-
-              print("\n" + "=" * 50)
-              print("EXITING WITH FAILURE — eod_prices invalid")
-              print("=" * 50)
+          
+          IST = timezone(timedelta(hours=5, minutes=30))
+          today_ist = datetime.now(IST).date().isoformat()
+          
+          try:
+              with open('output/eod_prices.json') as f:
+                  data = json.load(f)
+          except Exception as e:
+              print(f'❌ Cannot load eod_prices.json: {e}')
               sys.exit(1)
-          else:
-              print("\n✓ All validation checks PASSED")
-
-          PYEOF
+          
+          schema_version = data.get('schema_version', 1)
+          eod_date = data.get('date', '')
+          ohlc_by_symbol = data.get('ohlc_by_symbol', {})
+          symbol_count = len(ohlc_by_symbol)
+          
+          print(f'Schema version: {schema_version}')
+          print(f'EOD date: {eod_date} (today IST: {today_ist})')
+          print(f'OHLC symbol count: {symbol_count}')
+          
+          errors = []
+          if schema_version < 2:
+              errors.append(f'schema_version={schema_version} (expected ≥2 — CRIT-01 not applied)')
+          if eod_date != today_ist:
+              errors.append(f'date mismatch: file={eod_date} vs today_ist={today_ist}')
+          if symbol_count < 50:
+              errors.append(f'INSUFFICIENT OHLC: {symbol_count} symbols (expected ≥50)')
+          
+          if errors:
+              print('')
+              print('❌ EOD VALIDATION FAILED:')
+              for e in errors:
+                  print(f'   - {e}')
+              
+              try:
+                  sys.path.insert(0, 'scanner')
+                  from telegram_bot import send_message
+                  msg = '🚨 EOD MASTER VALIDATION FAILED\\n\\n' + '\\n'.join(f'• {e}' for e in errors) + '\\n\\nManual investigation required.'
+                  send_message(msg)
+              except Exception as te:
+                  print(f'Telegram alert failed: {te}')
+              
+              sys.exit(1)
+          
+          print('')
+          print('✅ EOD validation passed')
+          "
 
       # ── STEP 6: Chain validator (non-critical) ────
       - name: "6/8 Chain validator"
