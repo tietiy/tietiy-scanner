@@ -1,10 +1,19 @@
 # .github/workflows/telegram_poll.yml
-# Polls Telegram for commands and responds
-# Commands: /today /exits /pnl /stops /signals /health /help
-# Triggered by cron-job.org every 10 min
-# Commits tg_offset.json to prevent duplicate responses
+# Purpose: Poll Telegram for user commands and respond
+#          Commands: /today /exits /pnl /stops /signals /health /help
+#          Commits tg_offset.json to prevent duplicate responses
+# Trigger: cron-job.org every 10 min during active hours
+# Sequence: Independent loop, runs continuously throughout day
+# Touches: output/tg_offset.json + Telegram responses
+# Failure mode: Telegram alert via send_workflow_failure
+#
+# Architecture v2 (Apr 22 2026):
+# - cron-job.org triggered (real-time command response)
+# - workflow_dispatch only (no GitHub schedule)
+# - Every 10 min cadence balances responsiveness vs API rate limits
+# - tg_offset.json prevents duplicate command processing
 
-name: "🤖 Telegram Poll | /today /exits /pnl /stops /signals /health | Every 10Min cron-job"
+name: "🤖 Telegram Poll | /today /exits /pnl /stops /signals /health | Every 10Min cron-job.org"
 
 on:
   workflow_dispatch:
