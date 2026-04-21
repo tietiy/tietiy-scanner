@@ -1,9 +1,24 @@
 # .github/workflows/ltp_updater.yml
-# Fetches intraday LTP for all PENDING signals
-# Holiday guard — skips on NSE holidays
-# Triggered by cron-job.org every 5 min during market hours
+# Purpose: Fetch intraday LTP for all PENDING signals
+#          Holiday guard — skips on NSE holidays/weekends
+# Trigger: cron-job.org every 5 min during market hours
+#          (9:30 AM - 3:30 PM IST = 4:00 - 10:00 UTC)
+# Sequence: Runs 76 times per trading day (every 5 min)
+# Touches: output/ltp_prices.json
+# Failure mode: Telegram alert via send_workflow_failure
+#
+# Architecture v2 (Apr 22 2026):
+# - cron-job.org triggered (precision-critical, 5-min cadence)
+# - workflow_dispatch only (no GitHub schedule)
+# - concurrency: cancel-in-progress true
+#   (latest LTP request wins — old requests can be cancelled safely)
+# - cron-job.org expression: */5 4-10 * * 1-5
+#
+# LW1 fix preserved (v2):
+# - Excludes terminal outcome signals from pending list
+# - Holiday/weekend guard inside ltp_writer.py
 
-name: "💹 LTP Updater | Intraday price all PENDING signals holiday-guard | Every 5Min Market"
+name: "💹 LTP Updater | Intraday price PENDING signals holiday-guard | Every 5Min cron-job.org"
 
 on:
   workflow_dispatch:
