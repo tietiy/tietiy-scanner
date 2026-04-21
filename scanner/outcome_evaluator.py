@@ -18,29 +18,48 @@
 #   OE2 (old) — early return for terminal outcomes
 #   OE3    — STOP_HIT pnl_pct forced negative
 #
-# NEW FIXES (Phase 2 Session 2):
+# PHASE 2 SESSION 2 FIXES:
 #   EOD1   — Read eod_prices.json FIRST for OHLC data.
 #   EOD2   — data_quality tagging on resolution.
 #   D6A    — Day 6 OPEN price reads open_prices.json FIRST.
 #
 # SESSION 3 ADDITION (Apr 19 2026):
 #   CS3    — Resolve contra_shadow.json entries at Day 6.
-#            Reuses all existing helpers (holidays,
-#            _resolve_day6_open, eod_prices, open_prices).
-#            Wrapped in try/except — never blocks main
-#            outcome evaluation. Contra shadows track
-#            INVERTED direction of killed signals.
 #
 # SESSION A FIX (Apr 21 2026):
 #   C-03 (reader side) — _resolve_contra_shadows now
 #            reads fields that contra_tracker actually
-#            writes: entry (not entry_est only), direction
-#            (as inverted), with fallbacks for both old
-#            and new schemas. Previously, every shadow
-#            was skipped as "missing fields" because
-#            writer wrote {direction, entry, stop} but
-#            reader only looked for {inverted_direction,
-#            entry_est}.
+#            writes.
+#
+# CRIT-02 FIX (Apr 21 2026 night):
+#   _load_eod_prices() now handles new schema written
+#   by eod_prices_writer.py CRIT-01 fix.
+#
+#   Old schema (broken — was being read incorrectly):
+#     {date, fetched_at, results: [{symbol,close,...}]}
+#     ↑ outcome_evaluator was reading top-level keys
+#     as "symbols" — len() returned 8 (metadata count)
+#     instead of actual symbol count.
+#
+#   New schema (CRIT-01):
+#     {
+#       date, fetched_at, results: [...],
+#       ohlc_by_symbol: {           ← read this
+#         "TCS.NS": {
+#           "2026-04-21": {open,high,low,close}
+#         }
+#       },
+#       schema_version: 2
+#     }
+#
+#   Adapter logic:
+#     1. If schema_version >= 2 → read ohlc_by_symbol directly
+#     2. Else if results[] present → convert to nested dict
+#        (handles transition period + first day after fix)
+#     3. Else return {} (file invalid/empty)
+#
+#   This allows correct primary-source reading and
+#   eliminates yfinance dependency for resolved-day data.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -135,27 +154,113 @@ def _count_trading_days(start_date, end_date, holidays):
     return count
 
 
-# ── EOD1: PRICE DATA SOURCES ──────────────────────────
+# ── CRIT-02: SCHEMA ADAPTER ───────────────────────────
 
 def _load_eod_prices():
-    """Load eod_prices.json — populated daily by
-    stop_alert_writer.py. Contains close/high/low/open
-    per symbol per date for all tracked open signals.
-    Schema: { symbol: { date_str: {open, high, low, close} } }
+    """
+    CRIT-02 FIX: Now handles BOTH old and new schemas.
+
+    Returns: { symbol: { date_str: {open,high,low,close} } }
+
+    New schema (eod_prices_writer.py CRIT-01, schema_v2):
+      Reads `ohlc_by_symbol` nested dict directly.
+
+    Old schema (legacy results[] only):
+      Converts results[] array → nested dict.
+      Used for transition period / files written before
+      CRIT-01 deployment. Open price falls back to close
+      since old schema didn't store open.
+
+    Returns empty dict if file unreadable or invalid.
     """
     try:
         with open(EOD_PRICES_FILE, 'r') as f:
-            return json.load(f)
+            data = json.load(f)
     except Exception as e:
         print(f"[outcome] eod_prices.json not readable: {e}")
         return {}
+
+    # Validate top-level structure
+    if not isinstance(data, dict):
+        print(f"[outcome] eod_prices.json malformed "
+              f"— expected dict, got {type(data)}")
+        return {}
+
+    schema_version = data.get('schema_version', 1)
+
+    # ── New schema (v2+) — read ohlc_by_symbol ────
+    if schema_version >= 2:
+        ohlc_dict = data.get('ohlc_by_symbol', {})
+        if isinstance(ohlc_dict, dict) and ohlc_dict:
+            print(f"[outcome] eod_prices loaded "
+                  f"(schema v{schema_version}): "
+                  f"{len(ohlc_dict)} symbols")
+            return ohlc_dict
+        else:
+            print(f"[outcome] eod_prices schema v{schema_version} "
+                  f"but ohlc_by_symbol empty/missing")
+            # Fall through to results[] conversion as safety net
+
+    # ── Old schema fallback — convert results[] ───
+    results = data.get('results', [])
+    if not isinstance(results, list) or not results:
+        print(f"[outcome] eod_prices has no usable data "
+              f"(schema_v={schema_version}, "
+              f"results={len(results) if isinstance(results, list) else 'N/A'})")
+        return {}
+
+    file_date = data.get('date')
+    if not file_date:
+        print(f"[outcome] eod_prices missing 'date' field "
+              f"— cannot convert results[]")
+        return {}
+
+    # Convert flat results[] to nested {symbol:{date:{ohlc}}}
+    converted = {}
+    skipped = 0
+
+    for entry in results:
+        if not isinstance(entry, dict):
+            skipped += 1
+            continue
+
+        sym = entry.get('symbol')
+        if not sym:
+            skipped += 1
+            continue
+
+        close = entry.get('close')
+        if close is None:
+            skipped += 1
+            continue
+
+        # Open may be None in old schema → fall back to close
+        open_  = entry.get('open')  if entry.get('open')  is not None else close
+        high   = entry.get('high')  if entry.get('high')  is not None else close
+        low    = entry.get('low')   if entry.get('low')   is not None else close
+
+        try:
+            converted.setdefault(sym, {})[file_date] = {
+                'open':  float(open_),
+                'high':  float(high),
+                'low':   float(low),
+                'close': float(close),
+            }
+        except (ValueError, TypeError):
+            skipped += 1
+            continue
+
+    print(f"[outcome] eod_prices converted from old schema: "
+          f"{len(converted)} symbols ({skipped} skipped)")
+
+    return converted
 
 
 def _load_open_prices():
     """Load open_prices.json — populated at 9:27 AM
     by open_validator.py. Contains 9:15 open price
     per symbol per date.
-    Schema: { symbol: { date_str: open_price } }
+    Schema: { date: ..., results: [{symbol, actual_open}] }
     """
     try:
         with open(OPEN_PRICES_FILE, 'r') as f:
@@ -172,15 +277,36 @@ def _build_ohlc_from_eod(symbol, start_date, end_date,
     eod_prices.json and open_prices.json, avoiding
     yfinance entirely.
 
+    eod_prices is now ALWAYS in nested format thanks to
+    _load_eod_prices() adapter (CRIT-02 fix).
+    Schema: { symbol: { date_str: {open,high,low,close} } }
+
     Returns DataFrame with same shape as yfinance output
     (columns: Open, High, Low, Close; index: timestamps).
     Returns None if insufficient data available.
     """
-    symbol_eod  = eod_prices.get(symbol, {})
-    symbol_open = open_prices.get(symbol, {})
+    symbol_eod = eod_prices.get(symbol, {})
 
     if not symbol_eod:
         return None
+
+    # open_prices.json may be either:
+    #   (a) {date, results:[{symbol, actual_open}]} (current)
+    #   (b) {symbol: {date_str: open}} (legacy)
+    # Build a quick lookup that handles both.
+    symbol_opens = {}
+    if isinstance(open_prices, dict):
+        # Schema (a)
+        if 'results' in open_prices and 'date' in open_prices:
+            file_date = open_prices.get('date')
+            for r in open_prices.get('results', []):
+                if isinstance(r, dict) and r.get('symbol') == symbol:
+                    ao = r.get('actual_open')
+                    if ao is not None:
+                        symbol_opens[file_date] = ao
+        # Schema (b) fallback
+        elif symbol in open_prices:
+            symbol_opens = open_prices.get(symbol, {})
 
     rows = {}
     cur = start_date
@@ -190,7 +316,7 @@ def _build_ohlc_from_eod(symbol, start_date, end_date,
 
         if eod_row:
             open_price = (
-                symbol_open.get(date_str)
+                symbol_opens.get(date_str)
                 or eod_row.get('open')
                 or eod_row.get('close')
             )
@@ -253,7 +379,8 @@ def _fetch_ohlc_yfinance(symbol, start_date,
 def _fetch_ohlc(symbol, start_date, end_date,
                 eod_prices, open_prices):
     """
-    EOD1: Primary source is eod_prices.json.
+    EOD1: Primary source is eod_prices.json (now correctly
+    parsed via CRIT-02 adapter).
     Falls back to yfinance only if eod_prices is
     insufficient. Returns (df, source_tag) tuple.
     source_tag is used by EOD2 for data_quality tagging.
@@ -712,30 +839,8 @@ def _propagate_sa_outcome(history, parent_id, parent_outcome):
 
 
 # ── CS3 — CONTRA SHADOW RESOLUTION ───────────────────
-# Runs after regular signal evaluation. Resolves
-# contra_shadow.json entries using the same Day 6
-# open-price logic as real signals.
-#
-# A contra shadow is an INVERTED direction trade recorded
-# when a kill_pattern fires. Tracking proves whether the
-# inversion hypothesis actually holds — if contra WR is
-# high after n=30, that signal+sector can be promoted
-# to a real CONTRA signal type in Phase 3.
-#
-# Wrapped in try/except at run_outcome_evaluation level
-# so failure here NEVER blocks main signal resolution.
-#
-# C-03 FIX (Apr 21 2026):
-#   Reader now consumes the fields contra_tracker actually
-#   writes. Supports BOTH old schema (entry_est only) and
-#   new schema (entry as primary, entry_est as fallback)
-#   so records created before this fix continue to resolve.
 
 def _shadow_field(shadow, *names):
-    """
-    Return first non-None value among shadow[name] for name in names.
-    Enables reading either the canonical field or a legacy alias.
-    """
     for n in names:
         v = shadow.get(n)
         if v is not None:
@@ -745,10 +850,6 @@ def _shadow_field(shadow, *names):
 
 def _resolve_contra_shadows(holidays, eod_prices,
                             open_prices):
-    """
-    Resolve contra_shadow.json entries that have
-    reached Day 6. Uses same logic as real signals.
-    """
     if not os.path.exists(CONTRA_SHADOW_FILE):
         print("[contra] No contra_shadow.json yet — "
               "nothing to resolve")
@@ -766,7 +867,6 @@ def _resolve_contra_shadows(holidays, eod_prices,
         print("[contra] No shadows to process")
         return
 
-    # Only resolve shadows without terminal outcome yet
     unresolved = [
         s for s in shadows
         if s.get('outcome') is None
@@ -791,9 +891,6 @@ def _resolve_contra_shadows(holidays, eod_prices,
         shadow_id = shadow.get('id', '')
         det_date  = shadow.get('date', '')
 
-        # C-03 FIX: read new writer fields with fallbacks
-        # New writer: direction, entry (primary)
-        # Legacy:     inverted_direction, entry_est
         inverted_dir = _shadow_field(
             shadow, 'direction', 'inverted_direction') or 'LONG'
         original_dir = _shadow_field(
@@ -818,7 +915,6 @@ def _resolve_contra_shadows(holidays, eod_prices,
                   f"entry not numeric: {entry_raw!r}")
             continue
 
-        # Compute Day 6 date using same logic as real signals
         try:
             entry_date    = _get_entry_date(det_date, holidays)
             tracking_end  = _get_nth_trading_day(
@@ -829,19 +925,15 @@ def _resolve_contra_shadows(holidays, eod_prices,
             print(f"[contra] Date error {shadow_id}: {e}")
             continue
 
-        # Write effective_exit_date back to shadow
         shadow['effective_exit_date'] = \
             effective_end.strftime('%Y-%m-%d')
 
-        # Not Day 6 yet — nothing to do
         if today < effective_end:
             days_left = (effective_end - today).days
             print(f"[contra] {sym} ({shadow_id}) — "
                   f"Day 6 in {days_left} days")
             continue
 
-        # Resolve Day 6 open using shared helper
-        # Need ohlc for secondary fallback
         ohlc, _ = _fetch_ohlc(
             sym, entry_date, effective_end,
             eod_prices, open_prices)
@@ -854,14 +946,12 @@ def _resolve_contra_shadows(holidays, eod_prices,
                   f"Day 6 open unavailable")
             continue
 
-        # Calculate P&L for INVERTED direction
         pnl_pct = _calc_pnl_pct(
             entry, day6_open, inverted_dir)
 
         if pnl_pct is None:
             continue
 
-        # Classify outcome
         if pnl_pct > FLAT_PCT:
             outcome = 'CONTRA_WIN'
         elif pnl_pct < -FLAT_PCT:
@@ -888,12 +978,10 @@ def _resolve_contra_shadows(holidays, eod_prices,
         print(f"[contra] Skipped {skipped_fields} shadows "
               f"due to missing fields (check writer schema)")
 
-    # Save back only if anything changed
     if updates > 0:
         data['shadows']    = shadows
         data['updated_at'] = datetime.utcnow().isoformat() + 'Z'
 
-        # Count totals for logging
         total_resolved = sum(
             1 for s in shadows
             if s.get('outcome') is not None
@@ -919,19 +1007,18 @@ def _resolve_contra_shadows(holidays, eod_prices,
 # ── MAIN FUNCTION ─────────────────────────────────────
 
 def run_outcome_evaluation():
-    print("[outcome] Starting evaluation (v3 - EOD1+EOD2+D6A+CS3)...")
+    print("[outcome] Starting evaluation (v4 - CRIT-02 schema adapter)...")
 
     holidays = _load_holidays()
     if not holidays:
         print("[outcome] Warning — no holidays loaded")
 
-    # EOD1: Pre-load price data sources once
+    # CRIT-02: _load_eod_prices now returns nested dict
+    # via schema adapter. Always {symbol:{date:{ohlc}}}.
     eod_prices  = _load_eod_prices()
     open_prices = _load_open_prices()
-    print(f"[outcome] Loaded eod_prices: "
-          f"{len(eod_prices)} symbols")
-    print(f"[outcome] Loaded open_prices: "
-          f"{len(open_prices)} symbols")
+    print(f"[outcome] eod_prices ready: "
+          f"{len(eod_prices)} symbols (post-adapter)")
 
     try:
         with open(HISTORY_FILE, 'r') as f:
@@ -962,7 +1049,6 @@ def run_outcome_evaluation():
 
     if not open_signals:
         print("[outcome] No open signals")
-        # CS3: still try to resolve contra shadows
         try:
             _resolve_contra_shadows(
                 holidays, eod_prices, open_prices)
@@ -991,7 +1077,6 @@ def run_outcome_evaluation():
 
         after = updated_sig.get('outcome', 'OPEN')
 
-        # Track source counts
         src = updated_sig.get('data_quality_resolve')
         if src in source_counts:
             source_counts[src] += 1
@@ -1027,10 +1112,6 @@ def run_outcome_evaluation():
     else:
         print("[outcome] No updates needed")
 
-    # ── CS3: resolve contra shadows ───────────────────
-    # Runs after regular signal resolution.
-    # Wrapped in try/except — NEVER blocks main flow
-    # even if contra_shadow.json is corrupt or missing.
     try:
         _resolve_contra_shadows(
             holidays, eod_prices, open_prices)
