@@ -1,10 +1,20 @@
 # .github/workflows/morning_scan.yml
-# Daily morning scan — 188 stocks
-# Detects UP_TRI DOWN_TRI BULL_PROXY signals
-# Scores, filters, sends Telegram + commits output
-# Triggered by cron-job.org at 8:45 AM IST
+# Purpose: Daily morning scan — 188 stocks
+#          Detects UP_TRI, DOWN_TRI, BULL_PROXY signals
+#          Scores, filters, sends Telegram + commits output
+# Trigger: cron-job.org @ 8:45 AM IST Mon-Fri (workflow_dispatch)
+# Sequence: After heartbeat (8:30), before scan_watchdog (9:02)
+# Touches: output/signal_history.json, meta.json, scan_log.json,
+#          rejected_log.json, mini_log.json + Telegram morning brief
+# Failure mode: Continue-on-error scan, then commit attempt
+#               + Telegram alert via send_workflow_failure
+#
+# Architecture v2 (Apr 22 2026):
+# - cron-job.org triggered (precision-critical, must complete by 9:15)
+# - workflow_dispatch only (no GitHub schedule to avoid duplicate)
+# - concurrency group prevents overlapping scans
 
-name: "☀️ Morning Scan | 188stocks UP-TRI DOWN-TRI BULL-PROXY+Telegram | 8:45 AM IST Auto"
+name: "☀️ Morning Scan | 188stocks UP-TRI DOWN-TRI BULL-PROXY+Telegram | 8:45 AM IST cron-job.org"
 
 on:
   workflow_dispatch:
@@ -65,9 +75,9 @@ jobs:
           fi
           SCAN_RESULT="${{ steps.scan.outcome }}"
           if [ "$SCAN_RESULT" = "failure" ]; then
-            COMMIT_MSG="🔴 Scan $(date '+%Y-%m-%d %H:%M') IST [FAILED]"
+            COMMIT_MSG="Morning scan FAILED $(date '+%Y-%m-%d %H:%M IST') — partial output"
           else
-            COMMIT_MSG="🟢 Scan $(date '+%Y-%m-%d %H:%M') IST"
+            COMMIT_MSG="Morning scan $(date '+%Y-%m-%d %H:%M IST')"
           fi
           git commit -m "$COMMIT_MSG"
           for i in 1 2 3; do
@@ -78,14 +88,15 @@ jobs:
             sleep 10
           done
 
-      - name: Alert on failure
-        if: failure() || steps.scan.outcome == 'failure'
+      - name: Notify on failure
+        if: steps.scan.outcome == 'failure'
         env:
           TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
-          WORKFLOW_NAME:    "Morning Scan"
-          RUN_URL:          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
           PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
-          pip install requests --quiet
-          python scanner/alert_failure.py
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('morning_scan', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
