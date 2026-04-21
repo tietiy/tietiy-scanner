@@ -1,22 +1,22 @@
 # .github/workflows/scan_watchdog.yml
-# Checks if morning scan ran — retriggers if missed
-# Also retriggers if scan found 0 signals on trading day
-# Triggered by cron-job.org at 9:02 AM IST
+# Purpose: Verify morning_scan completed — retrigger if missed
+#          Also retriggers if scan found 0 signals on trading day
+# Trigger: cron-job.org @ 9:02 AM IST Mon-Fri (workflow_dispatch)
+# Sequence: 17 min after morning_scan (8:45), 13 min before market open
+# Touches: Telegram alert, optional morning_scan.yml retrigger
+# Failure mode: Telegram alert sent inline (no separate notify step)
 #
-# V2 FIXES:
-# WD1: Grace window + scan_time check — watchdog was
-#      declaring "Morning scan missed" even when scan
-#      completed at 8:47 AM. Two root causes fixed:
-#      1. Added cache-bust param to meta.json fetch so
-#         stale GitHub Pages CDN response is bypassed.
-#      2. Read scan_time field from meta — if scan ran
-#         today (scan_time exists and date matches),
-#         declare healthy regardless of CDN lag.
-#      3. Added 15-min grace window: if IST time is
-#         before 9:15 AM and date matches today, give
-#         the scan time to complete before retrying.
+# Architecture v2 (Apr 22 2026):
+# - cron-job.org triggered (precision-critical, must precede 9:15 open)
+# - workflow_dispatch only (no GitHub schedule)
+#
+# WD1 logic preserved (Apr 17 fix):
+# - Cache-bust meta.json fetch (bypass GitHub Pages CDN stale)
+# - Read scan_time field — if populated, scan completed → healthy
+# - 15-min grace window before 9:15 AM IST (let scan finish)
+# - 0-signals retry only after 10:00 AM IST on trading days
 
-name: "👁️ Scan Watchdog | Checks scan ran retriggers if missed+Telegram | 9:02 AM IST Auto"
+name: "👁️ Scan Watchdog | Verify scan ran retrigger if missed+Telegram | 9:02 AM IST cron-job.org"
 
 on:
   workflow_dispatch:
@@ -43,9 +43,6 @@ jobs:
 
           # WD1 FIX: Cache-bust the meta.json fetch so
           # GitHub Pages CDN does not serve stale data.
-          # Without this, the scan can complete at 8:47 AM
-          # but watchdog at 9:02 AM still sees yesterday's
-          # meta.json from CDN cache and triggers a rescan.
           CACHE_BUST=$(date +%s)
           META_URL="https://tietiy.github.io/tietiy-scanner/meta.json?cb=${CACHE_BUST}"
           HTTP_CODE=$(curl -s -o /tmp/meta.json \
@@ -64,8 +61,6 @@ jobs:
           except:
               print('error')
           ")
-            # WD1 FIX: Read scan_time field — if this
-            # exists and date matches today, scan ran.
             SCAN_TIME=$(python3 -c "
           import json
           try:
@@ -107,8 +102,7 @@ jobs:
           if [ "$SCAN_DATE" = "$TODAY" ]; then
             # Date matches today
 
-            # WD1 FIX: If scan_time is populated, the
-            # scan completed successfully — always healthy.
+            # WD1 FIX: If scan_time is populated, scan completed → healthy
             if [ -n "$SCAN_TIME" ]; then
               echo "Scan healthy — ran today at ${SCAN_TIME}, signals:${SIGNALS_FOUND}"
 
@@ -126,11 +120,8 @@ jobs:
               fi
 
             else
-              # WD1 FIX: Date matches but scan_time empty —
-              # scan may still be running or deploy in flight.
-              # Apply 15-min grace: before 9:15 AM IST,
-              # do not declare missed. Give scan time to
-              # complete and meta.json time to deploy.
+              # Date matches but scan_time empty — scan may still be running
+              # or deploy in flight. Apply 15-min grace before 9:15 AM IST.
               GRACE_END_MINS=555
               # 555 min = 9:15 AM IST
               if [ "$IST_TIME_MINS" -lt "$GRACE_END_MINS" ]; then
