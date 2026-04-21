@@ -1,15 +1,29 @@
 # .github/workflows/backup_manager.yml
-# Daily rolling backup of signal_history.json
+# Rolling backup of signal_history.json
 # Keeps last 30 days, auto-cleans older
-# Runs after EOD update completes
+#
+# SESSION B FIX (Apr 21 2026 — H-08):
+#   Removed redundant weekday cron.
+#   eod_master.yml already runs backup internally
+#   as one of its steps, so firing this workflow
+#   at 4 PM IST on weekdays double-backs-up and
+#   causes harmless race contention on
+#   signal_history.json.
+#
+#   Saturday cron kept — legitimate weekly safety
+#   net that doesn't overlap eod_master (markets
+#   closed Saturday, no EOD run).
+#
+#   Manual workflow_dispatch remains available
+#   for ad-hoc backups + list action.
 
 name: "💾 Backup | signal_history dated+archive rotation 30days | Manual+EOD"
 
 on:
   schedule:
-    # Daily 10:30 AM UTC = 4:00 PM IST (after EOD)
-    - cron: '30 10 * * 1-5'
     # Saturday backup before weekend summary
+    # (Weekday backups run inside eod_master.yml —
+    #  H-08 fix Apr 21 removed redundant weekday cron)
     - cron: '0 3 * * 6'
   workflow_dispatch:
     inputs:
