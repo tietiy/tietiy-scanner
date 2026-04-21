@@ -35,6 +35,14 @@
 # - RP3: send_pattern_report() — on-demand pattern findings
 # - WI3: send_weekly_intelligence() — accepts pre-formatted message
 #        from weekly_intelligence.py
+#
+# SESSION A FIX (Apr 21 2026):
+# - UX-01: send_morning_brief now accepts ltp_prices
+#          and shows open-position P&L summary (avg,
+#          up/down count, worst position). Removes
+#          "/pnl after brief" friction at 8:47 AM.
+#          ltp_prices is optional — if None or empty,
+#          the P&L section silently skips.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -1900,18 +1908,29 @@ def send_weekend_summary(stats: dict):
     send_message('\n'.join(lines))
 
 
-# ── 9. NEW (Session 3 · MB1): MORNING BRIEF ──────────
+# ── 9. MORNING BRIEF (Session 3 · MB1 + UX-01) ───────
 # Consolidated one-message summary sent after
 # send_morning_scan. Shows the 5 things that matter:
 #  1. Today's exits (and their current P&L)
 #  2. Tomorrow's exits (heads-up)
 #  3. Top new signals today
 #  4. Kill rules active + any warnings
-#  5. Open positions P&L summary
+#  5. OPEN POSITIONS P&L SUMMARY (UX-01 — new Apr 21)
+#  6. Open positions count
 # Never breaks morning flow (caller wraps in try/except).
+#
+# UX-01 (Apr 21 2026):
+#   ltp_prices now optional 4th arg. If provided and
+#   non-empty, brief shows avg open P&L, up/down count,
+#   and worst position — so trader can decide on new
+#   signals with full context in ONE message (no
+#   separate /pnl needed at 8:47 AM).
+#   If ltp_prices is None/empty, the P&L section
+#   silently skips (fully backward compat).
 def send_morning_brief(signals: list,
                        market_info: dict,
-                       history: list):
+                       history: list,
+                       ltp_prices: dict = None):
     today_iso = _ist_date().isoformat()
     tomorrow  = (_ist_date() +
                  timedelta(days=1)).isoformat()
@@ -1950,6 +1969,15 @@ def send_morning_brief(signals: list,
         active_kills = get_active_kill_patterns()
     except Exception:
         pass
+
+    # Open positions — compute count for both brief
+    # count line AND for P&L summary below
+    open_positions = [
+        s for s in history
+        if s.get('action') == 'TOOK'
+        and (s.get('outcome') or '') not in _DONE
+        and (s.get('generation') or 0) >= 1
+    ]
 
     lines = []
     lines.append(
@@ -2013,20 +2041,70 @@ def send_morning_brief(signals: list,
             lines.append(f'  {sig} \\+ {sec}')
         lines.append('')
 
-    # ── 5. OPEN POSITIONS PNL ─────────────────────
-    # Quick count — no LTP here (that's /pnl)
-    open_positions = [
-        s for s in history
-        if s.get('action') == 'TOOK'
-        and (s.get('outcome') or '') not in _DONE
-        and (s.get('generation') or 0) >= 1
-    ]
+    # ── 5. OPEN POSITIONS P&L (UX-01 — Apr 21) ───
+    # Only render if ltp_prices provided AND some
+    # positions have computable P&L.
+    pnl_rendered = False
+    try:
+        if ltp_prices and open_positions:
+            enriched = _enrich_with_pnl(
+                open_positions, ltp_prices)
+            with_pnl = [
+                e for e in enriched
+                if e.get('pnl_pct') is not None]
+
+            if with_pnl:
+                avg = (sum(e['pnl_pct']
+                           for e in with_pnl)
+                       / len(with_pnl))
+                winners = sum(
+                    1 for e in with_pnl
+                    if e['pnl_pct'] > 0)
+                losers  = sum(
+                    1 for e in with_pnl
+                    if e['pnl_pct'] < 0)
+
+                # Worst position (most negative)
+                worst = min(
+                    with_pnl,
+                    key=lambda e: e['pnl_pct'])
+
+                avg_icon = (
+                    '🟢' if avg >= 3 else
+                    '🟡' if avg >= 0 else
+                    '🔴')
+
+                lines.append(
+                    f'📊 *Open P&L* ({_esc(str(len(with_pnl)))} priced)')
+                lines.append(
+                    f'  {avg_icon} Avg: '
+                    f'{_esc(_pct_str(avg))}  '
+                    f'·  Up {_esc(str(winners))}  '
+                    f'Down {_esc(str(losers))}')
+
+                worst_pnl = worst.get('pnl_pct', 0)
+                if worst_pnl < -2:
+                    lines.append(
+                        f'  🔴 Worst: *{_esc(worst["sym"])}* '
+                        f'{_esc(_pct_str(worst_pnl))}')
+
+                lines.append('')
+                pnl_rendered = True
+    except Exception as e:
+        # Non-fatal — silently skip P&L section
+        print(f'[telegram] Morning brief P&L '
+              f'section skipped: {e}')
+
+    # ── 6. OPEN POSITIONS COUNT ───────────────────
+    # Always show count line; prompt for /pnl only
+    # if we didn't already render the P&L section.
     if open_positions:
         lines.append(
             f'📍 Open positions: '
             f'{_esc(str(len(open_positions)))}')
-        lines.append(
-            '_Use /pnl for current P&L_')
+        if not pnl_rendered:
+            lines.append(
+                '_Use /pnl for current P&L_')
         lines.append('')
 
     # ── FOOTER ────────────────────────────────────
@@ -2136,20 +2214,6 @@ def send_weekly_intelligence(message: str) -> bool:
         print('[telegram] Empty weekly intel message')
         return False
     
-    # The message from weekly_intelligence.py uses
-    # standard Markdown (not MarkdownV2). Convert by
-    # escaping special chars.
-    # Since weekly_intelligence.py already uses simple
-    # markdown (*bold*, _italic_, backticks), and we
-    # use MarkdownV2, we need to escape dots, dashes,
-    # parens, etc. in the text portions but preserve
-    # intentional formatting.
-    #
-    # Simplest safe approach: send as plain text via
-    # direct API call, bypassing MarkdownV2 entirely.
-    # Weekly intel uses emojis + structure, not heavy
-    # formatting.
-    
     if not TELEGRAM_TOKEN:
         print('[telegram] No token for weekly intel')
         return False
@@ -2165,8 +2229,6 @@ def send_weekly_intelligence(message: str) -> bool:
     success = True
     for i, chunk in enumerate(chunks):
         try:
-            # Use Markdown (not MarkdownV2) for weekly
-            # intel — matches how the composer formats.
             payload = {
                 'chat_id':    TELEGRAM_CHAT_ID,
                 'text':       chunk,
@@ -2180,7 +2242,6 @@ def send_weekly_intelligence(message: str) -> bool:
                 print(f'[telegram] Weekly intel chunk '
                       f'{i+1}/{len(chunks)} sent')
             else:
-                # Fallback to plain text
                 print(f'[telegram] Markdown failed '
                       f'({r.status_code}), trying plain')
                 payload['text'] = _strip_markdown(chunk)
