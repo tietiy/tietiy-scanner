@@ -1,20 +1,29 @@
-name: "🧠 Weekly Intelligence | Sun 8 PM IST"
+# .github/workflows/weekly_intelligence.yml
+# Purpose: Sunday weekly AI intelligence report
+#          - Generates AI analysis of patterns, proposals, contra, regime
+#          - Sends Telegram intelligence report
+#          - Writes output/weekly_intelligence_latest.json
+# Trigger: GitHub schedule — Sunday 8:00 PM IST
+# Sequence: Standalone weekly system reflection
+# Touches: output/weekly_intelligence_latest.json + Telegram
+# Failure mode: Telegram alert via alert_failure.py
+#
+# Architecture v2 (Apr 22 2026):
+# - SWITCHED from cron-job.org to GitHub schedule
+# - GitHub schedule (drift-tolerant, weekly only)
+# - Sunday 8:00 PM IST allows post-week reflection
+# - DISABLE corresponding cron-job.org job to avoid double trigger
+#
+# Differs from weekend_summary.yml (Saturday):
+# - weekend_summary = trader's recap "how did I do"
+# - weekly_intelligence = system's analysis "what should change"
 
-# ─────────────────────────────────────────────────
-# Purpose: Run weekly_intelligence.py every Sunday
-#   - Generates AI analysis of patterns, proposals,
-#     contra, regime
-#   - Sends Telegram intelligence report
-#   - Writes output/weekly_intelligence_latest.json
-#
-# Trigger: workflow_dispatch only (cron-job.org)
-# Schedule: Sunday 8 PM IST = 14:30 UTC
-#
-# Uses TELEGRAM_TOKEN/TELEGRAM_CHAT_ID to match
-# existing telegram_bot.py env var expectations.
-# ─────────────────────────────────────────────────
+name: "🧠 Weekly Intelligence | Patterns+Proposals+Regime+Contra+Health Telegram | Sun 8 PM IST"
 
 on:
+  schedule:
+    # Sunday 14:30 UTC = 8:00 PM IST
+    - cron: '30 14 * * 0'
   workflow_dispatch:
     inputs:
       dry_run:
@@ -42,46 +51,33 @@ jobs:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
 
     steps:
-      # ─────────────────────────────────────────────
-      # Step 1: Checkout
-      # ─────────────────────────────────────────────
       - name: Checkout
         uses: actions/checkout@v4
         with:
           token: ${{ secrets.GH_TOKEN }}
 
-      # ─────────────────────────────────────────────
-      # Step 2: Python setup (NO pip cache — matches
-      # pattern from other working workflows)
-      # ─────────────────────────────────────────────
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
 
-      # ─────────────────────────────────────────────
-      # Step 3: Install dependencies
-      # ─────────────────────────────────────────────
       - name: Install dependencies
         run: pip install requests pandas yfinance
 
-      # ─────────────────────────────────────────────
-      # Step 4: Ensure output directory exists
-      # ─────────────────────────────────────────────
       - name: Create folders
         run: mkdir -p output
 
-      # ─────────────────────────────────────────────
-      # Step 5: Generate weekly intelligence
-      # Uses TELEGRAM_TOKEN / TELEGRAM_CHAT_ID to
-      # match telegram_bot.py env var expectations.
-      # ─────────────────────────────────────────────
+      - name: Pull latest output files
+        run: |
+          git fetch origin
+          git checkout origin/main -- output/ || true
+
       - name: 🧠 Generate weekly intelligence
         id: generate
         env:
           TELEGRAM_TOKEN:    ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID:  ${{ secrets.TELEGRAM_CHAT_ID }}
-          DRY_RUN:           ${{ github.event.inputs.dry_run }}
+          DRY_RUN:           ${{ github.event.inputs.dry_run || 'false' }}
           PYTHONPATH:        ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           echo "════════════════════════════════════════"
@@ -105,9 +101,6 @@ jobs:
           echo "  GENERATION COMPLETE"
           echo "════════════════════════════════════════"
 
-      # ─────────────────────────────────────────────
-      # Step 6: Show output snapshot (for logs)
-      # ─────────────────────────────────────────────
       - name: 📋 Show output snapshot
         if: always()
         run: |
@@ -122,9 +115,6 @@ jobs:
             echo "⚠️ weekly_intelligence_latest.json NOT found"
           fi
 
-      # ─────────────────────────────────────────────
-      # Step 7: Commit the output JSON
-      # ─────────────────────────────────────────────
       - name: 💾 Commit weekly intelligence JSON
         if: success()
         env:
@@ -150,9 +140,6 @@ jobs:
             done
           fi
 
-      # ─────────────────────────────────────────────
-      # Step 8: Failure notification
-      # ─────────────────────────────────────────────
       - name: 🚨 Notify on failure
         if: failure()
         env:
