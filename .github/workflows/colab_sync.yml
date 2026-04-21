@@ -1,9 +1,19 @@
 # .github/workflows/colab_sync.yml
-# Exports signal_history.json as Colab-ready JSON
-# Creates colab_export.json in output/
-# Colab reads from GitHub Pages URL directly
+# Purpose: Export signal_history.json as Colab-ready JSON
+#          Creates output/colab_export.json with enriched fields
+#          Colab notebooks read from GitHub Pages URL directly
+# Trigger: GitHub schedule — 4:15 PM IST Mon-Fri (after EOD)
+# Sequence: 40 min after eod_master (3:35 PM)
+# Touches: output/colab_export.json
+# Failure mode: Telegram alert via send_workflow_failure
+#
+# Architecture v2 (Apr 22 2026):
+# - GitHub schedule (drift-tolerant, post-EOD analytics)
+# - Standalone for now (may fold into eod_master Step 9 later)
+# - 4:15 PM IST after eod_master writes signal_history.json
+# - Read-only — pulls latest output/ before exporting
 
-name: "🔄 Colab Sync | Flatten gen1 signals to colab_export.json | Manual+EOD"
+name: "🔄 Colab Sync | Flatten gen1 signals to colab_export.json | 4:15 PM IST Daily"
 
 on:
   schedule:
