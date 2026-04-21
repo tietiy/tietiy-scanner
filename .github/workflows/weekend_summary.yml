@@ -1,8 +1,17 @@
 # .github/workflows/weekend_summary.yml
-# Sends weekly Telegram recap every Saturday morning
-# Shows W/L/F WR signal type breakdown phase progress
+# Purpose: Weekly Saturday recap to Telegram
+#          W/L/F counts, win rate, signal type breakdown, phase progress
+# Trigger: GitHub schedule — Saturday 9:00 AM IST
+# Sequence: Standalone weekend reflection report
+# Touches: Telegram only (no file writes)
+# Failure mode: Telegram alert via send_workflow_failure
+#
+# Architecture v2 (Apr 22 2026):
+# - GitHub schedule (drift-tolerant, weekly)
+# - Saturday 9:00 AM IST after backup_manager (8:30 AM)
+# - Read-only — pulls latest output/ before generating
 
-name: "📅 Weekend Summary | W/L/F WR type-counts phase-progress Telegram | Auto Saturday"
+name: "📅 Weekend Summary | W/L/F WR type-counts phase-progress Telegram | Sat 9:00 AM IST"
 
 on:
   schedule:
