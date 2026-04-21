@@ -861,17 +861,41 @@ def run_morning_scan():
     # Wrapped in try/except — NEVER breaks morning flow.
     # Graceful if telegram_bot.send_morning_brief not
     # yet deployed (first-run safety).
+    #
+    # UX-01 FIX (Apr 21 2026):
+    # ltp_prices loaded ONCE here and passed to
+    # send_morning_brief (new 4th arg) + reused for
+    # STEP 21 poll_and_respond. Brief now shows open
+    # position P&L summary — removes the "run /pnl
+    # separately" friction at 8:47 AM decision moment.
+    ltp_prices    = _load_ltp_prices()
+    fresh_history = load_history()
+
     try:
         from telegram_bot import send_morning_brief
         send_morning_brief(
             signals     = mini_signals,
             market_info = market_info,
-            history     = load_history(),
+            history     = fresh_history,
+            ltp_prices  = ltp_prices,   # UX-01
         )
     except ImportError:
         print("[main] Morning brief not available "
               "(send_morning_brief not in telegram_bot) "
               "— skipping gracefully")
+    except TypeError:
+        # Backward compat: older send_morning_brief
+        # without ltp_prices param. Retry without it.
+        try:
+            from telegram_bot import send_morning_brief
+            send_morning_brief(
+                signals     = mini_signals,
+                market_info = market_info,
+                history     = fresh_history,
+            )
+        except Exception as e:
+            print(f"[main] Morning brief fallback "
+                  f"error (non-fatal): {e}")
     except Exception as e:
         print(f"[main] Morning brief error "
               f"(non-fatal): {e}")
@@ -881,9 +905,9 @@ def run_morning_scan():
     # commands (/status /signals /today /exits /pnl /stops)
     # are answered within the morning scan window.
     # ltp_prices passed so /stops + /pnl have live data.
+    # UX-01: reuses ltp_prices + fresh_history loaded
+    # above — no double-fetch.
     try:
-        fresh_history = load_history()
-        ltp_prices    = _load_ltp_prices()
         poll_and_respond(
             meta       = market_info,
             history    = fresh_history,
@@ -897,6 +921,7 @@ def run_morning_scan():
           f"Regime: {regime} | "
           f"Failed: {len(fetch_failed)} | "
           f"CA skip: {len(corporate_action_skip)}")
+
 
 
 # ── STOP CHECK ────────────────────────────────────────
