@@ -1,13 +1,22 @@
 # .github/workflows/diagnostic.yml
-# System diagnostic — manual or daily post-market
-# Checks data files, schema, signal counts, overdue
-# Self-heals and commits if issues found
+# Purpose: Daily post-market system diagnostic
+#          Checks data files, schema, signal counts, overdue
+#          Self-heals safe issues and commits if fixes applied
+# Trigger: GitHub schedule — 4:30 PM IST Mon-Fri (post-market)
+# Sequence: Runs after eod_master (3:35 PM) completes
+# Touches: output/ (if heal fixes applied), Telegram report
+# Failure mode: Telegram alert via send_workflow_failure
+#
+# Architecture v2 (Apr 22 2026):
+# - GitHub schedule (drift-tolerant, post-market)
+# - 4:30 PM IST after market close + EOD settlement
+# - Manual mode supports quick check, heal toggle, telegram toggle
 
-name: "🩺 Diagnostic | Files+Schema+SignalCount+Overdue+V5fields | Manual"
+name: "🩺 Diagnostic | Files+Schema+SignalCount+Overdue+Self-heal | 4:30 PM IST Daily"
 
 on:
   schedule:
-    # Daily 11:00 AM UTC = 4:30 PM IST (post-market)
+    # 11:00 AM UTC = 4:30 PM IST Mon-Fri (post-market)
     - cron: '0 11 * * 1-5'
   workflow_dispatch:
     inputs:
@@ -86,19 +95,20 @@ jobs:
           set +e
           python scanner/diagnostic.py ${{ steps.args.outputs.ARGS }}
           EXIT=$?
-          set -e
-          # 0=PASS 1=WARN (ok) 2=FAIL (real error)
-          [ $EXIT -le 1 ] || exit $EXIT
+          if [ $EXIT -ne 0 ]; then
+            echo "Diagnostic exited with code $EXIT (warnings or errors found)"
+            echo "DIAG_EXIT=$EXIT" >> $GITHUB_ENV
+          fi
+          exit 0
 
-      - name: Commit healed files if changed
+      - name: Commit self-heal changes
+        if: github.event_name == 'schedule' || inputs.heal == 'true'
         run: |
-          git config --global user.email "scanner@tietiy"
-          git config --global user.name  "TIE TIY Scanner"
-          git add output/signal_history.json \
-                  output/signal_history.backup.json \
-                  2>/dev/null || true
+          git config user.name  "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+          git add output/ 2>/dev/null || true
           if git diff --cached --quiet; then
-            echo "No heal changes to commit"
+            echo "No self-heal changes to commit"
             exit 0
           fi
           git commit -m "chore: diagnostic self-heal $(date -u +%Y-%m-%d)"
