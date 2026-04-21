@@ -1,5 +1,5 @@
 # scanner/eod_prices_writer.py
-# Runs at 3:35 PM IST via eod_update.yml
+# Runs at 3:35 PM IST via eod_master.yml
 # Fetches closing prices for all open positions
 # Checks if close breached stop level
 # Flags probable stop hits for trader awareness
@@ -16,6 +16,17 @@
 #        triggering false HIT:7 when EOD runs before
 #        market open (1 AM run). Any nan price now
 #        returns UNKNOWN immediately, no assessment.
+#
+# CRIT-01 FIX (Apr 21 2026 night):
+#   - Fetch OPEN price in addition to close/high/low.
+#   - Store full OHLC in results array per symbol.
+#   - Add ohlc_by_symbol nested dict to top-level
+#     output for outcome_evaluator schema compatibility.
+#   - Schema now writes BOTH:
+#       (a) flat results[] for stop_check/telegram (legacy)
+#       (b) ohlc_by_symbol{symbol:{date:{ohlc}}} for
+#           outcome_evaluator._build_ohlc_from_eod()
+#   - Outcome_evaluator's CRIT-02 fix reads (b).
 # ─────────────────────────────────────────────────────
 
 import json
@@ -77,6 +88,12 @@ def _is_nan(v):
 # ── HELPERS ───────────────────────────────────────────
 
 def _fetch_eod_price(symbol, retries=2):
+    """
+    CRIT-01 FIX: Now returns 4-tuple (open, close, high, low)
+    instead of 3-tuple (close, high, low). open price needed
+    for outcome_evaluator's D6A logic and accurate Day 6
+    outcome calculations.
+    """
     for attempt in range(retries + 1):
         try:
             df = yf.download(
@@ -106,29 +123,35 @@ def _fetch_eod_price(symbol, retries=2):
 
             if today_rows.empty:
                 if len(df) > 0:
-                    row   = df.iloc[-1]
-                    close = float(row['Close'])
-                    high  = float(row['High'])
-                    low   = float(row['Low'])
-                    return close, high, low
+                    row    = df.iloc[-1]
+                    open_  = float(row['Open'])
+                    close  = float(row['Close'])
+                    high   = float(row['High'])
+                    low    = float(row['Low'])
+                    return open_, close, high, low
                 continue
 
-            row   = today_rows.iloc[-1]
-            close = float(row['Close'])
-            high  = float(row['High'])
-            low   = float(row['Low'])
-            return close, high, low
+            row    = today_rows.iloc[-1]
+            open_  = float(row['Open'])
+            close  = float(row['Close'])
+            high   = float(row['High'])
+            low    = float(row['Low'])
+            return open_, close, high, low
 
         except Exception as e:
             print(f"[eod_writer] Fetch attempt "
                   f"{attempt+1} failed {symbol}: {e}")
 
-    return None, None, None
+    return None, None, None, None
 
 
 # EP2: BATCH PRICE FETCHER ─────────────────────────────
 
 def _fetch_all_prices(symbols):
+    """
+    CRIT-01 FIX: price_map now stores 4-tuple
+    (open, close, high, low) per symbol.
+    """
     price_map = {}
     unique_symbols = list(set(symbols))
 
@@ -137,11 +160,14 @@ def _fetch_all_prices(symbols):
           f"({len(symbols)} total signals)")
 
     for symbol in unique_symbols:
-        close, high, low = _fetch_eod_price(symbol)
-        price_map[symbol] = (close, high, low)
+        open_, close, high, low = _fetch_eod_price(symbol)
+        price_map[symbol] = (open_, close, high, low)
         if close is not None and not _is_nan(close):
             print(f"[eod_writer] {symbol} | "
-                  f"Close: {close:.2f}")
+                  f"O:{open_:.2f} C:{close:.2f}"
+                  if open_ is not None and not _is_nan(open_)
+                  else f"[eod_writer] {symbol} | "
+                       f"Close: {close:.2f}")
         else:
             print(f"[eod_writer] {symbol} | "
                   f"Close: nan")
@@ -151,11 +177,6 @@ def _fetch_all_prices(symbols):
 
 def _assess_stop(trade, close, high, low):
     # EP3 FIX: nan guard — must be first check.
-    # yfinance returns float('nan') when market is
-    # closed or EOD runs before market open.
-    # nan fails all comparisons silently, causing
-    # false HIT:7 (nan <= stop evaluates unpredictably).
-    # Return UNKNOWN immediately — do not assess.
     if _is_nan(close):
         return (False, False, 'UNKNOWN',
                 'No price data — market closed '
@@ -277,6 +298,12 @@ def _count_day(trade):
 # ── MAIN FUNCTION ─────────────────────────────────────
 
 def run_eod_update():
+    """
+    CRIT-01 FIX: Output schema now includes
+    ohlc_by_symbol nested dict for outcome_evaluator
+    compatibility. Existing flat results[] preserved
+    for stop_check/telegram backward compatibility.
+    """
     os.makedirs(_OUTPUT, exist_ok=True)
 
     today      = _today_ist().isoformat()
@@ -309,6 +336,11 @@ def run_eod_update():
     exit_due_count     = 0
     exit_tomorrow_list = []
 
+    # CRIT-01: ohlc_by_symbol nested dict for
+    # outcome_evaluator schema compatibility.
+    # Schema: { symbol: { date_str: {open,high,low,close} } }
+    ohlc_by_symbol = {}
+
     for trade in open_trades:
         symbol    = trade.get('symbol', '')
         signal    = trade.get('signal', '')
@@ -320,8 +352,9 @@ def run_eod_update():
         if not symbol:
             continue
 
-        close, high, low = price_map.get(
-            symbol, (None, None, None))
+        # CRIT-01: unpack 4-tuple now (open, close, high, low)
+        open_, close, high, low = price_map.get(
+            symbol, (None, None, None, None))
 
         # EP3 FIX: treat nan same as None — no data
         if close is None or _is_nan(close):
@@ -333,6 +366,7 @@ def run_eod_update():
                 'direction':     direction,
                 'entry':         entry,
                 'stop':          stop,
+                'open':          None,
                 'close':         None,
                 'high':          None,
                 'low':           None,
@@ -377,6 +411,12 @@ def run_eod_update():
                 'close':        round(close, 2),
             })
 
+        # CRIT-01: round open price safely
+        open_safe = (round(open_, 2)
+                     if open_ is not None
+                     and not _is_nan(open_)
+                     else None)
+
         results.append({
             'symbol':        symbol,
             'signal':        signal,
@@ -384,6 +424,7 @@ def run_eod_update():
             'direction':     direction,
             'entry':         entry,
             'stop':          stop,
+            'open':          open_safe,
             'close':         round(close, 2),
             'high':          round(high, 2)
                              if high and not _is_nan(high)
@@ -402,6 +443,25 @@ def run_eod_update():
             'fetch_time':    fetch_time,
         })
 
+        # CRIT-01: Build ohlc_by_symbol entry for
+        # outcome_evaluator. Only add if close is valid.
+        # Multiple signals per symbol → write once per
+        # symbol per date (overwrite is safe — same data).
+        if symbol not in ohlc_by_symbol:
+            ohlc_by_symbol[symbol] = {}
+
+        ohlc_by_symbol[symbol][today] = {
+            'open':  open_safe if open_safe is not None
+                                  else round(close, 2),
+            'high':  round(high, 2)
+                     if high and not _is_nan(high)
+                     else round(close, 2),
+            'low':   round(low, 2)
+                     if low and not _is_nan(low)
+                     else round(close, 2),
+            'close': round(close, 2),
+        }
+
         if pnl_r is not None:
             print(f"[eod_writer] {symbol} | "
                   f"Close: {close:.2f} | "
@@ -413,14 +473,17 @@ def run_eod_update():
                   f"Stop: {stop_status}")
 
     output = {
-        'date':           today,
-        'fetched_at':     fetch_time,
-        'open_positions': len(open_trades),
-        'hit_count':      hit_count,
-        'probable_count': probable_count,
-        'exit_due_count': exit_due_count,
-        'fetch_failed':   fetch_failed,
-        'results':        results,
+        'date':            today,
+        'fetched_at':      fetch_time,
+        'open_positions':  len(open_trades),
+        'hit_count':       hit_count,
+        'probable_count':  probable_count,
+        'exit_due_count':  exit_due_count,
+        'fetch_failed':    fetch_failed,
+        'results':         results,
+        # CRIT-01: nested dict for outcome_evaluator
+        'ohlc_by_symbol':  ohlc_by_symbol,
+        'schema_version':  2,
     }
 
     with open(OUT_FILE, 'w') as f:
@@ -430,7 +493,8 @@ def run_eod_update():
           f"HIT:{hit_count} "
           f"PROBABLE:{probable_count} "
           f"EXIT_DUE:{exit_due_count} "
-          f"FAILED:{len(fetch_failed)}")
+          f"FAILED:{len(fetch_failed)} "
+          f"OHLC_SYMBOLS:{len(ohlc_by_symbol)}")
 
     if exit_tomorrow_list:
         print(f"[eod_writer] Sending exit-tomorrow "
@@ -443,14 +507,16 @@ def run_eod_update():
 
 def _write_empty(today, fetch_time):
     output = {
-        'date':           today,
-        'fetched_at':     fetch_time,
-        'open_positions': 0,
-        'hit_count':      0,
-        'probable_count': 0,
-        'exit_due_count': 0,
-        'fetch_failed':   [],
-        'results':        [],
+        'date':            today,
+        'fetched_at':      fetch_time,
+        'open_positions':  0,
+        'hit_count':       0,
+        'probable_count':  0,
+        'exit_due_count':  0,
+        'fetch_failed':    [],
+        'results':         [],
+        'ohlc_by_symbol':  {},
+        'schema_version':  2,
     }
     with open(OUT_FILE, 'w') as f:
         json.dump(output, f, indent=2)
