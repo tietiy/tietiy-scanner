@@ -1,29 +1,21 @@
 # .github/workflows/backup_manager.yml
-# Rolling backup of signal_history.json
-# Keeps last 30 days, auto-cleans older
+# Purpose: Saturday standalone backup of signal_history.json
+#          (Weekday backups handled by eod_master.yml Step 1)
+# Trigger: GitHub schedule — Saturday 8:30 AM IST
+# Sequence: Standalone weekly safety backup
+# Touches: output/backups/, signal_history archives
+# Failure mode: Telegram alert via send_workflow_failure
 #
-# SESSION B FIX (Apr 21 2026 — H-08):
-#   Removed redundant weekday cron.
-#   eod_master.yml already runs backup internally
-#   as one of its steps, so firing this workflow
-#   at 4 PM IST on weekdays double-backs-up and
-#   causes harmless race contention on
-#   signal_history.json.
-#
-#   Saturday cron kept — legitimate weekly safety
-#   net that doesn't overlap eod_master (markets
-#   closed Saturday, no EOD run).
-#
-#   Manual workflow_dispatch remains available
-#   for ad-hoc backups + list action.
+# Architecture v2 (Apr 22 2026):
+# - Removed weekday duplicate cron (eod_master Step 1 handles M-F)
+# - Saturday-only schedule preserves weekend snapshot
+# - GitHub schedule (drift-tolerant, weekly only)
 
-name: "💾 Backup | signal_history dated+archive rotation 30days | Manual+EOD"
+name: "💾 Backup Saturday | Weekly safety snapshot signal_history+archive | Sat 8:30 AM IST"
 
 on:
   schedule:
-    # Saturday backup before weekend summary
-    # (Weekday backups run inside eod_master.yml —
-    #  H-08 fix Apr 21 removed redundant weekday cron)
+    # Saturday 3:00 AM UTC = 8:30 AM IST (weekly safety)
     - cron: '0 3 * * 6'
   workflow_dispatch:
     inputs:
@@ -85,7 +77,7 @@ jobs:
             echo "No backup changes to commit"
             exit 0
           fi
-          git commit -m "chore: daily backup $(date -u +%Y-%m-%d)"
+          git commit -m "chore: Saturday backup $(date -u +%Y-%m-%d)"
           for i in 1 2 3; do
             git pull --rebase origin main && \
             git push origin HEAD:main && \
