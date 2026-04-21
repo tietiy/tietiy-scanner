@@ -30,6 +30,17 @@
 #            Wrapped in try/except — never blocks main
 #            outcome evaluation. Contra shadows track
 #            INVERTED direction of killed signals.
+#
+# SESSION A FIX (Apr 21 2026):
+#   C-03 (reader side) — _resolve_contra_shadows now
+#            reads fields that contra_tracker actually
+#            writes: entry (not entry_est only), direction
+#            (as inverted), with fallbacks for both old
+#            and new schemas. Previously, every shadow
+#            was skipped as "missing fields" because
+#            writer wrote {direction, entry, stop} but
+#            reader only looked for {inverted_direction,
+#            entry_est}.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -50,9 +61,9 @@ _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
 _OUTPUT = os.path.join(_ROOT, 'output')
 
-HOLIDAYS_FILE     = os.path.join(_OUTPUT, 'nse_holidays.json')
-EOD_PRICES_FILE   = os.path.join(_OUTPUT, 'eod_prices.json')
-OPEN_PRICES_FILE  = os.path.join(_OUTPUT, 'open_prices.json')
+HOLIDAYS_FILE      = os.path.join(_OUTPUT, 'nse_holidays.json')
+EOD_PRICES_FILE    = os.path.join(_OUTPUT, 'eod_prices.json')
+OPEN_PRICES_FILE   = os.path.join(_OUTPUT, 'open_prices.json')
 CONTRA_SHADOW_FILE = os.path.join(_OUTPUT, 'contra_shadow.json')
 
 FLAT_PCT = 0.5
@@ -700,7 +711,7 @@ def _propagate_sa_outcome(history, parent_id, parent_outcome):
     return updated
 
 
-# ── NEW: CS3 — CONTRA SHADOW RESOLUTION ──────────────
+# ── CS3 — CONTRA SHADOW RESOLUTION ───────────────────
 # Runs after regular signal evaluation. Resolves
 # contra_shadow.json entries using the same Day 6
 # open-price logic as real signals.
@@ -713,6 +724,24 @@ def _propagate_sa_outcome(history, parent_id, parent_outcome):
 #
 # Wrapped in try/except at run_outcome_evaluation level
 # so failure here NEVER blocks main signal resolution.
+#
+# C-03 FIX (Apr 21 2026):
+#   Reader now consumes the fields contra_tracker actually
+#   writes. Supports BOTH old schema (entry_est only) and
+#   new schema (entry as primary, entry_est as fallback)
+#   so records created before this fix continue to resolve.
+
+def _shadow_field(shadow, *names):
+    """
+    Return first non-None value among shadow[name] for name in names.
+    Enables reading either the canonical field or a legacy alias.
+    """
+    for n in names:
+        v = shadow.get(n)
+        if v is not None:
+            return v
+    return None
+
 
 def _resolve_contra_shadows(holidays, eod_prices,
                             open_prices):
@@ -755,31 +784,44 @@ def _resolve_contra_shadows(holidays, eod_prices,
     today          = date.today()
     resolved_count = 0
     updates        = 0
+    skipped_fields = 0
 
     for shadow in unresolved:
-        sym           = shadow.get('symbol', '')
-        original_dir  = shadow.get(
-            'original_direction', 'SHORT')
-        inverted_dir  = shadow.get(
-            'inverted_direction', 'LONG')
-        entry         = shadow.get('entry_est')
-        det_date      = shadow.get('date', '')
-        shadow_id     = shadow.get('id', '')
+        sym       = shadow.get('symbol', '')
+        shadow_id = shadow.get('id', '')
+        det_date  = shadow.get('date', '')
 
-        if not sym or not entry or not det_date:
+        # C-03 FIX: read new writer fields with fallbacks
+        # New writer: direction, entry (primary)
+        # Legacy:     inverted_direction, entry_est
+        inverted_dir = _shadow_field(
+            shadow, 'direction', 'inverted_direction') or 'LONG'
+        original_dir = _shadow_field(
+            shadow, 'original_direction',
+            'origin_signal_direction') or 'SHORT'
+        entry_raw    = _shadow_field(
+            shadow, 'entry', 'entry_est')
+
+        if not sym or entry_raw is None or not det_date:
+            skipped_fields += 1
             print(f"[contra] Skip {shadow_id} — "
-                  f"missing fields")
+                  f"missing fields "
+                  f"(sym={sym!r}, entry={entry_raw!r}, "
+                  f"date={det_date!r})")
             continue
 
         try:
-            entry = float(entry)
+            entry = float(entry_raw)
         except Exception:
+            skipped_fields += 1
+            print(f"[contra] Skip {shadow_id} — "
+                  f"entry not numeric: {entry_raw!r}")
             continue
 
         # Compute Day 6 date using same logic as real signals
         try:
-            entry_date = _get_entry_date(det_date, holidays)
-            tracking_end = _get_nth_trading_day(
+            entry_date    = _get_entry_date(det_date, holidays)
+            tracking_end  = _get_nth_trading_day(
                 entry_date, 6, holidays)
             effective_end = _next_trading_day(
                 tracking_end, holidays)
@@ -842,9 +884,13 @@ def _resolve_contra_shadows(holidays, eod_prices,
         resolved_count += 1
         updates += 1
 
+    if skipped_fields > 0:
+        print(f"[contra] Skipped {skipped_fields} shadows "
+              f"due to missing fields (check writer schema)")
+
     # Save back only if anything changed
     if updates > 0:
-        data['shadows']   = shadows
+        data['shadows']    = shadows
         data['updated_at'] = datetime.utcnow().isoformat() + 'Z'
 
         # Count totals for logging
@@ -981,7 +1027,7 @@ def run_outcome_evaluation():
     else:
         print("[outcome] No updates needed")
 
-    # ── CS3: NEW — resolve contra shadows ─────────────
+    # ── CS3: resolve contra shadows ───────────────────
     # Runs after regular signal resolution.
     # Wrapped in try/except — NEVER blocks main flow
     # even if contra_shadow.json is corrupt or missing.
