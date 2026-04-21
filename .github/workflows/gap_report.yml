@@ -1,8 +1,17 @@
 # .github/workflows/gap_report.yml
-# Weekly gap risk analysis — entry_valid=False signals
-# Identifies stocks with frequent large gap opens
+# Purpose: Weekly gap risk analysis — identifies stocks with frequent
+#          large gap opens that invalidate entries (entry_valid=False)
+# Trigger: GitHub schedule — Monday 8:30 AM IST
+# Sequence: Runs once weekly before market open Monday
+# Touches: Telegram only (no file writes)
+# Failure mode: Telegram alert via send_workflow_failure
+#
+# Architecture v2 (Apr 22 2026):
+# - GitHub schedule (drift-tolerant, weekly)
+# - Monday 8:30 AM IST — same time as heartbeat
+# - Read-only — pulls latest output/ before analysis
 
-name: "📉 Gap Report | entry_valid=False gap-size R:R-impact by type | Manual"
+name: "📉 Gap Report | entry_valid=False gap-size R:R-impact by type | Mon 8:30 AM IST"
 
 on:
   schedule:
@@ -24,6 +33,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
     steps:
       - name: Checkout
         uses: actions/checkout@v4
