@@ -1,12 +1,21 @@
 # .github/workflows/heartbeat.yml
-# Daily alive signal — confirms system is running
-# Sends regime + active count + last scan to Telegram
-# Triggered by cron-job.org at 8:30 AM IST daily
+# Purpose: Daily alive ping confirming system is running
+#          Sends regime + active count + last scan to Telegram
+# Trigger: GitHub schedule — 8:30 AM IST Mon-Fri
+# Sequence: First daily check, before morning scan
+# Touches: Telegram only (no file writes)
+# Failure mode: Telegram alert via alert_failure.py
+#
+# Architecture v2 (Apr 22 2026):
+# - Confirmed GitHub schedule (drift-tolerant up to 15 min)
+# - Removed cron-job.org dual-trigger ambiguity
+# - 8:30 AM IST runs before morning_scan @ 8:45 IST
 
-name: "💓 Heartbeat | Regime+Active+LastScan alive ping Telegram | Daily Auto"
+name: "💓 Heartbeat | Daily alive ping regime+active+lastScan Telegram | 8:30 AM IST Daily"
 
 on:
   schedule:
+    # 3:00 AM UTC = 8:30 AM IST Mon-Fri
     - cron: '0 3 * * 1-5'
   workflow_dispatch:
 
