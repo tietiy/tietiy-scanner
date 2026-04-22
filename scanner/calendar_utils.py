@@ -17,9 +17,22 @@
 #
 # 2025 holidays retained as separate set for any
 # historical backtest date lookups.
+#
+# WAVE 1 FIXES (Apr 23 2026 night):
+# - Added ist_today() — UTC-safe IST date helper.
+#   Kills H-09 (date.today() UTC drift across 5+ files).
+# - Added ist_now() — UTC-safe IST datetime helper.
+#   Kills M-06 (duplicated IST helpers in 5 files).
+# - Expanded is_trading_day(d=None, holidays=None) —
+#   accepts optional external holiday list. Kills
+#   H-03 (duplicated _is_trading_day in 4 files —
+#   all can now import this one).
+# - All 3 helpers are the canonical source going
+#   forward. Any new file must import from here,
+#   not reimplement.
 # ─────────────────────────────────────────────────────
 
-from datetime import date, timedelta
+from datetime import date, datetime, timedelta, timezone
 import os
 import sys
 
@@ -55,23 +68,98 @@ _HOLIDAYS_2025 = {
 # Combined set for is_trading_day() lookups
 NSE_HOLIDAYS = _HOLIDAYS_2025 | _HOLIDAYS_2026
 
+# ── WAVE 1: IST OFFSET ───────────────────────────────
+# GitHub Actions runners are UTC. Any use of
+# date.today() or datetime.now() returns UTC, which
+# at 11:30 PM IST is still "yesterday" in UTC.
+# Always use the helpers below, never bare date.today().
+_IST_OFFSET = timezone(timedelta(hours=5, minutes=30))
 
-def is_trading_day(d=None):
+
+def ist_now():
     """
-    Returns True if date d is a trading day
+    WAVE 1 FIX: Returns current datetime in IST timezone.
+    Replaces datetime.now() / datetime.utcnow() usage
+    across the codebase. Safe on GitHub Actions (UTC)
+    and any other server.
+
+    Usage:
+      now = ist_now()
+      hour = now.hour        # IST hour
+      ts   = now.strftime('%I:%M %p IST')
+    """
+    return datetime.now(tz=_IST_OFFSET)
+
+
+def ist_today():
+    """
+    WAVE 1 FIX: Returns current date in IST.
+    Replaces date.today() which returns UTC date on
+    GitHub Actions runners — causing signal dates,
+    exit dates, and resolution dates to drift by one
+    day for runs between UTC midnight and IST midnight.
+
+    H-09 killed: 5+ files using date.today() must
+    switch to this helper.
+
+    Usage:
+      today = ist_today()
+      if today < exit_date: ...
+    """
+    return ist_now().date()
+
+
+def is_trading_day(d=None, holidays=None):
+    """
+    WAVE 1 FIX: Returns True if date d is a trading day
     (weekday AND not an NSE holiday).
+
+    Expanded signature:
+      d        — date, datetime, ISO string, or None.
+                 Defaults to ist_today() when not given.
+      holidays — optional iterable of holiday strings
+                 ('YYYY-MM-DD') OR date objects. If
+                 supplied, uses that set instead of
+                 the built-in NSE_HOLIDAYS. This lets
+                 callers reading nse_holidays.json pass
+                 their loaded list for consistency.
+
+    H-03 killed: 4 files with their own
+    _is_trading_day() can now all import and call
+    this. Backward-compatible: no-arg call still works.
     """
+    # Normalize d
     if d is None:
-        d = date.today()
-    if isinstance(d, str):
+        d = ist_today()
+    elif isinstance(d, str):
         d = date.fromisoformat(d)
-    return d.weekday() < 5 and d not in NSE_HOLIDAYS
+    elif isinstance(d, datetime):
+        d = d.date()
+
+    # Weekend check
+    if d.weekday() >= 5:
+        return False
+
+    # Holiday check — external list wins if provided
+    if holidays is not None:
+        # Normalize incoming holidays to a set of strings
+        # (fast lookup) and a set of dates (flex).
+        ext_strs = set()
+        for h in holidays:
+            if isinstance(h, str):
+                ext_strs.add(h)
+            elif isinstance(h, date):
+                ext_strs.add(h.isoformat())
+        return d.isoformat() not in ext_strs
+
+    # Built-in default
+    return d not in NSE_HOLIDAYS
 
 
 def next_trading_day(from_date=None):
     """Returns the next trading day after from_date."""
     if from_date is None:
-        from_date = date.today()
+        from_date = ist_today()
     if isinstance(from_date, str):
         from_date = date.fromisoformat(from_date)
     d = from_date + timedelta(days=1)
@@ -95,41 +183,38 @@ def trading_day_after_n(from_date, n):
 
 def days_until_exit(entry_date, n=6):
     """Returns the date that is n trading days after entry."""
+    if isinstance(entry_date, str):
+        entry_date = date.fromisoformat(entry_date)
     return trading_day_after_n(entry_date, n)
 
 
-def is_expiry_week(d=None):
-    """
-    Returns True if date d falls within +/- 2 calendar
-    days of the month's last Thursday (NSE F&O expiry).
-    """
-    if d is None:
-        d = date.today()
-    if isinstance(d, str):
-        d = date.fromisoformat(d)
-    year, month = d.year, d.month
-    last_thu    = None
-    check       = date(year, month, 1)
-    while check.month == month:
-        if check.weekday() == 3:
-            last_thu = check
-        check += timedelta(days=1)
-    if last_thu is None:
-        return False
-    return abs((d - last_thu).days) <= 2
-
-
 def get_market_status():
-    """Returns dict with today's trading status."""
-    today = date.today()
+    """
+    Returns dict describing current market state.
+    Used by chain_validator and other consumers.
+    """
+    now    = ist_now()
+    today  = now.date()
+    hour   = now.hour
+    minute = now.minute
+    mins   = hour * 60 + minute
+
+    is_trading = is_trading_day(today)
+    market_open_mins  = 9 * 60 + 15   # 9:15
+    market_close_mins = 15 * 60 + 30  # 15:30
+
+    if not is_trading:
+        phase = 'closed'
+    elif mins < market_open_mins:
+        phase = 'pre_open'
+    elif mins <= market_close_mins:
+        phase = 'open'
+    else:
+        phase = 'after_close'
+
     return {
-        'today':        today.isoformat(),
-        'is_trading':   is_trading_day(today),
-        'next_trading': next_trading_day(today).isoformat(),
-        'is_expiry_wk': is_expiry_week(today),
-        'reason': (
-            'NSE Holiday' if today in NSE_HOLIDAYS
-            else 'Weekend' if today.weekday() >= 5
-            else 'Trading Day'
-        ),
+        'is_trading':   is_trading,
+        'phase':        phase,
+        'date':         today.isoformat(),
+        'time_ist':     now.strftime('%H:%M'),
     }
