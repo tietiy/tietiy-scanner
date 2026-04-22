@@ -19,7 +19,6 @@ import json
 import argparse
 from datetime import date, datetime
 from collections import defaultdict
-from telegram_bot import _esc
 
 _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
@@ -43,6 +42,13 @@ except ImportError:
     TELEGRAM_AVAILABLE = False
 
 
+# ── ESCAPE ────────────────────────────────────────────
+def _esc(text):
+    if text is None: return '—'
+    text = str(text)
+    for ch in r'\_*[]()~`>#+-=|{}.!':
+        text = text.replace(ch, f'\\{ch}')
+    return text
 
 
 # ── LOAD ──────────────────────────────────────────────

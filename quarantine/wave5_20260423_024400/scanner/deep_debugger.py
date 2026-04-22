@@ -25,7 +25,6 @@ import sys
 import json
 import argparse
 from datetime import date, datetime, timedelta
-from telegram_bot import _esc
 
 # ── PATH SETUP ────────────────────────────────────────
 _HERE   = os.path.dirname(os.path.abspath(__file__))
@@ -87,6 +86,14 @@ _V5_FIELDS = [
 MAX_TELEGRAM_LINES = 40
 
 
+# ── TELEGRAM ESCAPE ───────────────────────────────────
+def _esc(text):
+    if text is None:
+        return '—'
+    text = str(text)
+    for ch in r'\_*[]()~`>#+-=|{}.!':
+        text = text.replace(ch, f'\\{ch}')
+    return text
 
 
 # ── PLAIN TEXT STRIP ──────────────────────────────────

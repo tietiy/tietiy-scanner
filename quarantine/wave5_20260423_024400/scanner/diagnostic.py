@@ -27,7 +27,6 @@ import sys
 import json
 import argparse
 from datetime import date, datetime, timedelta
-from telegram_bot import _esc
 
 # ── PATH SETUP ────────────────────────────────────────
 _HERE   = os.path.dirname(os.path.abspath(__file__))
@@ -268,6 +267,13 @@ class DiagnosticReport:
         return '\n'.join(cleaned)
 
 
+def _esc(text):
+    if text is None:
+        return ''
+    text = str(text)
+    for ch in r'\_*[]()~`>#+-=|{}.!':
+        text = text.replace(ch, f'\\{ch}')
+    return text
 
 
 # ── LOAD HELPERS ──────────────────────────────────────
