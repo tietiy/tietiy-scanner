@@ -15,6 +15,22 @@
 # - Read scan_time field — if populated, scan completed → healthy
 # - 15-min grace window before 9:15 AM IST (let scan finish)
 # - 0-signals retry only after 10:00 AM IST on trading days
+#
+# WAVE 4 FIX (Apr 23 2026 night):
+# - G1: False-positive elimination. On Apr 22 at 09:02 AM,
+#       morning scan succeeded at 08:47 but GitHub Pages
+#       deploy hadn't completed yet. Watchdog fetched stale
+#       meta.json → saw yesterday's date → triggered false
+#       "Morning scan missed" alert + redundant rescan.
+#
+#       Fix: Check GitHub Actions API (workflows/morning_scan.yml/runs)
+#       FIRST to see if scan ran today. Pages CDN is only
+#       consulted as fallback. API reflects actual workflow
+#       state immediately, no CDN propagation lag.
+#
+# - G9: Dedup guard. If morning_scan is currently in_progress
+#       OR completed within last 30 min, skip trigger. Prevents
+#       redundant scans if watchdog over-fires.
 
 name: "👁️ Scan Watchdog | Verify scan ran retrigger if missed+Telegram | 9:02 AM IST cron-job.org"
 
@@ -38,11 +54,183 @@ jobs:
           TODAY=$(TZ='Asia/Kolkata' date '+%Y-%m-%d')
           IST_HOUR=$(TZ='Asia/Kolkata' date '+%H')
           IST_MIN=$(TZ='Asia/Kolkata' date '+%M')
-          IST_TIME_MINS=$(( IST_HOUR * 60 + IST_MIN ))
+          IST_TIME_MINS=$(( 10#${IST_HOUR} * 60 + 10#${IST_MIN} ))
           echo "Watchdog running — today: $TODAY | IST: ${IST_HOUR}:${IST_MIN}"
 
-          # WD1 FIX: Cache-bust the meta.json fetch so
-          # GitHub Pages CDN does not serve stale data.
+          # ─────────────────────────────────────────────
+          # G1 WAVE 4 FIX: Check GitHub Actions API FIRST
+          # ─────────────────────────────────────────────
+          # Pages CDN can lag 2-5 min behind actual workflow
+          # state. Actions API reflects reality immediately.
+          # Strategy:
+          #   1. Query morning_scan.yml runs created today
+          #   2. If ANY run exists today → scan DID fire
+          #      - If success → healthy, exit (unless 0 signals)
+          #      - If in_progress → healthy, wait
+          #      - If failure → Telegram alert, don't re-fire
+          #        (let scheduled retry handle via cron)
+          #   3. If NO run today → fallback to meta.json check
+          #      (handles edge case where API is down)
+          # ─────────────────────────────────────────────
+
+          echo ""
+          echo "=== G1: GitHub Actions API check ==="
+
+          # Compute UTC window for "today IST" — scans that
+          # started today in IST.
+          # IST midnight = UTC 18:30 previous day.
+          IST_START_UTC=$(TZ='UTC' date -d "${TODAY}T00:00:00+05:30" '+%Y-%m-%dT%H:%M:%SZ' 2>/dev/null || echo "")
+          if [ -z "$IST_START_UTC" ]; then
+            IST_START_UTC="${TODAY}T00:00:00Z"
+          fi
+          echo "Filter: runs created >= $IST_START_UTC"
+
+          RUNS_API="https://api.github.com/repos/${REPO}/actions/workflows/morning_scan.yml/runs?created=>=${IST_START_UTC}&per_page=20"
+
+          RUNS_JSON=$(curl -s \
+            -H "Accept: application/vnd.github+json" \
+            -H "Authorization: Bearer ${GH_TOKEN}" \
+            -H "X-GitHub-Api-Version: 2022-11-28" \
+            --max-time 15 \
+            "$RUNS_API" || echo '{"workflow_runs":[]}')
+
+          RUN_COUNT=$(echo "$RUNS_JSON" | python3 -c "
+          import json, sys
+          try:
+              d = json.load(sys.stdin)
+              runs = d.get('workflow_runs', [])
+              print(len(runs))
+          except Exception:
+              print(0)
+          ")
+
+          RECENT_STATUS=$(echo "$RUNS_JSON" | python3 -c "
+          import json, sys
+          try:
+              d = json.load(sys.stdin)
+              runs = d.get('workflow_runs', [])
+              if runs:
+                  r = runs[0]
+                  print(f\"{r.get('status','unknown')}:{r.get('conclusion','null')}\")
+              else:
+                  print('none:none')
+          except Exception:
+              print('error:error')
+          ")
+
+          RECENT_AGE_MIN=$(echo "$RUNS_JSON" | python3 -c "
+          import json, sys
+          from datetime import datetime, timezone
+          try:
+              d = json.load(sys.stdin)
+              runs = d.get('workflow_runs', [])
+              if runs:
+                  updated = runs[0].get('updated_at')
+                  if updated:
+                      dt = datetime.fromisoformat(updated.replace('Z','+00:00'))
+                      age = (datetime.now(timezone.utc) - dt).total_seconds() / 60
+                      print(f'{age:.1f}')
+                  else:
+                      print('-1')
+              else:
+                  print('-1')
+          except Exception:
+              print('-1')
+          ")
+
+          echo "API found $RUN_COUNT morning_scan runs today"
+          echo "Most recent status: $RECENT_STATUS (age ${RECENT_AGE_MIN} min)"
+
+          STATUS_PART=$(echo "$RECENT_STATUS" | cut -d: -f1)
+          CONCLUSION_PART=$(echo "$RECENT_STATUS" | cut -d: -f2)
+
+          TRIGGER=false
+
+          # ─────────────────────────────────────────────
+          # G9 WAVE 4 FIX: Dedup guard
+          # ─────────────────────────────────────────────
+          if [ "$RUN_COUNT" -gt "0" ] && [ "$STATUS_PART" != "error" ]; then
+
+            # In-progress — do not interrupt
+            if [ "$STATUS_PART" = "in_progress" ] \
+               || [ "$STATUS_PART" = "queued" ] \
+               || [ "$STATUS_PART" = "waiting" ]; then
+              echo "G9: morning_scan is $STATUS_PART — skipping watchdog trigger"
+              exit 0
+            fi
+
+            # Recently succeeded — no action needed
+            if [ "$STATUS_PART" = "completed" ] \
+               && [ "$CONCLUSION_PART" = "success" ]; then
+              AGE_INT=$(python3 -c "
+          try:
+              print(int(float('${RECENT_AGE_MIN}')))
+          except Exception:
+              print(999)
+          ")
+              if [ "$AGE_INT" -lt "30" ]; then
+                echo "G1: morning_scan succeeded ${RECENT_AGE_MIN} min ago — healthy, exiting"
+
+                # Still do the 0-signals retry check
+                CACHE_BUST=$(date +%s)
+                META_URL="https://tietiy.github.io/tietiy-scanner/meta.json?cb=${CACHE_BUST}"
+                curl -s -H "Cache-Control: no-cache" \
+                  --max-time 10 -o /tmp/meta.json \
+                  "$META_URL" || true
+                if [ -f /tmp/meta.json ]; then
+                  SIGNALS_FOUND=$(python3 -c "
+          import json
+          try:
+              print(json.load(open('/tmp/meta.json')).get('signals_found', -1))
+          except Exception:
+              print(-1)
+          ")
+                  IS_TRADING=$(python3 -c "
+          import json
+          try:
+              print('true' if json.load(open('/tmp/meta.json')).get('is_trading_day', False) else 'false')
+          except Exception:
+              print('false')
+          ")
+                  if [ "$SIGNALS_FOUND" = "0" ] \
+                     && [ "$IS_TRADING" = "true" ] \
+                     && [ "$IST_TIME_MINS" -ge "600" ]; then
+                    echo "Healthy run but 0 signals at/after 10AM on trading day — re-running"
+                    REASON="Healthy scan found 0 signals on trading day — retrying"
+                    TRIGGER=true
+                  else
+                    echo "All healthy — exiting"
+                    exit 0
+                  fi
+                else
+                  echo "meta.json unreachable but API confirms scan succeeded — exiting healthy"
+                  exit 0
+                fi
+              else
+                echo "Most recent scan completed > 30 min ago — continuing to full check"
+              fi
+            fi
+
+            # Recently failed — alert but don't re-trigger
+            if [ "$STATUS_PART" = "completed" ] \
+               && [ "$CONCLUSION_PART" = "failure" ]; then
+              echo "G1: most recent morning_scan FAILED — alerting"
+              MSG="TIE TIY WATCHDOG%0A%0AReason: Morning scan FAILED (run ${RECENT_AGE_MIN} min ago)%0AAction: Check GitHub Actions logs%0ANOT auto-retriggering to prevent alert storm."
+              curl -s -X POST \
+                "https://api.telegram.org/bot${TELEGRAM_TOKEN}/sendMessage" \
+                -d "chat_id=${TELEGRAM_CHAT_ID}" \
+                -d "text=${MSG}"
+              exit 0
+            fi
+          fi
+
+          # ─────────────────────────────────────────────
+          # FALLBACK: Pages meta.json check (if API path
+          # didn't conclude). Preserves WD1 logic.
+          # ─────────────────────────────────────────────
+          echo ""
+          echo "=== Fallback: Pages meta.json check ==="
+
           CACHE_BUST=$(date +%s)
           META_URL="https://tietiy.github.io/tietiy-scanner/meta.json?cb=${CACHE_BUST}"
           HTTP_CODE=$(curl -s -o /tmp/meta.json \
@@ -97,20 +285,12 @@ jobs:
           echo "Signals found  : $SIGNALS_FOUND"
           echo "Is trading day : $IS_TRADING"
 
-          TRIGGER=false
-
           if [ "$SCAN_DATE" = "$TODAY" ]; then
-            # Date matches today
-
-            # WD1 FIX: If scan_time is populated, scan completed → healthy
             if [ -n "$SCAN_TIME" ]; then
               echo "Scan healthy — ran today at ${SCAN_TIME}, signals:${SIGNALS_FOUND}"
-
-              # Still check 0-signals retry (separate concern)
               if [ "$SIGNALS_FOUND" = "0" ] \
                  && [ "$IS_TRADING" = "true" ] \
                  && [ "$IST_TIME_MINS" -ge "600" ]; then
-                # 600 min = 10:00 AM IST — safe to retry
                 echo "0 signals at 10AM on trading day — retrying"
                 REASON="0 signals at scan time — data retry"
                 TRIGGER=true
@@ -118,12 +298,8 @@ jobs:
                 echo "All healthy — exiting"
                 exit 0
               fi
-
             else
-              # Date matches but scan_time empty — scan may still be running
-              # or deploy in flight. Apply 15-min grace before 9:15 AM IST.
               GRACE_END_MINS=555
-              # 555 min = 9:15 AM IST
               if [ "$IST_TIME_MINS" -lt "$GRACE_END_MINS" ]; then
                 echo "Date matches today but scan_time empty — within grace window (before 9:15 AM). Not triggering."
                 exit 0
@@ -133,9 +309,7 @@ jobs:
                 TRIGGER=true
               fi
             fi
-
           else
-            # Date does not match today — scan definitely missed
             echo "Scan missed today (last: $SCAN_DATE) — triggering now"
             REASON="Morning scan missed"
             TRIGGER=true
