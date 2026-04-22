@@ -1,0 +1,161 @@
+# Wave Execution Log — 2026-04-23 Session
+
+**Session:** Apr 22 late-night through Apr 23 ~02:50 IST
+**Duration:** ~5 hours
+**Starting state:** 118 resolved signals, 81% WR, 5 Critical PENDING
+**Ending state:** 118 resolved signals, 81% WR, 0 Critical PENDING, 15 fix IDs killed
+
+This file is the canonical record of what shipped this session.
+When conflicts exist between this log and `fix_table.md` status columns,
+**this log wins** (fix_table.md status updates deferred to next session).
+
+---
+
+## Wave Sequence Executed
+
+| Wave | Scope | Commit | Files | Outcome |
+|------|-------|--------|-------|---------|
+| Apr 21 batch (prior) | C-series + M-01 | (prior) | 11 | 6 IDs killed |
+| Wave 4 | Apr 22 Telegram bug hotfixes | (earlier) | 2 | 4 new Gs killed |
+| Wave 1 | calendar_utils foundation | (earlier) | 1 | — |
+| Wave 2 | IST helpers migration (AST-based) | `c312316` | 11 + migration infra | 3 IDs killed |
+| Wave 3 | D1 KPIL + M-11 env var | (earlier) | 2 | 2 IDs killed |
+| Wave 5.1 | M-08 _esc consolidation (AST-based) | `51a8df9` | 3 + migration infra | 1 ID killed |
+| Doc cleanup | This log + 2 inline edits | (this) | 3 | — |
+
+---
+
+## Fix IDs Killed — Confirmed VERIFIED
+
+### 🔴 Critical (5/5 complete)
+| ID | File(s) | Verification |
+|----|---------|-------------|
+| C-01 | `contra_tracker.py` | `_HERE`/`_ROOT` abs paths confirmed in repo |
+| C-02 | `rule_proposer.py` | Same pattern applied |
+| C-03 | `contra_tracker.py` + `outcome_evaluator.py` | schema_v2 with original_direction/inverted_direction/entry_est; `_shadow_field()` helper in reader |
+| C-04 | `rule_proposer.py` + `telegram_bot.py` | Dict return + `.get('success')` |
+| C-05 | `eod_prices_writer.py` + `outcome_evaluator.py` | schema_v2 with `ohlc_by_symbol` + reader adapter handles both schemas |
+
+### 🟠 High (3 killed)
+| ID | Status | Verification |
+|----|--------|-------------|
+| H-03 | VERIFIED | `_is_trading_day` deleted from 4 files; single impl in calendar_utils |
+| H-09 | VERIFIED | `date.today()` → `ist_today()` across 11 files |
+| D1 (=H-05) | VERIFIED | KPIL grade `C` → `B` in `data/fno_universe.csv` |
+
+### 🟡 Medium (4 killed)
+| ID | Status | Verification |
+|----|--------|-------------|
+| M-01 | VERIFIED | outcome_evaluator docstrings updated (folded with C-05) |
+| M-06 | VERIFIED | `_ist_now`/`_ist_today`/`_IST_OFFSET` consolidated to calendar_utils |
+| M-07 | VERIFIED (pre-existing) | html_builder docstring fix was already shipped Apr 21 |
+| M-08 | VERIFIED | `_esc` removed from gap_report/deep_debugger/diagnostic; import from telegram_bot |
+| M-11 | VERIFIED | `recover_stuck_signals.yml` env var renamed TELEGRAM_BOT_TOKEN → TELEGRAM_TOKEN |
+
+### 🟢 Low (1 verified)
+| ID | Status | Verification |
+|----|--------|-------------|
+| L-05 | VERIFIED (pre-existing) | Workflow filename is already correct; no typo file exists |
+
+### ⚠️ Gap IDs Killed (from Apr 22 Telegram bug analysis — not in original fix_table)
+| ID | Description | Verification |
+|----|-------------|-------------|
+| G1 | scan_watchdog false positive after successful scan | API-first check with 30min success window |
+| G2 | MARUTI ghost stop alert (yfinance returned wrong price) | Price sanity validation added (±30%/±20%) |
+| G6 | No price sanity layer on stop alerts | Same — `_is_price_sane()` in stop_alert_writer |
+| G9 | No watchdog dedup guard | Folded into G1 fix |
+
+---
+
+## Auto-Verified Without Action
+
+| ID | Status | Evidence |
+|----|--------|----------|
+| UX-01 | Already shipped Apr 21 | main.py has "UX-01 FIX (Apr 21 2026)" annotation; _enrich_with_pnl exists |
+| M-07 | Already shipped Apr 21 | html_builder.py header shows "SESSION B FIX (Apr 21 2026): M-07" |
+| H-08 | Already shipped Apr 22 | backup_manager.yml header shows "Architecture v2 (Apr 22 2026): Removed weekday duplicate cron" |
+
+---
+
+## Real Work Remaining — After This Session
+
+### Critical / High priority
+- **H-04/D3** — kill_001 bank scope too wide (38 stocks on 11-stock evidence). Evidence-based tuning.
+- **H-06** — Sector taxonomy: 14 CSV tags vs 8 tracked. ~45 stocks never earn sec_leading bonus.
+- **M-05** — chain_validator doesn't check proposed_rules.json / contra_shadow.json (false "healthy" status).
+
+### UX improvements (Session B remainder)
+- **UX-02** — Fold gap-skip into morning brief
+- **UX-03** — Surface failure_reason in EOD Telegram
+- **UX-05** — R:R recalc at actual_open in signal card
+
+### Polish
+- L-01 (hardcoded chat ID in source)
+- L-03 (stale "Session 3" markers)
+- L-04 (master_check.yml title count mismatch)
+- M-02 (atomic-write pattern inconsistency)
+
+### Phase 3+ deferred
+- F2, F3, M-09, M-10, P-02, P-03, D6, D7, UX-06
+
+### Intentionally skipped this session
+- **P-01** — User decision (no P&L reconciliation ritual doc)
+
+---
+
+## Migration Infrastructure Built
+
+Two reusable migration scripts now in repo:
+
+### `scripts/wave2_migration.py` (v3)
+AST-based Python migration framework:
+- Finds module-level FunctionDef via ast.parse → deletes by exact lineno/end_lineno
+- Injects imports AFTER last import (handles multi-line parenthesized imports)
+- Backup → apply → syntax-check → rollback-on-failure
+- Declarative config: TARGET_FILES, CALL_REPLACEMENTS, LOCAL_FUNCS_TO_DELETE, CANONICAL_IMPORT
+- Audit log written to `doc/wave2_migration_log_<ts>.md`
+
+### `scripts/wave5_m08_migration.py`
+Variant of the same framework, config-specialized for M-08 (_esc consolidation).
+
+**Pattern for future waves:** Copy wave5_m08_migration.py, change the 4 config constants, add workflow YAML. ~10 min to ship a new pattern-based migration.
+
+---
+
+## Architecture Doctrine Affirmed
+
+1. **Migration scripts ship with safety rails** — backup + syntax check + rollback. Non-negotiable.
+2. **AST beats regex for Python** — boundaries are defined by the parser, not guessed.
+3. **Hash-check or content-version before edit** — in future orchestrators, verify file state matches expected.
+4. **Doc drift is real** — multiple items were already shipped but fix_table.md said PENDING. Next session: reconcile fix_table status column before starting any new work.
+
+---
+
+## Production State (Apr 23 ~02:50 IST)
+
+- **Phase 2 active** — 118 resolved, 81% WR, 96W/22L, avg +4.02%/trade
+- **UP_TRI** — 95% WR (n=83) — dominant winner
+- **DOWN_TRI live vs backtest** — 18% live vs 87% backtest (still unexplained — G12 research item)
+- **Active positions** (Apr 22 late): DLF/PRESTIGE/CANBK Day 1, AUBANK exited +6.6%
+- **Active kill rule** — kill_001 (DOWN_TRI+Bank, WR=0 n=11)
+- **Mini scanner** — shadow mode collecting data
+- **Intelligence loop** — functional end-to-end after C-series fixes
+- **Morning scan tomorrow** — verified safe (52/53 Master Check passing)
+
+---
+
+## Session Close Checklist
+
+- [x] Wave 2 shipped + Master Check green
+- [x] Wave 3 shipped + Master Check green
+- [x] Wave 5.1 shipped + Master Check green
+- [x] This execution log written
+- [ ] fix_table.md "Last updated" header bumped to 2026-04-23
+- [ ] fix_table.md change-log row added
+- [ ] session_context.md "5 Critical Open Incidents" block replaced with "0 Critical"
+
+The 3 unchecked items are the manual inline edits in the follow-up paste boxes.
+
+---
+
+**Next session trigger: `apex` or `kabu` — read this file FIRST, then fix_table.md for detail drilldown.**
