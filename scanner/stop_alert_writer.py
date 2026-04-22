@@ -33,6 +33,16 @@
 # - SA2: Timezone fix — all timestamps now use
 #         UTC+5:30 (IST) instead of server UTC.
 #         Fixes "03:02 AM IST" showing UTC time.
+#
+# WAVE 4 FIXES (Apr 23 2026 night):
+# - G2/G6: Price sanity validation BEFORE any
+#         alert fires. Prevents MARUTI-type ghost
+#         stops where yfinance returns impossible
+#         prices (₹4,757 for a ₹12K stock).
+#         Checks: current_price within 30% of entry
+#         AND within 20% of last EOD close.
+#         If suspicious → skip alert, log warning,
+#         mark as UNKNOWN in output.
 # ─────────────────────────────────────────────────────
 
 import json
@@ -58,10 +68,19 @@ TARGET_ALERTS_FILE = os.path.join(
     _OUTPUT, 'target_alerts_sent.json')
 STOP_ALERTS_FILE   = os.path.join(
     _OUTPUT, 'stop_alerts_sent.json')
+EOD_PRICES_FILE    = os.path.join(
+    _OUTPUT, 'eod_prices.json')
 
 # ── THRESHOLDS ────────────────────────────────────────
 NEAR_STOP_PCT = 2.0
 AT_STOP_PCT   = 0.5
+
+# G2/G6 WAVE 4: Price sanity thresholds
+# Stock can't realistically move this much intraday
+# without it being a data error (yfinance symbol
+# collision, stale cache, corporate action, etc.)
+MAX_ENTRY_DEVIATION_PCT = 30.0   # vs entry price
+MAX_CLOSE_DEVIATION_PCT = 20.0   # vs last EOD close
 
 # SA1: Terminal outcomes — signals with these are
 # fully closed and must never be monitored.
@@ -112,6 +131,145 @@ def _is_trading_day() -> bool:
     except Exception:
         pass
     return True
+
+
+# ── G2/G6 WAVE 4: PRICE SANITY ────────────────────────
+
+def _load_eod_closes():
+    """
+    G2/G6 FIX: Load last known EOD close per symbol
+    from eod_prices.json. Used by _is_price_sane() to
+    validate intraday ticks against yesterday's close.
+
+    Returns dict: {symbol: last_close_float}
+    Tolerates both old schema (results[]) and new
+    schema (ohlc_by_symbol) from eod_prices_writer.
+
+    Returns {} on any failure — sanity check gracefully
+    degrades to entry-only check.
+    """
+    try:
+        if not os.path.exists(EOD_PRICES_FILE):
+            return {}
+        with open(EOD_PRICES_FILE, 'r') as f:
+            data = json.load(f)
+    except Exception as e:
+        print(f"[stop_alert] G6: eod_prices load "
+              f"failed ({e}) — sanity check will use "
+              f"entry-only validation")
+        return {}
+
+    closes = {}
+
+    # New schema (CRIT-01, schema_v2):
+    # ohlc_by_symbol: {symbol: {date: {open,high,low,close}}}
+    ohlc = data.get('ohlc_by_symbol', {})
+    if isinstance(ohlc, dict):
+        for sym, dates in ohlc.items():
+            if not isinstance(dates, dict) or not dates:
+                continue
+            # Take most recent date
+            latest = sorted(dates.keys())[-1]
+            entry = dates.get(latest, {})
+            c = entry.get('close')
+            if c is not None:
+                try:
+                    closes[sym] = float(c)
+                except Exception:
+                    pass
+
+    # Old schema fallback: flat results[]
+    if not closes:
+        results = data.get('results', [])
+        if isinstance(results, list):
+            for r in results:
+                if not isinstance(r, dict):
+                    continue
+                sym = r.get('symbol')
+                c   = r.get('close')
+                if sym and c is not None:
+                    try:
+                        closes[sym] = float(c)
+                    except Exception:
+                        pass
+
+    return closes
+
+
+def _is_price_sane(current_price, trade, eod_closes):
+    """
+    G2/G6 WAVE 4 FIX: Validate fetched price before
+    using it in any alert or assessment logic.
+
+    Catches yfinance data errors like:
+      - Symbol collision (wrong stock's price returned)
+      - Stale cache from corporate action
+      - Intraday spike/crash data error
+      - Ticker changes
+
+    Example real incident (Apr 22 2026):
+      MARUTI UP_TRI signal @ entry ₹12,000
+      yfinance returned current_price ₹4,757.90
+      Stop ₹11,846 — alert fired "BREACHED"
+      Actual MARUTI was trading ~₹12K.
+      Impossible 60% drop → bad data.
+
+    Returns: (is_sane: bool, reason: str)
+    """
+    try:
+        entry = trade.get('entry')
+        if entry is None:
+            entry = trade.get('scan_price')
+        entry = float(entry) if entry is not None else None
+
+        symbol = trade.get('symbol', '')
+
+        # No entry → can't validate against entry, check
+        # EOD close only if available.
+        if entry is None or entry <= 0:
+            last_close = eod_closes.get(symbol)
+            if last_close and last_close > 0:
+                dev = abs(current_price - last_close) \
+                      / last_close * 100.0
+                if dev > MAX_CLOSE_DEVIATION_PCT:
+                    return (False, (
+                        f"price ₹{current_price:.2f} "
+                        f"deviates {dev:.1f}% from "
+                        f"last close ₹{last_close:.2f} "
+                        f"(limit {MAX_CLOSE_DEVIATION_PCT}%)"))
+            return (True, "")
+
+        # Primary check: vs entry price
+        entry_dev = abs(current_price - entry) \
+                    / entry * 100.0
+        if entry_dev > MAX_ENTRY_DEVIATION_PCT:
+            return (False, (
+                f"price ₹{current_price:.2f} deviates "
+                f"{entry_dev:.1f}% from entry "
+                f"₹{entry:.2f} (limit "
+                f"{MAX_ENTRY_DEVIATION_PCT}%)"))
+
+        # Secondary check: vs last EOD close (if available)
+        last_close = eod_closes.get(symbol)
+        if last_close and last_close > 0:
+            close_dev = abs(current_price - last_close) \
+                        / last_close * 100.0
+            if close_dev > MAX_CLOSE_DEVIATION_PCT:
+                return (False, (
+                    f"price ₹{current_price:.2f} "
+                    f"deviates {close_dev:.1f}% from "
+                    f"last close ₹{last_close:.2f} "
+                    f"(limit "
+                    f"{MAX_CLOSE_DEVIATION_PCT}%)"))
+
+        return (True, "")
+
+    except Exception as e:
+        # Never let sanity check itself break the flow —
+        # on error, trust the price (fail-open).
+        print(f"[stop_alert] G6: sanity check error "
+              f"({e}) — proceeding with fetched price")
+        return (True, f"sanity-check-error:{e}")
 
 
 # ── TARGET ALERT DEDUP ────────────────────────────────
@@ -260,33 +418,27 @@ def _assess_stop_level(trade, current_price):
             if current_price <= stop:
                 return ('BREACHED', pct_from_stop,
                         pnl_pct, pnl_r,
-                        f"STOP BREACHED — "
-                        f"₹{current_price:.2f} below "
-                        f"stop ₹{stop:.2f}")
-            diff = ((current_price - stop)
-                    / stop * 100)
+                        f"BREACHED — ₹{current_price:.2f} "
+                        f"≤ stop ₹{stop:.2f}")
+            diff = (current_price - stop) / stop * 100
             if diff <= AT_STOP_PCT:
                 return ('AT', pct_from_stop,
                         pnl_pct, pnl_r,
-                        f"AT STOP — "
-                        f"₹{current_price:.2f} within "
-                        f"0.5% of stop ₹{stop:.2f}")
+                        f"AT STOP — within 0.5% "
+                        f"of stop")
             if diff <= NEAR_STOP_PCT:
                 return ('NEAR', pct_from_stop,
                         pnl_pct, pnl_r,
-                        f"NEAR STOP — "
-                        f"₹{current_price:.2f} within "
-                        f"2% of stop ₹{stop:.2f}")
-
-        elif direction == 'SHORT':
+                        f"NEAR STOP — within 2% "
+                        f"of stop")
+        else:
+            # SHORT
             if current_price >= stop:
                 return ('BREACHED', pct_from_stop,
                         pnl_pct, pnl_r,
-                        f"STOP BREACHED — "
-                        f"₹{current_price:.2f} above "
-                        f"stop ₹{stop:.2f}")
-            diff = ((stop - current_price)
-                    / stop * 100)
+                        f"BREACHED — ₹{current_price:.2f} "
+                        f"≥ stop ₹{stop:.2f}")
+            diff = (stop - current_price) / stop * 100
             if diff <= AT_STOP_PCT:
                 return ('AT', pct_from_stop,
                         pnl_pct, pnl_r,
@@ -493,6 +645,11 @@ def run_stop_check():
     print(f"[stop_alert] Checking "
           f"{len(valid_trades)} positions")
 
+    # G2/G6 WAVE 4: Load EOD closes once for sanity checks
+    eod_closes = _load_eod_closes()
+    print(f"[stop_alert] G6: loaded {len(eod_closes)} "
+          f"EOD closes for price sanity validation")
+
     # Load dedup sets — both persist across runs
     target_alerts_sent = _load_target_alerts_sent()
 
@@ -502,6 +659,7 @@ def run_stop_check():
 
     alerts           = []
     fetch_failed     = []
+    sanity_rejected  = []   # G6: track insane prices
     breached_count   = 0
     at_count         = 0
     near_count       = 0
@@ -542,6 +700,39 @@ def run_stop_check():
                 'pnl_r':         None,
                 'note':          'Price fetch failed',
                 'check_time':    check_time,
+            })
+            continue
+
+        # G2/G6 WAVE 4: Sanity check BEFORE any alert
+        # logic. Rejects bad ticks (MARUTI ghost stop).
+        is_sane, sanity_reason = _is_price_sane(
+            current_price, trade, eod_closes)
+
+        if not is_sane:
+            sym_clean = symbol.replace('.NS', '')
+            print(f"[stop_alert] G6 REJECT "
+                  f"{sym_clean}: {sanity_reason}")
+            sanity_rejected.append({
+                'symbol': sym_clean,
+                'price':  current_price,
+                'reason': sanity_reason,
+            })
+            alerts.append({
+                'symbol':        symbol,
+                'signal':        signal,
+                'signal_date':   sig_date,
+                'direction':     direction,
+                'entry':         entry,
+                'stop':          stop,
+                'current_price': round(current_price, 2),
+                'alert_level':   'UNKNOWN',
+                'target_hit':    False,
+                'pct_from_stop': None,
+                'pnl_pct':       None,
+                'pnl_r':         None,
+                'note': (f'Price rejected by sanity '
+                         f'check: {sanity_reason}'),
+                'check_time':    fetch_time or check_time,
             })
             continue
 
@@ -645,6 +836,7 @@ def run_stop_check():
         'safe_count':       safe_count,
         'target_hit_count': target_hit_count,
         'fetch_failed':     fetch_failed,
+        'sanity_rejected':  sanity_rejected,
         'has_alerts':       (
             breached_count + at_count) > 0,
         'alerts':           alerts,
@@ -659,6 +851,7 @@ def run_stop_check():
           f"NEAR:{near_count} "
           f"TARGET_HIT:{target_hit_count} "
           f"FAILED:{len(fetch_failed)} "
+          f"SANITY_REJECTED:{len(sanity_rejected)} "
           f"SKIPPED_INVALID:{skipped_invalid} "
           f"SKIPPED_RESOLVED:{skipped_resolved}")
 
@@ -675,6 +868,7 @@ def _write_empty(today, check_time):
         'safe_count':       0,
         'target_hit_count': 0,
         'fetch_failed':     [],
+        'sanity_rejected':  [],
         'has_alerts':       False,
         'alerts':           [],
     }
