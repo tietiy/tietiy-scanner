@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# ── scripts/wave2_migration.py (v2 — AST boundaries) ─
+# ── scripts/wave2_migration.py (v3 — AST import fix) ─
 # Automated migration from per-file local IST helpers
 # to the canonical calendar_utils helpers shipped in
 # Wave 1.
@@ -9,20 +9,32 @@
 #   H-09 — date.today() UTC drift across 5+ files
 #   M-06 — IST helpers duplicated in 5 files
 #
-# v2 CHANGE (Apr 23 2026):
-#   Function deletion now uses ast.parse() to find
-#   exact FunctionDef boundaries (lineno/end_lineno)
-#   instead of regex-based block-end scanning.
-#   v1 regex approach failed on 5 of 11 files because
-#   "next column-0 def" isn't always the block end —
-#   files have comment banners, constants, or top-level
-#   statements between functions.
+# v3 CHANGE (Apr 23 2026):
+#   _inject_import() now uses ast.parse() to find
+#   the TRUE end line of the last import statement,
+#   including multi-line parenthesized imports like:
+#
+#     from outcome_evaluator import (
+#         _load_holidays,
+#         _is_trading_day,
+#         FLAT_PCT,
+#     )
+#
+#   v2 matched only the OPENING line of such imports
+#   and injected the canonical import at line+1 —
+#   landing INSIDE the paren list and breaking syntax.
+#   3 of 11 files failed in v2 for exactly this reason
+#   (outcome_evaluator L75, open_validator L35,
+#   recover_stuck_signals L64).
+#
+# v2 CHANGE (kept):
+#   Function deletion uses ast.parse() for exact
+#   FunctionDef boundaries (lineno / end_lineno).
 #
 # Does NOT touch:
 #   - telegram_bot.py (user skip decision)
 #   - M-11 recover_stuck_signals TELEGRAM_TOKEN rename
-#     (handled separately in Wave 3)
-#   - Any local helpers that aren't in LOCAL_FUNCS_TO_DELETE
+#   - Any local helpers not in LOCAL_FUNCS_TO_DELETE
 #
 # Usage:
 #   python scripts/wave2_migration.py --dry-run
@@ -111,22 +123,13 @@ def _log(msg, also_print=True):
         print(msg)
 
 
-# ── AST-BASED FUNCTION FINDER (v2 CORE FIX) ──────────
+# ── AST-BASED FUNCTION FINDER (v2) ───────────────────
 
 def find_function_blocks(content):
     """
-    v2 FIX: Use ast.parse() to locate exact function
-    boundaries. Returns list of dicts:
-      {
-        'name':     str,
-        'lineno':   int (1-indexed, first line of `def`),
-        'end_lineno': int (1-indexed, last line INCLUSIVE),
-        'decorator_lineno': int or None (earliest decorator
-                                         line, if any),
-      }
-
-    Only returns module-level (col_offset=0) functions whose
-    name is in LOCAL_FUNCS_TO_DELETE.
+    Use ast.parse() to locate exact function boundaries.
+    Returns list of dicts with name, lineno, end_lineno,
+    and optional decorator_lineno.
     """
     try:
         tree = ast.parse(content)
@@ -147,7 +150,6 @@ def find_function_blocks(content):
         if node.name not in LOCAL_FUNCS_TO_DELETE:
             continue
 
-        # Include decorators in the delete range
         dec_lineno = None
         if node.decorator_list:
             dec_lineno = min(
@@ -164,13 +166,46 @@ def find_function_blocks(content):
     return blocks
 
 
+# ── AST-BASED IMPORT END FINDER (v3 NEW) ─────────────
+
+def find_last_import_end_line(content):
+    """
+    v3 FIX: Use ast.parse() to find the end line of the
+    LAST module-level import statement. Handles multi-line
+    parenthesized imports like:
+
+      from outcome_evaluator import (
+          _load_holidays,
+          FLAT_PCT,
+      )
+
+    ast gives us node.end_lineno which points to the
+    closing paren line. This is the ONLY reliable way
+    to know where an import statement ends.
+
+    Returns:
+      int — 1-indexed line number of the last line of
+            the final import statement, OR
+      None — if no imports exist at module level.
+    """
+    try:
+        tree = ast.parse(content)
+    except SyntaxError:
+        return None
+
+    last_end = 0
+    for node in tree.body:
+        if isinstance(node, (ast.Import, ast.ImportFrom)):
+            end = getattr(node, 'end_lineno', node.lineno)
+            if end > last_end:
+                last_end = end
+
+    return last_end if last_end > 0 else None
+
+
 # ── ANALYSIS ─────────────────────────────────────────
 
 def analyze_file(abs_path):
-    """
-    Read a file and return planned changes without writing.
-    Uses ast.parse for function boundaries.
-    """
     rel = os.path.relpath(abs_path, _ROOT)
 
     if not os.path.exists(abs_path):
@@ -187,14 +222,12 @@ def analyze_file(abs_path):
     with open(abs_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
-    # Count call replacements
     replacements = []
     for pattern, replacement, desc in CALL_REPLACEMENTS:
         matches = re.findall(pattern, content)
         if matches:
             replacements.append((desc, len(matches)))
 
-    # Find function blocks via AST
     parse_error = None
     func_deletions = []
     try:
@@ -242,19 +275,11 @@ def analyze_file(abs_path):
 # ── APPLY ────────────────────────────────────────────
 
 def apply_changes(abs_path, plan):
-    """
-    Apply the migration changes. Returns new content string.
-    Deletion order: bottom-up by lineno to keep indices valid.
-    Deletes from decorator_lineno (if any) or lineno through
-    end_lineno INCLUSIVE. Also scoops immediately-preceding
-    contiguous comment block (header comment for the func).
-    """
     with open(abs_path, 'r', encoding='utf-8') as f:
         content = f.read()
 
     lines = content.split('\n')
 
-    # Sort bottom-up by the earliest line we'll delete
     def _del_start(entry):
         _name, lineno, _end, dec = entry
         return dec if dec is not None else lineno
@@ -266,19 +291,14 @@ def apply_changes(abs_path, plan):
     )
 
     for name, lineno, end_lineno, dec_lineno in deletions:
-        # AST lineno is 1-indexed, list indices are 0-indexed
         start_idx = (dec_lineno if dec_lineno else lineno) - 1
-        end_idx   = end_lineno  # end_lineno inclusive → exclusive slice
+        end_idx   = end_lineno
 
-        # Scoop preceding contiguous comment banner
-        # (lines that are only comments, no blank lines
-        # between them and the function/decorator).
         scoop_start = start_idx
         j = start_idx - 1
         while j >= 0:
             stripped = lines[j].strip()
             if not stripped:
-                # blank line stops the scoop
                 break
             if stripped.startswith('#'):
                 scoop_start = j
@@ -290,11 +310,9 @@ def apply_changes(abs_path, plan):
 
     content = '\n'.join(lines)
 
-    # Apply call replacements
     for pattern, replacement, _desc in CALL_REPLACEMENTS:
         content = re.sub(pattern, replacement, content)
 
-    # Add canonical import
     if plan['needs_import']:
         content = _inject_import(content)
 
@@ -303,58 +321,52 @@ def apply_changes(abs_path, plan):
 
 def _inject_import(content):
     """
-    Add CANONICAL_IMPORT after the last existing
-    `from` or `import` statement at module level
-    (col 0). Ignores imports inside docstrings and
-    indented blocks (try/except import guards get
-    skipped to stay safe).
+    v3 FIX: Use AST to find TRUE end line of last
+    import. Handles multi-line parenthesized imports
+    that v2 broke on.
+
+    Inserts CANONICAL_IMPORT on the line AFTER the
+    last import statement ends. Falls back to top-of-
+    file placement if no imports exist.
     """
+    last_end_line = find_last_import_end_line(content)
     lines = content.split('\n')
-    last_import_idx = -1
 
-    in_docstring = False
-    docstring_quote = None
-
-    for i, line in enumerate(lines):
-        stripped = line.strip()
-
-        # Track triple-quoted docstrings
-        if not in_docstring:
-            for q in ('"""', "'''"):
-                if stripped.startswith(q):
-                    if len(stripped) > 3 and stripped.endswith(q):
-                        continue
-                    in_docstring = True
-                    docstring_quote = q
-                    break
-        else:
-            if docstring_quote and docstring_quote in stripped:
-                in_docstring = False
-                docstring_quote = None
-            continue
-
-        if in_docstring:
-            continue
-
-        # Only accept col-0 imports (not indented try/except)
-        if (line.startswith('import ')
-                or line.startswith('from ')):
-            last_import_idx = i
-
-    if last_import_idx == -1:
-        # No imports — inject after header comments
+    if last_end_line is None:
+        # No imports found. Find first non-comment,
+        # non-blank, non-docstring line and insert there.
         i = 0
+        in_docstring = False
+        docstring_q  = None
         while i < len(lines):
             s = lines[i].strip()
-            if (s and not s.startswith('#')
-                    and not s.startswith('"""')
-                    and not s.startswith("'''")):
-                break
+            if not in_docstring:
+                for q in ('"""', "'''"):
+                    if s.startswith(q):
+                        if (len(s) > 3 and s.endswith(q)):
+                            break
+                        in_docstring = True
+                        docstring_q = q
+                        break
+                if in_docstring:
+                    i += 1
+                    continue
+                if s and not s.startswith('#'):
+                    break
+            else:
+                if docstring_q and docstring_q in s:
+                    in_docstring = False
+                    docstring_q = None
+                i += 1
+                continue
             i += 1
         lines.insert(i, CANONICAL_IMPORT)
         lines.insert(i + 1, '')
     else:
-        lines.insert(last_import_idx + 1, CANONICAL_IMPORT)
+        # Insert AFTER the line where last import ends.
+        # last_end_line is 1-indexed, list is 0-indexed,
+        # so insert at index last_end_line.
+        lines.insert(last_end_line, CANONICAL_IMPORT)
 
     return '\n'.join(lines)
 
@@ -397,7 +409,7 @@ def restore_backup(backup_dir, targets_with_plans):
 def format_plan_report(plans):
     lines = []
     lines.append('═' * 60)
-    lines.append('WAVE 2 MIGRATION PLAN (v2 — AST boundaries)')
+    lines.append('WAVE 2 MIGRATION PLAN (v3 — AST imports + funcs)')
     lines.append('═' * 60)
 
     total_changes = 0
@@ -457,7 +469,7 @@ def run(mode='dry_run'):
     assert mode in ('dry_run', 'execute'), \
         f'Unknown mode: {mode}'
 
-    _log(f'[wave2] Mode: {mode}  (v2 AST-based)')
+    _log(f'[wave2] Mode: {mode}  (v3 AST-based)')
     _log(f'[wave2] Repo root: {_ROOT}')
     _log(f'[wave2] Target files: {len(TARGET_FILES)}')
     _log('')
@@ -470,7 +482,6 @@ def run(mode='dry_run'):
     report = format_plan_report(plans)
     _log(report)
 
-    # Abort if any file has a pre-existing parse error
     parse_errors = [
         p for p in plans
         if p['exists'] and p.get('parse_error')
@@ -479,8 +490,7 @@ def run(mode='dry_run'):
         _log('')
         _log(
             f'[wave2] ❌ ABORT — {len(parse_errors)} file(s) '
-            f'have pre-existing parse errors. Fix those '
-            f'first before running migration.')
+            f'have pre-existing parse errors.')
         return {
             'mode':    mode,
             'success': False,
@@ -504,8 +514,6 @@ def run(mode='dry_run'):
             'success':         True,
             'log':             '\n'.join(_LOG_LINES),
         }
-
-    # ── EXECUTE ──────────────────────────────────────
 
     actionable = [
         (p['file'], p) for p in plans
@@ -582,7 +590,7 @@ def run(mode='dry_run'):
     os.makedirs(os.path.dirname(log_path), exist_ok=True)
 
     with open(log_path, 'w', encoding='utf-8') as f:
-        f.write('# Wave 2 Migration Log (v2)\n\n')
+        f.write('# Wave 2 Migration Log (v3)\n\n')
         f.write(f'**Timestamp:** {ts}\n\n')
         f.write(f'**Files modified:** {len(actionable)}\n\n')
         f.write(f'**Backup:** `{os.path.relpath(backup_dir, _ROOT)}`\n\n')
@@ -615,7 +623,7 @@ def run(mode='dry_run'):
 
 def _cli():
     parser = argparse.ArgumentParser(
-        description='Wave 2 IST migration script (v2)')
+        description='Wave 2 IST migration script (v3)')
     g = parser.add_mutually_exclusive_group(required=True)
     g.add_argument('--dry-run', action='store_true')
     g.add_argument('--execute', action='store_true')
