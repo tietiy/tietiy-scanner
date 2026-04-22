@@ -14,7 +14,6 @@ from datetime import date
 sys.path.insert(0, os.path.dirname(__file__))
 
 from telegram_bot import send_heartbeat, send_message, _esc
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
@@ -36,6 +35,21 @@ def _load_holidays():
         return {'holidays': [], 'valid_until': ''}
 
 
+def _is_trading_day():
+    """Returns True if today is a trading day."""
+    today = date.today()
+    
+    # Weekend check
+    if today.weekday() >= 5:
+        return False
+    
+    # Holiday check
+    holidays_data = _load_holidays()
+    holidays = holidays_data.get('holidays', [])
+    if today.strftime('%Y-%m-%d') in holidays:
+        return False
+    
+    return True
 
 
 def _check_holiday_reminder():
@@ -43,7 +57,7 @@ def _check_holiday_reminder():
     M6: Check if holidays need updating.
     Sends reminder in December if holidays expire this year.
     """
-    today = ist_today()
+    today = date.today()
     
     # Only remind in December
     if today.month != 12:
@@ -126,8 +140,8 @@ def run_heartbeat():
     print("[heartbeat] Starting...")
 
     # ── S2: Skip on non-trading days ──────────────────
-    if not is_trading_day():
-        print(f"[heartbeat] Non-trading day ({ist_today()}) — skipping")
+    if not _is_trading_day():
+        print(f"[heartbeat] Non-trading day ({date.today()}) — skipping")
         return
 
     # ── M6: Holiday reminder in December ──────────────

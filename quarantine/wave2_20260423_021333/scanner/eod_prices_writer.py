@@ -41,7 +41,6 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(__file__))
 from journal import get_open_trades
 from telegram_bot import send_exit_tomorrow
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 # ── PATHS ─────────────────────────────────────────────
 _HERE    = os.path.dirname(os.path.abspath(__file__))
@@ -55,10 +54,18 @@ STOP_BREACH_BUFFER = 0.005
 
 # ── EP1: IST TIMESTAMP HELPERS ────────────────────────
 
+def _now_ist():
+    ist_offset = timezone(timedelta(hours=5,
+                                    minutes=30))
+    return datetime.now(tz=ist_offset)
 
 
+def _now_ist_str():
+    return _now_ist().strftime('%I:%M %p IST')
 
 
+def _today_ist():
+    return _now_ist().date()
 
 
 # ── EP3: NAN HELPER ───────────────────────────────────
@@ -108,7 +115,7 @@ def _fetch_eod_price(symbol, retries=2):
             if df.index.tzinfo:
                 df.index = df.index.tz_localize(None)
 
-            today_str  = ist_today().isoformat()
+            today_str  = _today_ist().isoformat()
             today_rows = df[
                 df.index.strftime('%Y-%m-%d')
                 == today_str
@@ -266,7 +273,7 @@ def _assess_exit_due(trade):
         exit_date = trade.get('exit_date', '')
         if not exit_date:
             return False
-        today     = ist_today()
+        today     = _today_ist()
         exit_dt   = date.fromisoformat(exit_date)
         days_left = (exit_dt - today).days
         return days_left == 1
@@ -280,7 +287,7 @@ def _count_day(trade):
         if not signal_date:
             return None
         start         = date.fromisoformat(signal_date)
-        today         = ist_today()
+        today         = _today_ist()
         calendar_days = (today - start).days
         trading_days  = max(1, int(calendar_days * 5/7))
         return min(trading_days + 1, 6)
@@ -299,8 +306,8 @@ def run_eod_update():
     """
     os.makedirs(_OUTPUT, exist_ok=True)
 
-    today      = ist_today().isoformat()
-    fetch_time = ist_now_str()
+    today      = _today_ist().isoformat()
+    fetch_time = _now_ist_str()
 
     print(f"[eod_writer] Starting EOD update "
           f"for {today} at {fetch_time}")

@@ -56,7 +56,6 @@ import pandas as pd
 sys.path.insert(0, os.path.dirname(__file__))
 from journal import get_open_trades
 from telegram_bot import send_message
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 # ── PATHS ─────────────────────────────────────────────
 _HERE              = os.path.dirname(
@@ -94,10 +93,44 @@ _TERMINAL_OUTCOMES = {
 }
 
 
+# SA2: IST TIMESTAMP HELPER ───────────────────────────
+def _now_ist_str():
+    """
+    SA2 FIX: Returns current time as IST string.
+    GitHub Actions runners are UTC — datetime.now()
+    returns UTC, not IST. This applies +5:30 offset
+    so all alert timestamps show correct IST time.
+    """
+    ist_offset = timezone(timedelta(hours=5,
+                                    minutes=30))
+    return datetime.now(tz=ist_offset).strftime(
+        '%I:%M %p IST')
 
 
+def _now_ist_date():
+    """SA2 FIX: Returns current date in IST."""
+    ist_offset = timezone(timedelta(hours=5,
+                                    minutes=30))
+    return datetime.now(tz=ist_offset).date()
 
 
+# ── BX2: TRADING DAY GUARD ────────────────────────────
+def _is_trading_day() -> bool:
+    today = _now_ist_date()
+    if today.weekday() >= 5:
+        return False
+    try:
+        holidays_file = os.path.join(
+            _OUTPUT, 'nse_holidays.json')
+        if os.path.exists(holidays_file):
+            with open(holidays_file, 'r') as f:
+                data = json.load(f)
+            holidays = data.get('holidays', [])
+            if today.isoformat() in holidays:
+                return False
+    except Exception:
+        pass
+    return True
 
 
 # ── G2/G6 WAVE 4: PRICE SANITY ────────────────────────
@@ -245,7 +278,7 @@ def _load_target_alerts_sent():
         with open(TARGET_ALERTS_FILE, 'r') as f:
             data = json.load(f)
         if data.get('date') != \
-                ist_today().isoformat():
+                _now_ist_date().isoformat():
             return set()
         return set(data.get('sent_ids', []))
     except Exception:
@@ -257,7 +290,7 @@ def _save_target_alert_sent(signal_id, sent_ids):
     try:
         with open(TARGET_ALERTS_FILE, 'w') as f:
             json.dump({
-                'date':     ist_today().isoformat(),
+                'date':     _now_ist_date().isoformat(),
                 'sent_ids': list(sent_ids),
             }, f)
     except Exception as e:
@@ -274,7 +307,7 @@ def _load_stop_alerts_sent():
         with open(STOP_ALERTS_FILE, 'r') as f:
             data = json.load(f)
         if data.get('date') != \
-                ist_today().isoformat():
+                _now_ist_date().isoformat():
             return set()
         return set(data.get('sent_keys', []))
     except Exception:
@@ -286,7 +319,7 @@ def _save_stop_alert_sent(key, sent_keys):
     try:
         with open(STOP_ALERTS_FILE, 'w') as f:
             json.dump({
-                'date':      ist_today().isoformat(),
+                'date':      _now_ist_date().isoformat(),
                 'sent_keys': list(sent_keys),
             }, f)
     except Exception as e:
@@ -314,7 +347,7 @@ def _fetch_current_price(symbol, retries=2):
                 price      = float(
                     df.iloc[-1]['Close'])
                 # SA2 FIX: use IST time
-                fetch_time = ist_now_str()
+                fetch_time = _now_ist_str()
                 return price, fetch_time
 
             df = yf.download(
@@ -333,7 +366,7 @@ def _fetch_current_price(symbol, retries=2):
                 price      = float(
                     df.iloc[-1]['Close'])
                 # SA2 FIX: use IST time
-                fetch_time = ist_now_str()
+                fetch_time = _now_ist_str()
                 return price, fetch_time
 
         except Exception as e:
@@ -558,17 +591,17 @@ def run_stop_check():
     os.makedirs(_OUTPUT, exist_ok=True)
 
     # BX2 FIX: Holiday/weekend guard
-    if not is_trading_day():
-        today_str = ist_today().isoformat()
+    if not _is_trading_day():
+        today_str = _now_ist_date().isoformat()
         print(f"[stop_alert] {today_str} is a "
               f"holiday or weekend — skipping")
         _write_empty(
-            ist_today().isoformat(),
-            ist_now_str())
+            _now_ist_date().isoformat(),
+            _now_ist_str())
         return
 
-    today      = ist_today().isoformat()
-    check_time = ist_now_str()
+    today      = _now_ist_date().isoformat()
+    check_time = _now_ist_str()
 
     print(f"[stop_alert] Stop check at {check_time}")
 

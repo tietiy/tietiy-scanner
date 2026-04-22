@@ -88,7 +88,6 @@ from eod_prices_writer  import run_eod_update
 from stop_alert_writer  import run_stop_check
 from outcome_evaluator  import run_outcome_evaluation
 from ban_fetcher        import write_ban_list
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 # ── CONSTANTS ─────────────────────────────────────────
 NIFTY_SYMBOL   = "^NSEI"
@@ -125,7 +124,7 @@ def _is_shadow_mode():
 def _already_scanned_today():
     scan_log_path = os.path.join(
         OUTPUT_DIR, 'scan_log.json')
-    today_str = ist_today().isoformat()
+    today_str = date.today().isoformat()
 
     if not os.path.exists(scan_log_path):
         return False
@@ -188,7 +187,7 @@ def _log_regime_debug(regime_info):
                    get_nifty_info() extended output
     """
     try:
-        today_str = ist_today().isoformat()
+        today_str = date.today().isoformat()
 
         # Load existing logs
         if os.path.exists(REGIME_DEBUG_PATH):
@@ -305,9 +304,9 @@ def get_nifty_info():
             # NEW (RA1): raw values for regime_debug
             'last_slope':     round(last_slope, 6),
             'last_above_ema50': last_above,
-            'today':          ist_today().strftime(
+            'today':          date.today().strftime(
                 '%d %b %Y'),
-            'market_date':    ist_today().isoformat(),
+            'market_date':    date.today().isoformat(),
             'sector_leaders': []
         }
 
@@ -327,9 +326,9 @@ def get_nifty_info():
             'ret20':          0,
             'last_slope':     None,
             'last_above_ema50': None,
-            'today':          ist_today().strftime(
+            'today':          date.today().strftime(
                 '%d %b %Y'),
-            'market_date':    ist_today().isoformat(),
+            'market_date':    date.today().isoformat(),
             'sector_leaders': []
         }
         # Still try to log the failure case
@@ -508,7 +507,7 @@ def run_morning_scan():
 
         write_holidays(OUTPUT_DIR)
 
-        scan_date = ist_today().isoformat()
+        scan_date = date.today().isoformat()
         write_scan_log(
             signals=[],
             rejected=[],
@@ -519,7 +518,7 @@ def run_morning_scan():
 
         write_meta(
             output_dir           = OUTPUT_DIR,
-            market_date          = ist_today().isoformat(),
+            market_date          = date.today().isoformat(),
             regime               = market_info['regime'],
             universe_size        = 0,
             signals_found        = 0,
@@ -679,7 +678,7 @@ def run_morning_scan():
                 if id(s) not in mini_ids]
 
     # ── STEP 11: Write scan_log.json ──────────────────
-    scan_date = ist_today().isoformat()
+    scan_date = date.today().isoformat()
     write_scan_log(
         mini_signals, rejected, scan_date, regime,
         is_trading_day=True

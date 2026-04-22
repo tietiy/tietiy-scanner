@@ -22,7 +22,6 @@ import os
 import sys
 import json
 from datetime import datetime, date, timedelta, timezone
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 sys.path.insert(0, os.path.dirname(__file__))
 
@@ -37,7 +36,7 @@ def _today_str():
     """Today in IST."""
     from calendar_utils import get_market_status
     try:
-        return ist_today().isoformat()
+        return date.today().isoformat()
     except Exception:
         return datetime.utcnow().date().isoformat()
 
@@ -50,7 +49,7 @@ def _is_weekend_or_holiday():
         return not status.get('is_trading', False)
     except Exception:
         # Fallback: Saturday/Sunday check
-        d = ist_today()
+        d = date.today()
         return d.weekday() >= 5
 
 

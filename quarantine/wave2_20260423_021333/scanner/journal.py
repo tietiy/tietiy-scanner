@@ -41,7 +41,6 @@ from datetime import date, datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(__file__))
 from config import PIVOT_LOOKBACK
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 # ── PATHS ─────────────────────────────────────────────
 _HERE       = os.path.dirname(os.path.abspath(__file__))
@@ -135,7 +134,7 @@ def _make_id(signal_date, symbol, signal_type, attempt=1):
 
 def _trading_day_cutoff(days_back):
     approx_calendar = int(days_back * 1.45)
-    cutoff = ist_today() - timedelta(days=approx_calendar)
+    cutoff = date.today() - timedelta(days=approx_calendar)
     return cutoff.isoformat()
 
 
@@ -266,7 +265,7 @@ def ensure_archive_exists():
 def log_signal(sig, layer='MINI'):
     _ensure_output_dir()
 
-    today     = ist_today().isoformat()
+    today     = date.today().isoformat()
     symbol    = sig.get('symbol', '')
     signal_t  = sig.get('signal', '')
     attempt   = sig.get('attempt_number', 1)
@@ -399,7 +398,7 @@ def log_rejected(sig, rejection_reason,
                  rejection_filter, threshold):
     _ensure_output_dir()
 
-    today     = ist_today().isoformat()
+    today     = date.today().isoformat()
     symbol    = sig.get('symbol', '')
     signal_t  = sig.get('signal', '')
     direction = sig.get('direction', 'LONG')
@@ -648,7 +647,7 @@ def close_trade(symbol, signal_date,
                 record['exit_price']       = exit_price
                 record['exit_type']        = exit_type
                 record['exit_date_actual'] = (
-                    ist_today().isoformat())
+                    date.today().isoformat())
                 record['pnl_pct'] = pnl_pct
                 record['pnl_rs']  = pnl_rs
                 record['result']  = (
@@ -929,7 +928,7 @@ def get_system_health():
 
 def get_history_for_symbol(symbol, days_back=15):
     cutoff  = (
-        ist_today() - timedelta(days=days_back)
+        date.today() - timedelta(days=days_back)
     ).isoformat()
     history = load_history()
     return [

@@ -35,7 +35,6 @@ from journal import (
     load_history, _save_json,
     _backup_history, HISTORY_FILE
 )
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 # ── TELEGRAM IMPORT ───────────────────────────────────
 try:
@@ -67,13 +66,15 @@ def _load_holidays():
         return []
 
 
+def _is_trading_day(d, holidays):
+    return d.weekday() < 5 and d.strftime('%Y-%m-%d') not in holidays
 
 
 def _next_trading_day(from_date, holidays):
     """Returns the next trading day after from_date."""
     cur = from_date + timedelta(days=1)
     for _ in range(30):
-        if is_trading_day(cur, holidays):
+        if _is_trading_day(cur, holidays):
             return cur
         cur += timedelta(days=1)
     return cur
@@ -81,7 +82,7 @@ def _next_trading_day(from_date, holidays):
 
 # ── SKIP-IF-DONE CHECK ────────────────────────────────
 def _already_validated_today():
-    today_str = ist_today().isoformat()
+    today_str = date.today().isoformat()
     
     if not os.path.exists(OPEN_PRICES_FILE):
         return False
@@ -133,7 +134,7 @@ def _fetch_open(symbol, retries=3):
                     df.index = df.index.tz_localize(
                         'UTC').tz_convert('Asia/Kolkata')
 
-                today_str  = ist_today().strftime('%Y-%m-%d')
+                today_str  = date.today().strftime('%Y-%m-%d')
                 today_bars = df[
                     df.index.strftime('%Y-%m-%d') == today_str
                 ]
@@ -176,7 +177,7 @@ def _fetch_open(symbol, retries=3):
             else:
                 df.index = df.index.tz_localize(
                     'UTC').tz_convert('Asia/Kolkata')
-            today_str  = ist_today().strftime('%Y-%m-%d')
+            today_str  = date.today().strftime('%Y-%m-%d')
             today_bars = df[
                 df.index.strftime('%Y-%m-%d') == today_str
             ]
@@ -231,7 +232,7 @@ def _trigger_day6_resolution():
     Wrapped in try/except — this must never fail the
     open_validator workflow.
     """
-    today_str = ist_today().isoformat()
+    today_str = date.today().isoformat()
 
     # Quick check: any signals due today?
     try:
@@ -298,7 +299,7 @@ def run_open_validation():
         _trigger_day6_resolution()
         return
 
-    today     = ist_today()
+    today     = date.today()
     today_str = today.strftime('%Y-%m-%d')
     now_ist   = datetime.now().strftime('%H:%M IST')
 

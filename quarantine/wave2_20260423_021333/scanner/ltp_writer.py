@@ -18,7 +18,7 @@
 #        excluded from LTP monitoring entirely.
 #        Prevents dead signals being tracked and
 #        re-alerted on subsequent days.
-# - LW1+: ist_today() replaced with ist_now().date()
+# - LW1+: date.today() replaced with _ist_now().date()
 #        throughout — IST helper already existed,
 #        applied consistently for correctness.
 #
@@ -46,7 +46,6 @@ import pandas as pd
 
 sys.path.insert(0, os.path.dirname(__file__))
 from journal import load_history
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 # ── TELEGRAM IMPORT ───────────────────────────────────
 try:
@@ -79,10 +78,23 @@ _TERMINAL_OUTCOMES = {
 }
 
 
+def _ist_now():
+    """Returns current IST datetime."""
+    return datetime.utcnow() + _IST
 
 
+def _ist_now_str():
+    """Returns current IST time as HH:MM AM/PM."""
+    return _ist_now().strftime('%I:%M %p')
 
 
+def _ist_today():
+    """
+    LW1+ FIX: Returns current date in IST.
+    Replaces date.today() which returns UTC date
+    on GitHub Actions runners.
+    """
+    return _ist_now().date()
 
 
 def _is_market_hours():
@@ -90,7 +102,7 @@ def _is_market_hours():
     Returns True if currently in NSE market hours
     (9:15 AM - 3:30 PM IST).
     """
-    now          = ist_now()
+    now          = _ist_now()
     market_open  = now.replace(
         hour=9, minute=15, second=0, microsecond=0)
     market_close = now.replace(
@@ -98,6 +110,34 @@ def _is_market_hours():
     return market_open <= now <= market_close
 
 
+# ── BX3: TRADING DAY GUARD ────────────────────────────
+def _is_trading_day() -> bool:
+    """
+    Returns True only on weekdays that are
+    not NSE holidays.
+    Reads nse_holidays.json from output/.
+    LTP fetch should never run on holidays —
+    yfinance returns no data and wastes Actions
+    minutes.
+    """
+    # LW1+ FIX: use IST date not UTC date
+    today = _ist_today()
+    # Weekend check
+    if today.weekday() >= 5:
+        return False
+    # Holiday check
+    try:
+        holidays_file = os.path.join(
+            _OUTPUT, 'nse_holidays.json')
+        if os.path.exists(holidays_file):
+            with open(holidays_file, 'r') as f:
+                data = json.load(f)
+            holidays = data.get('holidays', [])
+            if today.isoformat() in holidays:
+                return False
+    except Exception:
+        pass
+    return True
 
 
 def _parse_fetch_time(fetch_time_str, date_str):
@@ -141,7 +181,7 @@ def _check_stale_ltp():
         if not last_fetch:
             return False
 
-        now         = ist_now()
+        now         = _ist_now()
         age_minutes = (
             now - last_fetch
         ).total_seconds() / 60
@@ -285,9 +325,9 @@ def run_ltp_update():
     print("[ltp] Starting LTP update...")
 
     # BX3 FIX: Holiday/weekend guard
-    if not is_trading_day():
+    if not _is_trading_day():
         # LW1+ FIX: use IST date
-        today_str = ist_today().isoformat()
+        today_str = _ist_today().isoformat()
         print(f"[ltp] {today_str} is a holiday "
               f"or weekend — skipping LTP fetch")
         return
@@ -296,8 +336,8 @@ def run_ltp_update():
     _check_stale_ltp()
 
     # LW1+ FIX: use IST date
-    today_str  = ist_today().isoformat()
-    fetch_time = ist_now_str()
+    today_str  = _ist_today().isoformat()
+    fetch_time = _ist_now_str()
 
     # Load signals — PENDING result only
     # LW1 FIX: Also exclude terminal outcome signals.

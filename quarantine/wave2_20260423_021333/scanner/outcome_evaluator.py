@@ -75,7 +75,6 @@ from journal import (
     load_history, _save_json,
     _backup_history, HISTORY_FILE
 )
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
@@ -108,12 +107,17 @@ def _load_holidays():
         return []
 
 
+def _is_trading_day(date_obj, holidays):
+    if date_obj.weekday() >= 5:
+        return False
+    return date_obj.strftime(
+        '%Y-%m-%d') not in holidays
 
 
 def _next_trading_day(d, holidays):
     cur = d
     for _ in range(14):
-        if is_trading_day(cur, holidays):
+        if _is_trading_day(cur, holidays):
             return cur
         cur += timedelta(days=1)
     return cur
@@ -124,7 +128,7 @@ def _get_entry_date(detection_date_str, holidays):
         detection_date_str,
         '%Y-%m-%d').date() + timedelta(days=1)
     for _ in range(30):
-        if is_trading_day(cur, holidays):
+        if _is_trading_day(cur, holidays):
             return cur
         cur += timedelta(days=1)
     return cur
@@ -135,7 +139,7 @@ def _get_nth_trading_day(start_date, n, holidays):
     cur   = start_date
     while count < n:
         cur += timedelta(days=1)
-        if is_trading_day(cur, holidays):
+        if _is_trading_day(cur, holidays):
             count += 1
     return cur
 
@@ -144,7 +148,7 @@ def _count_trading_days(start_date, end_date, holidays):
     count = 0
     cur   = start_date
     while cur <= end_date:
-        if is_trading_day(cur, holidays):
+        if _is_trading_day(cur, holidays):
             count += 1
         cur += timedelta(days=1)
     return count
@@ -387,7 +391,7 @@ def _fetch_ohlc(symbol, start_date, end_date,
 
     if df_eod is not None and not df_eod.empty:
         rows_needed = _count_trading_days(
-            start_date, min(end_date, ist_today()),
+            start_date, min(end_date, date.today()),
             _load_holidays())
         if len(df_eod) >= rows_needed:
             return df_eod, 'eod_primary'
@@ -635,7 +639,7 @@ def _evaluate_signal(signal, holidays,
         print(f"[outcome] {sym} — tracking_end {tracking_end} "
               f"is holiday, rolling to {effective_tracking_end}")
 
-    today = ist_today()
+    today = date.today()
 
     if not signal.get('tracking_start'):
         signal['tracking_start'] = entry_date.strftime('%Y-%m-%d')
@@ -877,7 +881,7 @@ def _resolve_contra_shadows(holidays, eod_prices,
     print(f"[contra] Evaluating {len(unresolved)} "
           f"contra shadows...")
 
-    today          = ist_today()
+    today          = date.today()
     resolved_count = 0
     updates        = 0
     skipped_fields = 0

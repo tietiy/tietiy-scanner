@@ -76,7 +76,6 @@ from outcome_evaluator import (
     _TERMINAL_OUTCOMES,
     FLAT_PCT,
 )
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 _HERE    = os.path.dirname(os.path.abspath(__file__))
 _ROOT    = os.path.dirname(_HERE)
@@ -326,7 +325,7 @@ def _resolve_from_eod(signal, eod_rec,
     # Recovery flag for later filtering
     signal['data_quality'] = 'recovery_close_fallback'
     signal['recovery_source'] = 'eod_prices.json'
-    signal['recovery_date']   = str(ist_today())
+    signal['recovery_date']   = str(date.today())
 
     # Map outcome → result
     if outcome == 'TARGET_HIT':
@@ -343,7 +342,7 @@ def _resolve_from_eod(signal, eod_rec,
 
 def run_recovery():
     print("[recover] === STUCK SIGNAL RECOVERY ===")
-    print(f"[recover] Run date: {ist_today()}")
+    print(f"[recover] Run date: {date.today()}")
 
     # Load holidays
     holidays = _load_holidays()
@@ -373,7 +372,7 @@ def run_recovery():
         return
 
     history = data.get('history', [])
-    today   = ist_today()
+    today   = date.today()
 
     # Find stuck signals
     # CRITERIA: PENDING result, OPEN or null outcome,

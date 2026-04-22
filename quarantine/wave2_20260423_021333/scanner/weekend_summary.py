@@ -27,7 +27,6 @@ sys.path.insert(0, os.path.dirname(__file__))
 
 from journal       import load_history, get_open_trades
 from telegram_bot  import send_weekend_summary
-from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
@@ -44,7 +43,7 @@ RESOLVED_TARGET = 30   # Phase 2 unlock threshold
 
 def _get_week_start():
     """Returns Monday of current week as date."""
-    today = ist_today()
+    today = date.today()
     return today - timedelta(days=today.weekday())
 
 
@@ -68,7 +67,7 @@ def run_weekend_summary():
     """
     print("[weekend_summary] Starting...")
 
-    today = ist_today()
+    today = date.today()
 
     # TR5 FIX: --force bypasses Saturday check
     force = '--force' in sys.argv
