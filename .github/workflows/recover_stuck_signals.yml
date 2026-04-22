@@ -4,6 +4,14 @@ name: Recover Stuck Signals
 # signals stuck in PENDING due to yfinance failure
 # in outcome_evaluator.py. Reads eod_prices.json
 # as source of truth. See scanner/recover_stuck_signals.py
+#
+# M-11 FIX (Apr 23 2026):
+# Env var renamed TELEGRAM_BOT_TOKEN → TELEGRAM_TOKEN
+# to match repo-wide convention. The Python script
+# reads os.environ.get('TELEGRAM_TOKEN'); prior YAML
+# mapped the secret to TELEGRAM_BOT_TOKEN so the
+# recovery run's Telegram summary would have failed
+# silently with empty env var.
 
 on:
   workflow_dispatch:
@@ -55,7 +63,7 @@ jobs:
       - name: Run recovery
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
-          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_TOKEN: ${{ secrets.TELEGRAM_TOKEN }}
           TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
 
         run: |
