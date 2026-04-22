@@ -1,5 +1,7 @@
 # ── calendar_utils.py ────────────────────────────────
-# Trading day + holiday helpers
+# Trading day + holiday + IST helpers.
+# CANONICAL source of truth. All scanner modules must
+# import from here instead of reimplementing locally.
 #
 # F1 FIX (Apr 20 2026):
 # Imports NSE_HOLIDAYS_2026 from meta_writer as the
@@ -9,12 +11,6 @@
 # on real NSE holidays (Ram Navami Apr 2, Mahavir
 # Jayanti Apr 6, etc.).
 #
-# Old behavior:
-#   calendar_utils.NSE_HOLIDAYS (10 entries, wrong dates)
-#   meta_writer.NSE_HOLIDAYS_2026 (15 entries, correct)
-# New behavior:
-#   Both files use meta_writer.NSE_HOLIDAYS_2026
-#
 # 2025 holidays retained as separate set for any
 # historical backtest date lookups.
 #
@@ -23,13 +19,14 @@
 #   Kills H-09 (date.today() UTC drift across 5+ files).
 # - Added ist_now() — UTC-safe IST datetime helper.
 #   Kills M-06 (duplicated IST helpers in 5 files).
+# - Added ist_now_str(fmt) — IST-formatted time string.
+#   Replaces _now_ist_str() in 5 files (stop_alert,
+#   ltp, eod_prices, telegram, open_validator).
 # - Expanded is_trading_day(d=None, holidays=None) —
 #   accepts optional external holiday list. Kills
-#   H-03 (duplicated _is_trading_day in 4 files —
-#   all can now import this one).
-# - All 3 helpers are the canonical source going
-#   forward. Any new file must import from here,
-#   not reimplement.
+#   H-03 (duplicated _is_trading_day in 4 files).
+# - All 4 helpers are canonical going forward.
+#   New code must import, never reimplement.
 # ─────────────────────────────────────────────────────
 
 from datetime import date, datetime, timedelta, timezone
@@ -68,8 +65,9 @@ _HOLIDAYS_2025 = {
 # Combined set for is_trading_day() lookups
 NSE_HOLIDAYS = _HOLIDAYS_2025 | _HOLIDAYS_2026
 
+
 # ── WAVE 1: IST OFFSET ───────────────────────────────
-# GitHub Actions runners are UTC. Any use of
+# GitHub Actions runners are UTC. Any bare use of
 # date.today() or datetime.now() returns UTC, which
 # at 11:30 PM IST is still "yesterday" in UTC.
 # Always use the helpers below, never bare date.today().
@@ -109,6 +107,25 @@ def ist_today():
     return ist_now().date()
 
 
+def ist_now_str(fmt='%I:%M %p IST'):
+    """
+    WAVE 1 FIX: Returns current time as IST-formatted
+    string. Default format '02:30 PM IST' matches the
+    existing _now_ist_str() convention used across 5
+    files (stop_alert_writer, ltp_writer, eod_prices_writer,
+    telegram_bot, open_validator).
+
+    M-06 killed: Files no longer need to each define
+    their own IST formatter — import this instead.
+
+    Usage:
+      ts = ist_now_str()                    # '02:30 PM IST'
+      ts = ist_now_str('%H:%M')             # '14:30'
+      ts = ist_now_str('%Y-%m-%d %H:%M')    # '2026-04-23 14:30'
+    """
+    return ist_now().strftime(fmt)
+
+
 def is_trading_day(d=None, holidays=None):
     """
     WAVE 1 FIX: Returns True if date d is a trading day
@@ -127,6 +144,17 @@ def is_trading_day(d=None, holidays=None):
     H-03 killed: 4 files with their own
     _is_trading_day() can now all import and call
     this. Backward-compatible: no-arg call still works.
+
+    Usage:
+      # Bare — uses today in IST + built-in holidays
+      if is_trading_day(): ...
+
+      # With specific date
+      if is_trading_day(some_date): ...
+
+      # With external holiday list from nse_holidays.json
+      holidays = json.load(open(...)).get('holidays', [])
+      if is_trading_day(today, holidays): ...
     """
     # Normalize d
     if d is None:
@@ -143,7 +171,7 @@ def is_trading_day(d=None, holidays=None):
     # Holiday check — external list wins if provided
     if holidays is not None:
         # Normalize incoming holidays to a set of strings
-        # (fast lookup) and a set of dates (flex).
+        # (fast lookup) handling both str and date inputs
         ext_strs = set()
         for h in holidays:
             if isinstance(h, str):
@@ -188,6 +216,27 @@ def days_until_exit(entry_date, n=6):
     return trading_day_after_n(entry_date, n)
 
 
+def is_expiry_week(d=None):
+    """
+    Returns True if date d falls within +/- 2 calendar
+    days of the month's last Thursday (NSE F&O expiry).
+    """
+    if d is None:
+        d = ist_today()
+    if isinstance(d, str):
+        d = date.fromisoformat(d)
+    year, month = d.year, d.month
+    last_thu    = None
+    check       = date(year, month, 1)
+    while check.month == month:
+        if check.weekday() == 3:
+            last_thu = check
+        check += timedelta(days=1)
+    if last_thu is None:
+        return False
+    return abs((d - last_thu).days) <= 2
+
+
 def get_market_status():
     """
     Returns dict describing current market state.
@@ -217,4 +266,12 @@ def get_market_status():
         'phase':        phase,
         'date':         today.isoformat(),
         'time_ist':     now.strftime('%H:%M'),
+        'today':        today.isoformat(),
+        'next_trading': next_trading_day(today).isoformat(),
+        'is_expiry_wk': is_expiry_week(today),
+        'reason': (
+            'NSE Holiday' if today in NSE_HOLIDAYS
+            else 'Weekend' if today.weekday() >= 5
+            else 'Trading Day'
+        ),
     }
