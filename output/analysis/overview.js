@@ -4,14 +4,18 @@
    The 30-second health check. Opens by default.
    
    1. scoreboard     — total resolved, W/L/Flat, WR, avg P&L, avg R
-   2. whats_open     — table of current open positions
+   2. whats_open     — TRADING-DAY aware, color-coded exit urgency
    3. todays_action  — signals logged today
    4. last_7_days    — bar chart: signals per day
    5. month_vs_month — this month vs last month side-by-side
    6. edge_trend     — rolling-20 WR and P&L trend
    
-   Each plugin reads window.AN.filterWhere() + window.AN.wrFragment
-   so global filter changes propagate automatically.
+   UPDATE 2026-04-24 (3 AM fix):
+     whats_open rewritten as custom render — trading-day math,
+     summary bar (exit today / exit tomorrow / active / new),
+     color-coded Day column. Replaces calendar-day julianday
+     that looked alarming at 3 AM ("Day 7!") when signals were
+     actually on-schedule.
 ──────────────────────────────────────────────────────────── */
 
 (function () {
@@ -22,6 +26,49 @@
   var TODAY = AN.today;
   var WR  = AN.wrFragment;
   var PNL = AN.avgPnlFragment;
+
+  // ── Trading-day SQL fragment ──────────────────────────
+  // Given a `date` column (detection date) and TODAY constant,
+  // returns the number of trading days elapsed (ignoring Sat/Sun).
+  // NOTE: does NOT account for NSE public holidays. For a 0–6 day
+  // window, holiday drift is tolerable and never misleading by more
+  // than 1 day. If holiday-accurate math is needed later, extend
+  // this with a lookup against data/nse_holidays.json.
+  //
+  // Math: calendar_days - weekend_days_in_range.
+  // Validated against all 7 entry weekdays × 10 target offsets.
+  var TRADING_DAYS_EXPR =
+    "(" +
+      "CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) " +
+      "- (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) / 7) * 2 " +
+      "- CASE " +
+        "WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) = 0 THEN 0 " +
+        "ELSE " +
+          "CASE CAST(strftime('%w', date) AS INTEGER) " +
+            "WHEN 0 THEN (CASE WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 6 THEN 1 ELSE 0 END) " +
+            "WHEN 1 THEN (CASE WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 6 THEN 2 " +
+                             "WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 5 THEN 1 ELSE 0 END) " +
+            "WHEN 2 THEN (CASE WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 5 THEN 2 " +
+                             "WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 4 THEN 1 ELSE 0 END) " +
+            "WHEN 3 THEN (CASE WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 4 THEN 2 " +
+                             "WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 3 THEN 1 ELSE 0 END) " +
+            "WHEN 4 THEN (CASE WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 3 THEN 2 " +
+                             "WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 2 THEN 1 ELSE 0 END) " +
+            "WHEN 5 THEN (CASE WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 2 THEN 2 " +
+                             "WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 1 THEN 1 ELSE 0 END) " +
+            "WHEN 6 THEN (CASE WHEN (CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) % 7) >= 1 THEN 1 ELSE 0 END) " +
+          "END " +
+      "END " +
+    ")";
+
+  // Day-to-status mapping
+  function statusForDay(d) {
+    if (d >= 7)  return { label: 'OVERDUE',    color: '#f85149', bg: 'rgba(248,81,73,0.15)',  border: '#f85149' };
+    if (d === 6) return { label: 'EXIT TODAY', color: '#f0883e', bg: 'rgba(240,136,62,0.15)', border: '#d97706' };
+    if (d === 5) return { label: 'EXIT TMRW',  color: '#d29922', bg: 'rgba(210,153,34,0.10)', border: '#bb8009' };
+    if (d >= 1)  return { label: 'ACTIVE',     color: '#3fb950', bg: 'transparent',           border: 'transparent' };
+    return            { label: 'NEW',          color: '#8b949e', bg: 'transparent',           border: 'transparent' };
+  }
 
   // ── 1. System scoreboard ────────────────────────────────
   REG.push({
@@ -46,26 +93,141 @@
   });
 
   // ── 2. What's open right now ────────────────────────────
+  //    TRADING-DAY aware. Summary bar + color-coded Day column.
   REG.push({
     id: 'whats_open',
     tab: 'overview',
     order: 2,
     title: '🎯 What\'s open right now',
-    subtitle: 'Active positions sorted by entry date (oldest first — closest to D6 exit)',
-    render: 'table',
-    emptyMessage: 'No open positions right now.',
+    subtitle: 'Day = trading day of holding (0 = new, 6 = exits at open today)',
+    render: 'custom',
+    minSampleSize: 0,
+    emptyMessage: 'No open positions.',
     sql: function (w) {
       return "SELECT " +
-        "symbol, signal, date AS entry_date, " +
-        "CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) AS day_n, " +
+        "symbol, signal, date AS detected, " +
+        TRADING_DAYS_EXPR + " AS day_n, " +
         "regime, sector, grade, " +
         "ROUND(entry, 2) AS entry, ROUND(stop, 2) AS stop, " +
         "ROUND(target, 2) AS target, score " +
-        "FROM signals " + w + " AND (outcome IS NULL OR outcome='OPEN') " +
-        "ORDER BY date ASC";
+        "FROM signals " + w +
+        " AND (outcome IS NULL OR outcome='OPEN') " +
+        "ORDER BY day_n DESC, date ASC, score DESC";
     },
-    // Small-n warning doesn't apply here — it's a list, not a stat.
-    minSampleSize: 0
+    customRender: function (result, body) {
+      if (!result.values.length) {
+        var empty = document.createElement('div');
+        empty.className = 'empty-state';
+        empty.textContent = 'No open positions.';
+        body.appendChild(empty);
+        return;
+      }
+
+      var cols = result.columns;
+      var dayIdx = cols.indexOf('day_n');
+
+      // ── Build summary counts ──
+      var counts = { overdue: 0, today: 0, tomorrow: 0, active: 0, newly: 0, total: result.values.length };
+      for (var i = 0; i < result.values.length; i++) {
+        var d = result.values[i][dayIdx];
+        if (d === null || d === undefined) continue;
+        if (d >= 7)      counts.overdue++;
+        else if (d === 6) counts.today++;
+        else if (d === 5) counts.tomorrow++;
+        else if (d >= 1)  counts.active++;
+        else              counts.newly++;
+      }
+
+      // ── Summary bar ──
+      var summary = document.createElement('div');
+      summary.style.cssText =
+        'display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));' +
+        'gap:8px;margin-bottom:14px;';
+
+      function card(label, count, color) {
+        return '<div style="padding:10px;background:#161b22;border:1px solid #21262d;' +
+               'border-radius:6px;border-left:3px solid ' + color + ';">' +
+               '<div style="font-size:20px;font-weight:600;color:' + color + ';' +
+               'font-variant-numeric:tabular-nums;">' + count + '</div>' +
+               '<div style="font-size:11px;color:#8b949e;margin-top:2px;' +
+               'text-transform:uppercase;letter-spacing:0.5px;">' + label + '</div>' +
+               '</div>';
+      }
+
+      var summaryHtml = '';
+      summaryHtml += card('Open total', counts.total, '#c9d1d9');
+      if (counts.overdue > 0) summaryHtml += card('⚠ Overdue', counts.overdue, '#f85149');
+      summaryHtml += card('Exit today', counts.today, '#f0883e');
+      summaryHtml += card('Exit tomorrow', counts.tomorrow, '#d29922');
+      summaryHtml += card('Active', counts.active, '#3fb950');
+      if (counts.newly > 0) summaryHtml += card('Just detected', counts.newly, '#58a6ff');
+
+      summary.innerHTML = summaryHtml;
+      body.appendChild(summary);
+
+      // ── Table with colored day_n column ──
+      var wrap = document.createElement('div');
+      wrap.className = 'table-wrap';
+      var tbl = document.createElement('table');
+
+      // Header
+      var thead = document.createElement('thead');
+      var htr = document.createElement('tr');
+      var headerLabels = {
+        symbol: 'Symbol', signal: 'Signal', detected: 'Detected',
+        day_n: 'Day', regime: 'Regime', sector: 'Sector', grade: 'Grade',
+        entry: 'Entry', stop: 'Stop', target: 'Target', score: 'Score'
+      };
+      for (var h = 0; h < cols.length; h++) {
+        var th = document.createElement('th');
+        th.textContent = headerLabels[cols[h]] || cols[h];
+        htr.appendChild(th);
+      }
+      thead.appendChild(htr);
+      tbl.appendChild(thead);
+
+      // Body rows
+      var tbody = document.createElement('tbody');
+      for (var r = 0; r < result.values.length; r++) {
+        var row = result.values[r];
+        var tr = document.createElement('tr');
+        for (var c = 0; c < row.length; c++) {
+          var v = row[c];
+          var col = cols[c];
+          var td = document.createElement('td');
+
+          if (col === 'day_n' && typeof v === 'number') {
+            // Color-coded Day cell
+            var st = statusForDay(v);
+            td.className = 'num';
+            td.style.cssText =
+              'background:' + st.bg + ';' +
+              'color:' + st.color + ';' +
+              'font-weight:600;' +
+              (st.border !== 'transparent' ? 'border-left:3px solid ' + st.border + ';' : '') +
+              'text-align:center;';
+            td.innerHTML =
+              String(v) +
+              '<span style="display:block;font-size:9px;font-weight:400;opacity:0.85;' +
+              'text-transform:uppercase;letter-spacing:0.3px;margin-top:1px;">' +
+              st.label + '</span>';
+          } else if (v === null || v === undefined) {
+            td.className = 'null';
+            td.textContent = '—';
+          } else if (typeof v === 'number') {
+            td.className = 'num';
+            td.textContent = AN.fmtNum(v);
+          } else {
+            td.textContent = String(v);
+          }
+          tr.appendChild(td);
+        }
+        tbody.appendChild(tr);
+      }
+      tbl.appendChild(tbody);
+      wrap.appendChild(tbl);
+      body.appendChild(wrap);
+    }
   });
 
   // ── 3. Today's action ───────────────────────────────────
@@ -77,17 +239,12 @@
     subtitle: 'Signals detected today + positions exiting today (D6)',
     render: 'custom',
     minSampleSize: 0,
-    // We need two tables — one for today's signals, one for today's exits.
-    // Use a custom renderer that fires two queries.
     sql: function (w) {
-      // Dummy — real work is in customRender. Still defined so the
-      // engine can run it and the footer shows something sensible.
       return "SELECT symbol, signal, score, regime, sector " +
              "FROM signals " + w + " AND date = '" + TODAY + "' " +
              "ORDER BY score DESC";
     },
     customRender: function (result, body) {
-      // Section 1: today's new signals (from the default SQL)
       var h1 = document.createElement('div');
       h1.style.cssText = 'font-size:12px;color:#8b949e;margin-bottom:6px;font-weight:600;';
       h1.textContent = '📝 New signals today (' + (result.values.length) + ')';
@@ -96,14 +253,13 @@
       if (result.values.length === 0) {
         var e1 = document.createElement('div');
         e1.className = 'empty-state';
-        e1.textContent = 'No new signals today.';
+        e1.textContent = 'No new signals today yet.';
         body.appendChild(e1);
       } else {
         var pseudoPlugin = { id: 'todays_new', render: 'table' };
         (window.AN_RENDER_TABLE || defaultRenderTable)(result, pseudoPlugin, body);
       }
 
-      // Section 2: exits due today (separate query)
       var h2 = document.createElement('div');
       h2.style.cssText = 'font-size:12px;color:#8b949e;margin:14px 0 6px;font-weight:600;';
       body.appendChild(h2);
@@ -111,14 +267,14 @@
       try {
         var exitsSql =
           AN.filterWhere(getCurrentFilter()) + " AND (outcome IS NULL OR outcome='OPEN') " +
-          "AND CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) >= 5";
+          "AND " + TRADING_DAYS_EXPR + " >= 6";
         var exitsResult = AN.query(
-          "SELECT symbol, signal, date AS entry_date, " +
-          "CAST(julianday('" + TODAY + "') - julianday(date) AS INTEGER) AS day_n, " +
+          "SELECT symbol, signal, date AS detected, " +
+          TRADING_DAYS_EXPR + " AS day_n, " +
           "ROUND(entry, 2) AS entry, ROUND(stop, 2) AS stop, ROUND(target, 2) AS target " +
           "FROM signals " + exitsSql + " ORDER BY date ASC");
 
-        h2.textContent = '🚪 Exits due today/soon (' + exitsResult.values.length + ')';
+        h2.textContent = '🚪 Exits due today at open (' + exitsResult.values.length + ')';
 
         if (exitsResult.values.length === 0) {
           var e2 = document.createElement('div');
@@ -195,7 +351,6 @@
     subtitle: 'Rolling-20-trade WR% and avg P&L% over time — edge decay check',
     render: 'line_chart',
     sql: function (w) {
-      // Use a CTE + window function for cleaner SQL.
       return "WITH resolved AS ( " +
         "  SELECT date, outcome, pnl_pct, " +
         "         ROW_NUMBER() OVER (ORDER BY outcome_date, id) AS rn " +
@@ -217,20 +372,16 @@
       yTitle: 'Rolling 20 WR %',
       beginAtZero: false
     },
-    // n here is trade count, not a bucket — ignore small-n banner
     minSampleSize: 0
   });
 
-  // ── Local helpers — needed because customRender runs outside
-  //    the standard engine flow but still needs access to the
-  //    table renderer. We re-expose it lazily via a noop fallback.
+  // ── Local helpers ──────────────────────────────────────
   function getCurrentFilter() {
     var active = document.querySelector('.filter-group button.active');
     return active ? active.getAttribute('data-filter') : 'live';
   }
 
   function defaultRenderTable(result, plugin, body) {
-    // Minimal fallback — should never be reached if engine loaded properly.
     var pre = document.createElement('pre');
     pre.style.fontSize = '11px';
     pre.textContent = JSON.stringify(result, null, 2);
