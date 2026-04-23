@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#07070f">
+  <title>TIE TIY Analysis</title>
+
+  <!--
+    AN-02 — TIE TIY Analysis Page
+    Plugin architecture. One shell, 5 bundle files, one engine.
+    Zero coupling between bundles — each pushes onto window.AN_PLUGINS.
+
+    Load order matters:
+      1. sql.js (SQLite WASM)   — CDN
+      2. Chart.js               — CDN (for bar/line/scatter/histogram)
+      3. bundle files (overview, signals, segmentation, post_mortem, advanced)
+         — each pushes plugins onto window.AN_PLUGINS before engine reads it
+      4. analysis.js (engine)   — last; consumes the registry and wires UI
+  -->
+
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    html, body {
+      background: #07070f;
+      color: #c9d1d9;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      font-size: 14px;
+      line-height: 1.45;
+      min-height: 100%;
+    }
+
+    .wrap {
+      max-width: 1280px;
+      margin: 0 auto;
+      padding: 16px 14px 80px;
+    }
+
+    header {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 14px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #30363d;
+    }
+
+    h1 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #f0f6fc;
+      letter-spacing: 0.2px;
+    }
+    h1 .sub {
+      color: #8b949e;
+      font-weight: 400;
+      font-size: 12px;
+      margin-left: 8px;
+    }
+
+    .home-link {
+      color: #58a6ff;
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .home-link:hover { text-decoration: underline; }
+
+    /* ── Global status + filter bar ──────────────────── */
+    .control-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      justify-content: space-between;
+      margin: 8px 0 16px;
+      padding: 10px 12px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+    }
+
+    #status {
+      font-size: 12px;
+      color: #8b949e;
+      flex: 1 1 auto;
+    }
+    #status.ok   { color: #3fb950; }
+    #status.err  { color: #f85149; }
+    #status.warn { color: #d29922; }
+
+    .filter-group {
+      display: inline-flex;
+      gap: 0;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .filter-group button {
+      background: #0d1117;
+      color: #c9d1d9;
+      border: 0;
+      padding: 6px 12px;
+      font-size: 12px;
+      cursor: pointer;
+      border-left: 1px solid #30363d;
+    }
+    .filter-group button:first-child { border-left: 0; }
+    .filter-group button.active {
+      background: #1f6feb;
+      color: #fff;
+    }
+    .filter-group button:hover:not(.active) { background: #161b22; }
+
+    /* ── Tab strip ────────────────────────────────────── */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 14px;
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-bottom: 1px solid #30363d;
+    }
+    .tabs button {
+      background: transparent;
+      color: #8b949e;
+      border: 0;
+      padding: 10px 14px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      white-space: nowrap;
+    }
+    .tabs button.active {
+      color: #f0f6fc;
+      border-bottom-color: #58a6ff;
+    }
+    .tabs button:hover:not(.active) { color: #c9d1d9; }
+
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Question card ────────────────────────────────── */
+    .card {
+      margin-bottom: 16px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .card.collapsed .card-body { display: none; }
+    .card.small-n .card-body { background: rgba(210, 153, 34, 0.04); }
+
+    .card-head {
+      padding: 10px 14px;
+      border-bottom: 1px solid #21262d;
+      cursor: pointer;
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
+    }
+    .card.collapsed .card-head { border-bottom: 0; }
+    .card-head:hover { background: #161b22; }
+    .card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #f0f6fc;
+    }
+    .card-subtitle {
+      font-size: 12px;
+      color: #8b949e;
+      margin-top: 2px;
+      font-weight: 400;
+    }
+    .card-meta {
+      font-size: 11px;
+      color: #6e7681;
+      white-space: nowrap;
+    }
+
+    .card-body {
+      padding: 14px;
+    }
+
+    .small-n-banner {
+      background: rgba(210, 153, 34, 0.1);
+      border: 1px solid #bb8009;
+      color: #d29922;
+      padding: 6px 10px;
+      border-radius: 5px;
+      font-size: 12px;
+      margin-bottom: 10px;
+    }
+
+    .empty-state {
+      padding: 18px;
+      text-align: center;
+      color: #6e7681;
+      font-size: 13px;
+      font-style: italic;
+    }
+
+    /* ── Number cards ──────────────────────────────────── */
+    .num-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+      gap: 10px;
+    }
+    .num-card {
+      padding: 12px;
+      background: #161b22;
+      border-radius: 6px;
+      border: 1px solid #21262d;
+    }
+    .num-card .num {
+      font-size: 22px;
+      font-weight: 600;
+      color: #f0f6fc;
+      font-variant-numeric: tabular-nums;
+    }
+    .num-card .num.good { color: #3fb950; }
+    .num-card .num.bad  { color: #f85149; }
+    .num-card .num.neutral { color: #c9d1d9; }
+    .num-card .label {
+      font-size: 11px;
+      color: #8b949e;
+      margin-top: 3px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* ── Tables ────────────────────────────────────────── */
+    .table-wrap {
+      overflow-x: auto;
+      border: 1px solid #21262d;
+      border-radius: 6px;
+    }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12.5px;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace;
+    }
+    thead th {
+      background: #161b22;
+      color: #f0f6fc;
+      font-weight: 600;
+      text-align: left;
+      padding: 7px 10px;
+      border-bottom: 1px solid #30363d;
+      white-space: nowrap;
+      cursor: pointer;
+      user-select: none;
+    }
+    thead th:hover { background: #1f252e; }
+    thead th.sort-asc::after  { content: " ▲"; color: #58a6ff; }
+    thead th.sort-desc::after { content: " ▼"; color: #58a6ff; }
+    tbody td {
+      padding: 6px 10px;
+      border-bottom: 1px solid #21262d;
+      white-space: nowrap;
+      max-width: 320px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    tbody tr:hover td { background: #161b22; }
+    tbody td.num  { text-align: right; font-variant-numeric: tabular-nums; }
+    tbody td.null { color: #484f58; font-style: italic; }
+    tbody td.good { color: #3fb950; }
+    tbody td.bad  { color: #f85149; }
+
+    /* ── Heatmap table ─────────────────────────────────── */
+    table.heatmap td {
+      text-align: center;
+      font-weight: 500;
+      padding: 8px 6px;
+      border: 1px solid #0d1117;
+    }
+    table.heatmap td.cell-n1 { font-size: 11px; }
+    table.heatmap td.cell-n2 { font-size: 10px; color: rgba(255,255,255,0.65); }
+
+    /* ── Charts ────────────────────────────────────────── */
+    .chart-wrap {
+      position: relative;
+      height: 260px;
+      max-width: 100%;
+    }
+
+    /* ── Card footer: CSV, SQL details ─────────────────── */
+    .card-footer {
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px solid #21262d;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+    .card-footer button {
+      background: #161b22;
+      border: 1px solid #30363d;
+      color: #c9d1d9;
+      padding: 4px 10px;
+      border-radius: 5px;
+      font-size: 11px;
+      cursor: pointer;
+    }
+    .card-footer button:hover { border-color: #58a6ff; color: #58a6ff; }
+    .card-footer details { font-size: 11px; }
+    .card-footer summary {
+      color: #8b949e;
+      cursor: pointer;
+      user-select: none;
+    }
+    .card-footer summary:hover { color: #58a6ff; }
+    .card-footer pre {
+      margin-top: 6px;
+      padding: 8px 10px;
+      background: #0d1117;
+      border: 1px solid #21262d;
+      border-radius: 4px;
+      font-size: 11px;
+      overflow-x: auto;
+      white-space: pre-wrap;
+      word-break: break-word;
+      color: #8b949e;
+    }
+
+    /* ── Advanced (raw SQL) ────────────────────────────── */
+    #advanced-tab textarea {
+      width: 100%;
+      min-height: 110px;
+      padding: 10px 12px;
+      background: #0d1117;
+      border: 1px solid #30363d;
+      border-radius: 6px;
+      color: #c9d1d9;
+      font-family: ui-monospace, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+      resize: vertical;
+    }
+    #advanced-tab textarea:focus { outline: none; border-color: #58a6ff; }
+    #advanced-tab .adv-actions {
+      display: flex; gap: 10px; align-items: center; margin-top: 10px; flex-wrap: wrap;
+    }
+    #advanced-tab button.primary {
+      background: #238636; color: #fff; border: 1px solid #2ea043;
+      padding: 7px 16px; border-radius: 6px; font-size: 14px;
+      font-weight: 500; cursor: pointer;
+    }
+    #advanced-tab button.primary:hover { background: #2ea043; }
+    #advanced-tab button.ghost {
+      background: transparent; color: #c9d1d9; border: 1px solid #30363d;
+      padding: 7px 12px; border-radius: 6px; font-size: 13px; cursor: pointer;
+    }
+    #advanced-tab button.ghost:hover { border-color: #58a6ff; color: #58a6ff; }
+    #advanced-tab .hint { color: #6e7681; font-size: 11px; }
+
+    #advanced-error {
+      display: none; margin-top: 10px; padding: 8px 12px;
+      background: rgba(248, 81, 73, 0.08);
+      border: 1px solid #f85149;
+      border-radius: 6px;
+      color: #ffa198;
+      font-family: ui-monospace, monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+    }
+
+    footer {
+      margin-top: 28px;
+      padding-top: 14px;
+      border-top: 1px solid #21262d;
+      color: #6e7681;
+      font-size: 11px;
+      line-height: 1.6;
+    }
+    footer code {
+      background: #161b22; padding: 1px 4px;
+      border-radius: 3px; font-size: 11px;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="wrap">
+
+    <header>
+      <h1>
+        TIE TIY Analysis
+        <span class="sub">36 questions · global filter · CSV export</span>
+      </h1>
+      <a class="home-link" href="index.html">← Scanner home</a>
+    </header>
+
+    <div class="control-bar">
+      <div id="status">Initializing…</div>
+      <div class="filter-group" role="group" aria-label="Date filter">
+        <button data-filter="live" class="active" title="Signals from 2026-04-06 onward, generation=1 only">Live only</button>
+        <button data-filter="30d"  title="Signals from the last 30 days">Last 30d</button>
+        <button data-filter="all"  title="Everything, including backfill (skews WR up)">All-time</button>
+      </div>
+    </div>
+
+    <nav class="tabs" id="tab-strip">
+      <button data-tab="overview"     class="active">📊 Overview</button>
+      <button data-tab="signals">🎯 Signals</button>
+      <button data-tab="segmentation">🗺️ Segmentation</button>
+      <button data-tab="post_mortem">🔍 Post-mortem</button>
+      <button data-tab="advanced">🛠️ Advanced</button>
+    </nav>
+
+    <div id="overview-tab"     class="tab-panel active"></div>
+    <div id="signals-tab"      class="tab-panel"></div>
+    <div id="segmentation-tab" class="tab-panel"></div>
+    <div id="post_mortem-tab"  class="tab-panel"></div>
+    <div id="advanced-tab"     class="tab-panel">
+      <!-- populated by advanced.js bundle -->
+    </div>
+
+    <footer>
+      Table: <code>signals</code> · source: <code>signal_history.json</code>.
+      <b>Live only</b> = <code>action='TOOK' AND generation≥1 AND result!='REJECTED'</code> — real post-2026-04-06 trades.
+      <b>Last 30d</b> adds a rolling date filter.
+      <b>All-time</b> includes backfill (generation=0) — skews WR up.
+      <b>WR</b> = wins / (wins + losses); flats and open positions excluded from WR denominator.
+      Low-sample questions (n&lt;10) flagged with a yellow banner.
+    </footer>
+
+  </div>
+
+  <!-- ── CDN: sql.js (SQLite WASM) ────────────────────── -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sql.js/1.10.3/sql-wasm.js"></script>
+
+  <!-- ── CDN: Chart.js 4 (bars, lines, scatter) ───────── -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+
+  <!-- ── Plugin registry bootstrap — must run before bundles ──
+       Bundles push onto window.AN_PLUGINS[tab] arrays. -->
+  <script>
+    window.AN_PLUGINS = {
+      overview:     [],
+      signals:      [],
+      segmentation: [],
+      post_mortem:  [],
+      advanced:     []
+    };
+  </script>
+
+  <!-- ── Plugin bundles — one file per tab ────────────── -->
+  <script src="analysis/overview.js"></script>
+  <script src="analysis/signals.js"></script>
+  <script src="analysis/segmentation.js"></script>
+  <script src="analysis/post_mortem.js"></script>
+  <script src="analysis/advanced.js"></script>
+
+  <!-- ── Engine — runs last, reads registry, boots ───── -->
+  <script src="analysis.js"></script>
+
+</body>
+</html>
