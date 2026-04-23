@@ -11,12 +11,16 @@
     Plugin architecture. One shell, 5 bundle files, one engine.
     Zero coupling between bundles — each pushes onto window.AN_PLUGINS.
 
-    Load order matters:
-      1. sql.js (SQLite WASM)   — CDN
-      2. Chart.js               — CDN (for bar/line/scatter/histogram)
-      3. bundle files (overview, signals, segmentation, post_mortem, advanced)
-         — each pushes plugins onto window.AN_PLUGINS before engine reads it
-      4. analysis.js (engine)   — last; consumes the registry and wires UI
+    LOAD ORDER (fixed 2026-04-24):
+      1. sql.js (SQLite WASM)   — CDN, synchronous
+      2. Chart.js               — CDN, synchronous
+      3. Bootstrap block        — seeds window.AN_PLUGINS buckets
+      4. analysis.js (engine)   — sets window.AN.today / wrFragment / etc.
+                                  schedules async boot (initSqlJs + fetch)
+      5. bundle files           — parse-time they read window.AN.*, so
+                                  engine MUST load first. boot() fires
+                                  AFTER all bundles registered their plugins
+                                  because boot is wrapped in a Promise chain.
   -->
 
   <style>
@@ -452,15 +456,21 @@
     };
   </script>
 
-  <!-- ── Plugin bundles — one file per tab ────────────── -->
+  <!-- ── Engine FIRST — exports window.AN.today, wrFragment, etc.
+       Bundle files read window.AN at parse time, so the engine
+       MUST load before them. The engine's boot() is inside an
+       initSqlJs().then() promise chain, which fires AFTER all
+       bundle scripts have finished parsing and registered their
+       plugins. So the renderAllTabs() call inside boot sees a
+       fully-populated registry. ─────────────────────────────── -->
+  <script src="analysis.js"></script>
+
+  <!-- ── Plugin bundles — load AFTER engine exports ─────── -->
   <script src="analysis/overview.js"></script>
   <script src="analysis/signals.js"></script>
   <script src="analysis/segmentation.js"></script>
   <script src="analysis/post_mortem.js"></script>
   <script src="analysis/advanced.js"></script>
-
-  <!-- ── Engine — runs last, reads registry, boots ───── -->
-  <script src="analysis.js"></script>
 
 </body>
 </html>
