@@ -19,6 +19,20 @@
 #   which do not exist. The JS files were never
 #   written by main.py or any numbered step; they
 #   are committed static assets.
+#
+# WAVE 1 FIX (Apr 25 2026):
+#   UX-08 — Added floating "📊 Analysis" pill button
+#   in top-right corner of PWA. Links to analysis.html
+#   in same tab. Positioned OUTSIDE #app-root so it is
+#   always visible (loading screen, error screen, normal
+#   state). z-index: 50 — above app content, below
+#   tap-overlay (100) and help-overlay (200) so any
+#   full-screen overlay correctly obscures it. Uses
+#   env(safe-area-inset-top) for iPhone notch safety.
+#   This is the iPad-phase shim. When Session 4 UI
+#   ships, the button will migrate into ui.js's
+#   rendered header and this shell element can be
+#   removed.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -48,6 +62,7 @@ def build_html(signals=None, market_info=None,
     - Loads app.js → signal cards, tap panel
     - Loads journal.js → journal tab, CSV download
     - Loads stats.js   → stats tab, filter analysis
+    - Renders floating 📊 Analysis link (UX-08, Apr 25)
 
     The JS files themselves are committed static
     assets in output/ — this function does not
@@ -147,12 +162,12 @@ def build_html(signals=None, market_info=None,
     }}
 
     #app-loader .spinner {{
-      width:        28px;
-      height:       28px;
-      border:       3px solid #21262d;
-      border-top:   3px solid #ffd700;
+      width:         28px;
+      height:        28px;
+      border:        3px solid #21262d;
+      border-top:    3px solid #ffd700;
       border-radius: 50%;
-      animation:    spin 0.8s linear infinite;
+      animation:     spin 0.8s linear infinite;
     }}
 
     @keyframes spin {{
@@ -169,15 +184,44 @@ def build_html(signals=None, market_info=None,
     }}
 
     #app-error .err-title {{
-      color:       #f85149;
-      font-size:   16px;
-      font-weight: 700;
+      color:         #f85149;
+      font-size:     16px;
+      font-weight:   700;
       margin-bottom: 8px;
     }}
 
     /* ── MAIN APP ───────────────────────────── */
     #app-root {{
       display: none;
+    }}
+
+    /* ── UX-08: ANALYSIS PILL BUTTON ────────── */
+    /* Floating top-right link to analysis.html  */
+    /* Always visible: loader, error, app states */
+    /* z-index 50: above content, below overlays */
+    #analysis-link {{
+      position:        fixed;
+      top:             calc(env(safe-area-inset-top, 0px) + 8px);
+      right:           12px;
+      z-index:         50;
+      background:      #0d1117;
+      border:          1px solid #30363d;
+      color:           #c9d1d9;
+      padding:         6px 12px;
+      border-radius:   999px;
+      font-size:       11px;
+      font-weight:     600;
+      text-decoration: none;
+      line-height:     1;
+      white-space:     nowrap;
+      -webkit-tap-highlight-color: rgba(255,215,0,0.2);
+      transition:      background 0.15s ease,
+                       border-color 0.15s ease;
+    }}
+
+    #analysis-link:active {{
+      background:   #161b22;
+      border-color: #ffd700;
     }}
 
     /* ── SCROLLBAR ──────────────────────────── */
@@ -201,6 +245,11 @@ def build_html(signals=None, market_info=None,
 
 </head>
 <body>
+
+  <!-- ── UX-08: ANALYSIS LINK (fixed, always on top) -->
+  <a id="analysis-link"
+     href="analysis.html"
+     aria-label="Open analysis dashboard">📊 Analysis</a>
 
   <!-- ── LOADING SCREEN ──────────────────────────── -->
   <!-- Shown while JS fetches all JSON files          -->
