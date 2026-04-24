@@ -1,0 +1,42 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.pytest_cache/
+.mypy_cache/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Distribution / build
+build/
+dist/
+*.egg-info/
+
+# Mac OS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# IDE / editors
+.vscode/
+.idea/
+.cursor/
+*.swp
+*.swo
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+
+# Logs
+*.log
+
+# Local test output
+/tmp_test/
