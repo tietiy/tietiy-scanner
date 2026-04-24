@@ -7,15 +7,41 @@
 # needs git log parsing), we check "did the expected
 # side effects happen" (robust, just reads files).
 #
-# CHECKS:
+# CHECKS (7 total, post M-05):
 # 1. morning_scan    → meta.json last_scan is today
 # 2. open_validate   → open_prices.json date is today
 # 3. eod_update      → eod_prices.json has today's date
 # 4. outcome_eval    → signal_history.json modified today
 # 5. pattern_miner   → patterns.json generated today
+# 6. rule_proposer   → proposed_rules.json generated today  [M-05]
+# 7. contra_tracker  → contra_shadow.json structurally valid [M-05]
+#
+# M-05 FIX (Apr 25 2026):
+#   Added _check_rule_proposer() and _check_contra_tracker().
+#   Previously, rule_proposer and contra_tracker could be
+#   silently broken for weeks and chain_validator would still
+#   report overall='healthy'. This mirrors the intelligence
+#   chain actually shipped in eod_master.yml (morning_scan →
+#   open_validate → ltp → stop → eod → outcome_eval →
+#   pattern_miner → rule_proposer, with contra_tracker firing
+#   during morning scan on kill_switch matches).
+#
+#   Note on contra_tracker semantics: contra_shadow.json is
+#   lazy-created on first kill match and only updated when
+#   new kills fire or shadows resolve. Staleness alone is NOT
+#   an alert — on days with no kill_pattern matches, the file
+#   legitimately doesn't move. Only missing file, unreadable
+#   file, or counter drift trigger warn/error.
+#
+#   Note on rule_proposer semantics: rule_proposer early-returns
+#   without writing if patterns.json has zero patterns. So a
+#   stale proposed_rules.json could be (a) genuine chain break,
+#   or (b) benign 0-pattern day. The warn note mentions both
+#   possibilities so operator knows where to look.
 #
 # OUTPUT: output/system_health.json
-# CONSUMED BY: sidebar health card in ui.js (future)
+# CONSUMED BY: sidebar health card in ui.js (future),
+#              PWA Telegram alerts on error-status checks.
 # ─────────────────────────────────────────────────────
 
 import os
@@ -227,6 +253,104 @@ def _check_pattern_miner(today):
                     f'(V:{val} P:{pre})'}
 
 
+# ── M-05 (Apr 25 2026): rule_proposer step check ─────
+def _check_rule_proposer(today):
+    """
+    Validates rule_proposer.py step.
+
+    Expected side effect: proposed_rules.json regenerated every
+    EOD after pattern_miner runs. If present but stale, either
+    chain broke between pattern_miner and rule_proposer, OR
+    pattern_miner produced 0 patterns and rule_proposer legitimately
+    skipped its write. The warn note mentions both so the operator
+    can check patterns.json to distinguish.
+    """
+    path = os.path.join(_OUTPUT, 'proposed_rules.json')
+    if not os.path.exists(path):
+        return {'status': 'warn',
+                'note': 'proposed_rules.json not generated yet'}
+
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+    except Exception as e:
+        return {'status': 'error',
+                'note': f'proposed_rules.json unreadable: {e}'}
+
+    generated_at = data.get('generated_at', '')
+    if not generated_at.startswith(today):
+        return {'status': 'warn',
+                'note': f'Last run: {generated_at[:10]} — '
+                        f'rule_proposer did not write today '
+                        f'(0-pattern day or chain break)'}
+
+    total   = data.get('total_proposals', 0)
+    pending = data.get('pending_count', 0)
+    active  = data.get('active_kill_rules_count', 0)
+
+    return {'status': 'ok',
+            'note': f'{total} proposals '
+                    f'(P:{pending} Active:{active})'}
+
+
+# ── M-05 (Apr 25 2026): contra_tracker step check ────
+def _check_contra_tracker(today):
+    """
+    Validates contra_tracker.py step.
+
+    contra_shadow.json is lazy-created on first kill_switch match.
+    On days with no kill-rule hits, generated_at stays stale — that
+    is benign, not broken. Only missing file, unreadable file, or
+    counter drift trigger warn/error. File existence is softened to
+    warn (not error) because a brand-new install with no kill
+    matches ever would legitimately have no file.
+
+    Schema integrity check: total_tracked must equal len(shadows).
+    If they diverge, contra_tracker is double-writing or the counter
+    update is skipping records — worth surfacing.
+    """
+    path = os.path.join(_OUTPUT, 'contra_shadow.json')
+    if not os.path.exists(path):
+        return {'status': 'warn',
+                'note': 'contra_shadow.json not yet created '
+                        '(no kill-switch matches ever '
+                        'OR write path broken)'}
+
+    try:
+        with open(path, 'r') as f:
+            data = json.load(f)
+    except Exception as e:
+        return {'status': 'error',
+                'note': f'contra_shadow.json unreadable: {e}'}
+
+    shadows  = data.get('shadows', [])
+    total    = data.get('total_tracked', 0)
+    resolved = data.get('resolved_count', 0)
+    pending  = data.get('pending_count', 0)
+
+    # Schema integrity — counters must match the list
+    if total != len(shadows):
+        return {'status': 'warn',
+                'note': f'Counter drift: total_tracked={total} '
+                        f'but shadows list has {len(shadows)}'}
+
+    generated_at = data.get('generated_at', '') or ''
+    last_str = generated_at[:10] or 'never'
+
+    # Staleness is BENIGN for this file — only the absence of
+    # kill-switch matches since last write. Surface the date
+    # without flagging as warn.
+    if not generated_at.startswith(today):
+        return {'status': 'ok',
+                'note': f'{total} shadows '
+                        f'(R:{resolved} P:{pending}) — '
+                        f'last: {last_str}'}
+
+    return {'status': 'ok',
+            'note': f'{total} shadows '
+                    f'(R:{resolved} P:{pending}) — fresh today'}
+
+
 def _determine_overall(checks):
     statuses = [c['status'] for c in checks.values()]
     if 'error' in statuses:
@@ -265,6 +389,8 @@ def run_chain_validation():
             'eod_update':     _check_eod_prices(today),
             'outcome_eval':   _check_outcome_eval(today),
             'pattern_miner':  _check_pattern_miner(today),
+            'rule_proposer':  _check_rule_proposer(today),    # M-05
+            'contra_tracker': _check_contra_tracker(today),   # M-05
         }
 
         alerts = []
