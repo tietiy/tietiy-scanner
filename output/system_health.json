@@ -1,9 +1,30 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-19T05:15:59.741293+00:00",
-  "date": "2026-04-19",
-  "trading_day": false,
-  "overall": "skipped",
-  "checks": {},
+  "generated_at": "2026-04-24T10:06:35.799611+00:00",
+  "date": "2026-04-24",
+  "trading_day": true,
+  "overall": "warn",
+  "checks": {
+    "morning_scan": {
+      "status": "ok",
+      "note": "Scanned 188 stocks, 2 signals"
+    },
+    "open_validate": {
+      "status": "ok",
+      "note": "10 opens validated at 03:57 IST"
+    },
+    "eod_update": {
+      "status": "warn",
+      "note": "No symbol has 2026-04-24 data yet"
+    },
+    "outcome_eval": {
+      "status": "ok",
+      "note": "278 records, 126 pending, 152 resolved"
+    },
+    "pattern_miner": {
+      "status": "warn",
+      "note": "Last run: 2026-04-19"
+    }
+  },
   "alerts": []
 }
