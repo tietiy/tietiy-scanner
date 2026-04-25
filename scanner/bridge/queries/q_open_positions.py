@@ -65,7 +65,8 @@ def run(history_data: dict,
     for record in history:
         if not isinstance(record, dict):
             continue
-        signal_date_str = record.get("signal_date")
+        # signal_history records use canonical 'date', not 'signal_date'.
+        signal_date_str = record.get("date")
         result = record.get("result")
         if signal_date_str is None or result != _PENDING:
             continue
