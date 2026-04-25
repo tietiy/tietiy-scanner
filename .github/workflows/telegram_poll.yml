@@ -18,6 +18,15 @@ name: "🤖 Telegram Poll | /today /exits /pnl /stops /signals /health | Every 1
 on:
   workflow_dispatch:
 
+# TG-01 (2026-04-26): Concurrency lock prevents overlapping runs.
+# If a poll is still processing when the next cron fires, the new
+# run waits its turn. cancel-in-progress: false because the in-flight
+# run may be committing tg_offset.json — killing it mid-commit would
+# leave inconsistent state.
+concurrency:
+  group: telegram-poll
+  cancel-in-progress: false
+
 permissions:
   contents: write
 
