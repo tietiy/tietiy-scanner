@@ -29,6 +29,7 @@ import os
 import re
 import json
 import time
+import traceback
 import requests
 from datetime import date, datetime, timezone, timedelta
 
@@ -404,33 +405,52 @@ def poll_and_respond(meta: dict,
         print(f'[telegram] Command: {cmd} '
               f'from chat {chat_id}')
 
-        if cmd == '/status':
-            _respond_status(chat_id, meta)
-        elif cmd == '/signals':
-            _respond_signals(chat_id, history)
-        elif cmd == '/stats':
-            _respond_stats(chat_id, history)
-        elif cmd == '/health':
-            _respond_health(chat_id, meta)
-        elif cmd == '/today':
-            _respond_today(
-                chat_id, meta, history, ltp_prices)
-        elif cmd == '/exits':
-            _respond_exits(chat_id, history, ltp_prices)
-        elif cmd == '/stops':
-            _respond_stops(chat_id, history, ltp_prices)
-        elif cmd == '/pnl':
-            _respond_pnl(chat_id, history, ltp_prices)
-        elif cmd == '/approve_rule':
-            _respond_approve_rule(chat_id, full_text)
-        elif cmd == '/proposals':
-            _respond_proposals(chat_id)
-        elif cmd == '/patterns':
-            _respond_patterns(chat_id)
-        elif cmd == '/help':
-            _respond_help(chat_id)
-        else:
-            continue
+        # TG-01 (2026-04-26): Per-command try/except.
+        # A handler crash must not abort the loop, otherwise the
+        # workflow's "Commit offset file" step is skipped and the
+        # advanced offset (already written to disk by _get_updates)
+        # never reaches git — next run reprocesses the same bad
+        # message forever.
+        try:
+            if cmd == '/status':
+                _respond_status(chat_id, meta)
+            elif cmd == '/signals':
+                _respond_signals(chat_id, history)
+            elif cmd == '/stats':
+                _respond_stats(chat_id, history)
+            elif cmd == '/health':
+                _respond_health(chat_id, meta)
+            elif cmd == '/today':
+                _respond_today(
+                    chat_id, meta, history, ltp_prices)
+            elif cmd == '/exits':
+                _respond_exits(chat_id, history, ltp_prices)
+            elif cmd == '/stops':
+                _respond_stops(chat_id, history, ltp_prices)
+            elif cmd == '/pnl':
+                _respond_pnl(chat_id, history, ltp_prices)
+            elif cmd == '/approve_rule':
+                _respond_approve_rule(chat_id, full_text)
+            elif cmd == '/proposals':
+                _respond_proposals(chat_id)
+            elif cmd == '/patterns':
+                _respond_patterns(chat_id)
+            elif cmd == '/help':
+                _respond_help(chat_id)
+            else:
+                continue
+        except Exception as e:
+            print(f'[telegram] Handler crashed for '
+                  f'{cmd!r}: {e!r}')
+            print(traceback.format_exc())
+            try:
+                _reply_message(
+                    chat_id,
+                    f'⚠️ Command {cmd} failed: '
+                    f'{type(e).__name__}: {e}')
+            except Exception as notify_err:
+                print(f'[telegram] Failure notify '
+                      f'also failed: {notify_err!r}')
 
         processed += 1
 
