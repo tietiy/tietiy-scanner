@@ -206,10 +206,15 @@ def _split_pattern_result(result: Any) -> tuple:
 def _filter_relevant_proposals(signal: dict,
                                proposals_data: dict) -> list:
     """
-    Filter proposed_rules to those that would target this signal's
-    cohort. Wave 2: minimal — surface any proposal whose cohort hint
-    matches signal_type (rough). Real filtering lives in a future
-    query plugin.
+    Filter proposed_rules.json proposals to those targeting this
+    signal's cohort. Wave 2: minimal — match on target_signal or
+    target_sector top-level fields (real proposal schema per
+    rule_proposer._build_proposal). Real filtering lives in a
+    future query plugin.
+
+    Note: bridge-side signal uses 'signal_type' / 'sector'; proposal
+    records use 'target_signal' / 'target_sector' at top level (no
+    nested cohort dict).
     """
     if not isinstance(proposals_data, dict):
         return []
@@ -220,9 +225,8 @@ def _filter_relevant_proposals(signal: dict,
     for p in proposals:
         if not isinstance(p, dict):
             continue
-        cohort = p.get("cohort", {}) or {}
-        if (cohort.get("signal_type") == sig_type
-                or cohort.get("sector") == sector):
+        if (p.get("target_signal") == sig_type
+                or p.get("target_sector") == sector):
             out.append(p)
     return out
 
