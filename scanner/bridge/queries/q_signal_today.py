@@ -3,7 +3,7 @@ q_signal_today — query plugin returning today's PENDING signals.
 
 The bridge composer calls this at start of compose to find which signals
 need SDRs built today. PENDING means: signal generated, not yet resolved
-(no STOP_HIT, TARGET_HIT, DAY6_EXIT, or REJECTED status).
+(result is not one of WON, STOPPED, EXITED, REJECTED, INVALIDATED).
 
 Caller passes pre-loaded history_data; this module never reads files.
 
@@ -44,11 +44,12 @@ def run(history_data: dict,
     for record in history:
         if not isinstance(record, dict):
             continue
-        signal_date = record.get("signal_date")
+        # signal_history records use canonical 'date', not 'signal_date'.
+        record_date = record.get("date")
         result = record.get("result")
-        if signal_date is None or result is None:
+        if record_date is None or result is None:
             continue
-        if signal_date == target_date and result == _PENDING:
+        if record_date == target_date and result == _PENDING:
             out.append(record)
     return out
 
