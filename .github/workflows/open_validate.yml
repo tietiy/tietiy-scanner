@@ -2,15 +2,15 @@
 # Purpose: Fetch actual 9:15 AM open prices for entering signals
 #          Calculate gap%, set entry_valid flag
 #          Internally trigger Day 6 outcome resolution (D6B)
-# Trigger: cron-job.org @ 9:27 AM IST Mon-Fri (workflow_dispatch)
-#          Optional retries via cron-job.org at 9:57, 10:27 if needed
-# Sequence: 12 min after market open (9:15), captures actual entry data
+# Trigger: cron-job.org @ 9:32 AM IST Mon-Fri (workflow_dispatch)
+#          Optional retries via cron-job.org at 10:02, 10:32 if needed
+# Sequence: 17 min after market open (9:15), captures actual entry data
 # Touches: output/open_prices.json, signal_history.json,
 #          signal_history.backup.json, backups/
 # Failure mode: Telegram alert via send_workflow_failure
 #
 # Architecture v2 (Apr 22 2026):
-# - cron-job.org triggered (precision-critical, 9:27 sharp)
+# - cron-job.org triggered (precision-critical, 9:32 sharp)
 # - workflow_dispatch only (no GitHub schedule)
 # - concurrency group prevents overlapping runs
 #
@@ -19,7 +19,7 @@
 # - Same-day Day 6 resolution
 # - Commit may contain both entry validations AND Day 6 outcomes
 
-name: "📋 Open Validate | 9:15 open + gap% + D6 resolve + Telegram | 9:27 AM IST cron-job.org"
+name: "📋 Open Validate | 9:15 open + gap% + D6 resolve + Telegram | 9:32 AM IST cron-job.org"
 
 on:
   workflow_dispatch:
