@@ -2,7 +2,7 @@
 
 **Purpose:** Single source of truth for all open work, ship plans, and design decisions.
 **Owner:** Abhishek (decisions) + Claude (execution)
-**Last updated:** 2026-04-26 night (Wave 2 bridge backend shipped — 16 files; TG-01 sidecar shipped; 3 schema bugs fixed)
+**Last updated:** 2026-04-26 late-night (Wave 3 Session A/B + Wave 4 Step 1 shipped: BR-04 EOD composer skeleton, EOD digest renderer, /reject_rule)
 **Canonical status:** This file + `doc/session_context.md` = complete handoff.
 
 ---
@@ -140,6 +140,10 @@ Audit doc: `/tmp/project_wide_schema_audit.md` (will be moved or summarised here
 
 1. **bucket_engine `_MODERATE_SECTOR_WR=0.65` hardcoded** — should move to `scanner/bridge/rules/thresholds.py` as `COHORT_MODERATE_SECTOR_WR`. Single-line change. Effort: trivial.
 2. **evidence_collector + bucket_engine both call boost_matcher and kill_matcher for the same signal** — duplicate work per signal. Move calls into `evidence_collector` (which already populates `evidence['boost_match']` / `evidence['kill_match']`), have `bucket_engine` read from the evidence dict instead of re-calling matchers. Saves work and guarantees a single source of truth for which boost/kill matched. Effort: small refactor.
+3. **Plain-dict EOD SDRs diverge from L1/L2 SDR schema.** EOD SDRs (composers/eod.py) omit `bucket`, `bucket_reason_*`, `gap_caveat`, `display`, `learner_hooks`. Verify PWA defensively `.get()`s these or skips signals[] on EOD phase BEFORE eod.yml workflow deploys to production. Track as Wave 3 Session D pre-req.
+4. **`_render_contra_section` escape pattern (now fixed).** Any literal between two `_esc()` calls is a reserved-char leak vector. Caught during code review of EOD digest renderer (`19d4146`); smoke test 8 verified the fix. Pattern to watch in future renderers — when in doubt, build pieces as plain strings and `_esc` whole body once.
+5. **`composers/eod.py` lacks explicit `is_trading_day` SKIPPED branch.** Currently handled at `bridge.py` pre-flight (line 119). Operationally fine since cron-job.org runs Mon-Fri only, but a SKIPPED branch in `eod.py` would make the composer self-contained. Cosmetic.
+6. **`pattern_updates[]` and proposal alerts assume flat `{message}` shape** in `bridge_telegram_eod.py`. If Session C ships richer structure (e.g. nested fields per pattern), update renderer to read those fields and re-render rather than just `_esc(message)`.
 
 ---
 
@@ -222,9 +226,15 @@ Triggered at 09:30 IST after open_validator. Validates overnight calls against a
 
 ### BR-04 — EOD composer (Layer 4)
 
-**Status:** PENDING · **Priority:** Wave 3 · **Effort:** M
+**Status:** PARTIAL — Sessions A+B shipped; Sessions C (LE-06 demotion warnings) + D (eod.yml workflow) pending · **Priority:** Wave 3 · **Effort:** M
 
 Triggered at 16:00 IST after eod_master chain. Outcome digest. Unifies UX-02/03/05 fragmented Telegram messages.
+
+**Session A (skeleton) shipped 2026-04-26 (`c94e523`):** `composers/eod.py` (467 lines). Selects `outcome_date == market_date AND outcome != 'OPEN'` from signal_history, builds plain-dict EOD SDRs (no `bucket` field, embeds `outcome` block), writes bridge_state phase=EOD. `bridge.py` wired for `--phase=EOD`. Smoke test 47/47 PASS, real history SHA256 unchanged.
+
+**Session B (digest renderer) shipped 2026-04-26 (`19d4146`):** `bridge_telegram_eod.py` (492 lines). Section-driven template per design §12.3 (header / resolutions / pattern_updates / proposals / open_positions / contra). All sections defensive — auto-skip when empty. ALWAYS fires on trading day; SKIPPED → short notice; ERROR → short-circuit. Smoke test 10/10 PASS.
+
+**Sessions C+D pending:** LE-06 boost demotion warnings (rolling-window WR per `boost_pattern` → `state.summary.pattern_updates`); `.github/workflows/eod.yml` + cron-job.org dashboard schedule.
 
 ### BR-05 — GitHub Actions workflow wiring
 
@@ -240,9 +250,12 @@ Three bridge trigger workflows (premarket / postopen / eod). Each `workflow_disp
 
 ### BR-07 — Unified Telegram templates
 
-**Status:** PENDING · **Priority:** Wave 2 (premarket) + Wave 3 (all three) · **Effort:** M
+**Status:** ✅ SHIPPED — all 3 renderers complete · **Priority:** Wave 2/3 · **Effort:** M (actual)
 
-Three Markdown-V2 templates replacing current 5 fragmented messages. Template-bounded rendering. `templates/` folder skeleton in place.
+Three MarkdownV2 renderers replacing fragmented messages, all reading bridge_state.json:
+- `bridge_telegram_premarket.py` — L1 brief, bucket grouping (commit `3f4ca97`)
+- `bridge_telegram_postopen.py` — L2 alert, conditional via `should_send_telegram` (commit `2e170c5`)
+- `bridge_telegram_eod.py` — L4 digest, section-driven (commit `19d4146`)
 
 ---
 
@@ -319,6 +332,14 @@ PWA tap Approve → opens Telegram with pre-filled command. User confirms send. 
 ### LE-06 — Demotion framework (paired with prop_007)
 
 **Status:** APPROVE READY · **Priority:** Wave 4
+
+### LE-07 — Telegram /reject_rule command
+
+**Status:** ✅ SHIPPED 2026-04-26 (commit `c43189a`) · **Priority:** Wave 4 Step 1 · **Effort:** S (actual)
+
+Counterpart to existing `/approve_rule`. Free-form reason: `/reject_rule <prop_id> [reason words...]` → `reason = " ".join(parts[2:]) or "No reason given"`. Wires `rule_proposer.reject_proposal()` (already implemented). Smoke test 12/12 PASS in sandbox; real `output/proposed_rules.json` untouched.
+
+**Deferred (intentional):** 2-strikes auto-flip to INSUFFICIENT per design §7.4 — track for future cleanup.
 
 ---
 
@@ -550,6 +571,7 @@ HL-01 + MC-01 + OPS-01..04 + prop_001 revival + H-04/D3 + H-06 + H-07.
 | 2026-04-25 | **Full rewrite.** Bridge design locked. Live-data deep dive complete. Added BR/IT/LE series (19 new items), ENV series, WIN-RULES. Superseded UX-02/03/05. Total items: 40. |
 | 2026-04-25 (night) | **Wave 1 shipped + ENV-01 complete.** CACHE-01 + UX-08 + WIN-RULES + M-05 all VERIFIED. MacBook Air M5 fully set up. Production PWA verified live. |
 | 2026-04-26 | **Wave 2 backend foundation shipped.** 16 bridge files (folder skeleton + thresholds + sdr + display_hints + state_writer + upstream_health + error_handler + bucket_engine + evidence_collector + 3 rules matchers + queries registry + 3 query plugins). TG-01 sidecar code shipped (cron-job.org dashboard PENDING for Apr 26 evening). 3 silent-failure schema bugs fixed in q_signal_today, q_open_positions, evidence_collector — discovered when comparing synthetic fixtures vs real production JSON. **New principle locked: Schema discipline (#12)** — every JSON-reading function gets a real-data sanity check; bridge owns its own schema but uses canonical names when reaching INTO production records. Full project-wide audit ran (19,306 lines, 0 new bugs found). 2 follow-ups tracked: bucket_engine `_MODERATE_SECTOR_WR` to thresholds; dedupe boost/kill matcher calls between evidence_collector and bucket_engine. |
+| 2026-04-26 (night-2) | **Wave 3 Session A/B + Wave 4 Step 1 shipped.** `/reject_rule` Telegram command (`c43189a`). BR-04 EOD composer skeleton (`c94e523`) — 467 lines, reads signal_history resolutions, plain-dict EOD SDRs, `bridge.py` wired for `--phase=EOD`. EOD digest renderer `bridge_telegram_eod.py` (`19d4146`) — 492 lines, section-driven template per §12.3. Renderer escape-pattern bug caught + fixed in code review: `_render_contra_section` had unescaped `=` between `_esc` calls; refactored to plain-string pieces + `_esc` whole body. BR-07 now fully shipped (all 3 renderers). Sessions C (LE-06 boost demotion warnings) + D (eod.yml workflow + cron-job.org schedule) pending. |
 
 ---
 
