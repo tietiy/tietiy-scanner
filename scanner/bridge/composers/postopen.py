@@ -206,23 +206,29 @@ def _compose_unsafe(start_time: float,
     reclassified_count = bucket_changes
 
     # Step 11: Assemble state
+    # L2-specific top-level fields (should_send_telegram, bucket_changes,
+    # gap_breaches) let the Telegram renderer respect the composer's
+    # decision without re-deriving — single source of truth.
     state = {
-        "schema_version":  BRIDGE_STATE_SCHEMA_VERSION,
-        "phase":           _PHASE,
-        "phase_status":    phase_status,
-        "phase_timestamp": _now_iso(),
-        "market_date":     market_date,
-        "banner":          _build_l2_banner(
+        "schema_version":       BRIDGE_STATE_SCHEMA_VERSION,
+        "phase":                _PHASE,
+        "phase_status":         phase_status,
+        "phase_timestamp":      _now_iso(),
+        "market_date":          market_date,
+        "banner":               _build_l2_banner(
             phase_status, validated_count, reclassified_count),
-        "summary":         _build_summary(sdrs, open_positions),
-        "signals":         [sdr.to_dict() for sdr in sdrs],
-        "open_positions":  open_positions,
-        "contra":          contra_block,
-        "alerts":          alerts,
-        "self_queries":    [],   # Wave 5
-        "upstream_health": upstream,
-        "audit":           _build_audit(
+        "summary":              _build_summary(sdrs, open_positions),
+        "signals":              [sdr.to_dict() for sdr in sdrs],
+        "open_positions":       open_positions,
+        "contra":               contra_block,
+        "alerts":               alerts,
+        "self_queries":         [],   # Wave 5
+        "upstream_health":      upstream,
+        "audit":                _build_audit(
             start_time, today_signals, sdrs, truth_files),
+        "should_send_telegram": should_send_telegram,
+        "bucket_changes":       bucket_changes,
+        "gap_breaches":         gap_breaches,
     }
 
     # Step 12: Single write
