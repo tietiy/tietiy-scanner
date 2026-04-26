@@ -126,7 +126,7 @@ def collect_evidence(signal: dict, truth_files: dict) -> dict:
                          q_stock_recency.run, signal, history)
     anti_pattern_check = _run("q_anti_pattern",
                               q_anti_pattern.run,
-                              signal, history, patterns_data)
+                              signal, patterns_data)
     cluster_warnings = _run("q_cluster_check",
                             q_cluster_check.run, signal, history)
     if cluster_warnings is None:
