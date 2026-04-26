@@ -2,7 +2,7 @@
 
 **Purpose:** Drop-in context for any new Claude session. Read this instead of recalling memory piecemeal.
 **Read order:** This file → `wave_execution_log_2026-04-23.md` → `fix_table.md` → `engineering_dock.md` → `roadmap.md`
-**Last updated:** 2026-04-23
+**Last updated:** 2026-04-26 late-night (Wave 3 Sessions A+B + Wave 4 Step 1 shipped; head: 03bdeb0)
 
 -----
 
@@ -33,6 +33,52 @@ Built solo on iPad via Safari + GitHub web editor + Google Colab. Python + yfina
 |Master Check status  |52/53 green (1 pre-existing PWA_PIN_PLACEHOLDER fail, unrelated)     |
 
 **Schema version:** 5 (record-level), 4 (meta).
+
+-----
+
+## Bridge Build Status (as of 2026-04-26 late-night)
+
+**Head commit on `main`:** `03bdeb0`
+
+|Wave  |Layer / Item                                              |Status                              |
+|------|----------------------------------------------------------|------------------------------------|
+|Wave 2|Backend foundation (16 files)                             |✅ SHIPPED 2026-04-26               |
+|Wave 2|TG-01 sidecar (poll concurrency + try/except)             |✅ SHIPPED 2026-04-26               |
+|Wave 2|Schema bug fixes (3 silent-failure bugs caught vs real data)|✅ SHIPPED 2026-04-26             |
+|Wave 3|BR-02 PRE_MARKET composer (`composers/premarket.py`)      |✅ SHIPPED                          |
+|Wave 3|BR-03 POST_OPEN composer (`composers/postopen.py`)        |✅ SHIPPED                          |
+|Wave 3|BR-04 EOD composer — Session A skeleton                   |✅ SHIPPED `c94e523`                |
+|Wave 3|BR-04 EOD composer — Session B digest renderer            |✅ SHIPPED `19d4146`                |
+|Wave 3|BR-04 — Session C (LE-06 boost demotion warnings)         |⏸ PENDING — next session            |
+|Wave 3|BR-04 — Session D (eod.yml workflow + cron-job.org)       |⏸ PENDING — after Session C         |
+|Wave 3|BR-05 workflows (premarket.yml + postopen.yml)            |✅ SHIPPED; eod.yml pending (Session D)|
+|Wave 3|BR-07 unified Telegram templates (all 3 renderers)        |✅ SHIPPED 2026-04-26               |
+|Wave 4|Step 1: `/reject_rule` Telegram command (LE-07)           |✅ SHIPPED `c43189a`                |
+|Wave 4|Steps 2–5: prop_005 / LE-06 / prop_007 / LE-05            |⏸ PENDING                           |
+
+**Recent commits (most recent first, tonight + bot):**
+- `03bdeb0` doc: fix_table.md — Wave 3 Session A/B + Wave 4 Step 1 shipped status
+- `19d4146` bridge: bridge_telegram_eod.py — EOD digest renderer (Wave 3 Session B)
+- `c94e523` bridge: composers/eod.py + bridge.py wiring — Wave 3 L4 EOD composer skeleton
+- `c43189a` bridge: telegram_bot.py — /reject_rule command (Wave 4)
+- `7fda552` Bridge postopen 2026-04-26 20:39 IST (bot — Path B postopen.yml plumbing verification)
+
+**Resume point for next session (`apex` / `kabu` trigger):**
+
+Start with **Wave 3 Step 2 Session C audit** — BR-04 boost demotion warnings (LE-06):
+1. Read `data/mini_scanner_rules.json` boost_patterns shape (already audited; 7 patterns, schema v3)
+2. Decide rolling-window WR helper location: new `bridge/queries/q_rolling_wr.py` plugin vs inline private in `eod.py`
+3. Threshold per design notes: < 70% in 10-signal rolling window → demotion warning (warning-only — no auto-mutation per locked decision 4)
+4. Surface warnings in `state.summary.pattern_updates[]` (already wired to digest renderer — Session B path tested empty)
+5. Smoke test: synthetic boost pattern with 10-signal window crossing 70% threshold
+
+After Session C ships → Session D (`.github/workflows/eod.yml` + cron-job.org dashboard schedule update).
+
+**Open concerns logged 2026-04-26 late-night** (mirror of fix_table follow-ups #3–6):
+1. Plain-dict EOD SDRs diverge from L1/L2 SDR schema — verify PWA tolerance before Session D deploys `eod.yml`.
+2. `_render_contra_section` escape-pattern bug fixed; pattern to watch in future renderers — any literal between two `_esc()` calls is a reserved-char leak vector.
+3. `composers/eod.py` lacks explicit `is_trading_day` SKIPPED branch (handled at `bridge.py` pre-flight; cosmetic).
+4. `pattern_updates[]` and proposal alerts assume flat `{message}` shape — revisit if Session C ships richer structure.
 
 -----
 
@@ -249,5 +295,6 @@ Or use a trigger word — `apex`, `phase2`, `fixlog` — which memory entry 1 de
 |----------|------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 |2026-04-20|Initial creation post-master-audit. Locked with user.                                                                                                                                                                                                       |
 |2026-04-23|Wave 2/3/5.1 session — 16 IDs VERIFIED (C-01..C-05, H-03, H-05/D1, H-08, H-09, M-01, M-06, M-07, M-08, M-11, L-05, UX-01). Zero critical incidents remaining. See `wave_execution_log_2026-04-23.md` for canonical session record. Updated daily flow, file list, design principles with migration infrastructure notes.|
+|2026-04-26|**Wave 2 backend + TG-01 + Wave 3 Sessions A/B + Wave 4 Step 1.** Wave 2: 16 bridge backend files + TG-01 poll concurrency + 3 schema bugs caught/fixed via real-data sanity audit (new principle locked: schema discipline #12). Wave 3: BR-02/BR-03 composers shipped, BR-04 Session A (`composers/eod.py`, `c94e523`) + Session B (`bridge_telegram_eod.py`, `19d4146`) shipped, BR-07 fully complete (3 renderers), Sessions C+D pending. Wave 4 Step 1: `/reject_rule` Telegram command (`c43189a`, LE-07). Renderer escape-pattern bug caught in code review (`_render_contra_section`); fixed. Head: `03bdeb0`.|
 
 
