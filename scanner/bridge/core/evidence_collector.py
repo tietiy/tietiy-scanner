@@ -20,6 +20,7 @@ from scanner.bridge.queries import (
     q_anti_pattern,
     q_cluster_check,
     q_exact_cohort,
+    q_gap_evaluation,
     q_pattern_match,
     q_regime_baseline,
     q_score_bucket,
@@ -132,6 +133,12 @@ def collect_evidence(signal: dict, truth_files: dict) -> dict:
     if cluster_warnings is None:
         cluster_warnings = []
 
+    # --- L2 gap evaluation (returns None for L1 — no open_prices yet) ---
+    gap_evaluation = _run("q_gap_evaluation",
+                          q_gap_evaluation.run,
+                          signal,
+                          truth_files.get("open_prices") or {})
+
     # --- Non-query auxiliaries (filled directly from truth files) ---
     active_proposals_relevant = _filter_relevant_proposals(
         signal, proposals_data)
@@ -150,6 +157,7 @@ def collect_evidence(signal: dict, truth_files: dict) -> dict:
         "stock_recency":             stock_recency,
         "anti_pattern_check":        anti_pattern_check,
         "cluster_warnings":          cluster_warnings,
+        "gap_evaluation":            gap_evaluation,
         "active_proposals_relevant": active_proposals_relevant,
         "colab_insight_excerpt":     colab_insight_excerpt,
         "narrative_context":         None,
