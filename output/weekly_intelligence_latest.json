@@ -1,30 +1,30 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-19T20:35:28.087839Z",
+  "generated_at": "2026-04-26T16:26:20.339925Z",
   "week_range": [
-    "2026-04-12",
-    "2026-04-19"
+    "2026-04-19",
+    "2026-04-26"
   ],
   "patterns": {
-    "total": 148,
-    "validated_count": 8,
-    "preliminary_count": 14,
-    "emerging_count": 126,
-    "total_resolved_signals": 118,
+    "total": 159,
+    "validated_count": 13,
+    "preliminary_count": 15,
+    "emerging_count": 131,
+    "total_resolved_signals": 125,
     "baselines": {
       "DOWN_TRI": {
-        "wr": 20.0,
-        "avg_pnl": -7.29,
-        "n": 20,
+        "wr": 19.0,
+        "avg_pnl": -7.0,
+        "n": 21,
         "wins": 4,
-        "losses": 16
+        "losses": 17
       },
       "BULL_PROXY": {
-        "wr": 86.7,
-        "avg_pnl": 7.2,
-        "n": 15,
-        "wins": 13,
-        "losses": 2
+        "wr": 66.7,
+        "avg_pnl": 4.51,
+        "n": 21,
+        "wins": 14,
+        "losses": 7
       },
       "UP_TRI": {
         "wr": 95.2,
@@ -37,54 +37,114 @@
     "top_validated": [
       {
         "id": "age=0_grade=B",
-        "wr": 69.8,
-        "n": 63,
-        "edge": -25.4,
+        "wr": 64.3,
+        "n": 70,
+        "edge": -30.9,
         "direction": "negative",
-        "insight": "age=0 + Grade B underperforms UP_TRI baseline by 25.4pp (69.8% WR in 63 trades)"
+        "insight": "age=0 + Grade B underperforms UP_TRI baseline by 30.9pp (64.3% WR in 70 trades)"
       },
       {
-        "id": "regime=Bear_age=0_grade=B",
-        "wr": 69.8,
-        "n": 63,
-        "edge": -25.4,
-        "direction": "negative",
-        "insight": "Bear regime + age=0 + Grade B underperforms UP_TRI baseline by 25.4pp (69.8% WR in 63 trades)"
-      },
-      {
-        "id": "sector=Bank",
-        "wr": 45.0,
-        "n": 20,
-        "edge": 25.0,
+        "id": "regime=Bear_sector=Bank",
+        "wr": 47.6,
+        "n": 21,
+        "edge": 28.6,
         "direction": "positive",
-        "insight": "Bank sector outperforms DOWN_TRI baseline by 25.0pp (45.0% WR in 20 trades)"
+        "insight": "Bear regime + Bank sector outperforms DOWN_TRI baseline by 28.6pp (47.6% WR in 21 trades)"
+      },
+      {
+        "id": "age=0",
+        "wr": 66.7,
+        "n": 75,
+        "edge": -28.5,
+        "direction": "negative",
+        "insight": "age=0 underperforms UP_TRI baseline by 28.5pp (66.7% WR in 75 trades)"
       }
     ]
   },
   "proposals": {
-    "total": 0,
-    "pending_count": 0,
+    "total": 10,
+    "pending_count": 6,
     "approved_count": 0,
-    "already_active_count": 0,
+    "already_active_count": 4,
     "rejected_count": 0,
-    "pending_items": []
+    "pending_items": [
+      {
+        "id": "prop_001",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "Energy",
+        "wr": 60.0,
+        "n": 15,
+        "edge": -35.2
+      },
+      {
+        "id": "prop_002",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "Energy",
+        "wr": 60.0,
+        "n": 15,
+        "edge": -35.2
+      },
+      {
+        "id": "prop_003",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "Energy",
+        "wr": 60.0,
+        "n": 15,
+        "edge": -35.2
+      },
+      {
+        "id": "prop_004",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "Energy",
+        "wr": 60.0,
+        "n": 15,
+        "edge": -35.2
+      },
+      {
+        "id": "prop_005",
+        "action": "kill",
+        "target_signal": "BULL_PROXY",
+        "target_sector": null,
+        "wr": 45.5,
+        "n": 11,
+        "edge": -21.2
+      }
+    ]
   },
   "contra": {
-    "total": 0,
+    "total": 1,
     "resolved": 0,
-    "pending": 0,
+    "pending": 1,
     "wr": 0,
     "avg_pnl": 0,
     "unlocked": false,
     "unlock_threshold": 30,
     "recent_3": []
   },
-  "regime": null,
+  "regime": {
+    "days_logged": 5,
+    "regime_distribution": {
+      "Choppy": 5
+    },
+    "avg_slope": -7e-05,
+    "avg_ret20": 5.09,
+    "latest": {
+      "date": "2026-04-24",
+      "regime": "Choppy",
+      "slope": 0.003614,
+      "ret20": 7.38,
+      "above_ema50": true
+    }
+  },
   "health": {
-    "overall": "skipped",
-    "last_validated": "2026-04-19T05:15:59.741293+00:00",
-    "checks_passed": 0,
-    "checks_failed": 0
+    "overall": "warn",
+    "last_validated": "2026-04-24T10:06:35.799611+00:00",
+    "checks_passed": 3,
+    "checks_failed": 2
   },
   "kill_rules": {
     "count": 1,
@@ -98,6 +158,9 @@
     ]
   },
   "suggestions": [
-    "\ud83d\udd2c 8 validated patterns found. Review top items above."
+    "\ud83d\udcdd 6 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
+    "\ud83d\udc41 Contra shadow at 0/30 resolved. 30 more before activation decision.",
+    "\ud83d\udd2c 13 validated patterns found. Review top items above.",
+    "\ud83c\udf21 Market classified Choppy every day this week. If signal WR diverges from this, classifier may need recalibration."
   ]
 }
