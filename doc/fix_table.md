@@ -2,7 +2,7 @@
 
 **Purpose:** Single source of truth for all open work, ship plans, and design decisions.
 **Owner:** Abhishek (decisions) + Claude (execution)
-**Last updated:** 2026-04-25 night (Wave 1 shipped + M-05 shipped + ENV-01 complete)
+**Last updated:** 2026-04-26 night (Wave 2 bridge backend shipped — 16 files; TG-01 sidecar shipped; 3 schema bugs fixed)
 **Canonical status:** This file + `doc/session_context.md` = complete handoff.
 
 ---
@@ -26,6 +26,7 @@ iPad remains as fallback device. Complete-rewrite workflow no longer required.
 
 - **PENDING** — not started
 - **IN PROGRESS** — currently being fixed
+- **PARTIAL** — partially shipped, more sub-tasks remain
 - **SHIPPED** — code committed, awaiting production verification
 - **VERIFIED** — confirmed working in production
 - **DEFERRED** — intentionally pushed to later phase
@@ -37,65 +38,126 @@ iPad remains as fallback device. Complete-rewrite workflow no longer required.
 
 ## Summary
 
-- **Total items: 40**
+- **Total items: 40+**
 - **🔴 Critical:** 0 pending (all C-series verified April 21)
 - **🟠 High:** 12 items
-- **🟡 Medium:** 9 items (M-05 verified 2026-04-25 night)
+- **🟡 Medium:** 9 items (M-05 verified 2026-04-25)
 - **🟢 Low:** 4 items
-- **🧠 BR-series (Bridge):** 7 items — primary build track (Wave 2 next)
+- **🧠 BR-series (Bridge):** 7 items — backend foundation **PARTIAL** (16 files shipped 2026-04-26)
 - **🎨 IT-series (Intelligence tab):** 6 items — PWA plugin architecture
 - **🔬 LE-series (Learner):** 6 items — self-queries + proposal approval
 - **⚙️ ENV-series (environment):** 0 pending (ENV-01 verified 2026-04-25 night)
-- **📋 PROP-series (live-data proposals):** 3 items — prop_001 deferred, prop_005 ready, prop_007 ready
-- **🚀 Wave 1:** ✅ ALL SHIPPED (CACHE-01 + UX-08 + WIN-RULES + M-05 additive + ENV-01)
+- **📋 PROP-series:** 3 items — prop_001 deferred, prop_005 ready, prop_007 ready
+- **🚀 Wave 1:** ✅ ALL SHIPPED
+- **🚀 Wave 2 backend:** ✅ 16 files shipped 2026-04-26 (composers / GH Actions / PWA still pending)
+- **📦 TG-01:** ✅ Code shipped 2026-04-26 (cron-job.org dashboard update PENDING for Apr 26 evening)
 
-**Phase state:** Phase 2 unlocked. 120 live resolved, 81% WR. Bridge design complete 2026-04-25. Live-data deep dive complete 2026-04-25. Wave 1 verified 2026-04-25 night. MacBook dev environment ready.
+**Phase state:** Wave 2 bridge backend foundation in place. 16 bridge files shipped, 3 schema bugs fixed end-to-end against real data, TG-01 sidecar code shipped.
 
 ---
 
 ## 🎯 IMMEDIATE NEXT ACTION
 
-**Wave 2 — Bridge skeleton. Starts on MacBook, next session.**
+**1. Cron-job.org dashboard update — Apr 26 evening (BEFORE Monday open).**
+The TG-01 docstring shift is committed (`0a77ea8`) but the actual schedule change has NOT taken effect. Three jobs need adjusting on cron-job.org:
+- Primary: 9:27 IST → **9:32 IST** (UTC: 3:57 → 4:02)
+- Retry 1: 9:57 IST → **10:02 IST** (UTC: 4:27 → 4:32)
+- Retry 2: 10:27 IST → **10:32 IST** (UTC: 4:57 → 5:02)
 
-Morning spin-up sequence:
-cd ~/code/tietiy-scanner
-source .venv/bin/activate
-git pull
-claude
-First-time Claude Code run inside the repo: `/init` to generate repo-scoped `CLAUDE.md`.
+Until done, the workflow continues firing on the OLD schedule despite docstrings reflecting the new one.
 
-Wave 2 scope: **BR-01 + BR-02 + BR-06 + BR-07 (premarket) + IT-01 + IT-02 (partial) + IT-03 + TG-01 sidecar.** End-state: Monday pre-market delivers unified brief with sorted TAKE_FULL / TAKE_SMALL / WATCH / SKIP signals.
+**2. Wave 2 continuation — Bridge composer, GitHub Actions wiring, PWA, end-to-end test.**
+Backend foundation is in place. Next sub-tasks:
+- Composer entry point (`composers/premarket.py`) — read truth, run queries, build SDRs, write bridge_state.json
+- 7 background query plugins (`q_exact_cohort`, `q_sector_recent_30d`, `q_regime_baseline`, `q_score_bucket`, `q_stock_recency`, `q_anti_pattern`, `q_cluster_check`)
+- BR-05 partial (premarket workflow YAML)
+- BR-06 (bridge_state.json schema enforcement at composer level)
+- BR-07 partial (premarket Telegram template)
+- IT-01/02/03 (PWA Intel tab)
+- End-to-end test against Monday morning data
 
 ---
 
-## ⚙️ TIER 0 — ENVIRONMENT
+## 🧱 WAVE 2 BRIDGE BUILD (2026-04-25 → 2026-04-26)
 
-### ENV-01 — MacBook stack install
+### Files shipped tonight (Apr 26)
 
-**Status:** ✅ VERIFIED 2026-04-25 · **Priority:** Prerequisite · **Effort:** ~3 hours actual
+**Folder skeleton + thresholds (2 commits):**
+- `fed4ab3` — bridge folder skeleton (8 subfolders + `__init__.py` files)
+- `fe82af2` — `rules/thresholds.py` (39 central numeric constants)
 
-Shipped stack:
-- Xcode Command Line Tools (clang 21.0.0)
-- Homebrew 5.1.7 (Apple Silicon `/opt/homebrew` path)
-- Python 3.12.13 + pip 26.0.1
-- Git 2.54.0 (brew, replaces Apple's 2.50.1)
-- Node.js 22.22.2 + npm 10.9.7
-- Claude Code 2.1.119 (Claude Max subscription)
-- Cursor IDE (GitHub auth)
-- Claude desktop app
-- Repo cloned to `~/code/tietiy-scanner`
-- Python venv + 40 pip dependencies (yfinance, pandas, numpy, requests, pywebpush, cryptography, python-dotenv + transitive)
-- `requirements.txt` + `.gitignore` committed + pushed
-- GitHub PAT saved in macOS Keychain (no future prompts)
-- `diagnostic.py --quick` → 6/6 PASS on Mac
+**Core building blocks (8 commits):**
+- `8d4f6c3` — `core/sdr.py` (Signal Decision Record dataclass; `to_dict`, `from_dict`, `validate`)
+- `7aff57a` — `core/display_hints.py` (7 pure functions for SDR.display fields)
+- `c0964e0` — `core/state_writer.py` (atomic writes, 30-day history retention, schema validation)
+- `3336aa5` — `core/upstream_health.py` (system_health.json reader + status mapper)
+- `c5d1c8e` — `core/error_handler.py` (3 severity levels, safe_run, build_emergency_state)
+- `63ef2de` — `core/bucket_engine.py` (decision tree: 4 gates, 8 outcomes, full reasoning strings)
+- `012d487` — `core/evidence_collector.py` (orchestrates 10 queries, loads truth files once)
 
-Verified commit: `e35b49c`
+**Rule matchers (3 commits):**
+- `1db08d7` — `rules/validity_checker.py` (Gate 2)
+- `4c02c5b` — `rules/boost_matcher.py` (Gate 3)
+- `e09c7e3` — `rules/kill_matcher.py` (Gate 1)
+
+**Query plugin framework + first 3 queries (4 commits):**
+- `5052161` — `queries/_registry.py` (plugin auto-discovery)
+- `d606fb0` — `queries/q_signal_today.py` (today's PENDING)
+- `992c648` — `queries/q_open_positions.py` (active positions, 6-day trading window)
+- `755f9c0` — `queries/q_pattern_match.py` (supporting + opposing patterns)
+
+**Total: 16 commits, ~2200 lines of new bridge code, syntax-clean and smoke-tested.**
+
+### Critical bug fixes shipped tonight (after end-of-session schema audit)
+
+Three silent failures discovered when comparing synthetic test fixtures against real production JSON files. All three were returning empty results against real data while smoke tests passed:
+
+- `975efcf` — `q_signal_today.py`: record field `signal_date` → `date` (canonical schema). Was always returning `[]` against real `signal_history.json`.
+- `0905c4c` — `q_open_positions.py`: same bug, same fix.
+- `a7fd156` — `evidence_collector._filter_relevant_proposals`: `cohort.signal_type/sector` → top-level `target_signal/target_sector`. Real `proposed_rules.json` has no nested `cohort` key (rule_proposer puts cohort identity at top level). Was always returning `[]`.
+
+**Real-data sanity verified for all 3:**
+- q_signal_today: Apr 23 returns 9 PENDING, Apr 22 returns 6 PENDING (was 0 before)
+- q_open_positions: Apr 30 returns 11 active positions sorted by day_count (was 0 before)
+- evidence_collector: DOWN_TRI signal returns 4 matches from real `proposed_rules.json` (was 0 before)
+
+### TG-01 sidecar shipped tonight
+
+- `14423fb` — `.github/workflows/telegram_poll.yml`: concurrency lock added (`group: telegram-poll`, `cancel-in-progress: false`)
+- `c5451e5` — `scanner/telegram_bot.py`: per-command try/except in `poll_and_respond` so one failing command can't lose `tg_offset.json` advance
+- `0a77ea8` — `.github/workflows/open_validate.yml`: docstring shifted +5 min (9:27/9:57/10:27 → 9:32/10:02/10:32 IST) for yfinance settlement window
+
+⚠️ **Manual action still required:** cron-job.org dashboard schedule change. See "IMMEDIATE NEXT ACTION" above.
+
+### Schema audit (project-wide)
+
+Full grep audit ran end-of-session covering all 19,306 lines of `scanner/`. Findings: **0 new bugs, 0 ambiguous, ~30 hits classified clean.** The 3 bugs already fixed tonight were the only manifestations of this bug class in the entire codebase.
+
+Audit doc: `/tmp/project_wide_schema_audit.md` (will be moved or summarised here when reviewed).
+
+### Known follow-ups (formerly `/tmp/tonight_followups.md`)
+
+1. **bucket_engine `_MODERATE_SECTOR_WR=0.65` hardcoded** — should move to `scanner/bridge/rules/thresholds.py` as `COHORT_MODERATE_SECTOR_WR`. Single-line change. Effort: trivial.
+2. **evidence_collector + bucket_engine both call boost_matcher and kill_matcher for the same signal** — duplicate work per signal. Move calls into `evidence_collector` (which already populates `evidence['boost_match']` / `evidence['kill_match']`), have `bucket_engine` read from the evidence dict instead of re-calling matchers. Saves work and guarantees a single source of truth for which boost/kill matched. Effort: small refactor.
+
+---
+
+## 🧠 SCHEMA DISCIPLINE (new principle, Apr 26 lessons)
+
+Three bugs tonight all matched the same pattern: **bridge code reaching into production JSON records using bridge-side field names instead of canonical writer names.** Discovered only when audited against real data — synthetic fixtures had matched the buggy code.
+
+**Going-forward rules:**
+
+1. **Every query/composer that reads from a JSON file gets a real-data sanity check in its smoke test.** Informational only (no hard count assertions, since production data varies day-to-day) — just confirm the function returns non-empty when it should. Synthetic fixtures alone are insufficient.
+2. **Bridge owns its own schema.** SDR fields, evidence-dict keys, input signal arg keys all use bridge naming (`signal_type`, `age_days`, `pnl_pct`). When reaching INTO a production record (signal_history, proposed_rules, patterns, mini_scanner_rules, system_health, contra_shadow), use the canonical writer's field names.
+3. **Every cross-module data flow gets a schema audit before design.** Read the writer first, confirm field names, then write the reader.
+4. **Field-name normalisation happens at the matcher boundary.** When a rule matcher returns a record from a JSON file, it should normalise to flat aliases the bridge expects (e.g., `boost_id` ← `id`, `n` ← `n_resolved`, `wr` to fraction). One translation point, not scattered.
 
 ---
 
 ## 🔴 TIER 1 — CRITICAL
 
-**Zero pending.** All C-series (C-01 through C-05) VERIFIED April 21, 2026. Intelligence loop functional end-to-end (contra_tracker, rule_proposer, outcome_evaluator schema-aligned). See `wave_execution_log_2026-04-23.md` for canonical record.
+**Zero pending.** All C-series (C-01 through C-05) VERIFIED April 21, 2026.
 
 ---
 
@@ -137,19 +199,19 @@ Currently only `ltp_writer.py` uses the `price_feed` abstraction. Remaining fetc
 
 ## 🧠 TIER 3 — THE BRIDGE (Primary build track)
 
-Design locked 2026-04-25. Integration layer between backend JSONs (`signal_history.json` + `mini_log.json` + `patterns.json` + `proposed_rules.json` + `contra_shadow.json` + `colab_insights.json` + `meta.json`) and PWA. Reads, queries, composes — never modifies.
+Design locked 2026-04-25. Backend foundation shipped 2026-04-26. Composers / GH Actions / PWA still pending.
 
 ### BR-01 — bridge.py orchestrator + plugin folder
 
-**Status:** PENDING · **Priority:** Wave 2 · **Effort:** M
+**Status:** ✅ PARTIAL — folder skeleton + core + rules + queries framework shipped (2026-04-26) · **Priority:** Wave 2 · **Effort:** M
 
-New `scanner/bridge/` folder. `bridge.py` as orchestrator. Plugin subfolders for query modules (mirrors AN-02 pattern). Read-only by design.
+**Shipped tonight:** Folder structure (8 subfolders), 16 implementation files, query plugin auto-discovery via `_registry.py`. All syntax-clean, smoke-tested, real-data sanity-checked. Composer entry points still pending.
 
 ### BR-02 — Pre-market composer (Layer 1)
 
-**Status:** PENDING · **Priority:** Wave 2 · **Effort:** M
+**Status:** PENDING · **Priority:** Wave 2 (next session) · **Effort:** M
 
-Triggered at 08:45 IST after morning_scan. Composes provisional recommendations with `phase: "PRE_MARKET"`. Signals sorted TAKE_FULL / TAKE_SMALL / WATCH / SKIP.
+Composer entry point in `composers/premarket.py`. Read truth files via `evidence_collector.load_truth_files`, iterate today's PENDING signals via `q_signal_today`, run `evidence_collector.collect_evidence` per signal, run `bucket_engine.assign_bucket`, build SDRs, write `bridge_state.json` via `state_writer`. End-to-end pipeline test required.
 
 ### BR-03 — Post-open composer (Layer 2)
 
@@ -165,33 +227,31 @@ Triggered at 16:00 IST after eod_master chain. Outcome digest. Unifies UX-02/03/
 
 ### BR-05 — GitHub Actions workflow wiring
 
-**Status:** PENDING · **Priority:** Wave 2 (partial) + Wave 3 (full) · **Effort:** S per workflow
+**Status:** PENDING · **Priority:** Wave 2 partial (premarket) + Wave 3 (full) · **Effort:** S per workflow
 
 Three bridge trigger workflows (premarket / postopen / eod). Each `workflow_dispatch` + upstream chain of workflow_run triggers.
 
 ### BR-06 — bridge_state.json schema v1
 
-**Status:** PENDING · **Priority:** Wave 2 · **Effort:** S
+**Status:** PARTIAL — schema_version constant + `state_writer._validate_state` shipped; full composer-level enforcement pending · **Priority:** Wave 2 · **Effort:** S
 
-New output file. Composed state for PWA Intel tab. Schema includes: phase, generated_at, sorted_signals[], banner_state, alerts[], self_queries[] (Wave 5).
+`BRIDGE_STATE_SCHEMA_VERSION = 1` lives in `rules/thresholds.py`. `state_writer._validate_state` rejects writes missing `schema_version`/`phase`/`phase_timestamp`/`market_date`. Composer-level shape (banner, summary, signals[], open_positions[], contra{}, alerts[], etc.) defined in `error_handler.build_emergency_state` for fatal-failure case but not yet emitted on the success path.
 
 ### BR-07 — Unified Telegram templates
 
 **Status:** PENDING · **Priority:** Wave 2 (premarket) + Wave 3 (all three) · **Effort:** M
 
-Three Markdown-V2 templates replacing the current 5 fragmented messages. Template-bounded rendering.
+Three Markdown-V2 templates replacing current 5 fragmented messages. Template-bounded rendering. `templates/` folder skeleton in place.
 
 ---
 
 ## 🎨 TIER 4 — PWA INTELLIGENCE TAB
 
-PWA Intel tab — built inside Session 4 UI design from Wave 2 onwards. Same fonts (Fraunces + Geist + Geist Mono), same 3-column iPad landscape layout, same time-aware mode structure. **Don't build twice.**
+PWA Intel tab — built inside Session 4 UI design from Wave 2 onwards. **Don't build twice.**
 
 ### IT-01 — PWA plugin folder + bridge_state fetch
 
 **Status:** PENDING · **Priority:** Wave 2
-
-Mirrors `output/analysis/` pattern from AN-02.
 
 ### IT-02 — Phase-aware UI banner
 
@@ -205,25 +265,21 @@ Mirrors `output/analysis/` pattern from AN-02.
 
 **Status:** PENDING · **Priority:** Wave 2
 
-Groups: ✅ TAKE_FULL, 🟡 TAKE_SMALL, 👁 WATCH, ❌ SKIP. Each card shows symbol, signal type, score, sector, one-line reasoning. Sorted by bridge recommendation.
+Groups: ✅ TAKE_FULL, 🟡 TAKE_SMALL, 👁 WATCH, ❌ SKIP. Reads from `SDR.display.*` fields populated by `display_hints.assemble_display_block` (already shipped).
 
 ### IT-04 — Expandable [why?] reasoning
 
 **Status:** PENDING · **Priority:** Wave 4
 
-Tap any signal → shows queries that informed the recommendation, evidence numbers, counter-evidence, any self-queries used.
+Reads `SDR.evidence.*` (already produced by `evidence_collector`).
 
 ### IT-05 — Proposal approval card
 
 **Status:** PENDING · **Priority:** Wave 4
 
-Renders Proof-Gated Approval structure: claim + evidence + counter-evidence + expected effect + reversibility + [Approve] [Reject] [Review SQL].
-
 ### IT-06 — Self-query disclosure card
 
 **Status:** PENDING · **Priority:** Wave 5
-
-Shows experimental queries bridge wrote, their SQL, results, signals they influenced. [Promote to curated] [Reject] buttons.
 
 ---
 
@@ -235,22 +291,17 @@ Self-query pipeline + approval flow. Proof-Gated Approval framework.
 
 **Status:** PENDING · **Priority:** Wave 5
 
-5-7 bounded SQL templates. Bridge fills parameters, can't write arbitrary SQL. Read-only enforcement at connection level.
-
 ### LE-02 — Gap detection (triggers B + C)
 
 **Status:** PENDING · **Priority:** Wave 5
 
 **Trigger B (automatic):** cohort n<5, new signal type, low confidence recommendation.
 **Trigger C (user-requested):** "Dig deeper" button on PWA signal card.
-
-Max 3 self-queries per bridge run.
+Max 3 self-queries per bridge run. `bridge/learner/` folder skeleton in place (empty in Wave 2 per design).
 
 ### LE-03 — query_proposals.json
 
 **Status:** PENDING · **Priority:** Wave 5
-
-New file. Atomic writes. Stores: question, SQL, result, signals affected, status (pending/approved/rejected/promoted).
 
 ### LE-04 — Telegram approval commands
 
@@ -262,43 +313,26 @@ New file. Atomic writes. Stores: question, SQL, result, signals affected, status
 
 **Status:** PENDING · **Priority:** Wave 4
 
-PWA tap Approve → opens Telegram with pre-filled `/approve_rule prop_XXX` or `/approve_query N`. User confirms send in Telegram. telegram_poll picks up command. Minimal friction, uses existing working flow.
+PWA tap Approve → opens Telegram with pre-filled command. User confirms send. Minimal friction, uses existing flow.
 
 ### LE-06 — Demotion framework (paired with prop_007)
 
 **Status:** APPROVE READY · **Priority:** Wave 4
 
-See prop_007 in PROP series. Rolling N-signal window. If killed-pattern contra-shadow shows reverse edge, auto-demote to shadow mode + Telegram `/reactivate_rule` prompt. If boost_patterns drop below 70% WR in 10-signal window, tier demotion (A→B→watchlist).
-
 ---
 
 ## 🚚 TIER 6 — DELIVERY RELIABILITY
 
-### CACHE-01 — Plan B cache-bust on analysis.html
-
-**Status:** ✅ VERIFIED 2026-04-25 · **Priority:** Wave 1 · **Effort:** S
-
-Shipped: 6 local scripts converted to `data-src` stubs + inline loader injects `?v=Date.now()` cache-busted `<script>` tags with `async=false`. CDN scripts untouched (URL-versioned). Live console confirms `[CACHE-01] injected 6 cache-busted scripts`.
-
-### CACHE-02 — analysis.html via html_builder pipeline
-
-**Status:** PENDING · **Priority:** Wave 6 · **Effort:** M
-
-Long-term proper solution. Convert analysis.html to Python-generated (like index.html). Add to rebuild_html.yml watched paths. Build-time cache-bust via `?v={build_time}`.
-
-**Files:** new `scanner/analysis_html_builder.py`, `.github/workflows/rebuild_html.yml`.
-
 ### TG-01 — Telegram poll concurrency + try/except
 
-**Status:** DIAGNOSED (2026-04-24) · PENDING FIX · **Priority:** Wave 2 sidecar (small, MacBook)
+**Status:** ✅ CODE SHIPPED 2026-04-26 (cron-job.org dashboard update PENDING) · **Priority:** Wave 2 sidecar · **Effort:** S (actual)
 
-**Root cause:** No concurrency lock in `telegram_poll.yml`. Overlapping runs race on `tg_offset.json`. No per-command try/except in poll loop.
+**Shipped:**
+- A: `concurrency: group: telegram-poll, cancel-in-progress: false` in `telegram_poll.yml` (commit `14423fb`). `cancel-in-progress: false` chosen because in-flight runs may be committing `tg_offset.json` — killing mid-commit would leave inconsistent state.
+- B: per-command try/except in `poll_and_respond` (commit `c5451e5`). Failed commands log + send Telegram error reply but don't crash the loop, so the offset still advances.
+- C: open_validate.yml docstring shifted +5min for yfinance settlement (commit `0a77ea8`).
 
-**Fix bundle A+B:**
-- A: Add `concurrency: group: telegram-poll, cancel-in-progress: true` to workflow
-- B: Wrap dispatch loop in try/except in `poll_and_respond`
-
-**Files:** `.github/workflows/telegram_poll.yml`, `scanner/telegram_bot.py`.
+⚠️ **Cron-job.org dashboard update NOT YET DONE.** Before Monday market open, three jobs need their schedules changed (see IMMEDIATE NEXT ACTION).
 
 ### TG-02 — Unified messages replace fragmented
 
@@ -310,23 +344,13 @@ Once Bridge ships, delete old fragmented messages. BR-07 replaces UX-02, UX-03, 
 
 **Status:** DIAGNOSED · PENDING FIX · **Priority:** Wave 6 / Week 2
 
-Independent of bridge work.
+### CACHE-02 — analysis.html via html_builder pipeline
+
+**Status:** PENDING · **Priority:** Wave 6 · **Effort:** M
 
 ---
 
 ## 🎨 TIER 7 — UI / POLISH
-
-### UX-07 — whats_open trading-day math
-
-**Status:** ✅ VERIFIED 2026-04-24 (commit e37f869)
-
-Day column uses trading-day count with color-coded urgency (ACTIVE/EXIT TMRW/EXIT TODAY/OVERDUE).
-
-### UX-08 — "📊 Analysis" button in PWA header
-
-**Status:** ✅ VERIFIED 2026-04-25 · **Priority:** Wave 1 · **Effort:** S
-
-Shipped: Fixed-position pill button top-right, z-index 50 (above content, below overlays), safe-area aware via `env(safe-area-inset-top)`. Added in `scanner/html_builder.py`. Migrate into ui.js rendered header when Session 4 UI ships.
 
 ### UX-02 — Gap-skip summary in morning brief
 
@@ -344,33 +368,25 @@ Shipped: Fixed-position pill button top-right, z-index 50 (above content, below 
 
 **Status:** DESIGN COMPLETE · **Priority:** Waves 2-3 alignment
 
-Hybrid design approved. 12 files scoped. Intelligence tab (IT-series) built using same fonts (Fraunces + Geist + Geist Mono), same 3-column iPad landscape layout, same time-aware mode structure. **Bridge Intelligence tab adopts Session 4 design from Wave 2 onwards — don't build it twice.**
+Hybrid design approved. 12 files scoped. **Bridge Intelligence tab adopts Session 4 design from Wave 2 onwards — don't build twice.**
 
 ---
 
 ## 🏥 TIER 8 — OBSERVABILITY & OPERATIONS
 
-### M-05 — chain_validator extended coverage
-
-**Status:** ✅ SHIPPED 2026-04-25 · **Priority:** Wave 1 additive · **Effort:** S
-
-Shipped: `scanner/chain_validator.py` rewritten. Added `_check_rule_proposer()` (error on unreadable, warn on missing/stale) and `_check_contra_tracker()` (warn on missing, error on unreadable, warn on counter drift between `total_tracked` and `len(shadows)`; staleness is benign since the file only moves on kill matches). Checks dict expanded from 5 to 7. Schema_version unchanged — consumers iterate dynamically. Verification runs in Monday's `eod_master.yml`.
-
 ### HL-01 — Auto-healer framework
 
 **Status:** PENDING · **Priority:** Week 2 (parallel to Bridge) · **Effort:** M
 
-Wraps existing `diagnostic.py --heal`. Schedules periodic health checks. Telegram audit trail. **Never touches trading core** (entry/stop/target/outcome immutable).
+Wraps existing `diagnostic.py --heal`. Schedules periodic health checks. **Never touches trading core.**
 
 ### HL-02 through HL-05 — Heal scopes
 
-**Status:** PENDING · **Priority:** Week 2+ (sequential, one at a time with tests)
+**Status:** PENDING · **Priority:** Week 2+ (sequential)
 
 ### MC-01 — Ultimate master check
 
 **Status:** PENDING · **Priority:** Week 2 (parallel to Bridge) · **Effort:** M
-
-Framework with 8 scopes. Manual dispatch initially. Monitors bridge health too.
 
 ### MC-02, MC-03 — Expanded check + daily report
 
@@ -380,17 +396,9 @@ Framework with 8 scopes. Manual dispatch initially. Monitors bridge health too.
 
 **Status:** PENDING · **Priority:** Separate decision track
 
-Public vs private repo split. Not sprint-critical. Discuss when ready.
-
 ---
 
 ## 📊 TIER 9 — ANALYSIS & INVESTIGATION
-
-### AN-02 — 36-question catalog
-
-**Status:** ✅ VERIFIED 2026-04-24 (commits e37f869 + preceding)
-
-Full catalog shipped. Bridge reuses these queries.
 
 ### AN-04 — WR by score × signal-type cross-tab
 
@@ -402,13 +410,9 @@ Addresses SCR-01 hypothesis (score 5-6 non-monotonicity). Add as 37th AN-02 ques
 
 **Status:** DEFERRED · **Priority:** After AN-04 ships
 
-Hypothesis: score 5-6 buckets polluted by DOWN_TRIs. If prop_001 activates, re-evaluate.
-
 ### DATA-01 — Apr 6-8 cluster flag in history
 
 **Status:** DEFERRED · **Priority:** Low
-
-Document the Apr 6-8 event window in signal_history.json via metadata field so future analysis can filter/annotate.
 
 ### DATA-02 — Choppy regime watch protocol
 
@@ -424,25 +428,17 @@ Every Choppy resolution (next 2 weeks) triggers Telegram alert with full context
 
 **Status:** DEFERRED · **Priority:** Gate on Apr 27-29 Choppy resolutions
 
-3 Choppy DOWN_TRIs open (LUPIN/OIL/ONGC). Their resolution determines whether DOWN_TRI edge extends beyond Bear regime or collapses as Apr 6-8 event artifact. If collapses → ship prop_001 (DOWN_TRI restricted to Bear regime only). If holds → keep DOWN_TRI open across regimes, narrow kill_001 instead.
+3 Choppy DOWN_TRIs open (LUPIN/OIL/ONGC). Their resolution determines whether DOWN_TRI edge extends beyond Bear regime or collapses as Apr 6-8 event artifact.
 
 ### prop_005 — Stop/target rebalance as parameter toggle
 
 **Status:** APPROVE READY · **Priority:** Wave 4
 
-R-multiple currently 0.44 vs 1.5 target (from 2026-04-25 deep-dive). Parameter toggle to rebalance stop distance vs target distance, ship as config-only change with shadow mode for N signals before activation.
+R-multiple currently 0.44 vs 1.5 target (from 2026-04-25 deep-dive). Parameter toggle to rebalance stop distance vs target distance, ship as config-only change with shadow mode for N signals.
 
 ### prop_007 — Demotion framework (paired with LE-06)
 
 **Status:** APPROVE READY · **Priority:** Wave 4
-
-See LE-06. Shipping them together — LE-06 is the framework, prop_007 is the policy.
-
-### WIN-RULES — boost_patterns in mini_scanner_rules.json
-
-**Status:** ✅ SHIPPED 2026-04-25 · **Priority:** Wave 1 · **Consumer:** Bridge Wave 2
-
-Shipped: 7 boost_patterns (5 Tier A UP_TRI × {Auto/FMCG/IT/Metal/Pharma} × Bear, 2 Tier B — UP_TRI × Infra × Bear + BULL_PROXY × ANY × Bear). Schema v3. Pharma flagged `validated_under_floor` (n=13 below the n≥15 Tier A floor). No Python reads boost_patterns yet — metadata only until Bridge composer ships.
 
 ---
 
@@ -450,73 +446,45 @@ Shipped: 7 boost_patterns (5 Tier A UP_TRI × {Auto/FMCG/IT/Metal/Pharma} × Bea
 
 ### Wave 1 — ✅ COMPLETE (2026-04-25)
 
-Shipped:
-- ✅ CACHE-01 (Plan B cache-bust)
-- ✅ UX-08 (Analysis button in PWA header)
-- ✅ WIN-RULES (boost_patterns in mini_scanner_rules.json)
-- ✅ M-05 (chain_validator extended coverage — additive to wave)
-- ✅ ENV-01 (MacBook stack install)
+CACHE-01 + UX-08 + WIN-RULES + M-05 + ENV-01 all shipped & verified.
 
-Verified: PWA Analysis button live top-right, console shows `[CACHE-01] injected 6 cache-busted scripts`, `diagnostic.py --quick` 6/6 green on Mac.
+### Wave 2 — IN PROGRESS
 
-### Wave 2 — Next session (6-8 hours on MacBook)
+**Backend foundation shipped 2026-04-26:**
+- ✅ Bridge folder skeleton + 8 core/rules/queries files
+- ✅ 3 query plugins (q_signal_today / q_open_positions / q_pattern_match)
+- ✅ Plugin registry framework
+- ✅ TG-01 sidecar code (cron-job.org dashboard PENDING)
+- ✅ 3 schema bug fixes against real data
 
-**Bridge skeleton (Layer 1 pre-market only) + TG-01 sidecar:**
-- BR-01 (orchestrator + plugin folder)
-- BR-02 (pre-market composer)
-- BR-05 partial (premarket workflow)
-- BR-06 (schema v1)
-- BR-07 partial (premarket template)
-- IT-01 (PWA plugin folder)
-- IT-02 partial (pre-market banner)
-- IT-03 (signal card renderer)
-- TG-01 (poll concurrency + try/except — small, ships with wave for delivery reliability)
+**Remaining:**
+- BR-02 composer entry point
+- 7 more query plugins (q_exact_cohort, q_sector_recent_30d, q_regime_baseline, q_score_bucket, q_stock_recency, q_anti_pattern, q_cluster_check)
+- BR-05 partial (premarket workflow YAML)
+- BR-07 partial (premarket Telegram template)
+- IT-01/02/03 (PWA Intel tab)
+- End-to-end test against Monday morning data
+- Cron-job.org dashboard update before Monday open
 
-**End of Wave 2:** Monday morning you receive a unified pre-market brief. Signals sorted. Pipeline proven end-to-end.
+### Wave 3 — Following week
 
-### Wave 3 — Following week (6-8 hours)
+Full 3-layer rhythm. BR-03 + BR-04 + BR-05 complete + BR-07 complete + IT-02 complete + IT-03 extended + DATA-02.
 
-**Full 3-layer rhythm:**
-- BR-03 (post-open composer)
-- BR-04 (EOD composer)
-- BR-05 complete (both remaining workflows)
-- BR-07 complete (all three templates)
-- IT-02 complete (all banner states)
-- IT-03 extended (gap-invalidated + live states)
-- DATA-02 (Choppy watch protocol folded into bridge)
+### Wave 4 — Proposals + approvals
 
-**End of Wave 3:** Full bridge live. Three unified messages daily. UX-02/03/05 marked SUPERSEDED.
+IT-04 + IT-05 + LE-05 + prop_005 SHIP + prop_007/LE-06 SHIP.
 
-### Wave 4 — Proposals + approvals (4-6 hours)
+### Wave 5 — Self-queries
 
-- IT-04 ([why?] expandable reasoning)
-- IT-05 (proposal approval card)
-- LE-05 (PWA → Telegram deep-link flow)
-- prop_005 SHIP
-- prop_007 / LE-06 SHIP (demotion framework)
+LE-01 + LE-02 + LE-03 + LE-04 + IT-06.
 
-### Wave 5 — Self-queries (5-7 hours)
+### Wave 6 — Polish + parallel
 
-- LE-01 (query template registry)
-- LE-02 (gap detection B + C)
-- LE-03 (query_proposals.json)
-- LE-04 (Telegram approval commands)
-- IT-06 (self-query disclosure card)
-
-### Wave 6 — Polish + parallel (5-7 hours)
-
-- CACHE-02 (analysis.html via html_builder)
-- PIN-01 (PWA PIN injection)
-- AN-04 (score × signal cross-tab)
+CACHE-02 + PIN-01 + AN-04.
 
 ### Wave 7+ — Parallel tracks
 
-- HL-01, MC-01 (auto-healer + master check)
-- OPS-01..04 (repo split decision)
-- prop_001 revival (after Choppy resolutions Apr 27-29)
-- H-04/D3 (kill_001 scope)
-- H-06 (sector taxonomy)
-- H-07 (price_feed.py full adoption)
+HL-01 + MC-01 + OPS-01..04 + prop_001 revival + H-04/D3 + H-06 + H-07.
 
 ---
 
@@ -525,14 +493,15 @@ Verified: PWA Analysis button live top-right, console shows `[CACHE-01] injected
 1. **signal_history.json is persistent truth.** All other JSONs are overlays.
 2. **Proof-Gated Approval.** Every structural change ships with claim + evidence + counter-evidence + expected effect + reversibility path. No exceptions.
 3. **Read-only bridge.** Bridge never modifies db or module outputs. Only reads, queries, composes.
-4. **Human approval mandatory.** No auto-execute. No auto-activate kill rules. Every change gates on /approve command.
-5. **Plugin architecture everywhere.** AN-02 pattern extends to bridge + intelligence tab. Each new query/view = new plugin file, no engine changes.
-6. **Template-bounded self-queries.** Bridge can't write arbitrary SQL. 5-7 bounded templates, fill parameters only.
+4. **Human approval mandatory.** No auto-execute. No auto-activate kill rules.
+5. **Plugin architecture everywhere.** AN-02 pattern extends to bridge + intelligence tab. New query/view = new plugin file, no engine changes.
+6. **Template-bounded self-queries.** Bridge can't write arbitrary SQL.
 7. **Disclosure before promotion.** Self-queries visible to user with full SQL before becoming curated.
-8. **MacBook is additive, not replacement.** Code and data stay on existing repo. MacBook = faster workflow, not new architecture.
-9. **Build TIE TIY to stable first.** HYDRAX deferred until TIE TIY Bridge Waves 1-5 complete and observed for 2+ weeks.
-10. **Confidence gates for rule activation:** n ≥ 20 · confidence ≥ 85% · WR gap ≥ 15% below baseline. May refine post-prop_005.
-11. **No diffs-on-iPad.** Diff-based edits require Cursor (MacBook). iPad falls back to complete-rewrite if ever needed.
+8. **MacBook is additive, not replacement.** Code and data stay on existing repo.
+9. **Build TIE TIY to stable first.** HYDRAX deferred until Waves 1-5 complete and observed for 2+ weeks.
+10. **Confidence gates for rule activation:** n ≥ 20 · confidence ≥ 85% · WR gap ≥ 15% below baseline.
+11. **No diffs-on-iPad.** Diff-based edits require Cursor (MacBook).
+12. **Schema discipline.** When reading FROM production records, use canonical writer names; when reading the bridge's own input/SDR, use bridge names. Every JSON-reading function must have a real-data sanity check in its smoke test. Schema audits run before designing any cross-module data flow. (See Apr 26 lessons section above.)
 
 ---
 
@@ -547,6 +516,8 @@ Verified: PWA Analysis button live top-right, console shows `[CACHE-01] injected
 - Do not touch: `config.py` vs `scorer.py` dual constants (intentional), `mini_scanner.DEFAULT_RULES` fallback (safety), `parent_signal_id` + `sa_parent_id` dual-write (legacy migration), `eod_master.yml` + `eod_update.yml.bak` coexistence (rollback escape hatch), `main.py` STEP numbering (navigation aid).
 - Do not use `sudo npm` on MacBook. If you hit EACCES, reconfigure npm prefix instead.
 - Do not commit `.venv/` or `.env`. Both gitignored — verify before every push.
+- **Do not trust synthetic test fixtures alone.** Every JSON-reading function gets a real-data sanity check (post-Apr 26 lesson).
+- **Do not match production-record fields with bridge-side names.** Always grep the writer first.
 
 ---
 
@@ -558,5 +529,38 @@ Verified: PWA Analysis button live top-right, console shows `[CACHE-01] injected
 | 2026-04-21 | Session A shipped: 9 items (C-01..C-04, D1, M-11, L-05, UX-01, P-01 skipped). |
 | 2026-04-23 | Wave 2/3/5.1: 16 IDs VERIFIED. See wave_execution_log_2026-04-23.md. |
 | 2026-04-24 | AN-02 36-question catalog shipped (plugin architecture). UX-07 verified. |
-| 2026-04-25 | **Full rewrite.** Bridge design locked (3-layer rhythm, plugin architecture, self-queries, Proof-Gated Approval). Live-data deep dive complete. Added BR/IT/LE series (19 new items), ENV series (MacBook setup), WIN-RULES (boost_patterns). Superseded UX-02/03/05. Total items: 40. |
-| 2026-04-25 (night) | **Wave 1 shipped + ENV-01 complete.** CACHE-01 + UX-08 + WIN-RULES + M-05 all VERIFIED. MacBook Air M5 set up with full dev stack (Homebrew 5.1.7 / Python 3.12.13 / Git 2.54 / Node 22.22.2 / Claude Code 2.1.119 / Cursor). Repo cloned, venv + 40 deps, requirements.txt + .gitignore committed. GitHub PAT in Keychain. diagnostic.py --quick 6/6 green on Mac. Production PWA verified live: 📊 Analysis button works + console shows cache-bust injection. Ready for Wave 2 Bridge skeleton. |
+| 2026-04-25 | **Full rewrite.** Bridge design locked. Live-data deep dive complete. Added BR/IT/LE series (19 new items), ENV series, WIN-RULES. Superseded UX-02/03/05. Total items: 40. |
+| 2026-04-25 (night) | **Wave 1 shipped + ENV-01 complete.** CACHE-01 + UX-08 + WIN-RULES + M-05 all VERIFIED. MacBook Air M5 fully set up. Production PWA verified live. |
+| 2026-04-26 | **Wave 2 backend foundation shipped.** 16 bridge files (folder skeleton + thresholds + sdr + display_hints + state_writer + upstream_health + error_handler + bucket_engine + evidence_collector + 3 rules matchers + queries registry + 3 query plugins). TG-01 sidecar code shipped (cron-job.org dashboard PENDING for Apr 26 evening). 3 silent-failure schema bugs fixed in q_signal_today, q_open_positions, evidence_collector — discovered when comparing synthetic fixtures vs real production JSON. **New principle locked: Schema discipline (#12)** — every JSON-reading function gets a real-data sanity check; bridge owns its own schema but uses canonical names when reaching INTO production records. Full project-wide audit ran (19,306 lines, 0 new bugs found). 2 follow-ups tracked: bucket_engine `_MODERATE_SECTOR_WR` to thresholds; dedupe boost/kill matcher calls between evidence_collector and bucket_engine. |
+
+---
+
+## 📦 CLOSED (HISTORICAL — VERIFIED)
+
+Items kept here for historical traceability. Source-of-truth status set above tier sections.
+
+### ENV-01 — MacBook stack install — ✅ VERIFIED 2026-04-25 (commit `e35b49c`)
+Xcode CLI · Homebrew 5.1.7 · Python 3.12.13 · Git 2.54.0 · Node 22.22.2 · Claude Code 2.1.119 · Cursor IDE · Repo + venv + 40 deps · GitHub PAT in Keychain · `diagnostic.py --quick` 6/6 PASS.
+
+### CACHE-01 — Plan B cache-bust on analysis.html — ✅ VERIFIED 2026-04-25
+Wave 1. 6 local scripts converted to `data-src` stubs + inline loader injects `?v=Date.now()` cache-busted scripts. CDN scripts untouched. Live console confirms `[CACHE-01] injected 6 cache-busted scripts`.
+
+### UX-08 — "📊 Analysis" button in PWA header — ✅ VERIFIED 2026-04-25
+Wave 1. Fixed-position pill button, top-right, z-index 50, safe-area aware. Migrate into ui.js rendered header when Session 4 UI ships.
+
+### M-05 — chain_validator extended coverage — ✅ SHIPPED 2026-04-25
+`chain_validator.py` rewritten. Added `_check_rule_proposer()` and `_check_contra_tracker()`. Checks dict expanded from 5 to 7. Schema_version unchanged.
+
+### WIN-RULES — boost_patterns in mini_scanner_rules.json — ✅ SHIPPED 2026-04-25
+7 boost_patterns (5 Tier A + 2 Tier B). Schema v3. Pharma flagged `validated_under_floor`. Consumer: Bridge Wave 2 (now reading via boost_matcher).
+
+### UX-07 — whats_open trading-day math — ✅ VERIFIED 2026-04-24 (commit `e37f869`)
+Day column uses trading-day count with color-coded urgency.
+
+### AN-02 — 36-question catalog — ✅ VERIFIED 2026-04-24 (commit `e37f869` + preceding)
+Full catalog shipped. Bridge reuses these queries (plugin pattern carried into `bridge/queries/`).
+
+### C-series (C-01 through C-05) — ✅ VERIFIED 2026-04-21
+Intelligence loop functional end-to-end (contra_tracker, rule_proposer, outcome_evaluator schema-aligned). See `wave_execution_log_2026-04-23.md`.
+
+---
