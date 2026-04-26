@@ -43,7 +43,7 @@ from scanner.bridge.rules.thresholds import (  # noqa: E402
 BRIDGE_VERSION = "1.0.0"
 _IST = ZoneInfo("Asia/Kolkata")
 _VALID_PHASES = ("PRE_MARKET", "POST_OPEN", "EOD")
-_WAVE3_STUB_PHASES = ("EOD",)
+_WAVE3_STUB_PHASES = ()
 
 
 # =====================================================================
@@ -130,6 +130,14 @@ def run_phase(phase: str,
 
     if phase == "POST_OPEN":
         from scanner.bridge.composers.postopen import compose
+        return compose(
+            market_date=md,
+            output_dir=output_dir,
+            data_dir=data_dir,
+        )
+
+    if phase == "EOD":
+        from scanner.bridge.composers.eod import compose
         return compose(
             market_date=md,
             output_dir=output_dir,
