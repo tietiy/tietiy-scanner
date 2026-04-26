@@ -431,6 +431,8 @@ def poll_and_respond(meta: dict,
                 _respond_pnl(chat_id, history, ltp_prices)
             elif cmd == '/approve_rule':
                 _respond_approve_rule(chat_id, full_text)
+            elif cmd == '/reject_rule':
+                _respond_reject_rule(chat_id, full_text)
             elif cmd == '/proposals':
                 _respond_proposals(chat_id)
             elif cmd == '/patterns':
@@ -1106,6 +1108,40 @@ def _respond_approve_rule(chat_id, full_text: str):
     _reply_message(chat_id, msg)
 
 
+def _respond_reject_rule(chat_id, full_text: str):
+    parts = full_text.split()
+    if len(parts) < 2:
+        _reply_message(chat_id,
+            'Usage: /reject_rule <proposal_id> [reason]\n'
+            'Example: /reject_rule prop_001 weak n\n'
+            'Use /proposals to see pending IDs.')
+        return
+
+    prop_id = parts[1].strip()
+    reason  = ' '.join(parts[2:]).strip() or 'No reason given'
+
+    try:
+        from rule_proposer import reject_proposal
+        result = reject_proposal(prop_id, reason=reason)
+
+        if result.get('success'):
+            msg = (
+                f'❌ Rejected: {prop_id}\n'
+                f'Reason: {reason}')
+        else:
+            msg = (
+                f'❌ Could not reject {prop_id}\n'
+                f'Reason: {result.get("error", "unknown")}')
+
+    except ImportError:
+        msg = ('⚠️ rule_proposer module not available. '
+               'Deploy scanner/rule_proposer.py first.')
+    except Exception as e:
+        msg = f'❌ Error rejecting {prop_id}: {e}'
+
+    _reply_message(chat_id, msg)
+
+
 def _respond_proposals(chat_id):
     _root = os.path.dirname(
         os.path.dirname(os.path.abspath(__file__)))
@@ -1188,6 +1224,7 @@ def _respond_help(chat_id):
         'INTELLIGENCE',
         '/proposals          — pending rule proposals',
         '/approve_rule <id>  — apply proposal',
+        '/reject_rule <id> [reason]  — reject proposal',
         '/patterns           — pattern_miner findings',
         '',
         '/help     — this message',
