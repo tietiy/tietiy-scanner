@@ -44,7 +44,7 @@ iPad remains as fallback device. Complete-rewrite workflow no longer required.
 - **🟡 Medium:** 9 items (M-05 verified 2026-04-25)
 - **🟢 Low:** 4 items
 - **🧠 BR-series (Bridge):** 7 items — backend foundation **PARTIAL** (16 files shipped 2026-04-26)
-- **🎨 IT-series (Intelligence tab):** 6 items — PWA plugin architecture
+- **🎨 IT-series (Intelligence tab):** 6 items — all on Wave UI track (single dedicated pass after Wave 5)
 - **🔬 LE-series (Learner):** 6 items — self-queries + proposal approval
 - **⚙️ ENV-series (environment):** 0 pending (ENV-01 verified 2026-04-25 night)
 - **📋 PROP-series:** 3 items — prop_001 deferred, prop_005 ready, prop_007 ready
@@ -66,15 +66,16 @@ The TG-01 docstring shift is committed (`0a77ea8`) but the actual schedule chang
 
 Until done, the workflow continues firing on the OLD schedule despite docstrings reflecting the new one.
 
-**2. Wave 2 continuation — Bridge composer, GitHub Actions wiring, PWA, end-to-end test.**
+**2. Wave 2 continuation — Bridge composer, GitHub Actions wiring, end-to-end test.**
 Backend foundation is in place. Next sub-tasks:
 - Composer entry point (`composers/premarket.py`) — read truth, run queries, build SDRs, write bridge_state.json
 - 7 background query plugins (`q_exact_cohort`, `q_sector_recent_30d`, `q_regime_baseline`, `q_score_bucket`, `q_stock_recency`, `q_anti_pattern`, `q_cluster_check`)
 - BR-05 partial (premarket workflow YAML)
 - BR-06 (bridge_state.json schema enforcement at composer level)
 - BR-07 partial (premarket Telegram template)
-- IT-01/02/03 (PWA Intel tab)
 - End-to-end test against Monday morning data
+
+(IT-series and Session 4 UI both moved to **Wave UI** — single dedicated track after Wave 5. See ship plan below.)
 
 ---
 
@@ -247,15 +248,15 @@ Three Markdown-V2 templates replacing current 5 fragmented messages. Template-bo
 
 ## 🎨 TIER 4 — PWA INTELLIGENCE TAB
 
-PWA Intel tab — built inside Session 4 UI design from Wave 2 onwards. **Don't build twice.**
+All IT-series items belong to **Wave UI** — a dedicated track that runs after Wave 5. Design system + information architecture + components + bridge integration ship together as one coherent design pass, not piecemeal across waves.
 
 ### IT-01 — PWA plugin folder + bridge_state fetch
 
-**Status:** PENDING · **Priority:** Wave 2
+**Status:** PENDING · **Priority:** Wave UI
 
 ### IT-02 — Phase-aware UI banner
 
-**Status:** PENDING · **Priority:** Wave 2
+**Status:** PENDING · **Priority:** Wave UI
 
 - Pre-market: yellow banner "PROVISIONAL — validated at 09:30"
 - Post-open: green banner "LIVE — trading today"
@@ -263,23 +264,23 @@ PWA Intel tab — built inside Session 4 UI design from Wave 2 onwards. **Don't 
 
 ### IT-03 — Sorted signal card renderer
 
-**Status:** PENDING · **Priority:** Wave 2
+**Status:** PENDING · **Priority:** Wave UI
 
 Groups: ✅ TAKE_FULL, 🟡 TAKE_SMALL, 👁 WATCH, ❌ SKIP. Reads from `SDR.display.*` fields populated by `display_hints.assemble_display_block` (already shipped).
 
 ### IT-04 — Expandable [why?] reasoning
 
-**Status:** PENDING · **Priority:** Wave 4
+**Status:** PENDING · **Priority:** Wave UI
 
 Reads `SDR.evidence.*` (already produced by `evidence_collector`).
 
 ### IT-05 — Proposal approval card
 
-**Status:** PENDING · **Priority:** Wave 4
+**Status:** PENDING · **Priority:** Wave UI
 
 ### IT-06 — Self-query disclosure card
 
-**Status:** PENDING · **Priority:** Wave 5
+**Status:** PENDING · **Priority:** Wave UI
 
 ---
 
@@ -366,9 +367,9 @@ Once Bridge ships, delete old fragmented messages. BR-07 replaces UX-02, UX-03, 
 
 ### Session 4 UI (UI2-UI12)
 
-**Status:** DESIGN COMPLETE · **Priority:** Waves 2-3 alignment
+**Status:** DESIGN COMPLETE · **Priority:** Wave UI
 
-Hybrid design approved. 12 files scoped. **Bridge Intelligence tab adopts Session 4 design from Wave 2 onwards — don't build twice.**
+Hybrid design approved. 12 files scoped. Ships together with the IT-series in Wave UI — design system + IA + components + bridge integration as one coherent pass.
 
 ---
 
@@ -462,21 +463,38 @@ CACHE-01 + UX-08 + WIN-RULES + M-05 + ENV-01 all shipped & verified.
 - 7 more query plugins (q_exact_cohort, q_sector_recent_30d, q_regime_baseline, q_score_bucket, q_stock_recency, q_anti_pattern, q_cluster_check)
 - BR-05 partial (premarket workflow YAML)
 - BR-07 partial (premarket Telegram template)
-- IT-01/02/03 (PWA Intel tab)
 - End-to-end test against Monday morning data
 - Cron-job.org dashboard update before Monday open
 
+(IT-series moved to Wave UI — see below.)
+
 ### Wave 3 — Following week
 
-Full 3-layer rhythm. BR-03 + BR-04 + BR-05 complete + BR-07 complete + IT-02 complete + IT-03 extended + DATA-02.
+Full 3-layer rhythm. BR-03 + BR-04 + BR-05 complete + BR-07 complete + DATA-02. (UI-side phase banners + card extensions deferred to Wave UI.)
 
 ### Wave 4 — Proposals + approvals
 
-IT-04 + IT-05 + LE-05 + prop_005 SHIP + prop_007/LE-06 SHIP.
+LE-05 + prop_005 SHIP + prop_007/LE-06 SHIP. (Approval-card UI deferred to Wave UI.)
 
 ### Wave 5 — Self-queries
 
-LE-01 + LE-02 + LE-03 + LE-04 + IT-06.
+LE-01 + LE-02 + LE-03 + LE-04. (Self-query disclosure card deferred to Wave UI.)
+
+### Wave UI — PWA Intelligence tab + Session 4 design pass (after Wave 5)
+
+**Single dedicated track.** Design system + information architecture + components + bridge integration done together, not piecemeal.
+
+Scope:
+- IT-01 (PWA plugin folder + bridge_state fetch)
+- IT-02 (phase-aware banner — pre-market / post-open / EOD)
+- IT-03 (sorted signal card renderer with bucket grouping)
+- IT-04 (expandable [why?] reasoning panel reading SDR.evidence.*)
+- IT-05 (proposal approval card with Proof-Gated Approval structure)
+- IT-06 (self-query disclosure card with full SQL preview)
+- Session 4 UI (UI2–UI12) — 12-file design pass: fonts (Fraunces + Geist + Geist Mono), 3-column iPad landscape layout, time-aware mode structure
+- All IT-series adopt Session 4 design vocabulary natively (not retrofitted)
+
+Why one track: SDR.display fields, evidence schema, alerts, contra block, and self-queries are all already shipped server-side. Building the UI piecemeal across waves means re-touching the same screens 4 times. One coherent pass — design once, build once.
 
 ### Wave 6 — Polish + parallel
 
@@ -510,7 +528,7 @@ HL-01 + MC-01 + OPS-01..04 + prop_001 revival + H-04/D3 + H-06 + H-07.
 - Do not rebuild TIE TIY. Current system works. Bridge is additive.
 - Do not auto-execute trades. Ever.
 - Do not activate kill rules without contra-shadow + demotion framework (LE-06) in place.
-- Do not build Intelligence tab and Session 4 UI separately. Build Intelligence tab inside Session 4 design from Wave 2.
+- Do not start the PWA Intelligence tab piecemeal across Waves 2-5. Wave UI is its own dedicated track after Wave 5 — IT-series + Session 4 design ship together as one coherent pass. Backend is ready early; UI ships once.
 - Do not let Wave sessions balloon past scope. Cut if it bloats.
 - Do not start HYDRAX Phase 0 until TIE TIY bridge is stable (Waves 1-5 shipped + observed 2 weeks).
 - Do not touch: `config.py` vs `scorer.py` dual constants (intentional), `mini_scanner.DEFAULT_RULES` fallback (safety), `parent_signal_id` + `sa_parent_id` dual-write (legacy migration), `eod_master.yml` + `eod_update.yml.bak` coexistence (rollback escape hatch), `main.py` STEP numbering (navigation aid).
