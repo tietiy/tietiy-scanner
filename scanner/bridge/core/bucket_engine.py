@@ -13,11 +13,7 @@ See doc/bridge_design_v1.md §5 (decision tree), §6 (bucket examples).
 
 from typing import Any, Optional
 
-from scanner.bridge.rules import (
-    boost_matcher,
-    kill_matcher,
-    validity_checker,
-)
+from scanner.bridge.rules import validity_checker
 from scanner.bridge.rules.thresholds import (
     COHORT_MODERATE_N,
     COHORT_MODERATE_SECTOR_WR,
@@ -36,16 +32,17 @@ _THIN_FALLBACK_REGIME_WR = 0.65
 # Public entry point
 # =====================================================================
 
-def assign_bucket(signal: dict,
-                  evidence: dict,
-                  rules_data: dict) -> dict:
-    """Walk the 4-gate tree, first match wins. See module docstring."""
-    rules_data = rules_data or {}
+def assign_bucket(signal: dict, evidence: dict) -> dict:
+    """Walk the 4-gate tree, first match wins. See module docstring.
+
+    Reads boost_match and kill_match from the evidence dict (populated
+    upstream by evidence_collector). bucket_engine no longer calls the
+    matchers directly — single source of truth in the evidence dict.
+    """
     evidence = evidence or {}
 
-    # Gate 1 — KILL MATCH
-    kill_match = kill_matcher.check_match(
-        signal, rules_data.get("kill_patterns", []))
+    # Gate 1 — KILL MATCH (read from evidence)
+    kill_match = evidence.get("kill_match")
     if kill_match:
         return _build_skip_kill(signal, kill_match, evidence)
 
@@ -55,9 +52,8 @@ def assign_bucket(signal: dict,
         return _build_skip_validity(
             signal, validity_reason, evidence)
 
-    # Gate 3 — BOOST MATCH
-    boost_match = boost_matcher.check_match(
-        signal, rules_data.get("boost_patterns", []))
+    # Gate 3 — BOOST MATCH (read from evidence)
+    boost_match = evidence.get("boost_match")
     if boost_match:
         tier = boost_match.get("tier")
         if tier == "A":

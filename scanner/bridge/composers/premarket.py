@@ -205,7 +205,6 @@ def _process_one_signal(signal: dict,
 
     bucket_result = bucket_engine.assign_bucket(
         bridge_signal, evidence,
-        truth_files.get("mini_scanner_rules", {}) or {},
     )
 
     return _build_sdr(
