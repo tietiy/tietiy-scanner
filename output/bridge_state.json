@@ -1,0 +1,44 @@
+{
+  "schema_version": 1,
+  "phase": "PRE_MARKET",
+  "phase_status": "SKIPPED",
+  "phase_timestamp": "2026-04-26T11:12:52.912446+00:00",
+  "market_date": "2026-04-26",
+  "banner": {
+    "state": "SKIPPED",
+    "color": "neutral",
+    "message": "Market closed today",
+    "subtext": "non-trading day"
+  },
+  "summary": {
+    "total_signals_today": 0,
+    "buckets": {
+      "TAKE_FULL": 0,
+      "TAKE_SMALL": 0,
+      "WATCH": 0,
+      "SKIP": 0
+    },
+    "open_positions_count": 0
+  },
+  "signals": [],
+  "open_positions": [],
+  "contra": {
+    "schema_version": 1,
+    "active_rules": [],
+    "pending_shadows": [],
+    "recent_resolutions": [],
+    "alerts_this_cycle": []
+  },
+  "alerts": [],
+  "self_queries": [],
+  "upstream_health": {},
+  "audit": {
+    "bridge_version": "1.0.0",
+    "compose_started_at": "2026-04-26T11:12:52.912446+00:00",
+    "compose_completed_at": "2026-04-26T11:12:52.912446+00:00",
+    "compose_duration_ms": 0,
+    "warnings": [
+      "SKIPPED: non-trading day"
+    ]
+  }
+}
