@@ -20,6 +20,7 @@ from scanner.bridge.rules import (
 )
 from scanner.bridge.rules.thresholds import (
     COHORT_MODERATE_N,
+    COHORT_MODERATE_SECTOR_WR,
     COHORT_MODERATE_WR,
     COHORT_STRONG_N,
     COHORT_STRONG_WR,
@@ -28,7 +29,6 @@ from scanner.bridge.rules.thresholds import (
 
 
 _THIN_FALLBACK_SECTOR_WR = 0.70
-_MODERATE_SECTOR_WR = 0.65
 _THIN_FALLBACK_REGIME_WR = 0.65
 
 
@@ -283,7 +283,7 @@ def _gate4_evidence(signal: dict, evidence: dict) -> dict:
     if (ec_n >= COHORT_MODERATE_N
             and ec_wr >= COHORT_MODERATE_WR
             and sec_n >= 5
-            and sec_wr >= _MODERATE_SECTOR_WR
+            and sec_wr >= COHORT_MODERATE_SECTOR_WR
             and not has_warnings):
         return _build_gate4_moderate(signal, evidence, ec, sec)
 

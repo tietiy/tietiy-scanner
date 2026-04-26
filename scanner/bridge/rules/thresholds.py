@@ -13,6 +13,7 @@ COHORT_STRONG_WR = 0.75           # Min WR for strong cohort
 COHORT_MODERATE_N = 5             # Min n for "moderate cohort" classification
 COHORT_MODERATE_WR = 0.65         # Min WR for moderate cohort
 COHORT_THIN_FALLBACK_N = 5        # Below this, only WATCH if sector_recent + regime_baseline supportive
+COHORT_MODERATE_SECTOR_WR = 0.65  # Min sector_recent_30d WR for moderate-cohort qualification
 
 # === Validity gate (Gate 2) ===
 VALIDITY_MIN_RR = 1.5             # Minimum acceptable risk:reward ratio
