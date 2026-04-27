@@ -1,0 +1,118 @@
+# .github/workflows/eod.yml
+# Purpose: Bridge L4 EOD composer
+#          Reads today's resolutions from signal_history (mutated by
+#          outcome_evaluator at 15:35), writes EOD bridge_state.json
+#          + sends always-on EOD digest
+# Trigger: GitHub native schedule @ 4:15 PM IST Mon-Fri (+ workflow_dispatch for manual)
+# Sequence: ~40 min after eod_master.yml at 3:35 PM IST (GitHub schedule drift = 25–55 min effective buffer)
+# Touches: output/bridge_state.json + output/bridge_state_history/
+# Failure mode: Telegram alert via send_workflow_failure
+#
+# Architecture v2 (2026-04-27):
+# - GitHub native schedule (drift-tolerant — EOD digest, not entry-window-critical)
+# - GitHub schedule + workflow_dispatch (deviation from premarket/postopen which use cron-job.org — see bridge_design_v1.md §13 EOD exception note)
+# - Atomic single commit (bridge_state.json + dated history file)
+# - Reads upstream signal_history.json + eod_prices.json + system_health.json
+#   from prior eod_master commit (15:35 IST chain: outcome_evaluator
+#   resolves today's signals → eod_prices_writer → chain_validator →
+#   pattern_miner → rule_proposer → atomic commit)
+# - Telegram digest via bridge_telegram_eod.py (always fires on
+#   trading day; SKIPPED phase → short notice; ERROR phase → short-
+#   circuit, no render — different from postopen which is conditional)
+# - continue-on-error: digest is supplementary, not critical
+
+name: "🌉 Bridge EOD | Compose+SDR+Telegram digest | 4:15 PM IST GitHub schedule"
+
+on:
+  schedule:
+    - cron: '45 10 * * 1-5'  # 10:45 UTC = 16:15 IST, Mon-Fri only
+  workflow_dispatch:
+
+concurrency:
+  group: bridge-eod
+  cancel-in-progress: false
+
+jobs:
+  bridge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      actions: read
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+      PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+          fetch-depth: 1
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Run bridge L4 compose
+        id: compose
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scanner/bridge/bridge.py --phase EOD
+
+      - name: Send Telegram EOD digest
+        if: success()
+        continue-on-error: true
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: python scanner/bridge_telegram_eod.py --state-file output/bridge_state.json
+
+      - name: Commit and push bridge_state
+        if: always()
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          git config user.name  "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+          git add output/bridge_state.json output/bridge_state_history/ 2>/dev/null || true
+          if git diff --cached --quiet; then
+            echo "No bridge_state changes to commit"
+            exit 0
+          fi
+          COMPOSE_RESULT="${{ steps.compose.outcome }}"
+          if [ "$COMPOSE_RESULT" = "failure" ]; then
+            COMMIT_MSG="Bridge eod FAILED $(date '+%Y-%m-%d %H:%M IST') — partial state"
+          else
+            COMMIT_MSG="Bridge eod $(date '+%Y-%m-%d %H:%M IST')"
+          fi
+          git commit -m "$COMMIT_MSG"
+          PUSHED=0
+          for i in 1 2 3; do
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            PUSHED=1 && \
+            echo "Push succeeded on attempt $i" && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
+          if [ "$PUSHED" -eq 0 ]; then
+            echo "All push attempts failed after 3 retries"
+            exit 1
+          fi
+
+      - name: Notify on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          python -c "
+          import sys; sys.path.insert(0, 'scanner')
+          from telegram_bot import send_workflow_failure
+          send_workflow_failure('eod', '${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}')
+          "
