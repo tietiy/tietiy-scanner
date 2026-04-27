@@ -1138,8 +1138,12 @@ Open positions: 11 (3 exit tomorrow)
 - Same concurrency + action pattern, --phase=POST_OPEN
 
 **bridge_eod.yml**
-- Trigger: workflow_run on "EOD Master" completed (success only)
-- Same pattern, --phase=EOD
+- Trigger: GitHub native schedule `45 10 * * 1-5` (UTC) = 16:15 IST Mon–Fri
+         + workflow_dispatch as manual safety valve
+- Concurrency: bridge-eod, cancel-in-progress: false
+- Action: `python scanner/bridge/bridge.py --phase=EOD`
+- Commits and pushes bridge_state.json
+- See §13.4 for the rationale on the GitHub-schedule deviation
 
 ### 13.2 Existing workflow updates
 
@@ -1167,6 +1171,27 @@ eod_master.yml ──→ bridge_eod.yml
 └─→ updates bridge_state.json
 sends Telegram digest
 If upstream fails, downstream doesn't fire. chain_validator catches it next morning. No silent garbage.
+
+### 13.4 EOD-workflow exception (added 2026-04-27, shipped commit `f9d4746`)
+
+`bridge_eod.yml` deviates from the "workflow_dispatch only — no GitHub schedule" pattern that §13.1 documents and that `bridge_premarket.yml` + `bridge_postopen.yml` follow. EOD uses GitHub native `schedule:` (`45 10 * * 1-5` UTC = 16:15 IST Mon–Fri) plus `workflow_dispatch` as a manual safety valve.
+
+**Why the deviation is acceptable for EOD specifically:**
+
+1. **Drift-tolerant.** EOD is a digest, not entry-window-critical. Premarket and postopen are precision-critical (8:55 IST brief, 9:40 IST gap-evaluation alert) — they need cron-job.org's tight schedule fidelity. EOD's window is "after eod_master finishes ~15:40 IST + buffer." A 25–55 min effective buffer between eod_master start (15:35 IST) and the EOD digest fire window absorbs both eod_master runtime variability and GitHub Actions schedule drift. Under heavy GitHub load, drift can exceed nominal expectations; the buffer is sized for that reality.
+2. **Reduces single-point-of-failure surface.** cron-job.org currently dispatches 14 precision-critical workflows (per `master_audit_2026-04-27.md` GAP-04). Adding eod.yml to that count would deepen the SPOF concentration. GitHub native schedule for the one bridge workflow that can tolerate drift moves it off the critical-cron list.
+3. **No cron-job.org dashboard entry needed.** Reduces operational friction; one less manual entry to maintain.
+
+**What this does NOT change:**
+
+- Premarket and postopen stay on cron-job.org `workflow_dispatch`. Their precision requirements haven't changed.
+- The architectural principle "workflow_dispatch only — no GitHub schedule" still applies to those two layers. EOD is the documented exception, not the new default.
+- If a future precision-critical workflow ships, it should follow premarket/postopen's pattern, not eod's.
+
+**Cross-references:**
+- `bridge_eod.yml` docstring (the deviation note in the architecture v2 comment in the workflow file itself)
+- `master_audit_2026-04-27.md` PART 4 (Workflow audit) GAP-04 (cron-job.org SPOF context)
+- `wave5_prerequisites_2026-04-27.md` S-4 (cron-job.org failover playbook — separate, complementary item)
 
 ---
 
