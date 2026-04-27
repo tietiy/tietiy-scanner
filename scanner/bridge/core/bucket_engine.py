@@ -21,11 +21,9 @@ from scanner.bridge.rules.thresholds import (
     COHORT_STRONG_N,
     COHORT_STRONG_WR,
     COHORT_THIN_FALLBACK_N,
+    COHORT_THIN_FALLBACK_REGIME_WR,
+    COHORT_THIN_FALLBACK_SECTOR_WR,
 )
-
-
-_THIN_FALLBACK_SECTOR_WR = 0.70
-_THIN_FALLBACK_REGIME_WR = 0.65
 
 
 # =====================================================================
@@ -285,8 +283,8 @@ def _gate4_evidence(signal: dict, evidence: dict) -> dict:
 
     # Thin fallback → WATCH
     if (ec_n < COHORT_THIN_FALLBACK_N
-            and sec_wr >= _THIN_FALLBACK_SECTOR_WR
-            and reg_wr >= _THIN_FALLBACK_REGIME_WR):
+            and sec_wr >= COHORT_THIN_FALLBACK_SECTOR_WR
+            and reg_wr >= COHORT_THIN_FALLBACK_REGIME_WR):
         return _build_gate4_thin(signal, evidence, ec, sec, reg)
 
     # Default → SKIP
