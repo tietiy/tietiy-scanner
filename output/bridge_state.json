@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "phase": "PRE_MARKET",
+  "phase": "POST_OPEN",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-04-27T03:25:35.523161+00:00",
+  "phase_timestamp": "2026-04-27T04:10:39.425220+00:00",
   "market_date": "2026-04-27",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "PROVISIONAL — partial data",
-    "subtext": "2 signals composed; 1 warnings logged"
+    "message": "LIVE — partial data",
+    "subtext": "2 validated, no reclassifications"
   },
   "summary": {
     "total_signals_today": 2,
@@ -18,14 +18,14 @@
       "WATCH": 0,
       "SKIP": 2
     },
-    "open_positions_count": 82
+    "open_positions_count": 81
   },
   "signals": [
     {
-      "sdr_id": "sdr_2026-04-27_PRE_MARKET_OIL_UP_TRI",
+      "sdr_id": "sdr_2026-04-27_POST_OPEN_OIL_UP_TRI",
       "signal_id": "2026-04-27-OIL-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-04-27T03:25:35.520999+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-04-27T04:10:39.423476+00:00",
       "market_date": "2026-04-27",
       "symbol": "OIL",
       "signal_type": "UP_TRI",
@@ -52,17 +52,17 @@
         }
       },
       "bucket": "SKIP",
-      "bucket_reason_short": "Insufficient evidence: n=?, WR ?%",
-      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=? < 5); sector_recent_30d at 59% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_short": "Insufficient evidence: n=1, WR 100%",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=1 < 5); sector_recent_30d at 58% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 483.17,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹483.17), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -161,22 +161,29 @@
         ],
         "boost_match": null,
         "kill_match": null,
-        "exact_cohort": null,
+        "exact_cohort": {
+          "n": 1,
+          "wr": 1.0,
+          "avg_pnl": 3.75,
+          "avg_mfe": 5.27,
+          "avg_mae": 0.67,
+          "tier_status": "emerging"
+        },
         "sector_recent_30d": {
-          "n": 17,
-          "wr": 0.5882,
-          "avg_pnl": 1.6,
+          "n": 19,
+          "wr": 0.5789,
+          "avg_pnl": 1.59,
           "trend": null
         },
         "regime_baseline": {
-          "n": 6,
-          "wr": 0.0,
-          "avg_pnl": -3.2
+          "n": 42,
+          "wr": 0.2619,
+          "avg_pnl": -1.54
         },
         "score_bucket": {
           "score": 6,
-          "n": 31,
-          "wr": 0.6774
+          "n": 44,
+          "wr": 0.5682
         },
         "stock_recency": {
           "last_signal_date": "2026-04-27",
@@ -329,7 +336,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-04-27T03:25:35.520993+00:00",
+        "compose_phase_timestamp": "2026-04-27T04:10:39.423469+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -343,7 +350,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -364,10 +375,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-04-27_PRE_MARKET_KEC_DOWN_TRI",
+      "sdr_id": "sdr_2026-04-27_POST_OPEN_KEC_DOWN_TRI",
       "signal_id": "2026-04-27-KEC-DOWN_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-04-27T03:25:35.521440+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-04-27T04:10:39.423962+00:00",
       "market_date": "2026-04-27",
       "symbol": "KEC",
       "signal_type": "DOWN_TRI",
@@ -395,16 +406,16 @@
       },
       "bucket": "SKIP",
       "bucket_reason_short": "Insufficient evidence: n=?, WR ?%",
-      "bucket_reason_long": "No boost match. cohort thin (n=? < 5); sector_recent_30d at ?% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_long": "No boost match. cohort thin (n=? < 5); sector_recent_30d at 33% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 563.65,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% below scan_price (below ₹563.65), reconsider entry — gap likely consumed expected downside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [],
@@ -412,16 +423,21 @@
         "boost_match": null,
         "kill_match": null,
         "exact_cohort": null,
-        "sector_recent_30d": null,
+        "sector_recent_30d": {
+          "n": 3,
+          "wr": 0.3333,
+          "avg_pnl": -0.66,
+          "trend": null
+        },
         "regime_baseline": {
-          "n": 6,
-          "wr": 0.0,
-          "avg_pnl": -3.2
+          "n": 42,
+          "wr": 0.2619,
+          "avg_pnl": -1.54
         },
         "score_bucket": {
           "score": 6,
-          "n": 31,
-          "wr": 0.6774
+          "n": 44,
+          "wr": 0.5682
         },
         "stock_recency": {
           "last_signal_date": "2026-04-27",
@@ -554,7 +570,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-04-27T03:25:35.521435+00:00",
+        "compose_phase_timestamp": "2026-04-27T04:10:39.423957+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -568,7 +584,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -590,73 +610,6 @@
     }
   ],
   "open_positions": [
-    {
-      "id": "2026-04-20-INDUSINDBK-BULL_PROXY",
-      "schema_version": 5,
-      "generation": 1,
-      "data_quality": "live",
-      "date": "2026-04-20",
-      "symbol": "INDUSINDBK.NS",
-      "sector": "Bank",
-      "grade": "B",
-      "signal": "BULL_PROXY",
-      "direction": "LONG",
-      "age": 0,
-      "score": 5,
-      "regime": "Choppy",
-      "regime_score": 1,
-      "stock_regime": "Choppy",
-      "vol_q": "Thin",
-      "vol_confirm": false,
-      "rs_q": "Neutral",
-      "rs_strong": false,
-      "sec_mom": "Leading",
-      "sec_leading": true,
-      "bear_bonus": false,
-      "grade_A": false,
-      "scan_price": 853.9,
-      "scan_time": "03:17 UTC",
-      "pivot_price": 838.55,
-      "pivot_date": "2026-04-17",
-      "entry": 853.9,
-      "stop": 834.33,
-      "atr": 28.03,
-      "exit_date": "2026-04-28",
-      "target_price": 893.04,
-      "actual_open": 859.0,
-      "adjusted_rr": null,
-      "entry_valid": true,
-      "gap_pct": 0.6,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
-      "tracking_start": "2026-04-21",
-      "tracking_end": "2026-04-28",
-      "mfe_pct": 1.63,
-      "mae_pct": 2.33,
-      "days_to_outcome": null,
-      "exit_price": null,
-      "exit_type": null,
-      "exit_date_actual": null,
-      "pnl_pct": null,
-      "pnl_rs": null,
-      "result": "PENDING",
-      "action": "TOOK",
-      "user_action": null,
-      "is_sa": false,
-      "sa_parent_id": null,
-      "sa_parent_outcome": null,
-      "attempt_number": 1,
-      "parent_signal_id": null,
-      "parent_signal": null,
-      "parent_date": null,
-      "parent_result": null,
-      "layer": "MINI",
-      "rejection_reason": null,
-      "scanner_version": "v2.0",
-      "effective_exit_date": "2026-04-28",
-      "day_count": 6
-    },
     {
       "id": "2026-04-20-EICHERMOT-BULL_PROXY",
       "schema_version": 5,
@@ -833,7 +786,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-21",
       "tracking_end": "2026-04-28",
-      "mfe_pct": 4.06,
+      "mfe_pct": 4.44,
       "mae_pct": 1.06,
       "days_to_outcome": null,
       "exit_price": null,
@@ -968,7 +921,7 @@
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
       "mfe_pct": 1.47,
-      "mae_pct": 1.52,
+      "mae_pct": 5.18,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -1101,7 +1054,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
-      "mfe_pct": 0.99,
+      "mfe_pct": 1.95,
       "mae_pct": 3.75,
       "days_to_outcome": null,
       "exit_price": null,
@@ -1168,7 +1121,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
-      "mfe_pct": 1.03,
+      "mfe_pct": 2.27,
       "mae_pct": 1.84,
       "days_to_outcome": null,
       "exit_price": null,
@@ -1837,7 +1790,7 @@
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
       "mfe_pct": 0.9,
-      "mae_pct": 3.6,
+      "mae_pct": 3.98,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -2439,7 +2392,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
-      "mfe_pct": 6.41,
+      "mfe_pct": 6.74,
       "mae_pct": 0.62,
       "days_to_outcome": null,
       "exit_price": null,
@@ -2707,7 +2660,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
-      "mfe_pct": 0.92,
+      "mfe_pct": 0.95,
       "mae_pct": 1.71,
       "days_to_outcome": null,
       "exit_price": null,
@@ -3912,7 +3865,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
-      "mfe_pct": 2.99,
+      "mfe_pct": 3.36,
       "mae_pct": 2.08,
       "days_to_outcome": null,
       "exit_price": null,
@@ -3979,7 +3932,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
-      "mfe_pct": 2.14,
+      "mfe_pct": 2.73,
       "mae_pct": 2.01,
       "days_to_outcome": null,
       "exit_price": null,
@@ -4114,7 +4067,7 @@
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
       "mfe_pct": 0.35,
-      "mae_pct": 6.33,
+      "mae_pct": 7.3,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -4247,7 +4200,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
-      "mfe_pct": 0.99,
+      "mfe_pct": 2.88,
       "mae_pct": 1.8,
       "days_to_outcome": null,
       "exit_price": null,
@@ -4716,7 +4669,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-22",
       "tracking_end": "2026-04-29",
-      "mfe_pct": 7.61,
+      "mfe_pct": 7.91,
       "mae_pct": 0.31,
       "days_to_outcome": null,
       "exit_price": null,
@@ -4983,7 +4936,7 @@
       "tracking_start": "2026-04-23",
       "tracking_end": "2026-04-30",
       "mfe_pct": 0.24,
-      "mae_pct": 2.01,
+      "mae_pct": 3.05,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -5049,7 +5002,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-23",
       "tracking_end": "2026-04-30",
-      "mfe_pct": 2.71,
+      "mfe_pct": 3.63,
       "mae_pct": 0.48,
       "days_to_outcome": null,
       "exit_price": null,
@@ -5383,7 +5336,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-24",
       "tracking_end": "2026-05-04",
-      "mfe_pct": 1.5,
+      "mfe_pct": 2.05,
       "mae_pct": 0.08,
       "days_to_outcome": null,
       "exit_price": null,
@@ -5584,7 +5537,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-24",
       "tracking_end": "2026-05-04",
-      "mfe_pct": 2.49,
+      "mfe_pct": 2.96,
       "mae_pct": 1.24,
       "days_to_outcome": null,
       "exit_price": null,
@@ -5651,7 +5604,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-24",
       "tracking_end": "2026-05-04",
-      "mfe_pct": 1.11,
+      "mfe_pct": 1.35,
       "mae_pct": 0.94,
       "days_to_outcome": null,
       "exit_price": null,
@@ -5718,7 +5671,7 @@
       "outcome_price": null,
       "tracking_start": "2026-04-24",
       "tracking_end": "2026-05-04",
-      "mfe_pct": 0.67,
+      "mfe_pct": 2.65,
       "mae_pct": 1.99,
       "days_to_outcome": null,
       "exit_price": null,
@@ -5977,10 +5930,10 @@
       "atr": 39.85,
       "exit_date": "2026-05-04",
       "target_price": 888.3,
-      "actual_open": null,
+      "actual_open": 1155.7,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": false,
+      "gap_pct": 6.84,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
@@ -6044,17 +5997,17 @@
       "atr": 98.45,
       "exit_date": "2026-05-04",
       "target_price": 3146.1,
-      "actual_open": null,
+      "actual_open": 2765.4,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": -0.55,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
       "tracking_start": "2026-04-27",
       "tracking_end": "2026-05-05",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 0.97,
+      "mae_pct": 0.41,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -6171,9 +6124,9 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-04-27T03:25:35.523451+00:00",
-    "compose_completed_at": "2026-04-27T03:25:35.523455+00:00",
-    "compose_duration_ms": 26,
+    "compose_started_at": "2026-04-27T04:10:39.425511+00:00",
+    "compose_completed_at": "2026-04-27T04:10:39.425516+00:00",
+    "compose_duration_ms": 25,
     "signal_count_input": 2,
     "signal_count_output": 2,
     "queries_total_distinct": 0,
@@ -6182,6 +6135,7 @@
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
+      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -6189,5 +6143,8 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  }
+  },
+  "should_send_telegram": false,
+  "bucket_changes": 0,
+  "gap_breaches": 0
 }
