@@ -2,25 +2,593 @@
   "schema_version": 1,
   "phase": "PRE_MARKET",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-04-26T22:16:12.156175+00:00",
+  "phase_timestamp": "2026-04-27T03:25:35.523161+00:00",
   "market_date": "2026-04-27",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
     "message": "PROVISIONAL — partial data",
-    "subtext": "0 signals composed; 1 warnings logged"
+    "subtext": "2 signals composed; 1 warnings logged"
   },
   "summary": {
-    "total_signals_today": 0,
+    "total_signals_today": 2,
     "buckets": {
       "TAKE_FULL": 0,
       "TAKE_SMALL": 0,
       "WATCH": 0,
-      "SKIP": 0
+      "SKIP": 2
     },
     "open_positions_count": 82
   },
-  "signals": [],
+  "signals": [
+    {
+      "sdr_id": "sdr_2026-04-27_PRE_MARKET_OIL_UP_TRI",
+      "signal_id": "2026-04-27-OIL-UP_TRI",
+      "phase": "PRE_MARKET",
+      "phase_timestamp": "2026-04-27T03:25:35.520999+00:00",
+      "market_date": "2026-04-27",
+      "symbol": "OIL",
+      "signal_type": "UP_TRI",
+      "direction": "LONG",
+      "sector": "Energy",
+      "regime": "Choppy",
+      "age_days": 0,
+      "trade_plan": {
+        "scan_price": 473.7,
+        "actual_open": null,
+        "entry": 473.7,
+        "stop": 437.79,
+        "target": 545.52,
+        "rr": 2.0,
+        "risk_per_share": 35.90999999999997,
+        "atr": 18.61,
+        "score": 6,
+        "score_components": {
+          "vol_confirm": 1,
+          "rs_strong": 0,
+          "sec_leading": 1,
+          "bear_bonus": 0,
+          "grade_bonus": 0
+        }
+      },
+      "bucket": "SKIP",
+      "bucket_reason_short": "Insufficient evidence: n=?, WR ?%",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=? < 5); sector_recent_30d at 59% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "gap_caveat": {
+        "applies": true,
+        "threshold_pct": 2.0,
+        "direction": "adverse",
+        "absolute_threshold_price": 483.17,
+        "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹483.17), reconsider entry — gap likely consumed expected upside.",
+        "evaluated_at_l2": false,
+        "gap_outcome": null,
+        "gap_outcome_message": null
+      },
+      "evidence": {
+        "patterns_supporting": [
+          {
+            "pattern_id": "signal=UP_TRI_age=0",
+            "tier": "EMERGING",
+            "n": 43,
+            "wr": 0.953,
+            "avg_pnl": 5.26,
+            "edge_vs_baseline_pp": 0.1,
+            "source_file": "patterns.json"
+          },
+          {
+            "pattern_id": "signal=UP_TRI_age=1",
+            "tier": "EMERGING",
+            "n": 14,
+            "wr": 1.0,
+            "avg_pnl": 6.86,
+            "edge_vs_baseline_pp": 4.8,
+            "source_file": "patterns.json"
+          },
+          {
+            "pattern_id": "signal=UP_TRI_age=1_grade=B",
+            "tier": "EMERGING",
+            "n": 12,
+            "wr": 1.0,
+            "avg_pnl": 6.67,
+            "edge_vs_baseline_pp": 4.8,
+            "source_file": "patterns.json"
+          },
+          {
+            "pattern_id": "signal=UP_TRI_grade=A",
+            "tier": "EMERGING",
+            "n": 8,
+            "wr": 1.0,
+            "avg_pnl": 6.17,
+            "edge_vs_baseline_pp": 4.8,
+            "source_file": "patterns.json"
+          }
+        ],
+        "patterns_opposing": [
+          {
+            "pattern_id": "signal=UP_TRI_grade=B",
+            "tier": "EMERGING",
+            "n": 74,
+            "wr": 0.946,
+            "avg_pnl": 6.19,
+            "edge_vs_baseline_pp": -0.6,
+            "source_file": "patterns.json"
+          },
+          {
+            "pattern_id": "signal=UP_TRI_age=0_grade=B",
+            "tier": "EMERGING",
+            "n": 38,
+            "wr": 0.947,
+            "avg_pnl": 5.5,
+            "edge_vs_baseline_pp": -0.5,
+            "source_file": "patterns.json"
+          },
+          {
+            "pattern_id": "signal=UP_TRI_age=2",
+            "tier": "EMERGING",
+            "n": 22,
+            "wr": 0.909,
+            "avg_pnl": 7.34,
+            "edge_vs_baseline_pp": -4.3,
+            "source_file": "patterns.json"
+          },
+          {
+            "pattern_id": "signal=UP_TRI_age=2_grade=B",
+            "tier": "EMERGING",
+            "n": 20,
+            "wr": 0.9,
+            "avg_pnl": 6.99,
+            "edge_vs_baseline_pp": -5.2,
+            "source_file": "patterns.json"
+          },
+          {
+            "pattern_id": "signal=UP_TRI_sector=Energy",
+            "tier": "EMERGING",
+            "n": 8,
+            "wr": 0.75,
+            "avg_pnl": 3.56,
+            "edge_vs_baseline_pp": -20.2,
+            "source_file": "patterns.json"
+          },
+          {
+            "pattern_id": "signal=UP_TRI_sector=Energy_grade=B",
+            "tier": "EMERGING",
+            "n": 8,
+            "wr": 0.75,
+            "avg_pnl": 3.56,
+            "edge_vs_baseline_pp": -20.2,
+            "source_file": "patterns.json"
+          }
+        ],
+        "boost_match": null,
+        "kill_match": null,
+        "exact_cohort": null,
+        "sector_recent_30d": {
+          "n": 17,
+          "wr": 0.5882,
+          "avg_pnl": 1.6,
+          "trend": null
+        },
+        "regime_baseline": {
+          "n": 6,
+          "wr": 0.0,
+          "avg_pnl": -3.2
+        },
+        "score_bucket": {
+          "score": 6,
+          "n": 31,
+          "wr": 0.6774
+        },
+        "stock_recency": {
+          "last_signal_date": "2026-04-27",
+          "last_outcome": "DAY6_LOSS",
+          "lookback_30d_count": 8,
+          "lookback_30d_wr": 0.0
+        },
+        "anti_pattern_check": {
+          "pattern_id": "signal=UP_TRI_grade=B",
+          "tier": "EMERGING",
+          "n": 74,
+          "wr": 0.946,
+          "avg_pnl": 6.19,
+          "edge_vs_baseline_pp": -0.6,
+          "source_file": "patterns.json"
+        },
+        "cluster_warnings": [
+          {
+            "type": "cluster_count",
+            "severity": "warning",
+            "message": "10 UP_TRI signals fired in Energy in last 14 days — clustering",
+            "evidence": {
+              "n": 10,
+              "window_days": 14,
+              "signal_type": "UP_TRI",
+              "sector": "Energy"
+            }
+          }
+        ],
+        "gap_evaluation": null,
+        "active_proposals_relevant": [
+          {
+            "id": "prop_001",
+            "pattern_id": "sector=Energy",
+            "action": "kill",
+            "target_signal": null,
+            "target_sector": "Energy",
+            "evidence": {
+              "wr": 60.0,
+              "n": 15,
+              "avg_pnl": 1.83,
+              "avg_mae": 3.4,
+              "avg_mfe": 5.25,
+              "edge_pp": -35.2,
+              "tier": "preliminary",
+              "baseline_type": "UP_TRI",
+              "baseline_wr": 95.2
+            },
+            "status": "pending",
+            "proposed_date": "2026-04-24T10:06:35.969703Z",
+            "approved_date": null,
+            "approved_by": null,
+            "rejected_date": null,
+            "rejected_reason": null,
+            "last_updated": "2026-04-24T10:06:35.969709Z",
+            "insight": "Energy sector underperforms UP_TRI baseline by 35.2pp (60.0% WR in 15 trades)"
+          },
+          {
+            "id": "prop_002",
+            "pattern_id": "regime=Bear_sector=Energy",
+            "action": "kill",
+            "target_signal": null,
+            "target_sector": "Energy",
+            "evidence": {
+              "wr": 60.0,
+              "n": 15,
+              "avg_pnl": 1.83,
+              "avg_mae": 3.4,
+              "avg_mfe": 5.25,
+              "edge_pp": -35.2,
+              "tier": "preliminary",
+              "baseline_type": "UP_TRI",
+              "baseline_wr": 95.2
+            },
+            "status": "pending",
+            "proposed_date": "2026-04-24T10:06:35.969719Z",
+            "approved_date": null,
+            "approved_by": null,
+            "rejected_date": null,
+            "rejected_reason": null,
+            "last_updated": "2026-04-24T10:06:35.969721Z",
+            "insight": "Bear regime + Energy sector underperforms UP_TRI baseline by 35.2pp (60.0% WR in 15 trades)"
+          },
+          {
+            "id": "prop_003",
+            "pattern_id": "sector=Energy_grade=B",
+            "action": "kill",
+            "target_signal": null,
+            "target_sector": "Energy",
+            "evidence": {
+              "wr": 60.0,
+              "n": 15,
+              "avg_pnl": 1.83,
+              "avg_mae": 3.4,
+              "avg_mfe": 5.25,
+              "edge_pp": -35.2,
+              "tier": "preliminary",
+              "baseline_type": "UP_TRI",
+              "baseline_wr": 95.2
+            },
+            "status": "pending",
+            "proposed_date": "2026-04-24T10:06:35.969728Z",
+            "approved_date": null,
+            "approved_by": null,
+            "rejected_date": null,
+            "rejected_reason": null,
+            "last_updated": "2026-04-24T10:06:35.969729Z",
+            "insight": "Energy sector + Grade B underperforms UP_TRI baseline by 35.2pp (60.0% WR in 15 trades)"
+          },
+          {
+            "id": "prop_004",
+            "pattern_id": "regime=Bear_sector=Energy_grade=B",
+            "action": "kill",
+            "target_signal": null,
+            "target_sector": "Energy",
+            "evidence": {
+              "wr": 60.0,
+              "n": 15,
+              "avg_pnl": 1.83,
+              "avg_mae": 3.4,
+              "avg_mfe": 5.25,
+              "edge_pp": -35.2,
+              "tier": "preliminary",
+              "baseline_type": "UP_TRI",
+              "baseline_wr": 95.2
+            },
+            "status": "pending",
+            "proposed_date": "2026-04-24T10:06:35.969738Z",
+            "approved_date": null,
+            "approved_by": null,
+            "rejected_date": null,
+            "rejected_reason": null,
+            "last_updated": "2026-04-24T10:06:35.969739Z",
+            "insight": "Bear regime + Energy sector + Grade B underperforms UP_TRI baseline by 35.2pp (60.0% WR in 15 trades)"
+          }
+        ],
+        "colab_insight_excerpt": null,
+        "narrative_context": null
+      },
+      "display": {
+        "card_title": "OIL • UP_TRI",
+        "card_subtitle": "Energy • Choppy • Score 6",
+        "card_color_hint": "red",
+        "card_priority": 11,
+        "show_in_main_signals_tab": false,
+        "show_in_contra_tab": false,
+        "tappable_for_why": true,
+        "telegram_emoji": "❌",
+        "telegram_priority": 11
+      },
+      "audit": {
+        "composed_by_version": "bridge_v1.0.0",
+        "compose_phase_timestamp": "2026-04-27T03:25:35.520993+00:00",
+        "queries_executed": [
+          "q_pattern_match",
+          "q_boost_match",
+          "q_kill_match",
+          "q_exact_cohort",
+          "q_sector_recent_30d",
+          "q_regime_baseline",
+          "q_score_bucket",
+          "q_stock_recency",
+          "q_anti_pattern",
+          "q_cluster_check",
+          "q_gap_evaluation"
+        ],
+        "queries_failed": []
+      },
+      "is_sa_variant": false,
+      "origin": null,
+      "bucket_changed": false,
+      "previous_bucket": null,
+      "bucket_change_reason": null,
+      "counter_evidence": {
+        "patterns_against": [],
+        "data_quality_flags": [],
+        "regime_concerns": [],
+        "cluster_warnings": []
+      },
+      "learner_hooks": {
+        "self_query_candidates": [],
+        "confidence_band": "medium",
+        "uncertainty_dimensions": [],
+        "gap_flags": []
+      }
+    },
+    {
+      "sdr_id": "sdr_2026-04-27_PRE_MARKET_KEC_DOWN_TRI",
+      "signal_id": "2026-04-27-KEC-DOWN_TRI",
+      "phase": "PRE_MARKET",
+      "phase_timestamp": "2026-04-27T03:25:35.521440+00:00",
+      "market_date": "2026-04-27",
+      "symbol": "KEC",
+      "signal_type": "DOWN_TRI",
+      "direction": "SHORT",
+      "sector": "CapGoods",
+      "regime": "Choppy",
+      "age_days": 0,
+      "trade_plan": {
+        "scan_price": 575.15,
+        "actual_open": null,
+        "entry": 575.15,
+        "stop": 646.08,
+        "target": 433.29,
+        "rr": 2.0,
+        "risk_per_share": 70.93000000000006,
+        "atr": 29.13,
+        "score": 6,
+        "score_components": {
+          "vol_confirm": 1,
+          "rs_strong": 0,
+          "sec_leading": 0,
+          "bear_bonus": 0,
+          "grade_bonus": 0
+        }
+      },
+      "bucket": "SKIP",
+      "bucket_reason_short": "Insufficient evidence: n=?, WR ?%",
+      "bucket_reason_long": "No boost match. cohort thin (n=? < 5); sector_recent_30d at ?% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "gap_caveat": {
+        "applies": true,
+        "threshold_pct": 2.0,
+        "direction": "adverse",
+        "absolute_threshold_price": 563.65,
+        "instruction": "Place at 09:15 open. If actual open gaps > 2.0% below scan_price (below ₹563.65), reconsider entry — gap likely consumed expected downside.",
+        "evaluated_at_l2": false,
+        "gap_outcome": null,
+        "gap_outcome_message": null
+      },
+      "evidence": {
+        "patterns_supporting": [],
+        "patterns_opposing": [],
+        "boost_match": null,
+        "kill_match": null,
+        "exact_cohort": null,
+        "sector_recent_30d": null,
+        "regime_baseline": {
+          "n": 6,
+          "wr": 0.0,
+          "avg_pnl": -3.2
+        },
+        "score_bucket": {
+          "score": 6,
+          "n": 31,
+          "wr": 0.6774
+        },
+        "stock_recency": {
+          "last_signal_date": "2026-04-27",
+          "last_outcome": null,
+          "lookback_30d_count": 2,
+          "lookback_30d_wr": null
+        },
+        "anti_pattern_check": null,
+        "cluster_warnings": [],
+        "gap_evaluation": null,
+        "active_proposals_relevant": [
+          {
+            "id": "prop_007",
+            "pattern_id": "signal=DOWN_TRI_sector=Bank",
+            "action": "kill",
+            "target_signal": "DOWN_TRI",
+            "target_sector": "Bank",
+            "evidence": {
+              "wr": 0.0,
+              "n": 11,
+              "avg_pnl": -11.12,
+              "avg_mae": 8.46,
+              "avg_mfe": 0.0,
+              "edge_pp": -19.0,
+              "tier": "preliminary",
+              "baseline_type": "DOWN_TRI",
+              "baseline_wr": 19.0
+            },
+            "status": "already_active",
+            "proposed_date": "2026-04-24T10:06:35.969768Z",
+            "approved_date": "2026-04-24T10:06:35.969769Z",
+            "approved_by": "auto_sync_kill_patterns",
+            "rejected_date": null,
+            "rejected_reason": null,
+            "last_updated": "2026-04-24T10:06:35.969771Z",
+            "insight": "DOWN_TRI + Bank sector underperforms DOWN_TRI baseline by 19.0pp (0.0% WR in 11 trades)"
+          },
+          {
+            "id": "prop_008",
+            "pattern_id": "signal=DOWN_TRI_regime=Bear_sector=Bank",
+            "action": "kill",
+            "target_signal": "DOWN_TRI",
+            "target_sector": "Bank",
+            "evidence": {
+              "wr": 0.0,
+              "n": 11,
+              "avg_pnl": -11.12,
+              "avg_mae": 8.46,
+              "avg_mfe": 0.0,
+              "edge_pp": -19.0,
+              "tier": "preliminary",
+              "baseline_type": "DOWN_TRI",
+              "baseline_wr": 19.0
+            },
+            "status": "already_active",
+            "proposed_date": "2026-04-24T10:06:35.969780Z",
+            "approved_date": "2026-04-24T10:06:35.969781Z",
+            "approved_by": "auto_sync_kill_patterns",
+            "rejected_date": null,
+            "rejected_reason": null,
+            "last_updated": "2026-04-24T10:06:35.969782Z",
+            "insight": "DOWN_TRI + Bear regime + Bank sector underperforms DOWN_TRI baseline by 19.0pp (0.0% WR in 11 trades)"
+          },
+          {
+            "id": "prop_009",
+            "pattern_id": "signal=DOWN_TRI_sector=Bank_age=0",
+            "action": "kill",
+            "target_signal": "DOWN_TRI",
+            "target_sector": "Bank",
+            "evidence": {
+              "wr": 0.0,
+              "n": 11,
+              "avg_pnl": -11.12,
+              "avg_mae": 8.46,
+              "avg_mfe": 0.0,
+              "edge_pp": -19.0,
+              "tier": "preliminary",
+              "baseline_type": "DOWN_TRI",
+              "baseline_wr": 19.0
+            },
+            "status": "already_active",
+            "proposed_date": "2026-04-24T10:06:35.969792Z",
+            "approved_date": "2026-04-24T10:06:35.969793Z",
+            "approved_by": "auto_sync_kill_patterns",
+            "rejected_date": null,
+            "rejected_reason": null,
+            "last_updated": "2026-04-24T10:06:35.969794Z",
+            "insight": "DOWN_TRI + Bank sector + age=0 underperforms DOWN_TRI baseline by 19.0pp (0.0% WR in 11 trades)"
+          },
+          {
+            "id": "prop_010",
+            "pattern_id": "signal=DOWN_TRI_sector=Bank_grade=B",
+            "action": "kill",
+            "target_signal": "DOWN_TRI",
+            "target_sector": "Bank",
+            "evidence": {
+              "wr": 0.0,
+              "n": 11,
+              "avg_pnl": -11.12,
+              "avg_mae": 8.46,
+              "avg_mfe": 0.0,
+              "edge_pp": -19.0,
+              "tier": "preliminary",
+              "baseline_type": "DOWN_TRI",
+              "baseline_wr": 19.0
+            },
+            "status": "already_active",
+            "proposed_date": "2026-04-24T10:06:35.969803Z",
+            "approved_date": "2026-04-24T10:06:35.969804Z",
+            "approved_by": "auto_sync_kill_patterns",
+            "rejected_date": null,
+            "rejected_reason": null,
+            "last_updated": "2026-04-24T10:06:35.969805Z",
+            "insight": "DOWN_TRI + Bank sector + Grade B underperforms DOWN_TRI baseline by 19.0pp (0.0% WR in 11 trades)"
+          }
+        ],
+        "colab_insight_excerpt": null,
+        "narrative_context": null
+      },
+      "display": {
+        "card_title": "KEC • DOWN_TRI",
+        "card_subtitle": "CapGoods • Choppy • Score 6",
+        "card_color_hint": "red",
+        "card_priority": 11,
+        "show_in_main_signals_tab": false,
+        "show_in_contra_tab": false,
+        "tappable_for_why": true,
+        "telegram_emoji": "❌",
+        "telegram_priority": 11
+      },
+      "audit": {
+        "composed_by_version": "bridge_v1.0.0",
+        "compose_phase_timestamp": "2026-04-27T03:25:35.521435+00:00",
+        "queries_executed": [
+          "q_pattern_match",
+          "q_boost_match",
+          "q_kill_match",
+          "q_exact_cohort",
+          "q_sector_recent_30d",
+          "q_regime_baseline",
+          "q_score_bucket",
+          "q_stock_recency",
+          "q_anti_pattern",
+          "q_cluster_check",
+          "q_gap_evaluation"
+        ],
+        "queries_failed": []
+      },
+      "is_sa_variant": false,
+      "origin": null,
+      "bucket_changed": false,
+      "previous_bucket": null,
+      "bucket_change_reason": null,
+      "counter_evidence": {
+        "patterns_against": [],
+        "data_quality_flags": [],
+        "regime_concerns": [],
+        "cluster_warnings": []
+      },
+      "learner_hooks": {
+        "self_query_candidates": [],
+        "confidence_band": "medium",
+        "uncertainty_dimensions": [],
+        "gap_flags": []
+      }
+    }
+  ],
   "open_positions": [
     {
       "id": "2026-04-20-INDUSINDBK-BULL_PROXY",
@@ -5603,11 +6171,11 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-04-26T22:16:12.156193+00:00",
-    "compose_completed_at": "2026-04-26T22:16:12.156195+00:00",
-    "compose_duration_ms": 27,
-    "signal_count_input": 0,
-    "signal_count_output": 0,
+    "compose_started_at": "2026-04-27T03:25:35.523451+00:00",
+    "compose_completed_at": "2026-04-27T03:25:35.523455+00:00",
+    "compose_duration_ms": 26,
+    "signal_count_input": 2,
+    "signal_count_output": 2,
     "queries_total_distinct": 0,
     "queries_failed": [],
     "files_read": [
