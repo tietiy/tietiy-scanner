@@ -28,6 +28,10 @@ BOOST_TIER_A_MIN_WR = 0.95        # Tier A requires near-perfect WR
 BOOST_TIER_B_MIN_N = 10           # Tier B threshold for sample
 BOOST_TIER_B_MIN_WR = 0.80        # Tier B WR floor
 
+# === Boost demotion (LE-06) ===
+BOOST_DEMOTION_WR = 0.70          # Rolling-window WR floor; below → demotion warning
+BOOST_DEMOTION_WINDOW_N = 10      # Window size: most recent N W+L resolutions (flats excluded)
+
 # === Gap caveat (Path C, locked 2026-04-26) ===
 GAP_CAVEAT_THRESHOLD_PCT = 2.0    # Gap > this % adverse → reconsider entry
 GAP_CAVEAT_DIRECTION = "adverse"  # For LONG: above scan_price. For SHORT: below.

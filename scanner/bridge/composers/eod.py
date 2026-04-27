@@ -51,6 +51,8 @@ from scanner.bridge.core import (
 )
 from scanner.bridge.queries import q_open_positions
 from scanner.bridge.rules.thresholds import (
+    BOOST_DEMOTION_WINDOW_N,
+    BOOST_DEMOTION_WR,
     BRIDGE_STATE_SCHEMA_VERSION,
 )
 
@@ -188,7 +190,11 @@ def _compose_unsafe(start_time: float,
         "market_date":     market_date,
         "banner":          _build_eod_banner(
             phase_status, len(sdrs), outcomes),
-        "summary":         _build_eod_summary(sdrs, open_positions, outcomes),
+        "summary":         _build_eod_summary(
+            sdrs, open_positions, outcomes,
+            truth_files.get("signal_history") or {},
+            truth_files.get("mini_scanner_rules") or {},
+        ),
         "signals":         sdrs,
         "open_positions":  open_positions,
         "contra":          contra_block,
@@ -389,7 +395,9 @@ def _bucket_outcome_aggregates(outcomes: dict) -> tuple:
 
 def _build_eod_summary(sdrs: list,
                        open_positions: list,
-                       outcomes: dict) -> dict:
+                       outcomes: dict,
+                       history_data: dict,
+                       mini_rules: dict) -> dict:
     """Summary block surfaced in bridge_state.summary."""
     won, lost, flat = _bucket_outcome_aggregates(outcomes)
 
@@ -403,6 +411,8 @@ def _build_eod_summary(sdrs: list,
             total_pnl += pnl
             pnl_count += 1
 
+    pattern_updates = _build_pattern_updates(history_data, mini_rules)
+
     return {
         "total_resolutions_today": len(sdrs),
         "outcomes":                outcomes,
@@ -411,6 +421,147 @@ def _build_eod_summary(sdrs: list,
         "flat_count":              flat,
         "total_pnl_pct":           round(total_pnl, 2) if pnl_count else 0.0,
         "open_positions_count":    len(open_positions),
+        "pattern_updates":         pattern_updates,
+    }
+
+
+# =====================================================================
+# Boost demotion warnings (LE-06) — read-only metadata, no auto-mutation
+# =====================================================================
+
+_BOOST_WILDCARD_VALUES = (None, "ANY")
+
+
+def _build_pattern_updates(history_data: dict, mini_rules: dict) -> list:
+    """Iterate active boost_patterns; emit demotion warnings for any
+    whose rolling-window WR has fallen below the demotion floor.
+
+    Returns list of pattern_updates entries (per design spec); empty
+    list when no pattern crosses threshold or inputs are malformed.
+    Read-only: never mutates mini_scanner_rules.json or any state.
+    """
+    if not isinstance(mini_rules, dict):
+        return []
+    boost_patterns = mini_rules.get("boost_patterns") or []
+    if not isinstance(boost_patterns, list):
+        return []
+
+    out = []
+    for pattern in boost_patterns:
+        if not isinstance(pattern, dict):
+            continue
+        stats = _compute_boost_rolling_wr(history_data, pattern)
+        if stats is None:
+            continue
+        if stats["window_wr"] >= BOOST_DEMOTION_WR:
+            continue
+        out.append(_build_demotion_entry(pattern, stats))
+    return out
+
+
+def _compute_boost_rolling_wr(history_data: dict,
+                              pattern: dict) -> Optional[dict]:
+    """Return rolling-window WR stats for one boost_pattern.
+
+    Filter signal_history records matching pattern (signal exact +
+    sector/regime wildcard via None / "ANY"), keep only WIN_OUTCOMES |
+    LOSS_OUTCOMES (flats excluded), sort by outcome_date desc, take
+    most-recent BOOST_DEMOTION_WINDOW_N. Return None when:
+      - pattern.active is False
+      - n_in_window < BOOST_DEMOTION_WINDOW_N (insufficient history)
+      - history_data malformed
+    """
+    if pattern.get("active") is False:
+        return None
+
+    p_signal = pattern.get("signal")
+    p_sector = pattern.get("sector")
+    p_regime = pattern.get("regime")
+    if not p_signal:
+        return None
+
+    if not isinstance(history_data, dict):
+        return None
+    history = history_data.get("history")
+    if not isinstance(history, list):
+        return None
+
+    matches = []
+    for r in history:
+        if not isinstance(r, dict):
+            continue
+        if r.get("signal") != p_signal:
+            continue
+        if (p_sector not in _BOOST_WILDCARD_VALUES
+                and r.get("sector") != p_sector):
+            continue
+        if (p_regime not in _BOOST_WILDCARD_VALUES
+                and r.get("regime") != p_regime):
+            continue
+        outcome = r.get("outcome")
+        if outcome not in _WIN_OUTCOMES and outcome not in _LOSS_OUTCOMES:
+            continue
+        if not isinstance(r.get("outcome_date"), str):
+            continue
+        matches.append(r)
+
+    matches.sort(key=lambda r: r["outcome_date"], reverse=True)
+    window = matches[:BOOST_DEMOTION_WINDOW_N]
+    if len(window) < BOOST_DEMOTION_WINDOW_N:
+        return None
+
+    wins = sum(1 for r in window if r["outcome"] in _WIN_OUTCOMES)
+    losses = sum(1 for r in window if r["outcome"] in _LOSS_OUTCOMES)
+    denom = wins + losses
+    if denom == 0:
+        return None
+
+    dates = [r["outcome_date"] for r in window]
+    return {
+        "window_size":        BOOST_DEMOTION_WINDOW_N,
+        "window_wr":          wins / denom,
+        "window_wins":        wins,
+        "window_losses":      losses,
+        "window_oldest_date": min(dates),
+        "window_newest_date": max(dates),
+    }
+
+
+def _build_demotion_entry(pattern: dict, stats: dict) -> dict:
+    """Build a single pattern_updates entry per the Session C schema.
+
+    13 fields: kind, pattern_id, signal, sector, regime, current_tier,
+    window_size, window_wr, window_wins, window_losses,
+    window_oldest_date, window_newest_date, threshold_wr, message.
+    """
+    sector = pattern.get("sector")
+    regime = pattern.get("regime")
+    sector_label = "any" if sector in _BOOST_WILDCARD_VALUES else sector
+    regime_label = "any" if regime in _BOOST_WILDCARD_VALUES else regime
+    pid = pattern.get("id") or "?"
+    sig = pattern.get("signal") or "?"
+    wr_pct = int(round(stats["window_wr"] * 100))
+    message = (
+        f"⚠ {pid}: {sig} × {sector_label} × {regime_label}, "
+        f"last-{stats['window_size']} WR {wr_pct}% "
+        f"({stats['window_wins']}/{stats['window_size']}) — "
+        f"below {int(round(BOOST_DEMOTION_WR * 100))}% floor"
+    )
+    return {
+        "kind":               "boost_demotion_warning",
+        "pattern_id":         pid,
+        "signal":             sig,
+        "sector":             sector,
+        "regime":             regime,
+        "current_tier":       pattern.get("tier"),
+        "window_size":        stats["window_size"],
+        "window_wr":          stats["window_wr"],
+        "window_wins":        stats["window_wins"],
+        "window_losses":      stats["window_losses"],
+        "window_oldest_date": stats["window_oldest_date"],
+        "window_newest_date": stats["window_newest_date"],
+        "threshold_wr":       BOOST_DEMOTION_WR,
+        "message":            message,
     }
 
 
