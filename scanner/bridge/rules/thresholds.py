@@ -32,6 +32,10 @@ BOOST_TIER_B_MIN_WR = 0.80        # Tier B WR floor
 BOOST_DEMOTION_WR = 0.70          # Rolling-window WR floor; below → demotion warning
 BOOST_DEMOTION_WINDOW_N = 10      # Window size: most recent N W+L resolutions (flats excluded)
 
+# === Boost demotion proposal (prop_007) ===
+BOOST_DEMOTION_PROPOSAL_PERSIST_DAYS = 3      # N consecutive EOD warnings before proposal
+BOOST_DEMOTION_PROPOSAL_AUTO_EXPIRE_DAYS = 7  # Days until pending demote_boost auto-expires
+
 # === Gap caveat (Path C, locked 2026-04-26) ===
 GAP_CAVEAT_THRESHOLD_PCT = 2.0    # Gap > this % adverse → reconsider entry
 GAP_CAVEAT_DIRECTION = "adverse"  # For LONG: above scan_price. For SHORT: below.

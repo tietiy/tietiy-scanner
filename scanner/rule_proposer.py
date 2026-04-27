@@ -39,10 +39,17 @@ FIX C-04 (Apr 21 2026):
   New shape: {success, action, target, message, error, kill_rule_id}
 """
 
+import glob
 import json
 import os
-from datetime import datetime
+from datetime import datetime, timedelta
 from pathlib import Path
+
+# prop_007 thresholds — imported lazily inside helpers to keep
+# rule_proposer.py runnable as a standalone script (PYTHONPATH may
+# not include scanner/ during local dev). Constants:
+#   BOOST_DEMOTION_PROPOSAL_PERSIST_DAYS  = 3
+#   BOOST_DEMOTION_PROPOSAL_AUTO_EXPIRE_DAYS = 7
 
 # ── PATHS (C-02 FIX: absolute paths via _HERE/_ROOT) ─────────
 _HERE   = os.path.dirname(os.path.abspath(__file__))
@@ -248,6 +255,242 @@ def _build_proposal(pattern, existing_proposals, active_kills):
     return proposal
 
 
+# =====================================================================
+# prop_007 — boost demotion proposal generation + approval
+# =====================================================================
+#
+# Reads bridge_state_history/<date>_EOD.json files (written by
+# composers/eod.py with LE-06 pattern_updates). When a boost_pattern
+# appears as kind="boost_demotion_warning" on EVERY one of the most
+# recent N EOD days (set INTERSECTION across days, not union), generate
+# a demote_boost proposal.
+#
+# Date-source discipline: rule_proposer.py uses datetime.utcnow()
+# everywhere; bridge_state_history filenames use composer's market_date
+# which comes from _today_ist() (Asia/Kolkata). To avoid UTC/IST drift
+# at midnight boundaries, we glob filenames and sort lexicographically
+# (ISO dates sort correctly). NEVER compute "today minus N days"
+# arithmetic.
+
+_BRIDGE_HISTORY_DIR = os.path.join(_OUTPUT, 'bridge_state_history')
+_EOD_FILE_GLOB = '*_EOD.json'
+_BOOST_WARNING_KIND = 'boost_demotion_warning'
+
+
+def _read_recent_eod_pattern_updates(n_days):
+    """Read most-recent N bridge_state_history/*_EOD.json files.
+
+    Returns list of (date_str, pattern_updates_list) tuples ordered most-
+    recent-first. Defensive: missing dir / missing files / malformed JSON /
+    missing summary key all silently skip; returns [] on full failure.
+    """
+    if not os.path.isdir(_BRIDGE_HISTORY_DIR):
+        return []
+    pattern = os.path.join(_BRIDGE_HISTORY_DIR, _EOD_FILE_GLOB)
+    files = sorted(glob.glob(pattern), reverse=True)[:n_days]
+    out = []
+    for path in files:
+        # Extract date prefix from filename: "<date>_EOD.json"
+        fname = os.path.basename(path)
+        date_str = fname.split('_EOD.json')[0] if '_EOD.json' in fname else ''
+        try:
+            with open(path, 'r') as f:
+                state = json.load(f)
+        except (json.JSONDecodeError, OSError):
+            continue
+        if not isinstance(state, dict):
+            continue
+        summary = state.get('summary')
+        if not isinstance(summary, dict):
+            continue
+        pu = summary.get('pattern_updates')
+        if not isinstance(pu, list):
+            continue
+        out.append((date_str, pu))
+    return out
+
+
+def _detect_boost_demotion_candidates(eod_history):
+    """Find pattern_ids appearing as kind=boost_demotion_warning on
+    EVERY one of the eod_history days (set INTERSECTION, not union).
+
+    eod_history shape: list of (date_str, pattern_updates_list) tuples.
+
+    Returns list of candidate dicts with most-recent-day stats:
+      pattern_id, streak_days, latest_window_wr, latest_window_wins,
+      latest_window_losses, latest_threshold_wr, latest_signal,
+      latest_sector, latest_regime, latest_current_tier
+    """
+    if not eod_history or len(eod_history) < 1:
+        return []
+
+    # Per-day: set of pattern_ids that fired the warning kind that day
+    per_day_ids = []
+    for _, updates in eod_history:
+        ids = set()
+        for u in updates:
+            if not isinstance(u, dict):
+                continue
+            if u.get('kind') != _BOOST_WARNING_KIND:
+                continue
+            pid = u.get('pattern_id')
+            if isinstance(pid, str) and pid:
+                ids.add(pid)
+        per_day_ids.append(ids)
+
+    # Streak qualification: pattern_id must appear in ALL N days
+    streak_ids = set.intersection(*per_day_ids) if per_day_ids else set()
+    if not streak_ids:
+        return []
+
+    # Pull latest-day stats for each streak pattern_id
+    # (eod_history[0] is most recent because sorted reverse=True)
+    latest_updates = eod_history[0][1]
+    latest_by_pid = {}
+    for u in latest_updates:
+        if not isinstance(u, dict):
+            continue
+        if u.get('kind') != _BOOST_WARNING_KIND:
+            continue
+        pid = u.get('pattern_id')
+        if pid in streak_ids:
+            latest_by_pid[pid] = u
+
+    out = []
+    streak_n = len(eod_history)
+    for pid in sorted(streak_ids):
+        u = latest_by_pid.get(pid) or {}
+        out.append({
+            'pattern_id':            pid,
+            'streak_days':           streak_n,
+            'latest_window_wr':      u.get('window_wr'),
+            'latest_window_wins':    u.get('window_wins'),
+            'latest_window_losses':  u.get('window_losses'),
+            'latest_threshold_wr':   u.get('threshold_wr'),
+            'latest_signal':         u.get('signal'),
+            'latest_sector':         u.get('sector'),
+            'latest_regime':         u.get('regime'),
+            'latest_current_tier':   u.get('current_tier'),
+        })
+    return out
+
+
+def _build_demote_boost_proposal(candidate, prop_id):
+    """Construct one demote_boost proposal entry per S2 schema.
+
+    13 evidence sub-fields plus top-level shape. Insight string format:
+      "Boost pattern {id} ({signal} × {sector_label} × {regime_label})
+      below {floor}% WR floor {streak} days running; latest window
+      {wr}% ({wins}/{w+l})"
+    """
+    pid = candidate['pattern_id']
+    signal = candidate.get('latest_signal') or '?'
+    sector = candidate.get('latest_sector')
+    regime = candidate.get('latest_regime')
+    sector_label = 'any' if sector in (None, 'ANY') else sector
+    regime_label = 'any' if regime in (None, 'ANY') else regime
+
+    wr = candidate.get('latest_window_wr')
+    wins = candidate.get('latest_window_wins')
+    losses = candidate.get('latest_window_losses')
+    threshold = candidate.get('latest_threshold_wr') or 0.70
+    streak = candidate.get('streak_days') or 0
+
+    wr_pct = int(round((wr or 0) * 100))
+    floor_pct = int(round(threshold * 100))
+    wl_total = (wins or 0) + (losses or 0)
+
+    insight = (
+        f"Boost pattern {pid} ({signal} × {sector_label} × "
+        f"{regime_label}) below {floor_pct}% WR floor {streak} days "
+        f"running; latest window {wr_pct}% ({wins}/{wl_total})"
+    )
+
+    now = datetime.utcnow().isoformat() + "Z"
+    return {
+        'id':              prop_id,
+        'pattern_id':      pid,
+        'action':          'demote_boost',
+        'target_signal':   signal,
+        'target_sector':   sector,
+        'target_regime':   regime,
+        'evidence': {
+            'warning_streak_days':  streak,
+            'latest_window_wr':     wr,
+            'latest_window_wins':   wins,
+            'latest_window_losses': losses,
+            'threshold_wr':         threshold,
+            'current_tier':         candidate.get('latest_current_tier'),
+        },
+        'status':          'pending',
+        'proposed_date':   now,
+        'approved_date':   None,
+        'approved_by':     None,
+        'rejected_date':   None,
+        'rejected_reason': None,
+        'last_updated':    now,
+        'insight':         insight,
+    }
+
+
+def _generate_boost_demotion_proposals(existing_proposals, candidates):
+    """For each candidate, build a demote_boost entry per S2 schema.
+
+    Dedup via _find_matching_proposal: skip if any matching pattern_id
+    already exists in existing_proposals (consistent with kill/warn
+    dedup behavior — note this also blocks re-proposal after rejection,
+    same as existing logic).
+    """
+    out = []
+    working = list(existing_proposals)
+    for cand in candidates:
+        pid = cand['pattern_id']
+        if _find_matching_proposal(pid, working):
+            # Same dedup semantics as kill/warn: any existing entry
+            # with this pattern_id (pending / approved / rejected /
+            # already_active) blocks re-proposal.
+            continue
+        new_id = _generate_proposal_id(working)
+        proposal = _build_demote_boost_proposal(cand, new_id)
+        out.append(proposal)
+        working.append(proposal)
+    return out
+
+
+def _expire_stale_demote_boost_proposals(existing_proposals,
+                                         expire_days):
+    """Mark pending demote_boost proposals older than expire_days as
+    'expired'. In-place mutation of the list.
+
+    Deliberately scoped to action='demote_boost' only. kill/warn
+    proposals do NOT auto-expire — that is existing production
+    behavior, intentionally preserved. A future reader who wants to
+    add auto-expire to kill/warn must do so as a separate scoped
+    decision; do not "fix" this by extending the filter here.
+    """
+    cutoff = datetime.utcnow() - timedelta(days=expire_days)
+    expired_count = 0
+    for p in existing_proposals:
+        if p.get('action') != 'demote_boost':
+            continue
+        if p.get('status') != 'pending':
+            continue
+        proposed = p.get('proposed_date')
+        if not isinstance(proposed, str):
+            continue
+        try:
+            # Parse trailing-Z UTC ISO format
+            proposed_dt = datetime.fromisoformat(
+                proposed.rstrip('Z'))
+        except ValueError:
+            continue
+        if proposed_dt < cutoff:
+            p['status'] = 'expired'
+            p['last_updated'] = datetime.utcnow().isoformat() + "Z"
+            expired_count += 1
+    return expired_count
+
+
 def generate_proposals():
     """
     Main entry point.
@@ -271,6 +514,22 @@ def generate_proposals():
     # Load existing proposals (preserve history)
     existing_proposals = _load_existing_proposals()
     print(f"[rule_proposer] Found {len(existing_proposals)} existing proposals")
+
+    # prop_007: auto-expire stale pending demote_boost proposals (>7 days).
+    # Lazy import to keep this module runnable without scanner/ on PYTHONPATH.
+    try:
+        from scanner.bridge.rules.thresholds import (
+            BOOST_DEMOTION_PROPOSAL_AUTO_EXPIRE_DAYS,
+        )
+        n_expired = _expire_stale_demote_boost_proposals(
+            existing_proposals,
+            BOOST_DEMOTION_PROPOSAL_AUTO_EXPIRE_DAYS,
+        )
+        if n_expired > 0:
+            print(f"[rule_proposer] Auto-expired {n_expired} stale "
+                  "pending demote_boost proposals")
+    except ImportError:
+        pass
 
     # Load active kill rules
     active_kills = _get_active_kill_patterns()
@@ -309,6 +568,36 @@ def generate_proposals():
             old_prop['status_note'] = 'pattern_no_longer_surfaced'
             old_prop['last_updated'] = datetime.utcnow().isoformat() + "Z"
             proposals.append(old_prop)
+
+    # prop_007: generate boost demotion proposals from LE-06 warning
+    # streaks. Reads bridge_state_history/<date>_EOD.json — see helper
+    # comments for date-source discipline (filename glob, no UTC/IST
+    # arithmetic). Dedup via _find_matching_proposal across the full
+    # current proposals list (= patterns-loop output + preserved old).
+    try:
+        from scanner.bridge.rules.thresholds import (
+            BOOST_DEMOTION_PROPOSAL_PERSIST_DAYS,
+        )
+        eod_history = _read_recent_eod_pattern_updates(
+            BOOST_DEMOTION_PROPOSAL_PERSIST_DAYS)
+        if len(eod_history) >= BOOST_DEMOTION_PROPOSAL_PERSIST_DAYS:
+            candidates = _detect_boost_demotion_candidates(eod_history)
+            print(f"[rule_proposer] prop_007: "
+                  f"{len(candidates)} demotion candidate(s) "
+                  f"with {BOOST_DEMOTION_PROPOSAL_PERSIST_DAYS}-day streak")
+            new_demotion_proposals = _generate_boost_demotion_proposals(
+                proposals, candidates)
+            for p in new_demotion_proposals:
+                proposals.append(p)
+                new_count += 1
+        else:
+            print(f"[rule_proposer] prop_007: "
+                  f"only {len(eod_history)} EOD history file(s) "
+                  f"available; need "
+                  f"{BOOST_DEMOTION_PROPOSAL_PERSIST_DAYS} for streak. "
+                  f"Skipping demotion proposal generation.")
+    except ImportError:
+        pass
 
     # Build output
     pending_count = sum(1 for p in proposals if p.get('status') == 'pending')
@@ -397,7 +686,7 @@ def approve_proposal(proposal_id, approved_by='telegram_user'):
                 f"can be approved"),
         }
 
-    if target.get('action') not in ('kill', 'warn'):
+    if target.get('action') not in ('kill', 'warn', 'demote_boost'):
         return {
             'success': False,
             'error': (
@@ -405,6 +694,12 @@ def approve_proposal(proposal_id, approved_by='telegram_user'):
                 f"'{target.get('action')}' not supported "
                 f"for auto-approval"),
         }
+
+    # prop_007: demote_boost branch — separate mutation path from
+    # kill_pattern append. Locate boost_pattern by pattern_id, flip
+    # active=False, write atomically via _save_json.
+    if target.get('action') == 'demote_boost':
+        return _approve_demote_boost(target, approved_by, data, proposals)
 
     # Add to mini_scanner_rules.json kill_patterns
     rules = _load_json(MINI_RULES_PATH, default={})
@@ -465,6 +760,109 @@ def approve_proposal(proposal_id, approved_by='telegram_user'):
         'target':       target_str,
         'message':      msg,
         'kill_rule_id': kill_id,
+    }
+
+
+def _approve_demote_boost(target, approved_by, data, proposals):
+    """prop_007 demotion mutation: flip active=False on the
+    referenced boost_pattern in mini_scanner_rules.json. Atomic write
+    via _save_json (same primitive as kill_pattern append).
+
+    Stale path (S4): if pattern_id not found in current
+    mini_scanner_rules.boost_patterns, mark proposal status='stale',
+    return error to caller, no mutation. The 'stale' status means the
+    pattern was demoted/removed by some other means between proposal
+    and approval; the proposal is preserved for audit but cannot apply.
+    """
+    pattern_id = target.get('pattern_id')
+    rules = _load_json(MINI_RULES_PATH, default={})
+    boost_patterns = rules.get('boost_patterns', [])
+
+    # Locate by id
+    found_idx = None
+    for i, bp in enumerate(boost_patterns):
+        if bp.get('id') == pattern_id:
+            found_idx = i
+            break
+
+    if found_idx is None:
+        target['status'] = 'stale'
+        target['last_updated'] = datetime.utcnow().isoformat() + "Z"
+        # Recompute summary counts after status change
+        data['pending_count'] = sum(
+            1 for p in proposals if p.get('status') == 'pending')
+        _save_json(PROPOSED_RULES_PATH, data)
+        return {
+            'success': False,
+            'error': (
+                f"Proposal {target.get('id')}: boost_pattern "
+                f"'{pattern_id}' not found in mini_scanner_rules.json. "
+                f"Status flipped to 'stale'."),
+        }
+
+    # Apply demotion: flip active=False
+    bp = boost_patterns[found_idx]
+    if bp.get('active') is False:
+        # Already demoted — soft success path. Still mark proposal
+        # approved for audit. No re-write of mini_rules needed.
+        target['status'] = 'approved'
+        target['approved_date'] = datetime.utcnow().isoformat() + "Z"
+        target['approved_by'] = approved_by
+        target['last_updated'] = datetime.utcnow().isoformat() + "Z"
+        data['pending_count'] = sum(
+            1 for p in proposals if p.get('status') == 'pending')
+        data['approved_count'] = sum(
+            1 for p in proposals if p.get('status') == 'approved')
+        _save_json(PROPOSED_RULES_PATH, data)
+        return {
+            'success': True,
+            'action':  'demote_boost',
+            'target':  pattern_id,
+            'message': (
+                f"✅ Proposal {target.get('id')} approved\n"
+                f"Boost pattern {pattern_id} already had "
+                f"active=False; no change to mini_rules required."),
+            'pattern_id': pattern_id,
+        }
+
+    # Per S3 lock: mutation flips ONLY active=False. Audit trail
+    # lives in proposed_rules.json (proposal.id + approved_date +
+    # approved_by + pattern_id). Do NOT add demoted_date or
+    # demoted_by_proposal fields to mini_scanner_rules.json — that
+    # bloats the rules file with per-pattern decision metadata.
+    # "When was win_001 demoted" is answered by:
+    #   grep pattern_id=win_001 + action=demote_boost +
+    #   status=approved in proposed_rules.json
+    bp['active'] = False
+    _save_json(MINI_RULES_PATH, rules)
+
+    # Update proposal status
+    target['status'] = 'approved'
+    target['approved_date'] = datetime.utcnow().isoformat() + "Z"
+    target['approved_by'] = approved_by
+    target['last_updated'] = datetime.utcnow().isoformat() + "Z"
+
+    data['pending_count'] = sum(
+        1 for p in proposals if p.get('status') == 'pending')
+    data['approved_count'] = sum(
+        1 for p in proposals if p.get('status') == 'approved')
+
+    _save_json(PROPOSED_RULES_PATH, data)
+
+    sig = bp.get('signal') or '?'
+    sec = bp.get('sector') or 'any'
+    reg = bp.get('regime') or 'any'
+    msg = (
+        f"✅ Proposal {target.get('id')} approved\n"
+        f"Boost pattern demoted: {pattern_id} ({sig} × {sec} × {reg})\n"
+        f"active flipped to False. Reversible by manual re-edit."
+    )
+    return {
+        'success':    True,
+        'action':     'demote_boost',
+        'target':     pattern_id,
+        'message':    msg,
+        'pattern_id': pattern_id,
     }
 
 
