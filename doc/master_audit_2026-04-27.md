@@ -5,6 +5,8 @@
 **Repo head at audit time:** `3a7ceae` (after analysis-script header edit).
 **Audit basis:** repo state, git log, fix_table, session_context, bridge_design_v1, code reads. No fabrication — `[needs-verification]` where I'd otherwise guess.
 
+**Amended 2026-04-27 evening:** GAP-13 reclassified from HIGH to LOW after grep verification confirmed PWA does not read `bridge_state.json` (zero references in `output/*.js` or `output/analysis/*.js`). EOD SDR shape divergence cannot crash a consumer that doesn't exist yet. Affected: PART 5 (description), PART 10 (catalog row + severity tally + Top 5 ranking). See PART 5 GAP-13 entry for details.
+
 This audit is honest, not flattering. Where the architecture has tradeoffs or weaknesses (including in code shipped this week), they're named explicitly.
 
 ---
@@ -372,12 +374,11 @@ No surprises. All consumed via `${{ secrets.X }}` env injection. No hard-coded f
 | Has `outcome` block | ✗ | ✗ | ✓ (resolution data) |
 | Telegram firing | always | conditional | always |
 
-**GAP-13 (HIGH).** PWA app.js currently only knows L1/L2 SDR shape. When eod.yml ships (Session D), the PWA will receive plain-dict EOD signals and either:
-- Defensively `.get()` everything → render incomplete cards
-- Crash on missing `display` field
-- Skip `signals[]` entirely on EOD phase
+**GAP-13 (LOW — reclassified 2026-04-27 evening).** PWA does not currently read `bridge_state.json` (verified 2026-04-27 evening via grep of `output/*.js` and `output/analysis/*.js` — zero references to `bridge_state`, `bridgeState`, `state.phase`, or `state.signals`). EOD SDR shape divergence is invisible to current PWA: PWA reads `signal_history.json` directly via `data.history.history` in `output/app.js:1609`. When `eod.yml` ships in Session D and 16:00 IST EOD bot commits land, `bridge_state.json` updates but PWA never consumes it. **No current production risk.**
 
-The user already flagged this in tonight's audit but the Wave UI plan defers PWA work. **Recommend: write a one-line PWA guard before Session D ships** — `if (state.phase === 'EOD') skip signals tab render` until Wave UI integrates the resolution-card view.
+This becomes relevant **only** when Wave UI / IT-01 wires PWA-to-bridge-state integration. At that point, the IT-01 design must define both (a) PWA's bridge-state fetching strategy and (b) per-phase render handling — they're a single coherent decision, not a one-line guard. **Recommendation:** address as part of Wave UI / IT-01 design, not as a Session D pre-req.
+
+(Original audit overstated this gap. Initial assessment claimed PWA "will choke when eod.yml ships" but didn't verify PWA's actual bridge-state usage. Grep proved otherwise.)
 
 ### Renderer escape-pattern bug
 
@@ -749,7 +750,7 @@ If brain has a Tier 1 CLI surface (`[needs-verification]` from chat history):
 | GAP-10 | MEDIUM | ltp_updater no concurrency group | If yfinance slow, two runs could compete on push | Add `concurrency: ltp-updater` group | XS | 6 |
 | GAP-11 | LOW | failure handling style split | morning_scan uses `outcome=='failure'`; bridge uses `failure()` | Standardize on `if: failure()` everywhere | XS | 6 |
 | GAP-12 | LOW | morning_scan no exit-1 on push exhaustion | 3 retries fail silently; notify-on-failure won't fire | Add `exit 1` after for-loop | XS | 6 |
-| GAP-13 | HIGH | EOD plain-dict SDRs vs L1/L2 dataclass | PWA app.js will choke when eod.yml ships and EOD signals[] lands | Add PWA `if (state.phase === 'EOD') skip signals tab render` guard | XS (guard) / L (full integration) | 3 Session D pre-req / Wave UI |
+| GAP-13 | LOW (reclassified 2026-04-27) | EOD plain-dict SDRs vs L1/L2 dataclass | PWA does not currently read `bridge_state.json` (grep-verified zero refs); EOD SDR shape divergence has no current consumer. Becomes relevant only when Wave UI / IT-01 wires PWA-to-bridge integration. | Address as part of Wave UI / IT-01 design — define PWA bridge-state fetching strategy + per-phase render handling together | L (Wave UI work) | Wave UI / IT-01 |
 | GAP-14 | HIGH | PWA doesn't read bridge_state.json | Trader UI lives parallel to bridge decisions | IT-01 in Wave UI | L | UI |
 | GAP-15 | MEDIUM | No proposals/approval surface in PWA | Approval is Telegram-only | IT-05 in Wave UI | M | UI |
 | GAP-16 | LOW | No contra-tracker visibility in PWA | Kill-rule progress invisible | IT (contra tab) in Wave UI | M | UI |
@@ -774,17 +775,19 @@ If brain has a Tier 1 CLI surface (`[needs-verification]` from chat history):
 ### Severity tally
 
 - CRITICAL: 0
-- HIGH: 7 (GAP-01, 04, 13, 14, 21, 22, 33)
+- HIGH: 6 (GAP-01, 04, 14, 21, 22, 33) _— GAP-13 reclassified to LOW 2026-04-27 evening after PWA grep verification_
 - MEDIUM: 14
-- LOW: 12
+- LOW: 13 _— +1 from GAP-13 reclassification_
 
 ### Ranked Top 5 (CRITICAL/HIGH only)
 
-1. **GAP-33** (HIGH) — Brain layer has no design doc in the repo. Architecture decisions live only in chat history; if that context is lost, Wave 5 has to rediscover from scratch. **Highest immediate impact** despite zero code-level severity.
-2. **GAP-13** (HIGH) — EOD plain-dict SDRs will break PWA when eod.yml ships in Session D. Fix is one-line guard, takes 5 minutes; failure to fix means a broken signals tab on Day 1 of L4 production.
-3. **GAP-14** (HIGH) — PWA doesn't read bridge_state.json yet. Trader's UI is parallel to (and may disagree with) bridge decisions. Wave UI dependency; large effort to fix.
-4. **GAP-21 & GAP-22** (HIGH, related) — No portfolio correlation awareness, no learning-loop surface. Both are cognitive-gap issues that brain layer is meant to solve. Without brain, system gives signals but doesn't help trader synthesize across them.
-5. **GAP-01** (HIGH) — Multi-writer race on signal_history.json. Probability low under current cron schedule, but the cost when it fires is corruption of the canonical truth file.
+_(Updated 2026-04-27 evening: GAP-13 removed after PWA grep verification reclassified it to LOW; GAP-04 promoted into freed slot.)_
+
+1. **GAP-33** (HIGH) — Brain layer has no design doc in the repo. Architecture decisions live only in chat history; if that context is lost, Wave 5 has to rediscover from scratch. **Highest immediate impact** despite zero code-level severity. _(Closed by `brain_design_v1.md` commit `720c127`.)_
+2. **GAP-14** (HIGH) — PWA doesn't read bridge_state.json yet. Trader's UI is parallel to (and may disagree with) bridge decisions. Wave UI dependency; large effort to fix.
+3. **GAP-21 & GAP-22** (HIGH, related) — No portfolio correlation awareness, no learning-loop surface. Both are cognitive-gap issues that brain layer is meant to solve. Without brain, system gives signals but doesn't help trader synthesize across them.
+4. **GAP-01** (HIGH) — Multi-writer race on signal_history.json. Probability low under current cron schedule, but the cost when it fires is corruption of the canonical truth file.
+5. **GAP-04** (HIGH) — cron-job.org single point of failure: 14 of 24 workflows depend on it. Service outage breaks the day's precision-critical pipeline. Mitigation is a documented failover playbook (currently absent — see wave5_prerequisites S-4).
 
 ---
 

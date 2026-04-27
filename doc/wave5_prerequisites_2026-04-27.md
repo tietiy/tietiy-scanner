@@ -4,6 +4,8 @@
 **Source for gap IDs:** `doc/master_audit_2026-04-27.md` PART 10 (33 gaps catalogued, 7 HIGH).
 **Audit discipline:** every item below cross-references a specific gap or file location. No new claims.
 
+**Amended 2026-04-27 evening:** B-2 (GAP-13 PWA EOD-phase guard) moved from BLOCKING to NICE-TO-HAVE (now N-9) after grep verification confirmed PWA does not read `bridge_state.json`. B-1 (Session D) can now ship standalone — no PWA-side prerequisite. See `master_audit_2026-04-27.md` GAP-13 for the verification trail.
+
 ---
 
 ## How to read this doc
@@ -30,13 +32,9 @@ These must clear before the listed Wave 5 step ships. Work the list top-down.
 - **Effort:** S (workflow YAML mirrors `postopen.yml`); + cron-job.org config (external, manual).
 - **Sequence:** ship before Brain Step 2.
 
-### B-2. GAP-13 — PWA EOD-phase guard
+### B-2. _(Removed 2026-04-27 evening — see N-9)_
 
-- **Blocks:** B-1 (Session D) shipping safely. Without the guard, the first EOD bot commit at 16:00 IST on a trading day will land plain-dict EOD SDRs into `bridge_state.json`; PWA `app.js` will then choke on the missing `bucket` / `display` fields when the trader next opens the page.
-- **Cross-ref:** Master audit GAP-13 (HIGH).
-- **Files:** `output/app.js` (one branch in tab dispatch logic).
-- **Effort:** XS (one-line `if (state.phase === 'EOD') skip render;`).
-- **Sequence:** ship in same session as B-1, before the first eod.yml production fire.
+GAP-13 reclassified to LOW after PWA grep verification. Moved to NICE-TO-HAVE bucket as **N-9**. Original claim that this blocks Session D was wrong — PWA doesn't read bridge_state, so EOD SDR shape divergence has no current consumer.
 
 ### B-3. Anthropic SDK in venv + `ANTHROPIC_API_KEY` secret
 
@@ -53,7 +51,7 @@ These must clear before the listed Wave 5 step ships. Work the list top-down.
 - **Cross-ref:** Master audit GAP-33 — closed.
 - **Effort:** done.
 
-**BLOCKING tally:** 1 in-flight (B-1), 1 quick fix (B-2), 1 setup (B-3), 1 done (B-4). Effective remaining work: ~one focused session to clear B-1 + B-2 + B-3.
+**BLOCKING tally:** 1 in-flight (B-1), 1 setup (B-3), 1 done (B-4), 1 removed (B-2 → N-9). Effective remaining work: B-1 (Session D, can ship standalone) + B-3 (Anthropic SDK setup). Single focused session.
 
 ---
 
@@ -133,7 +131,13 @@ Genuinely deferrable. Listed for completeness so they're not forgotten.
 ### N-8. GAP-29 — P-01 broker P&L correlation ritual
 - **Effort:** M (process design, not code). Trader-skipped on 2026-04-23. Acknowledged ongoing risk; not blocking any code.
 
-**NICE-TO-HAVE tally:** 8 items. ~4-6 hours combined; none time-sensitive.
+### N-9. GAP-13 — PWA EOD-phase render handling
+- **Cross-ref:** Master audit GAP-13 (LOW, reclassified 2026-04-27 evening). Originally B-2 in this doc.
+- **Why deferred to Wave UI / IT-01:** PWA does not currently read `bridge_state.json` (verified 2026-04-27 evening via grep — zero references in `output/*.js` or `output/analysis/*.js`). EOD SDR shape divergence has no current consumer; no production risk. Becomes relevant only when Wave UI / IT-01 wires PWA-to-bridge-state integration, at which point the per-phase render strategy is part of IT-01's design — not a one-line guard.
+- **Effort:** L (folded into Wave UI work).
+- **Sequence:** Wave UI / IT-01 design pass.
+
+**NICE-TO-HAVE tally:** 9 items (was 8; +1 from B-2 reclassification). ~4-6 hours combined; none time-sensitive.
 
 ---
 
@@ -141,9 +145,11 @@ Genuinely deferrable. Listed for completeness so they're not forgotten.
 
 ```
 Next session:
-   1. Ship B-1 + B-2 in same session (Wave 3 Session D).
-      → eod.yml workflow + PWA EOD guard
+   1. Ship B-1 standalone (Wave 3 Session D).
+      → eod.yml workflow
       → cron-job.org dashboard update
+      (B-2 removed — PWA doesn't read bridge_state, no guard needed.
+       PWA EOD-phase render handling now N-9, deferred to Wave UI / IT-01.)
    2. Verify B-3 (anthropic SDK, API key).
       → pip install + secret set + one test call
 
@@ -171,11 +177,11 @@ Backlog (cleanup, low priority):
 
 | Bucket | Count | Total effort |
 |---|---|---|
-| BLOCKING | 4 (1 done, 3 active) | ~one session for B-1+B-2+B-3 |
+| BLOCKING | 3 (1 done, 2 active) _was 4 before B-2 reclassification_ | ~one session for B-1 + B-3 |
 | SHOULD-FIX | 5 | ~3-5 hours across multiple sessions |
-| NICE-TO-HAVE | 8 | ~4-6 hours combined; defer |
+| NICE-TO-HAVE | 9 _was 8; +1 from B-2 → N-9_ | ~4-6 hours combined; defer |
 
-**Bottom line:** Wave 5 backend (Brain Steps 2-7) is unblocked after one focused session that ships eod.yml + PWA EOD guard + Anthropic SDK setup. The other four prerequisite-flagged items are quality improvements, not gates.
+**Bottom line:** Wave 5 backend (Brain Steps 2-7) is unblocked after one focused session that ships eod.yml + Anthropic SDK setup. (Originally a third item — PWA EOD guard — was listed; it has been correctly removed after grep verification proved PWA doesn't read bridge_state.) The other prerequisite-flagged items are quality improvements, not gates.
 
 ---
 
