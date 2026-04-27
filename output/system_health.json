@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-04-24T10:06:35.799611+00:00",
-  "date": "2026-04-24",
+  "generated_at": "2026-04-27T10:05:51.637574+00:00",
+  "date": "2026-04-27",
   "trading_day": true,
   "overall": "warn",
   "checks": {
@@ -11,19 +11,27 @@
     },
     "open_validate": {
       "status": "ok",
-      "note": "10 opens validated at 03:57 IST"
+      "note": "2 opens validated at 03:57 IST"
     },
     "eod_update": {
       "status": "warn",
-      "note": "No symbol has 2026-04-24 data yet"
+      "note": "No symbol has 2026-04-27 data yet"
     },
     "outcome_eval": {
       "status": "ok",
-      "note": "278 records, 126 pending, 152 resolved"
+      "note": "280 records, 92 pending, 188 resolved"
     },
     "pattern_miner": {
       "status": "warn",
-      "note": "Last run: 2026-04-19"
+      "note": "Last run: 2026-04-24"
+    },
+    "rule_proposer": {
+      "status": "warn",
+      "note": "Last run: 2026-04-24 \u2014 rule_proposer did not write today (0-pattern day or chain break)"
+    },
+    "contra_tracker": {
+      "status": "ok",
+      "note": "1 shadows (R:0 P:1) \u2014 last: 2026-04-24"
     }
   },
   "alerts": []
