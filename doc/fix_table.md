@@ -138,7 +138,7 @@ Audit doc: `/tmp/project_wide_schema_audit.md` (will be moved or summarised here
 
 ### Known follow-ups (formerly `/tmp/tonight_followups.md`)
 
-1. **bucket_engine `_MODERATE_SECTOR_WR=0.65` hardcoded** — should move to `scanner/bridge/rules/thresholds.py` as `COHORT_MODERATE_SECTOR_WR`. Single-line change. Effort: trivial.
+1. ✅ **DONE 2026-04-27** — ~~bucket_engine `_MODERATE_SECTOR_WR=0.65` hardcoded — should move to `scanner/bridge/rules/thresholds.py` as `COHORT_MODERATE_SECTOR_WR`. Single-line change. Effort: trivial.~~ Migrated to `COHORT_MODERATE_SECTOR_WR` in `scanner/bridge/rules/thresholds.py`. Original text preserved (strikethrough) for audit trail.
 2. **evidence_collector + bucket_engine both call boost_matcher and kill_matcher for the same signal** — duplicate work per signal. Move calls into `evidence_collector` (which already populates `evidence['boost_match']` / `evidence['kill_match']`), have `bucket_engine` read from the evidence dict instead of re-calling matchers. Saves work and guarantees a single source of truth for which boost/kill matched. Effort: small refactor.
 3. **Plain-dict EOD SDRs diverge from L1/L2 SDR schema.** EOD SDRs (composers/eod.py) omit `bucket`, `bucket_reason_*`, `gap_caveat`, `display`, `learner_hooks`. Verify PWA defensively `.get()`s these or skips signals[] on EOD phase BEFORE eod.yml workflow deploys to production. Track as Wave 3 Session D pre-req.
 4. **`_render_contra_section` escape pattern (now fixed).** Any literal between two `_esc()` calls is a reserved-char leak vector. Caught during code review of EOD digest renderer (`19d4146`); smoke test 8 verified the fix. Pattern to watch in future renderers — when in doubt, build pieces as plain strings and `_esc` whole body once.
