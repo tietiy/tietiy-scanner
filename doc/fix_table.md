@@ -144,6 +144,7 @@ Audit doc: `/tmp/project_wide_schema_audit.md` (will be moved or summarised here
 4. **`_render_contra_section` escape pattern (now fixed).** Any literal between two `_esc()` calls is a reserved-char leak vector. Caught during code review of EOD digest renderer (`19d4146`); smoke test 8 verified the fix. Pattern to watch in future renderers — when in doubt, build pieces as plain strings and `_esc` whole body once.
 5. **`composers/eod.py` lacks explicit `is_trading_day` SKIPPED branch.** Currently handled at `bridge.py` pre-flight (line 119). Operationally fine since cron-job.org runs Mon-Fri only, but a SKIPPED branch in `eod.py` would make the composer self-contained. Cosmetic.
 6. **`pattern_updates[]` and proposal alerts assume flat `{message}` shape** in `bridge_telegram_eod.py`. If Session C ships richer structure (e.g. nested fields per pattern), update renderer to read those fields and re-render rather than just `_esc(message)`.
+7. **(2026-04-27) Companion migration:** `_THIN_FALLBACK_SECTOR_WR` + `_THIN_FALLBACK_REGIME_WR` also moved to `scanner/bridge/rules/thresholds.py` per same pattern (commit `b1359f1`). Closes the locally-hardcoded threshold cluster in `bucket_engine.py`.
 
 ---
 
