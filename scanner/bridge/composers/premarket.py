@@ -28,6 +28,7 @@ from scanner.bridge.core import (
 )
 from scanner.bridge.core.sdr import SDR
 from scanner.bridge.queries import q_open_positions, q_signal_today
+from scanner.bridge.rules import watch_matcher
 from scanner.bridge.rules.thresholds import (
     BRIDGE_STATE_SCHEMA_VERSION,
     CONTRA_BLOCK_SCHEMA_VERSION,
@@ -202,6 +203,16 @@ def _process_one_signal(signal: dict,
         bridge_signal, truth_files)
     queries_executed = evidence_collector.get_queries_executed_list()
     queries_failed = evidence_collector.get_queries_failed_list()
+
+    # Watch-pattern check (informational; never affects bucket).
+    # Read-only metadata layer — see scanner/bridge/rules/watch_matcher.py.
+    watch_matches = watch_matcher.check_matches(
+        bridge_signal,
+        (truth_files.get("mini_scanner_rules") or {}).get(
+            "watch_patterns", []),
+    )
+    if watch_matches:
+        evidence["watch_warnings"] = watch_matches
 
     bucket_result = bucket_engine.assign_bucket(
         bridge_signal, evidence,

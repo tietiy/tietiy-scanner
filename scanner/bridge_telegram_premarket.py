@@ -214,6 +214,14 @@ def _render_brief(state: dict) -> str:
         lines.append("")
         lines.append(_esc("No new signals today"))
 
+    # Caveats footer — surfaces watch_warnings across all buckets.
+    # Additive only; bucket rendering above is unchanged.
+    caveats_block = _render_caveats_footer(signals)
+    if caveats_block:
+        lines.append("")
+        lines.append("────")
+        lines.append(caveats_block)
+
     # Footer dividers
     contra_line = _render_contra_footer(contra)
     alert_line = _render_alerts_footer(alerts)
@@ -293,6 +301,40 @@ def _render_signal(sdr: dict) -> str:
         block.append(_render_gap_caveat(gap_pct, gap_price))
 
     return "\n".join(block)
+
+
+def _render_caveats_footer(signals: list) -> Optional[str]:
+    """One row per signal that carries any watch_warnings. Returns
+    None when no signal in today's set has a match. Per CLAUDE.md §5,
+    pieces are built as plain strings and _esc'd once at the end so
+    reserved chars in warning_text and descriptor get escaped uniformly.
+    """
+    if not isinstance(signals, list):
+        return None
+
+    rows = []   # list of plain strings: "SYMBOL (descriptor): text"
+    for sdr in signals:
+        if not isinstance(sdr, dict):
+            continue
+        warnings = (sdr.get("evidence") or {}).get("watch_warnings")
+        if not isinstance(warnings, list) or not warnings:
+            continue
+        symbol = _clean_symbol(sdr.get("symbol"))
+        for w in warnings:
+            if not isinstance(w, dict):
+                continue
+            desc = w.get("descriptor") or "?"
+            text = w.get("warning_text") or ""
+            if not text:
+                continue
+            rows.append(f"{symbol} ({desc}): {text}")
+
+    if not rows:
+        return None
+
+    body = "\n".join(rows)
+    # Header emoji + label kept separate (no escapable chars).
+    return f"⚠️ Caveats\n{_esc(body)}"
 
 
 def _render_contra_footer(contra: dict) -> Optional[str]:
