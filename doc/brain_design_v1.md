@@ -5,6 +5,8 @@
 **Companion docs:** `bridge_design_v1.md` (architectural conventions), `master_audit_2026-04-27.md` PART 8 + PART 9 (integration map + approval consolidation), `fix_table.md` LE-series (open work).
 **Inheritance:** Brain inherits the bridge's load-bearing principles — read-only, single chokepoint, schema versioned from day one, plugin auto-discovery, immutable phase records, human approval mandatory.
 
+**Amended 2026-04-28:** Wave 4 closure drift audit pass — design substance verified intact. Status update annotations added for: §11 Q5 Session D ship (`f9d4746`), §12 LE-06 ship (`7b96a97`), §3 R-multiple-as-tier-threshold caveat under Day-6 forced-exit dominance (deferred to `exit_logic_redesign_v1.md` track). No design substance changes; status refresh only.
+
 This document locks the brain-layer design into the repo. Where chat-history detail isn't load-bearing, this doc states a default; where the answer is genuinely open, it's flagged in §11.
 
 ---
@@ -99,6 +101,8 @@ Rules earn tier promotion through statistical thresholds. Once promoted, rules c
 **Backtest seed handling.** Rules pre-loaded from running statistical analysis on the existing 141 resolved signals (~136 after schema-discipline filter, per `analysis_report_2026-04-27.md`). These carry `source: "backtest_derived"` and `days_validated_forward: 0`. After 30 calendar days of forward observation, brain auto-promotes (still no approval needed for *seed validation*, only for *initial activation*) those that meet thresholds with both backtest + forward agreement; auto-demotes those that fail forward.
 
 **Rationale for three tiers vs binary.** Binary (active/inactive) creates a cliff — a rule passing 84% WR has zero influence; passing 86% has full TAKE_FULL influence. Three-tier scaling smooths the discontinuity and gives Wave-3 boost-pattern data (currently 7 patterns, all hand-flagged Tier A or B in `mini_scanner_rules.json`) a gradient of system trust.
+
+**Status note 2026-04-28 (R-multiple under Day-6 dominance):** The R-multiple threshold column above is computed from realized P&L / risk on resolved trades. Per the F-2 audit (2026-04-28) and the prop_005 reframe rationale, today's live R-multiple distribution is dominated by Day-6 forced-exit outcomes (35/36 of 2026-04-27 resolutions were Day-6 outcomes, not target/stop hits). If the deferred exit-logic redesign track (`exit_logic_redesign_v1.md`, design only — not yet drafted) reshapes the exit-mechanism distribution, the R-multiple thresholds in this table may need recalibration before Step 5 LLM gates depend on Tier S/M assignments. Flagged for design rev when exit_logic_redesign_v1.md drafts; not addressed in tonight's status-refresh pass.
 
 ---
 
@@ -453,6 +457,8 @@ Brain reads `decisions_journal.json` history. When brain's proposal disagrees wi
 
 Bridge writes 3 phase snapshots per trading day to `bridge_state_history/`. Brain runs nightly at 22:00 IST — long after the day's L4 phase landed (16:00). Brain reads from `bridge_state_history/<date>_EOD.json` (when it exists) for that day's full record. If L4 didn't run (Session D not yet shipped), brain falls back to `bridge_state_history/<date>_POST_OPEN.json` and degrades gracefully with `degraded_input: ["no_L4_state_for_<date>"]` in `reasoning_log.json`. **This is part of why Wave 3 Session D is a Wave-5 prerequisite (see `wave5_prerequisites_2026-04-27.md`).**
 
+**Status update 2026-04-28:** Wave 3 Session D shipped this morning as `eod.yml` (commit `f9d4746`); the wave5_prerequisites B-1 dependency is satisfied (production verification still pending the 16:15 IST first fire). The fallback logic remains useful but its trigger condition narrows: now applies only to days when eod.yml fails per-run, not to "Session D not shipped" as a broader rollout state.
+
 **Q6. Brain folder structure: flat 8 modules or nested by responsibility?**
 
 Default to flat. Bridge proved flat-with-prefix works (composers/, core/, queries/, rules/). Brain's 8 modules are small enough to live at one level. If `brain_derive.py` grows past 600 LOC, split into `brain/derivers/` plugin folder per the bridge precedent.
@@ -476,7 +482,7 @@ Default to flat. Bridge proved flat-with-prefix works (composers/, core/, querie
 | Specific gaps brain addresses | `master_audit_2026-04-27.md` GAP-21 (correlation), GAP-22 (learning loop), GAP-25 (note capture), GAP-26 (portfolio view), GAP-33 (brain doc gap — this doc closes it) |
 | LE-series open work | `fix_table.md` LE-01..LE-07 |
 | LE-05 (PWA → Telegram deep-link) | Wave UI dependency for Step 8 |
-| LE-06 (demotion framework) | Wave 4 work that brain inherits + extends |
+| LE-06 (demotion framework) | Wave 4 work that brain inherits + extends — shipped 2026-04-28 commit `7b96a97` |
 | Wave 5 ship plan | `fix_table.md` SHIP PLAN section |
 
 ---
