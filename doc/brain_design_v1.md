@@ -368,12 +368,17 @@ Pure dedup against pending `proposed_rules.json` entries is NOT a conflict — h
 - `counter.risks[]` MUST include the exact-match string `"approval would propagate <conflict_type> to mini_scanner_rules.json"` substituting actual conflict_type. If multiple conflict_types co-exist (rare; e.g., one redundant + one overlap), one risk string per distinct type. Example: `"approval would propagate overlap to mini_scanner_rules.json"`.
 - `decision_metadata.conflicts_with` MUST be a list of objects (NOT a flat string list): `[{rule_id: "<id>", conflict_type: "<type>"}, ...]`. Programmatic structured format enables Step 7 Telegram badge rendering ("REDUNDANT" vs "OVERLAP" vs "CONTRADICTION") + future analytics queries.
 
-`brain_verify.verify_proposal` extends the §6 16-violation taxonomy with three new codes enforcing surfacing format:
+The proposal verification gate extends with three new violation codes enforcing surfacing format. These codes live in `brain_output.verify_conflict_surfacing()` (Step 6 finalizer's semantic validator), separate from `brain_verify.verify_proposal()` which owns §6 shape rules. The §5.1 codes are STATE-DEPENDENT (need mini_scanner_rules context), while §6 codes are pure shape:
+
 - `conflict_evidence_missing` — `decision_metadata.conflicts_with` non-empty but `counter.evidence[]` lacks programmatic-format citation for ≥1 listed rule_id.
 - `conflict_risk_missing` — `decision_metadata.conflicts_with` non-empty but `counter.risks[]` lacks exact-match risk string for ≥1 listed conflict_type.
 - `conflict_metadata_missing` — heuristic detector found a conflict (active rule matches proposal tuple) but `decision_metadata.conflicts_with` is empty/missing.
 
-A proposal failing surfacing is rejected into `verification_failures.json` (same path as other shape failures). Step 6 finalizer MUST run conflict-detection BEFORE verify_proposal (so verify can enforce surfacing on the populated metadata).
+A proposal failing either gate is rejected into `verification_failures.json` (same path as other shape failures). Step 6 finalizer ordering:
+1. `detect_conflicts` populates `decision_metadata.conflicts_with` + counter additions
+2. `verify_proposal` validates §6 shape (state-independent)
+3. `verify_conflict_surfacing` validates §5.1 semantics (state-dependent)
+4. Both gates must pass for inclusion in `unified_proposals.json`
 
 **Why surface, not suppress.** Auto-suppression hides cohort classification readiness from the trader, defeating the "smarter every day" reasoning_log mechanism. Surfacing in `counter` aligns with §6 "honest pre-verification" — the trader sees the conflict at approval time, makes the informed call. Differentiated `conflict_type` lets the trader read intent at-a-glance: REDUNDANT = no-op approval; OVERLAP = scope-expansion decision; CONTRADICTION = real safety call. Cost: single-trader skim-and-approve risk on contradiction-type; mitigated by structured counter format + verify_proposal enforcement + Step 7 Telegram badge (deferred to Step 7 design).
 
