@@ -7,6 +7,8 @@
 
 **Amended 2026-04-27 evening:** GAP-13 reclassified from HIGH to LOW after grep verification confirmed PWA does not read `bridge_state.json` (zero references in `output/*.js` or `output/analysis/*.js`). EOD SDR shape divergence cannot crash a consumer that doesn't exist yet. Affected: PART 5 (description), PART 10 (catalog row + severity tally + Top 5 ranking). See PART 5 GAP-13 entry for details.
 
+**Amended 2026-04-28:** GAP-33 status updated to RESOLVED (Top-5 ranking already noted closure; now propagated to PART 10 catalog row, severity tally, and closing line). GAP-04 annotated PARTIAL (`eod.yml` moved off cron-job.org). Severity tally: HIGH 6 → 5. Closing line corrected from "7 HIGH" → "5 HIGH". See "Closure note 2026-04-28" at end of file.
+
 This audit is honest, not flattering. Where the architecture has tradeoffs or weaknesses (including in code shipped this week), they're named explicitly.
 
 ---
@@ -772,10 +774,14 @@ If brain has a Tier 1 CLI surface (`[needs-verification]` from chat history):
 | GAP-32 | MEDIUM | bridge state_writer doesn't validate signals[] shape | L1/L2/L4 SDR divergence invisible to writer | Add per-phase signals[] validator (or accept as design choice) | S | 4 |
 | GAP-33 | HIGH | Brain layer has zero design doc in repo | Locked-in-chat-history-only architecture is fragile | Write `doc/brain_design_v1.md` BEFORE coding starts in Wave 5 | S | 5 pre-req |
 
+**Status update 2026-04-28 (GAP-33):** RESOLVED via commit `720c127` — `doc/brain_design_v1.md` (Wave 5 blueprint) shipped 2026-04-27 evening as the explicit closure of this gap. Top-5 ranking already notes this; status now propagated to the catalog row.
+
+**Status update 2026-04-28 (GAP-04):** PARTIAL — `eod.yml` moved to GitHub native schedule per `bridge_design_v1.md §13.4` (commit `f9d4746`). One of 14 precision-critical workflows now off cron-job.org. Severity remains HIGH because 13 workflows still depend on cron-job.org and the failover playbook (Wave 5 prereq S-4) is still PENDING.
+
 ### Severity tally
 
 - CRITICAL: 0
-- HIGH: 6 (GAP-01, 04, 14, 21, 22, 33) _— GAP-13 reclassified to LOW 2026-04-27 evening after PWA grep verification_
+- HIGH: 5 (GAP-01, 04, 14, 21, 22) _— GAP-13 reclassified to LOW 2026-04-27 evening after PWA grep verification; GAP-33 RESOLVED 2026-04-28 via commit `720c127` (brain_design_v1.md)_
 - MEDIUM: 14
 - LOW: 13 _— +1 from GAP-13 reclassification_
 
@@ -976,4 +982,10 @@ Each of these is a legitimate audit topic; this audit leaves them for future pas
 
 ---
 
-_Audit end. 33 gaps catalogued. 7 HIGH. 0 CRITICAL. The system is healthy enough to keep building, with three priorities for the next session: (1) write brain_design_v1.md before Wave 5 code, (2) add the EOD-phase PWA guard before Session D ships, (3) ship Sessions C+D to close out Wave 3._
+_Audit end. 33 gaps catalogued. 5 HIGH. 0 CRITICAL. The system is healthy enough to keep building, with three priorities for the next session: (1) write brain_design_v1.md before Wave 5 code, (2) add the EOD-phase PWA guard before Session D ships, (3) ship Sessions C+D to close out Wave 3._
+
+---
+
+## Closure note 2026-04-28
+
+After Wave 4 closure 2026-04-28: 1 HIGH gap RESOLVED (GAP-33 via `720c127`). 1 HIGH gap PARTIAL (GAP-04 via `f9d4746`, severity unchanged — failover playbook still pending). The three priorities listed in the audit-end above all landed: (1) `brain_design_v1.md` shipped 2026-04-27 (`720c127`); (2) GAP-13 PWA-guard need reversed by grep verification — PWA doesn't read `bridge_state.json` (commit `3650f57` reclassified GAP-13 to LOW; deferred to Wave UI / IT-01 as N-9 in `wave5_prerequisites_2026-04-27.md`); (3) Wave 3 Sessions C+D shipped — Session C inside LE-06 commit `7b96a97`, Session D as `eod.yml` in commit `f9d4746`. Wave 5 backend is unblocked. See `doc/fix_table.md` change-log for full Wave 4 + tonight's commit hashes.
