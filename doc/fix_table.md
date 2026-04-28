@@ -237,11 +237,15 @@ Triggered at 16:00 IST after eod_master chain. Outcome digest. Unifies UX-02/03/
 
 **Sessions C+D pending:** LE-06 boost demotion warnings (rolling-window WR per `boost_pattern` → `state.summary.pattern_updates`); `.github/workflows/eod.yml` + cron-job.org dashboard schedule.
 
+**Status update 2026-04-28 (manual dispatch verified):** Sessions C + D both shipped (LE-06 in `7b96a97`, eod.yml in `f9d4746`). eod.yml ran end-to-end clean via manual `workflow_dispatch` at 19:01 IST today (commit `a5edc32` "Bridge eod 2026-04-28 13:31 IST" — UTC labeled as IST per GAP-06; real IST 19:01). `output/bridge_state_history/2026-04-28_EOD.json` (150KB) shape verified: 3 resolutions (W:1 L:2 F:0, total_pnl_pct +3.01%), 80 open positions, `pattern_updates: []` empty as expected (81% baseline well above 70% LE-06 floor — code path verified by absence-of-fire), contra block carries kill_001 + 2 RBLBANK shadows. Telegram digest delivered (user-confirmed). DEGRADED phase_status traces to known M-12 step-ordering artifact, not a fresh defect. Scheduled-tick verification deferred to upcoming cron-job.org migration (today the GitHub-native-schedule trigger missed entirely — see M-15). **UX-03 retirement priority elevated:** bridge L4 digest verified content-complete vs legacy `main.py eod` digest; once cron-job.org migration lands, legacy path should retire same week to avoid trader confusion (two parallel EOD digests per day fired today — see M-16 for an open-positions count discrepancy that surfaced during the comparison).
+
 ### BR-05 — GitHub Actions workflow wiring
 
 **Status:** PENDING · **Priority:** Wave 2 partial (premarket) + Wave 3 (full) · **Effort:** S per workflow
 
 Three bridge trigger workflows (premarket / postopen / eod). Each `workflow_dispatch` + upstream chain of workflow_run triggers.
+
+**Status update 2026-04-28 (manual dispatch verified):** All three bridge workflows shipped — premarket.yml + postopen.yml on cron-job.org, eod.yml on GitHub native schedule (`f9d4746` per §13.4). eod.yml verified end-to-end via manual `workflow_dispatch` at 19:01 IST today (commit `a5edc32`). Workflow ran in ~3 min from dispatch to commit-on-main. Bridge L4 archive + Telegram digest both produced clean. **Scheduled-tick verification still pending** — today's GitHub-native-schedule trigger missed (see M-15); cron-job.org migration upcoming.
 
 ### BR-06 — bridge_state.json schema v1
 
@@ -467,6 +471,27 @@ Identified during B-2 verification audit 2026-04-28. No code changes during audi
 
 **Fix proposal (defer):** Move colab_sync.yml from `45 10 * * 1-5` to e.g. `15 11 * * 1-5` (16:45 IST). Gives eod.yml an exclusive 16:15 IST window, leaves colab_sync 30 min later, still post-eod_master. Could pair with M-12 fix audit since both touch workflow scheduling.
 
+### M-15 — GitHub native schedule miss-rate observed 2026-04-28
+
+**Status:** PENDING (full scope captured in upcoming cron-job.org migration commit) · **Priority:** Will be addressed by eod.yml migration
+
+All three weekday GitHub-native-schedule workflows (eod.yml at 16:15 IST, colab_sync.yml at 16:15 IST, diagnostic.yml at 16:30 IST) failed to fire today (2026-04-28) despite cron-job.org-dispatched workflows running cleanly. This reverses the §13.4 SPOF-reduction rationale that placed eod.yml on GitHub schedule. Scope of fix: migrate eod.yml to cron-job.org dispatch; colab_sync + diagnostic separately. Full migration plan in upcoming dedicated prompt.
+
+### M-16 — open-positions count discrepancy: 94 (legacy main.py eod) vs 80 (bridge L4)
+
+**Status:** PENDING · **Priority:** L (definitional difference, not a defect; trader-confusing once both digests are live)
+
+Surfaced during 2026-04-28 manual eod.yml dispatch verification. Today's two EOD Telegram digests reported different open-position counts:
+- 15:36 IST legacy `main.py eod` digest: "Open: 94"
+- 19:01 IST bridge L4 digest: 80 (per `bridge_state_history/2026-04-28_EOD.json` `summary.open_positions_count`)
+
+Likely explanation: legacy counts any record with `outcome=OPEN`; bridge L4 filter is "active positions in current 6-day trading window." Not a defect in either workflow — just two different counting schemes that diverge on stale records.
+
+**Fix scope (investigate during UX-03 retirement audit):**
+1. Determine which count is correct for trader's mental model (likely the 6-day-window count is what the trader cares about)
+2. Either align the legacy count to the bridge filter (preferred — single source of truth), OR document the difference inline so trader understands what each digest is showing
+3. Once cron-job.org migration lands and eod.yml fires reliably, UX-03 retirement (legacy `main.py eod` digest path) becomes the natural moment to resolve M-16 — the legacy count goes away.
+
 ---
 
 ## 📊 TIER 9 — ANALYSIS & INVESTIGATION
@@ -633,6 +658,7 @@ HL-01 + MC-01 + OPS-01..04 + prop_001 revival + H-04/D3 + H-06 + H-07.
 | 2026-04-28 (mid-day) | **B-2 verified — Wave 5 prereq cleared on infrastructure side.** All 6 cron-job.org dispatches (morning_scan, open_validate, premarket, postopen, ltp_updater, stop_check) fired on schedule today with timestamp evidence in git log. eod.yml uses GitHub native schedule per `bridge_design_v1.md §13.4` (deliberate cron-job.org bypass for SPOF reduction). eod_master at 15:35 IST will populate today's chain outputs; eod.yml at 16:15 IST will read fresh data via the 25–55 min buffer. Schedule collision between eod.yml and colab_sync.yml at 16:15 IST surfaced and filed as M-14 (cosmetic, no fire-blocker). All Wave 5 prereqs B-1, B-2, B-3 status: B-2 ✅ verified, B-3 ✅ shipped (`d6ddc01`), B-1 ⏸ pending eod.yml first fire at 16:15 IST today. |
 | 2026-04-28 (mid-day) | **master_audit_2026-04-27.md gap status refresh.** GAP-33 (Brain design doc) marked RESOLVED via `720c127`; GAP-04 (cron-job.org SPOF) annotated PARTIAL via `f9d4746` (eod.yml moved off, 13 of 14 workflows still on cron-job.org). Severity tally HIGH 6 → 5; closing line corrected from "7 HIGH" → "5 HIGH". Pre-existing closing-line inconsistency (carried forward from GAP-13 reclass) also resolved. |
 | 2026-04-28 (mid-day) | **brain_design_v1.md drift audit — design substance intact, 4 status annotations applied.** §1 amendment header notes today's audit pass. §3 status note flags R-multiple-as-tier-threshold concern under Day-6 forced-exit dominance (deferred to `exit_logic_redesign_v1.md` track when that doc gets drafted). §11 Q5 status update notes Session D shipped (`f9d4746`); fallback logic now narrowed to per-day eod.yml-fail tolerance. §12 LE-06 cross-ref row updated with ship commit `7b96a97`. No design substance changes; status refresh only. |
+| 2026-04-28 (evening) | **B-1 verified via manual workflow_dispatch — eod.yml runs end-to-end clean.** GitHub native schedule missed today's 16:15 IST tick (along with colab_sync + diagnostic — see M-15). User manually dispatched eod.yml via GitHub UI; workflow committed `a5edc32` "Bridge eod 2026-04-28 13:31 IST" at 19:01 IST. Bridge L4 archive `bridge_state_history/2026-04-28_EOD.json` (150KB) shape verified: 3 resolutions (W:1 L:2 F:0, +3.01%), 80 open positions, `pattern_updates: []` empty as expected (LE-06 path verified by absence-of-fire), contra block clean. Telegram digest delivered (user-confirmed). DEGRADED phase_status traces to known M-12 step-ordering. Filed M-15 (GitHub schedule miss-rate) + M-16 (open-positions count discrepancy 94 legacy vs 80 bridge). UX-03 retirement priority elevated. **Scheduled-tick verification still pending** — cron-job.org migration commit upcoming (separate prompt) will reverse §13.4 GitHub-native decision based on today's miss-rate evidence and add eod.yml as a cron-job.org dispatch entry. |
 
 ---
 
