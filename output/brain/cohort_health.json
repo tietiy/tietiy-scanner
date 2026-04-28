@@ -1,0 +1,532 @@
+{
+  "as_of_date": "2026-04-28",
+  "_metadata": {
+    "n_min_for_inclusion": 3,
+    "wilson_confidence": 0.95,
+    "tier_classifier_ref": "doc/brain_design_v1.md §3",
+    "axes_evaluated": [
+      "signal+regime",
+      "signal+sector"
+    ],
+    "source_files": [
+      "signal_history.json"
+    ],
+    "cohort_aggregate_r_multiple_mean": 0.28,
+    "warnings": [
+      {
+        "level": "warn",
+        "code": "r_multiple_under_day6_dominance",
+        "message": "R-multiple thresholds for Tier S/M classification are under review per exit_logic_redesign track (D-8). 35/36 of Apr-27 resolutions exited via Day-6 forced exit, capping observable R-multiple. Tier S/M may underclassify cohorts.",
+        "context": {
+          "decision_ref": "project_anchor_v1.md §7 D-8",
+          "drift_audit_commit": "c278a32",
+          "evidence": "35/36 Apr-27 resolutions via Day-6 forced exit"
+        }
+      }
+    ]
+  },
+  "total_resolved": 181,
+  "baselines": {
+    "BULL_PROXY": {
+      "n": 24,
+      "wr": 0.6667,
+      "avg_pnl_pct": 4.28
+    },
+    "DOWN_TRI": {
+      "n": 24,
+      "wr": 0.1739,
+      "avg_pnl_pct": -6.2
+    },
+    "DOWN_TRI_SA": {
+      "n": 2,
+      "wr": 0.0,
+      "avg_pnl_pct": 0.0
+    },
+    "UP_TRI": {
+      "n": 131,
+      "wr": 0.7674,
+      "avg_pnl_pct": 3.85
+    }
+  },
+  "cohorts": [
+    {
+      "cohort_id": "regime=Bear__signal_type=BULL_PROXY",
+      "cohort_axis": "signal+regime",
+      "cohort_filter": {
+        "signal_type": "BULL_PROXY",
+        "regime": "Bear"
+      },
+      "n": 16,
+      "wins": 14,
+      "losses": 2,
+      "flat": 0,
+      "wr": 0.875,
+      "wr_wilson_lower": 0.6398,
+      "avg_pnl_pct": 7.03,
+      "edge_vs_baseline_pp": 20.8,
+      "r_multiple": 1.01,
+      "r_multiple_count": 16,
+      "tier": "W"
+    },
+    {
+      "cohort_id": "regime=Bear__signal_type=DOWN_TRI",
+      "cohort_axis": "signal+regime",
+      "cohort_filter": {
+        "signal_type": "DOWN_TRI",
+        "regime": "Bear"
+      },
+      "n": 21,
+      "wins": 4,
+      "losses": 16,
+      "flat": 0,
+      "wr": 0.2,
+      "wr_wilson_lower": 0.0807,
+      "avg_pnl_pct": -6.94,
+      "edge_vs_baseline_pp": 2.6,
+      "r_multiple": -0.58,
+      "r_multiple_count": 21,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "regime=Bear__signal_type=UP_TRI",
+      "cohort_axis": "signal+regime",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear"
+      },
+      "n": 96,
+      "wins": 89,
+      "losses": 5,
+      "flat": 0,
+      "wr": 0.9468,
+      "wr_wilson_lower": 0.8815,
+      "avg_pnl_pct": 5.87,
+      "edge_vs_baseline_pp": 17.9,
+      "r_multiple": 0.61,
+      "r_multiple_count": 96,
+      "tier": "M"
+    },
+    {
+      "cohort_id": "regime=Choppy__signal_type=BULL_PROXY",
+      "cohort_axis": "signal+regime",
+      "cohort_filter": {
+        "signal_type": "BULL_PROXY",
+        "regime": "Choppy"
+      },
+      "n": 8,
+      "wins": 2,
+      "losses": 6,
+      "flat": 0,
+      "wr": 0.25,
+      "wr_wilson_lower": 0.0715,
+      "avg_pnl_pct": -1.22,
+      "edge_vs_baseline_pp": -41.7,
+      "r_multiple": -0.33,
+      "r_multiple_count": 8,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "regime=Choppy__signal_type=DOWN_TRI",
+      "cohort_axis": "signal+regime",
+      "cohort_filter": {
+        "signal_type": "DOWN_TRI",
+        "regime": "Choppy"
+      },
+      "n": 3,
+      "wins": 0,
+      "losses": 3,
+      "flat": 0,
+      "wr": 0.0,
+      "wr_wilson_lower": 0.0,
+      "avg_pnl_pct": -1.03,
+      "edge_vs_baseline_pp": -17.4,
+      "r_multiple": -0.18,
+      "r_multiple_count": 3,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "regime=Choppy__signal_type=UP_TRI",
+      "cohort_axis": "signal+regime",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy"
+      },
+      "n": 35,
+      "wins": 10,
+      "losses": 24,
+      "flat": 1,
+      "wr": 0.2857,
+      "wr_wilson_lower": 0.1633,
+      "avg_pnl_pct": -1.66,
+      "edge_vs_baseline_pp": -48.2,
+      "r_multiple": -0.08,
+      "r_multiple_count": 35,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Auto__signal_type=BULL_PROXY",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "BULL_PROXY",
+        "sector": "Auto"
+      },
+      "n": 3,
+      "wins": 2,
+      "losses": 1,
+      "flat": 0,
+      "wr": 0.6667,
+      "wr_wilson_lower": 0.2077,
+      "avg_pnl_pct": 1.01,
+      "edge_vs_baseline_pp": 0.0,
+      "r_multiple": 0.16,
+      "r_multiple_count": 3,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Auto__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "Auto"
+      },
+      "n": 15,
+      "wins": 13,
+      "losses": 2,
+      "flat": 0,
+      "wr": 0.8667,
+      "wr_wilson_lower": 0.6212,
+      "avg_pnl_pct": 6.5,
+      "edge_vs_baseline_pp": 9.9,
+      "r_multiple": 1.07,
+      "r_multiple_count": 15,
+      "tier": "W"
+    },
+    {
+      "cohort_id": "sector=Bank__signal_type=BULL_PROXY",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "BULL_PROXY",
+        "sector": "Bank"
+      },
+      "n": 6,
+      "wins": 3,
+      "losses": 3,
+      "flat": 0,
+      "wr": 0.5,
+      "wr_wilson_lower": 0.1876,
+      "avg_pnl_pct": 2.24,
+      "edge_vs_baseline_pp": -16.7,
+      "r_multiple": 0.27,
+      "r_multiple_count": 6,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Bank__signal_type=DOWN_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "DOWN_TRI",
+        "sector": "Bank"
+      },
+      "n": 11,
+      "wins": 0,
+      "losses": 11,
+      "flat": 0,
+      "wr": 0.0,
+      "wr_wilson_lower": 0.0,
+      "avg_pnl_pct": -11.12,
+      "edge_vs_baseline_pp": -17.4,
+      "r_multiple": -0.86,
+      "r_multiple_count": 11,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Bank__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "Bank"
+      },
+      "n": 17,
+      "wins": 13,
+      "losses": 4,
+      "flat": 0,
+      "wr": 0.7647,
+      "wr_wilson_lower": 0.5274,
+      "avg_pnl_pct": 1.42,
+      "edge_vs_baseline_pp": -0.3,
+      "r_multiple": 0.11,
+      "r_multiple_count": 17,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=CapGoods__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "CapGoods"
+      },
+      "n": 4,
+      "wins": 1,
+      "losses": 2,
+      "flat": 0,
+      "wr": 0.3333,
+      "wr_wilson_lower": 0.0615,
+      "avg_pnl_pct": -0.49,
+      "edge_vs_baseline_pp": -43.4,
+      "r_multiple": 0.09,
+      "r_multiple_count": 4,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Chem__signal_type=DOWN_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "DOWN_TRI",
+        "sector": "Chem"
+      },
+      "n": 3,
+      "wins": 2,
+      "losses": 0,
+      "flat": 0,
+      "wr": 1.0,
+      "wr_wilson_lower": 0.3424,
+      "avg_pnl_pct": 1.67,
+      "edge_vs_baseline_pp": 82.6,
+      "r_multiple": 0.22,
+      "r_multiple_count": 3,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Chem__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "Chem"
+      },
+      "n": 9,
+      "wins": 6,
+      "losses": 3,
+      "flat": 0,
+      "wr": 0.6667,
+      "wr_wilson_lower": 0.3542,
+      "avg_pnl_pct": 6.47,
+      "edge_vs_baseline_pp": -10.1,
+      "r_multiple": 0.6,
+      "r_multiple_count": 9,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Energy__signal_type=BULL_PROXY",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "BULL_PROXY",
+        "sector": "Energy"
+      },
+      "n": 4,
+      "wins": 3,
+      "losses": 1,
+      "flat": 0,
+      "wr": 0.75,
+      "wr_wilson_lower": 0.3006,
+      "avg_pnl_pct": 6.31,
+      "edge_vs_baseline_pp": 8.3,
+      "r_multiple": 1.45,
+      "r_multiple_count": 4,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Energy__signal_type=DOWN_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "DOWN_TRI",
+        "sector": "Energy"
+      },
+      "n": 5,
+      "wins": 0,
+      "losses": 5,
+      "flat": 0,
+      "wr": 0.0,
+      "wr_wilson_lower": 0.0,
+      "avg_pnl_pct": -5.6,
+      "edge_vs_baseline_pp": -17.4,
+      "r_multiple": -0.65,
+      "r_multiple_count": 5,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Energy__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "Energy"
+      },
+      "n": 11,
+      "wins": 8,
+      "losses": 3,
+      "flat": 0,
+      "wr": 0.7273,
+      "wr_wilson_lower": 0.4343,
+      "avg_pnl_pct": 2.9,
+      "edge_vs_baseline_pp": -4.0,
+      "r_multiple": 0.19,
+      "r_multiple_count": 11,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=FMCG__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "FMCG"
+      },
+      "n": 11,
+      "wins": 10,
+      "losses": 1,
+      "flat": 0,
+      "wr": 0.9091,
+      "wr_wilson_lower": 0.6226,
+      "avg_pnl_pct": 6.49,
+      "edge_vs_baseline_pp": 14.2,
+      "r_multiple": 0.47,
+      "r_multiple_count": 11,
+      "tier": "W"
+    },
+    {
+      "cohort_id": "sector=IT__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "IT"
+      },
+      "n": 19,
+      "wins": 13,
+      "losses": 6,
+      "flat": 0,
+      "wr": 0.6842,
+      "wr_wilson_lower": 0.4601,
+      "avg_pnl_pct": 1.47,
+      "edge_vs_baseline_pp": -8.3,
+      "r_multiple": 0.14,
+      "r_multiple_count": 19,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Infra__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "Infra"
+      },
+      "n": 9,
+      "wins": 7,
+      "losses": 2,
+      "flat": 0,
+      "wr": 0.7778,
+      "wr_wilson_lower": 0.4526,
+      "avg_pnl_pct": 4.12,
+      "edge_vs_baseline_pp": 1.0,
+      "r_multiple": 0.32,
+      "r_multiple_count": 9,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Metal__signal_type=BULL_PROXY",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "BULL_PROXY",
+        "sector": "Metal"
+      },
+      "n": 4,
+      "wins": 3,
+      "losses": 1,
+      "flat": 0,
+      "wr": 0.75,
+      "wr_wilson_lower": 0.3006,
+      "avg_pnl_pct": 8.13,
+      "edge_vs_baseline_pp": 8.3,
+      "r_multiple": 0.74,
+      "r_multiple_count": 4,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Metal__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "Metal"
+      },
+      "n": 15,
+      "wins": 15,
+      "losses": 0,
+      "flat": 0,
+      "wr": 1.0,
+      "wr_wilson_lower": 0.7961,
+      "avg_pnl_pct": 7.68,
+      "edge_vs_baseline_pp": 23.3,
+      "r_multiple": 0.85,
+      "r_multiple_count": 15,
+      "tier": "M"
+    },
+    {
+      "cohort_id": "sector=Other__signal_type=UP_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "UP_TRI",
+        "sector": "Other"
+      },
+      "n": 16,
+      "wins": 8,
+      "losses": 6,
+      "flat": 1,
+      "wr": 0.5333,
+      "wr_wilson_lower": 0.3012,
+      "avg_pnl_pct": 1.65,
+      "edge_vs_baseline_pp": -23.4,
+      "r_multiple": 0.36,
+      "r_multiple_count": 16,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Pharma__signal_type=BULL_PROXY",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "BULL_PROXY",
+        "sector": "Pharma"
+      },
+      "n": 3,
+      "wins": 2,
+      "losses": 1,
+      "flat": 0,
+      "wr": 0.6667,
+      "wr_wilson_lower": 0.2077,
+      "avg_pnl_pct": 5.04,
+      "edge_vs_baseline_pp": 0.0,
+      "r_multiple": 0.42,
+      "r_multiple_count": 3,
+      "tier": "Candidate"
+    },
+    {
+      "cohort_id": "sector=Pharma__signal_type=DOWN_TRI",
+      "cohort_axis": "signal+sector",
+      "cohort_filter": {
+        "signal_type": "DOWN_TRI",
+        "sector": "Pharma"
+      },
+      "n": 3,
+      "wins": 2,
+      "losses": 1,
+      "flat": 0,
+      "wr": 0.6667,
+      "wr_wilson_lower": 0.2077,
+      "avg_pnl_pct": 0.31,
+      "edge_vs_baseline_pp": 49.3,
+      "r_multiple": -0.04,
+      "r_multiple_count": 3,
+      "tier": "Candidate"
+    }
+  ],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "cohort_health",
+  "generated_at": "2026-04-28T23:11:21.367802+05:30"
+}

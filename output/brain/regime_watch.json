@@ -1,0 +1,33 @@
+{
+  "as_of_date": "2026-04-28",
+  "_metadata": {
+    "stability_classifier": "stable if same regime ≥5 of last 5 trading days; shifting if any regime change in last 7 trading days; unclear otherwise",
+    "source_files": [
+      "signal_history.json",
+      "weekly_intelligence_latest.json"
+    ],
+    "warnings": []
+  },
+  "current_regime": "Choppy",
+  "regime_stability": "stable",
+  "days_in_current_regime": 7,
+  "recent_distribution_7d": {
+    "Choppy": 7
+  },
+  "prior_distribution_7d": {
+    "Choppy": 2,
+    "Bear": 5
+  },
+  "weekly_intelligence_snapshot": {
+    "slope": 0.003614,
+    "avg_ret20": 7.38,
+    "above_ema50": true,
+    "source_date": "2026-04-24"
+  },
+  "weekly_intelligence_age_days": 4,
+  "transition_evidence": [],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "regime_watch",
+  "generated_at": "2026-04-28T23:11:21.368764+05:30"
+}
