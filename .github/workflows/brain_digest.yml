@@ -1,0 +1,72 @@
+# .github/workflows/brain_digest.yml
+# Purpose: Brain digest — read output/brain/unified_proposals.json
+#          + send Telegram digest of pending proposals (top-3 cards
+#          per Step 6 V-1 selection + dropped log + conflict badges
+#          per §5.1 D-9 (iv) lock).
+# Trigger: cron-job.org @ 22:05 IST Mon-Sun (5 min after brain.yml @ 22:00 IST).
+# Touches: NONE (read-only on output/brain/*; Telegram fire only).
+# Failure mode: alert_failure.py via Telegram.
+#
+# Architecture (Wave 5 Step 7 ship 2026-04-29):
+# - Read-only permissions (no commits)
+# - cron-job.org dispatch (per M-15 reversal lock; no GitHub schedule)
+# - Mon-Sun daily per D-4 cadence lock; weekend tone differs per D-10
+# - V-12 boundary: Step 6 NEVER fires Telegram; this workflow is the
+#   Telegram-side consumer of unified_proposals.json
+# - Trader command response (/approve, /reject, /explain) flows through
+#   existing telegram_poll.yml (every 10 min), NOT this workflow
+
+name: "🧠 Brain Digest | unified_proposals → Telegram | 22:05 IST cron-job.org"
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: brain-digest
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  digest:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install requests
+
+      - name: Send brain digest
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  BRAIN DIGEST — read unified_proposals + send Telegram"
+          echo "════════════════════════════════════════"
+          python -c "from scanner.telegram_bot import send_digest; send_digest('output')"
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORKFLOW_NAME:    "Brain Digest"
+          RUN_URL:          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          pip install requests --quiet
+          python scanner/alert_failure.py

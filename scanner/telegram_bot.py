@@ -429,6 +429,12 @@ def poll_and_respond(meta: dict,
                 _respond_stops(chat_id, history, ltp_prices)
             elif cmd == '/pnl':
                 _respond_pnl(chat_id, history, ltp_prices)
+            elif cmd == '/approve':
+                _respond_approve(chat_id, full_text)
+            elif cmd == '/reject':
+                _respond_reject(chat_id, full_text)
+            elif cmd == '/explain':
+                _respond_explain(chat_id, full_text)
             elif cmd == '/approve_rule':
                 _respond_approve_rule(chat_id, full_text)
             elif cmd == '/reject_rule':
@@ -1074,6 +1080,10 @@ def _respond_pnl(chat_id, history: list,
 
 
 def _respond_approve_rule(chat_id, full_text: str):
+    """LEGACY — deprecated per brain_design §10 W5-S7 grace.
+    Removed in W6 per migration table. Prepends deprecation warning;
+    still routes to rule_proposer.approve_proposal for back-compat.
+    """
     parts = full_text.split()
     if len(parts) < 2:
         _reply_message(chat_id,
@@ -1083,6 +1093,11 @@ def _respond_approve_rule(chat_id, full_text: str):
         return
 
     prop_id = parts[1].strip()
+    deprecation = (
+        '⚠️ DEPRECATED: /approve_rule will be removed in W6. '
+        'Use /approve <unified_id> for brain proposals (e.g., '
+        'prop_unified_2026-04-29_001). Legacy still routing for now.\n\n'
+    )
 
     try:
         from rule_proposer import approve_proposal
@@ -1090,25 +1105,30 @@ def _respond_approve_rule(chat_id, full_text: str):
 
         if result.get('success'):
             msg = (
+                f'{deprecation}'
                 f'✅ Approved: {prop_id}\n'
                 f'Action: {result.get("action", "—")}\n'
                 f'Target: {result.get("target", "—")}\n'
                 f'Effect takes place on next scan.')
         else:
             msg = (
+                f'{deprecation}'
                 f'❌ Could not approve {prop_id}\n'
                 f'Reason: {result.get("error", "unknown")}')
 
     except ImportError:
-        msg = ('⚠️ rule_proposer module not available. '
+        msg = (f'{deprecation}'
+               '⚠️ rule_proposer module not available. '
                'Deploy scanner/rule_proposer.py first.')
     except Exception as e:
-        msg = f'❌ Error approving {prop_id}: {e}'
+        msg = f'{deprecation}❌ Error approving {prop_id}: {e}'
 
     _reply_message(chat_id, msg)
 
 
 def _respond_reject_rule(chat_id, full_text: str):
+    """LEGACY — deprecated per brain_design §10 W5-S7 grace.
+    Removed in W6. Prepends deprecation warning; still routes."""
     parts = full_text.split()
     if len(parts) < 2:
         _reply_message(chat_id,
@@ -1119,6 +1139,11 @@ def _respond_reject_rule(chat_id, full_text: str):
 
     prop_id = parts[1].strip()
     reason  = ' '.join(parts[2:]).strip() or 'No reason given'
+    deprecation = (
+        '⚠️ DEPRECATED: /reject_rule will be removed in W6. '
+        'Use /reject <unified_id> [reason] for brain proposals. '
+        'Legacy still routing for now.\n\n'
+    )
 
     try:
         from rule_proposer import reject_proposal
@@ -1126,18 +1151,21 @@ def _respond_reject_rule(chat_id, full_text: str):
 
         if result.get('success'):
             msg = (
+                f'{deprecation}'
                 f'❌ Rejected: {prop_id}\n'
                 f'Reason: {reason}')
         else:
             msg = (
+                f'{deprecation}'
                 f'❌ Could not reject {prop_id}\n'
                 f'Reason: {result.get("error", "unknown")}')
 
     except ImportError:
-        msg = ('⚠️ rule_proposer module not available. '
+        msg = (f'{deprecation}'
+               '⚠️ rule_proposer module not available. '
                'Deploy scanner/rule_proposer.py first.')
     except Exception as e:
-        msg = f'❌ Error rejecting {prop_id}: {e}'
+        msg = f'{deprecation}❌ Error rejecting {prop_id}: {e}'
 
     _reply_message(chat_id, msg)
 
@@ -1221,11 +1249,17 @@ def _respond_help(chat_id):
         '/status   — regime + active + kill rules',
         '/health   — workflow diagnostics',
         '',
-        'INTELLIGENCE',
-        '/proposals          — pending rule proposals',
-        '/approve_rule <id>  — apply proposal',
-        '/reject_rule <id> [reason]  — reject proposal',
-        '/patterns           — pattern_miner findings',
+        'INTELLIGENCE (BRAIN — Wave 5)',
+        '/approve <unified_id>            — apply brain proposal',
+        '/reject <unified_id> [reason]    — reject brain proposal',
+        '/explain <unified_id>            — full claim/counter/risks',
+        '                                   (use when card truncates)',
+        '',
+        'INTELLIGENCE (LEGACY — W6 removal)',
+        '/proposals                       — pending rule_proposer',
+        '/approve_rule <prop_NNN>         — DEPRECATED; use /approve',
+        '/reject_rule <prop_NNN> [reason] — DEPRECATED; use /reject',
+        '/patterns                        — pattern_miner findings',
         '',
         '/help     — this message',
         '',
@@ -2224,6 +2258,655 @@ def send_weekly_intelligence(message: str) -> bool:
             success = False
 
     return success
+
+
+# ====================================================================
+# WAVE 5 STEP 7 — Brain digest + /approve + /reject + /explain
+# ====================================================================
+# Per V-1..V-12 + D-7..D-11 locks (commits 27b60cb + 997d4af + ee4007d
+# + 05570fb design+code anchors). brain_output owns Step 6; this block
+# is the trader-facing Telegram surface.
+#
+# - /approve <unified_id>               (V-3 dispatcher)
+# - /reject <unified_id> [reason]       (V-4 mirror)
+# - /explain <unified_id>               (Q2 lock — full counter + conflicts)
+# - send_digest()                        (V-1 — read unified + render top-3)
+# - apply_boost_promote()                (D-8 — append to mini_scanner_rules)
+#
+# Idempotency note (V-5 lock 2026-04-29): WITHIN-DAY only via
+# unified_proposals.json status field check before mutation. Cross-day
+# idempotency lives in Step 5 cohort_promotion_judge gate (90-day
+# decisions_journal lookback in prompt context). decisions_journal is
+# Step 5's read-source for cross-day awareness; Step 7 only appends.
+#
+# Concurrency note: tmp+rename atomic at OS level but NOT concurrent-edit
+# safe. Single-trader system; if user manually edits unified_proposals.json
+# or mini_scanner_rules.json mid-mutation, state may diverge. Acceptable
+# risk per D-8 lock 2026-04-29 surface note.
+
+# Step 7 imports (brain stack — lazy at call time to avoid eager
+# coupling for legacy callers of telegram_bot)
+
+# Locked emoji set per D-9 (iv) + CORRECTION 1 (boost_demote = ⬇️ to
+# avoid yellow-collision with OVERLAP badge)
+_BRAIN_TYPE_EMOJI = {
+    "boost_promote":  "🟢",
+    "kill_rule":      "🔴",
+    "boost_demote":   "⬇️",
+    "regime_alert":   "📊",
+    "exposure_warn":  "⚠️",
+    "cohort_review":  "🔍",
+}
+
+# Conflict badge emojis per D-9 (iv)
+_CONFLICT_BADGE_EMOJI = {
+    "contradiction": "🔴",
+    "overlap":       "🟡",
+    "redundant":     "🟠",
+}
+
+# Per-card char budget (Telegram 4096 limit total; reserve room for
+# 3 cards + footer + escapes)
+_PER_CARD_BUDGET = 1200
+
+_INFORMATIONAL_TYPES = {"regime_alert", "exposure_warn", "cohort_review"}
+
+
+def _brain_root() -> str:
+    """Resolve repo root for output/data path construction."""
+    return os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+
+
+def _build_conflict_badges(conflicts_with: list) -> str:
+    """Per D-9 (iv): emoji + count badges per unique conflict_type.
+    Multiple types render adjacently with ' + ' separator.
+    Returns '' if no conflicts."""
+    if not conflicts_with:
+        return ""
+    counts: dict = {}
+    for c in conflicts_with:
+        ct = c.get("conflict_type", "")
+        counts[ct] = counts.get(ct, 0) + 1
+    parts = []
+    for ct, n in counts.items():
+        emoji = _CONFLICT_BADGE_EMOJI.get(ct, "")
+        parts.append(f"{emoji} *{ct.upper()}* × {n}")
+    return " \\+ ".join(parts) if len(parts) > 1 else parts[0]
+
+
+def _build_evidence_block(counter_evidence: list,
+                            conflicts_with: list,
+                            char_budget: int) -> str:
+    """Per V-6 + D-9 CORRECTION 2: conflict citations FIRST (these are
+    the §5.1 surfacing additions), then Step 4 evidence within remaining
+    budget. Truncation tail uses /explain hint.
+    """
+    rule_ids = {c.get("rule_id", "") for c in conflicts_with}
+    citations = [e for e in counter_evidence
+                  if isinstance(e, str) and any(
+                      e.startswith(f"{rid} active:") for rid in rule_ids)]
+    other = [e for e in counter_evidence if e not in citations]
+
+    rendered: list = list(citations)
+    used = sum(len(e) for e in rendered)
+    truncated = 0
+    for entry in other:
+        # +4 for "• " bullet + newline overhead
+        if used + len(entry) + 4 > char_budget:
+            truncated += 1
+        else:
+            rendered.append(entry)
+            used += len(entry) + 4
+
+    lines = [f"  • {_esc(e)}" for e in rendered]
+    if truncated:
+        lines.append(_esc(
+            f"  …{truncated} more entries (use /explain <id> for full)"))
+    return "\n".join(lines) if lines else _esc("  (none)")
+
+
+def _build_card(proposal: dict, position: int, total: int) -> str:
+    """Per D-9 lock + CORRECTIONS 1+2. MarkdownV2-rendered."""
+    ptype = proposal.get("type", "?")
+    type_emoji = _BRAIN_TYPE_EMOJI.get(ptype, "❓")
+    unified_id = proposal.get("id", "?")
+    md = proposal.get("decision_metadata") or {}
+    cf = md.get("cohort_filter") or {}
+    claim = proposal.get("claim") or {}
+    counter = proposal.get("counter") or {}
+    conflicts = md.get("conflicts_with") or []
+
+    badges = _build_conflict_badges(conflicts)
+
+    # Cohort line — render from cohort_filter (boost types) or skip
+    if cf:
+        sig = cf.get("signal_type") or cf.get("signal") or "any"
+        sec = cf.get("sector") or "any"
+        reg = cf.get("regime") or "any"
+        n_val = md.get("n", "?")
+        wr_val = md.get("wr")
+        wr_str = f"{wr_val * 100:.1f}%" if isinstance(wr_val, (int, float)) else "?"
+        tier_val = md.get("tier", "?")
+        cohort_line = (
+            f"*Cohort:* {_esc(sig)} × {_esc(sec)} × {_esc(reg)} "
+            f"\\(n\\={_esc(n_val)}, WR {_esc(wr_str)}, "
+            f"Tier {_esc(tier_val)}\\)"
+        )
+    else:
+        cohort_line = f"*Cohort:* {_esc('(informational)')}"
+
+    title_line = f"*Card {position} of {total}* — `{unified_id}`"
+    type_line = f"{type_emoji} *{_esc(ptype)}*"
+    if badges:
+        type_line += f"  {badges}"
+
+    claim_what = claim.get("what", "")
+    claim_effect = claim.get("expected_effect", "")
+    claim_conf = claim.get("confidence", "")
+    revers = proposal.get("reversibility", "")
+
+    risks = counter.get("risks") or []
+    risk_block = "\n".join(f"  • {_esc(r)}" for r in risks) or _esc("  (none)")
+
+    evidence_block = _build_evidence_block(
+        counter.get("evidence") or [], conflicts, _PER_CARD_BUDGET // 3)
+
+    parts = [
+        title_line,
+        type_line,
+        "",
+        cohort_line,
+        "",
+        f"*Claim:* {_esc(claim_what)}",
+        f"*Expected effect:* {_esc(claim_effect)}",
+        f"*Confidence:* {_esc(claim_conf)}",
+        "",
+        "*Counter \\(top 3\\):*",
+        evidence_block,
+        "",
+        "*Risks:*",
+        risk_block,
+        "",
+        f"*Reversibility:* {_esc(revers)}",
+        "",
+        f"*Approve:* `/approve {unified_id}`",
+        f"*Reject:*  `/reject {unified_id} [reason]`",
+        "────────────────────────",
+    ]
+    return "\n".join(parts)
+
+
+def _empty_queue_message(as_of_date: str, sat_or_sun: bool,
+                          warnings: list) -> str:
+    """Per D-10 lock. MarkdownV2-rendered. Sat/Sun tone differs."""
+    if sat_or_sun:
+        return (
+            f"🌙 *Quiet weekend* — {_esc(as_of_date)}\n"
+            f"No actionable proposals "
+            f"\\(Friday\\-EOD\\-stable inputs\\)\\."
+        )
+    return (
+        f"✅ *All clear* — {_esc(as_of_date)}\n"
+        f"0 candidates this cycle\\.\n"
+        f"\\(Step 4 produced 0 OR Step 5 suppressed all\\)"
+    )
+
+
+def _is_weekend(as_of_date: str) -> bool:
+    """ISO date string → True if Sat/Sun."""
+    try:
+        d = datetime.fromisoformat(as_of_date).date()
+        return d.weekday() in (5, 6)
+    except (ValueError, TypeError):
+        return False
+
+
+def build_digest_message(unified_proposals_data: dict) -> str:
+    """V-2 + V-6. Renders unified_proposals.json into Telegram digest.
+    Returns single MarkdownV2 string; caller passes to send_message
+    which delegates to _split_message if needed (V-8)."""
+    proposals = unified_proposals_data.get("proposals", [])
+    metadata = unified_proposals_data.get("_metadata", {}) or {}
+    as_of_date = unified_proposals_data.get("as_of_date", "?")
+    run_id = unified_proposals_data.get("run_id", "?")
+
+    if not proposals:
+        return _empty_queue_message(
+            as_of_date, _is_weekend(as_of_date),
+            metadata.get("warnings", []))
+
+    cards = [_build_card(p, i + 1, len(proposals))
+             for i, p in enumerate(proposals)]
+
+    footer_parts = []
+    dropped = metadata.get("dropped_due_to_top3_cap") or []
+    if dropped:
+        footer_parts.append(
+            f"*Dropped \\(below top\\-3 cap\\):* {len(dropped)}")
+        for d in dropped[:3]:
+            footer_parts.append(
+                f"  • {_esc(d.get('candidate_id', '?'))}  "
+                f"score {_esc(d.get('score_priority', '?'))}")
+    footer_parts.append(f"*Run:* `{run_id}`")
+    footer_parts.append(f"*As of:* {_esc(as_of_date)}")
+
+    return "\n".join(cards + ["", *footer_parts])
+
+
+def _load_unified_proposals(output_dir: str) -> dict:
+    """Load output/brain/unified_proposals.json or return empty
+    structure. Used by send_digest, dispatch_approval, /explain."""
+    path = os.path.join(output_dir, "brain", "unified_proposals.json")
+    if not os.path.exists(path):
+        return {
+            "schema_version": 1,
+            "view_name": "unified_proposals",
+            "as_of_date": _ist_now().date().isoformat(),
+            "run_id": "no_run_yet",
+            "_metadata": {
+                "warnings": ["unified_proposals_json_missing"],
+                "dropped_due_to_top3_cap": [],
+            },
+            "proposals": [],
+        }
+    with open(path, "r", encoding="utf-8") as f:
+        return json.load(f)
+
+
+def send_digest(output_dir: str = "output") -> dict:
+    """V-1: read unified_proposals.json + send Telegram digest.
+    Read-only on output/brain/*; Telegram fire only.
+    Returns {sent, message_chars, proposal_count, dropped_count}.
+    """
+    data = _load_unified_proposals(output_dir)
+    text = build_digest_message(data)
+    sent = send_message(text)
+    return {
+        "sent": sent,
+        "message_chars": len(text),
+        "proposal_count": len(data.get("proposals", [])),
+        "dropped_count": len(
+            (data.get("_metadata") or {}).get(
+                "dropped_due_to_top3_cap", [])),
+    }
+
+
+def apply_boost_promote(candidate: dict,
+                          mini_scanner_rules_path: str,
+                          approver: str) -> dict:
+    """D-8 lock. Mutates mini_scanner_rules.json: appends new
+    boost_pattern entry derived from
+    candidate.decision_metadata.proposed_rule_entry. Atomic write.
+
+    Concurrency note (D-8 surface): tmp+rename is OS-atomic but NOT
+    concurrent-edit safe. Single-trader assumption.
+
+    Returns {success, win_id, message, error}.
+    """
+    md = candidate.get("decision_metadata") or {}
+    proposed = md.get("proposed_rule_entry")
+    if not isinstance(proposed, dict):
+        return {"success": False,
+                "error": "missing decision_metadata.proposed_rule_entry"}
+
+    if not os.path.exists(mini_scanner_rules_path):
+        return {"success": False,
+                "error": f"{mini_scanner_rules_path} not found"}
+    with open(mini_scanner_rules_path, "r", encoding="utf-8") as f:
+        rules = json.load(f)
+    boost = rules.setdefault("boost_patterns", [])
+
+    # Generate next win_NNN id (override brain's boost_brain_<hash>)
+    max_n = 0
+    for entry in boost:
+        m = re.match(r"^win_(\d{3})$", str(entry.get("id", "")))
+        if m:
+            max_n = max(max_n, int(m.group(1)))
+    new_id = f"win_{max_n + 1:03d}"
+
+    # Build new entry: copy proposed_rule_entry + Step 7 enrichments
+    new_entry = dict(proposed)  # shallow copy
+    new_entry["id"] = new_id
+    new_entry["active"] = True
+    # IST date convention per user fix 2026-04-29: trader's mental
+    # model is local trading day; brain approval is human-driven action
+    # with local-date semantics. Differs from rule_proposer.py
+    # datetime.utcnow() pattern (cron-driven system writes).
+    new_entry["added_date"] = _ist_now().date().isoformat()
+    new_entry["approved_by"] = approver
+    new_entry["brain_candidate_id"] = candidate.get("candidate_id")
+
+    boost.append(new_entry)
+
+    # Atomic write
+    tmp_path = mini_scanner_rules_path + f".{os.getpid()}.tmp"
+    payload = json.dumps(rules, indent=2, ensure_ascii=False)
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        f.write(payload)
+    os.replace(tmp_path, mini_scanner_rules_path)
+
+    sig = new_entry.get("signal", "?")
+    sec = new_entry.get("sector") or "any"
+    reg = new_entry.get("regime") or "any"
+    return {
+        "success":  True,
+        "action":   "boost_promote",
+        "win_id":   new_id,
+        "target":   f"{sig} × {sec} × {reg}",
+        "message":  (f"✅ Boost pattern {new_id} added "
+                     f"({sig} × {sec} × {reg}); active=True"),
+    }
+
+
+def _update_unified_proposal_status(unified_id: str,
+                                      decision: str,
+                                      trader: str,
+                                      reason: str | None,
+                                      output_dir: str) -> bool:
+    """V-5 idempotency anchor. Within-day mutation of
+    unified_proposals.json status field. Atomic write via tmp+rename.
+
+    Returns True if updated; False if proposal not found.
+    """
+    path = os.path.join(output_dir, "brain", "unified_proposals.json")
+    if not os.path.exists(path):
+        return False
+    with open(path, "r", encoding="utf-8") as f:
+        data = json.load(f)
+
+    proposals = data.get("proposals", [])
+    found = False
+    for p in proposals:
+        if p.get("id") == unified_id:
+            p["status"] = "approved" if decision == "approve" else "rejected"
+            p["decision_at"] = _ist_now().isoformat()
+            p["approver"] = trader
+            p["decision_reason"] = reason
+            found = True
+            break
+    if not found:
+        return False
+
+    # Recompute stats
+    stats = data.setdefault("stats", {})
+    stats["pending"] = sum(1 for p in proposals
+                            if p.get("status") == "pending")
+    stats["approved"] = sum(1 for p in proposals
+                             if p.get("status") == "approved")
+    stats["rejected"] = sum(1 for p in proposals
+                             if p.get("status") == "rejected")
+    stats["expired"] = sum(1 for p in proposals
+                            if p.get("status") == "expired")
+
+    tmp_path = path + f".{os.getpid()}.tmp"
+    payload = json.dumps(data, indent=2, ensure_ascii=False)
+    with open(tmp_path, "w", encoding="utf-8") as f:
+        f.write(payload)
+    os.replace(tmp_path, path)
+    return True
+
+
+def dispatch_approval(unified_proposal: dict,
+                       decision: str,
+                       trader: str,
+                       reason: str | None,
+                       output_dir: str = "output",
+                       mini_scanner_rules_path: str | None = None
+                       ) -> dict:
+    """V-3 routing per type. V-5 within-day idempotency via status check.
+    Cross-day idempotency is NOT this layer's concern (handled at Step 5
+    cohort_promotion_judge gate via 90-day decisions_journal lookback).
+
+    Returns mutation_result dict — caller passes to render.
+    """
+    from scanner.brain import brain_output  # lazy import
+    from scanner import rule_proposer        # lazy import
+
+    if mini_scanner_rules_path is None:
+        mini_scanner_rules_path = os.path.join(
+            _brain_root(), "data", "mini_scanner_rules.json")
+
+    ptype = unified_proposal.get("type", "")
+    unified_id = unified_proposal.get("id", "?")
+    candidate_id = unified_proposal.get("candidate_id", "")
+    legacy_id = unified_proposal.get("legacy_id")
+
+    # V-5 idempotency: status check before mutation
+    current_status = unified_proposal.get("status")
+    if current_status in ("approved", "rejected"):
+        decision_at = unified_proposal.get("decision_at", "?")
+        return {
+            "success": False,
+            "action":  "noop_already_decided",
+            "message": (f"already {current_status} at {decision_at}; "
+                        f"no mutation re-applied"),
+        }
+    if current_status == "expired":
+        return {
+            "success": False,
+            "action":  "noop_expired",
+            "message": "proposal expired; cannot decide; brain may re-propose",
+        }
+
+    # Type-specific dispatch
+    mutation_result: dict = {"success": True, "action": "log_only"}
+    if decision == "approve":
+        if ptype == "kill_rule":
+            mutation_result = rule_proposer.approve_proposal(legacy_id)
+        elif ptype == "boost_demote":
+            mutation_result = rule_proposer.approve_proposal(legacy_id)
+        elif ptype == "boost_promote":
+            mutation_result = apply_boost_promote(
+                unified_proposal, mini_scanner_rules_path, trader)
+        elif ptype in _INFORMATIONAL_TYPES:
+            mutation_result = {"success": True,
+                                "action":  "log_only",
+                                "message": f"informational ({ptype}) "
+                                           f"acknowledged"}
+        else:
+            mutation_result = {"success": False,
+                                "error": f"unknown type {ptype!r}"}
+    elif decision == "reject":
+        if ptype in ("kill_rule", "boost_demote"):
+            mutation_result = rule_proposer.reject_proposal(
+                legacy_id, reason=reason or "No reason given")
+        else:
+            mutation_result = {"success": True,
+                                "action":  "log_only_reject",
+                                "message": f"{ptype} rejected; no mutation"}
+    else:
+        return {"success": False,
+                "error": f"invalid decision: {decision!r}"}
+
+    if not mutation_result.get("success"):
+        # Don't flip status if mutation failed — trader retries
+        return mutation_result
+
+    # Update unified_proposals.json status (V-5 anchor)
+    _update_unified_proposal_status(
+        unified_id, decision, trader, reason, output_dir)
+
+    # Append to decisions_journal (always, even for log_only types)
+    try:
+        brain_output.append_decision(
+            unified_proposal_id=unified_id,
+            candidate_id=candidate_id,
+            decision=decision,
+            source="telegram",
+            approver=trader,
+            run_id_origin=unified_proposal.get("run_id_origin", ""),
+            proposal_type=ptype,
+            cohort_identity=brain_output._extract_cohort_identity(
+                unified_proposal),
+            trader_reason=reason,
+            decision_metadata={"mutation_result": mutation_result},
+            output_dir=output_dir,
+        )
+    except Exception as je:
+        print(f"[telegram] decisions_journal append failed for "
+              f"{unified_id}: {je!r}")
+
+    return mutation_result
+
+
+def _find_proposal(unified_id: str, output_dir: str) -> dict | None:
+    """Helper: look up proposal in unified_proposals.json by id."""
+    data = _load_unified_proposals(output_dir)
+    for p in data.get("proposals", []):
+        if p.get("id") == unified_id:
+            return p
+    return None
+
+
+# ── Router branches (V-2 surface) ────────────────────────────────────
+
+def _respond_approve(chat_id, full_text: str):
+    """V-3. /approve <unified_id> — applies brain proposal."""
+    parts = full_text.split()
+    if len(parts) < 2:
+        _reply_message(chat_id,
+            'Usage: /approve <unified_id>\n'
+            'Example: /approve prop_unified_2026-04-29_001\n'
+            'See nightly digest for pending IDs.')
+        return
+
+    unified_id = parts[1].strip()
+    output_dir = os.path.join(_brain_root(), "output")
+    proposal = _find_proposal(unified_id, output_dir)
+    if proposal is None:
+        _reply_message(chat_id,
+            f'❌ Proposal {unified_id} not found in '
+            f'unified_proposals.json. Use /explain '
+            f'<unified_id> to inspect.')
+        return
+
+    result = dispatch_approval(
+        unified_proposal=proposal,
+        decision="approve",
+        trader="user",
+        reason=None,
+        output_dir=output_dir,
+    )
+
+    if result.get("success"):
+        msg = (f'✅ {result.get("message", "approved")}\n'
+               f'Type: {proposal.get("type")}\n'
+               f'Unified ID: {unified_id}')
+        if result.get("win_id"):
+            msg += f'\nNew rule: {result["win_id"]}'
+        if result.get("target"):
+            msg += f'\nTarget: {result["target"]}'
+    else:
+        msg = (f'⚠️ Could not approve {unified_id}\n'
+               f'{result.get("message") or result.get("error", "unknown")}')
+
+    _reply_message(chat_id, msg)
+
+
+def _respond_reject(chat_id, full_text: str):
+    """V-4. /reject <unified_id> [reason] — rejects brain proposal."""
+    parts = full_text.split()
+    if len(parts) < 2:
+        _reply_message(chat_id,
+            'Usage: /reject <unified_id> [reason]\n'
+            'Example: /reject prop_unified_2026-04-29_001 weak n')
+        return
+
+    unified_id = parts[1].strip()
+    reason = ' '.join(parts[2:]).strip() or 'No reason given'
+    output_dir = os.path.join(_brain_root(), "output")
+    proposal = _find_proposal(unified_id, output_dir)
+    if proposal is None:
+        _reply_message(chat_id,
+            f'❌ Proposal {unified_id} not found.')
+        return
+
+    result = dispatch_approval(
+        unified_proposal=proposal,
+        decision="reject",
+        trader="user",
+        reason=reason,
+        output_dir=output_dir,
+    )
+
+    if result.get("success"):
+        msg = (f'❌ Rejected: {unified_id}\n'
+               f'Type: {proposal.get("type")}\n'
+               f'Reason: {reason}')
+    else:
+        msg = (f'⚠️ Could not reject {unified_id}\n'
+               f'{result.get("message") or result.get("error", "unknown")}')
+
+    _reply_message(chat_id, msg)
+
+
+def _respond_explain(chat_id, full_text: str):
+    """Q2. /explain <unified_id> — full proposal details (no truncation).
+    Renders counter.evidence + counter.risks + decision_metadata
+    (conflicts_with + proposed_rule_entry for boost_promote types).
+    """
+    parts = full_text.split()
+    if len(parts) < 2:
+        _reply_message(chat_id,
+            'Usage: /explain <unified_id>\n'
+            'Example: /explain prop_unified_2026-04-29_001')
+        return
+
+    unified_id = parts[1].strip()
+    output_dir = os.path.join(_brain_root(), "output")
+    proposal = _find_proposal(unified_id, output_dir)
+    if proposal is None:
+        _reply_message(chat_id,
+            f'❌ Proposal {unified_id} not found.')
+        return
+
+    md = proposal.get("decision_metadata") or {}
+    counter = proposal.get("counter") or {}
+    claim = proposal.get("claim") or {}
+    conflicts = md.get("conflicts_with") or []
+
+    lines = [
+        f"*Explain:* `{unified_id}`",
+        f"*Type:* {_esc(proposal.get('type', '?'))}",
+        f"*Status:* {_esc(proposal.get('status', '?'))}",
+        "",
+        f"*Claim:* {_esc(claim.get('what', ''))}",
+        f"*Effect:* {_esc(claim.get('expected_effect', ''))}",
+        f"*Confidence:* {_esc(claim.get('confidence', ''))}",
+        "",
+        "*Counter — evidence \\(all\\):*",
+    ]
+    for e in (counter.get("evidence") or []):
+        lines.append(f"  • {_esc(e)}")
+
+    lines.append("")
+    lines.append("*Counter — risks \\(all\\):*")
+    for r in (counter.get("risks") or []):
+        lines.append(f"  • {_esc(r)}")
+
+    if conflicts:
+        lines.append("")
+        lines.append(f"*Conflicts with active rules \\({len(conflicts)}\\):*")
+        for c in conflicts:
+            rid = c.get("rule_id", "?")
+            ct = c.get("conflict_type", "?")
+            lines.append(f"  • `{rid}` — {_esc(ct)}")
+
+    pre = md.get("proposed_rule_entry")
+    if isinstance(pre, dict):
+        lines.append("")
+        lines.append("*Proposed rule entry \\(if approved\\):*")
+        for k in ("signal", "sector", "regime", "tier", "conviction_tag"):
+            if k in pre:
+                lines.append(f"  • {_esc(k)}: {_esc(pre.get(k))}")
+
+    lines.append("")
+    lines.append(f"*Reversibility:* {_esc(proposal.get('reversibility', ''))}")
+    lines.append("")
+    lines.append(f"*Approve:* `/approve {unified_id}`")
+    lines.append(f"*Reject:*  `/reject {unified_id} [reason]`")
+
+    _reply_message(chat_id, "\n".join(lines))
 
 
 if __name__ == '__main__':
