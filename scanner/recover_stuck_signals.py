@@ -76,6 +76,7 @@ from outcome_evaluator import (
     FLAT_PCT,
 )
 from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
+from config import TARGET_R_MULTIPLE_SHADOW
 
 _HERE    = os.path.dirname(os.path.abspath(__file__))
 _ROOT    = os.path.dirname(_HERE)
@@ -225,6 +226,21 @@ def _resolve_from_eod(signal, eod_rec,
     exit_day    = None
     exit_date_v = None
 
+    # prop_005 V6: shadow track only when shadow_target was written at
+    # signal-creation time (forward-only). Recover_stuck does NOT
+    # backfill shadow_target on legacy records. Recovery-path resolution
+    # mirrors live: same stop, same DAY6 outcome class (DAY6 is
+    # determined by close vs entry, target-independent), but
+    # shadow_TARGET_HIT detection requires checking high (LONG) or
+    # low (SHORT) against shadow_target.
+    shadow_target_val = signal.get('shadow_target')
+    if isinstance(shadow_target_val, (int, float)):
+        shadow_target = float(shadow_target_val)
+    else:
+        shadow_target = None
+    shadow_outcome   = None
+    shadow_exit_pr   = None
+
     if stop_hit_flag:
         # STOP_HIT — trust stop_alert_writer flag
         outcome     = 'STOP_HIT'
@@ -234,6 +250,10 @@ def _resolve_from_eod(signal, eod_rec,
         exit_date_v = eod_date
         print(f"[recover] {sym} → STOP_HIT "
               f"(from eod stop_hit flag)")
+        # prop_005: shadow uses same stop
+        if shadow_target is not None:
+            shadow_outcome = 'STOP_HIT'
+            shadow_exit_pr = round(stop, 2)
     else:
         # DAY 6 resolution using CLOSE as fallback
         # (eod_prices has no open — acceptable
@@ -257,6 +277,23 @@ def _resolve_from_eod(signal, eod_rec,
         print(f"[recover] {sym} → {outcome} "
               f"move {move_pct:+.2f}% "
               f"close ₹{close:.2f}")
+
+        # prop_005: shadow detection. Check intraday high/low against
+        # shadow_target — if reached, shadow=TARGET_HIT, else inherit
+        # real DAY6_* class with same close as exit price.
+        if shadow_target is not None:
+            if direction == 'LONG':
+                shadow_hit = high >= shadow_target
+            else:
+                shadow_hit = low <= shadow_target
+
+            if shadow_hit:
+                shadow_outcome = 'TARGET_HIT'
+                shadow_exit_pr = round(shadow_target, 2)
+            else:
+                # Day-6 force-exit; same outcome class as real
+                shadow_outcome = outcome
+                shadow_exit_pr = round(close, 2)
 
     # Compute pnl_pct
     pnl_pct = _calc_pnl_pct(
@@ -303,6 +340,20 @@ def _resolve_from_eod(signal, eod_rec,
     signal['failure_reason'] = failure_reason
     signal['day6_open']      = exit_price  # close used
     signal['days_to_outcome']= exit_day
+
+    # prop_005: parallel shadow track (forward-only — shadow_target
+    # only present on post-prop_005 records). Mirrors
+    # outcome_evaluator's write logic.
+    if shadow_target is not None and shadow_outcome is not None:
+        signal['shadow_outcome']    = shadow_outcome
+        signal['shadow_r_multiple'] = _calc_r_multiple(
+            entry         = entry,
+            stop          = stop,
+            outcome_price = shadow_exit_pr,
+            direction     = direction,
+            outcome_type  = shadow_outcome,
+            target_multiplier = TARGET_R_MULTIPLE_SHADOW,
+        )
 
     # Keep existing mfe/mae; only fill if missing
     if mfe_existing is None:

@@ -76,6 +76,10 @@ from journal import (
     _backup_history, HISTORY_FILE
 )
 from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
+from config import (
+    TARGET_R_MULTIPLE,
+    TARGET_R_MULTIPLE_SHADOW,
+)
 
 _HERE   = os.path.dirname(os.path.abspath(__file__))
 _ROOT   = os.path.dirname(_HERE)
@@ -410,7 +414,11 @@ def _fetch_ohlc(symbol, start_date, end_date,
 
 # ── HELPERS ───────────────────────────────────────────
 
-def _calculate_target(entry, stop, direction):
+def _calculate_target(entry, stop, direction,
+                      multiplier=TARGET_R_MULTIPLE):
+    """prop_005: target = entry ± multiplier × abs(entry-stop).
+    Default multiplier = TARGET_R_MULTIPLE (live = 2.0). Shadow callers
+    pass multiplier=TARGET_R_MULTIPLE_SHADOW (3.0)."""
     try:
         entry = float(entry)
         stop  = float(stop)
@@ -418,9 +426,9 @@ def _calculate_target(entry, stop, direction):
         if risk <= 0:
             return None
         if direction == 'LONG':
-            return round(entry + 2 * risk, 2)
+            return round(entry + multiplier * risk, 2)
         else:
-            return round(entry - 2 * risk, 2)
+            return round(entry - multiplier * risk, 2)
     except Exception:
         return None
 
@@ -458,11 +466,16 @@ def _calc_pnl_pct(entry, outcome_price, direction):
 
 
 def _calc_r_multiple(entry, stop, outcome_price,
-                     direction, outcome_type=None):
+                     direction, outcome_type=None,
+                     target_multiplier=TARGET_R_MULTIPLE):
+    """prop_005: TARGET_HIT cap = +target_multiplier (was hardcoded
+    2.0). STOP_HIT cap stays -1.0 by definition (stop_distance/risk =
+    -1.0 regardless of target). Default preserves live behavior;
+    shadow callers pass target_multiplier=TARGET_R_MULTIPLE_SHADOW."""
     if outcome_type == 'STOP_HIT':
         return -1.0
     if outcome_type == 'TARGET_HIT':
-        return 2.0
+        return float(target_multiplier)
 
     try:
         entry         = float(entry)
@@ -665,6 +678,19 @@ def _evaluate_signal(signal, holidays,
     max_fav           = 0.0
     max_adv           = 0.0
 
+    # prop_005 V6: shadow track only activates when shadow_target was
+    # written at signal-creation time (forward-only cohort). Legacy
+    # records have shadow_target=None and skip shadow tracking entirely.
+    shadow_target_val   = signal.get('shadow_target')
+    if isinstance(shadow_target_val, (int, float)):
+        shadow_target = float(shadow_target_val)
+    else:
+        shadow_target = None
+    shadow_exit_outcome = None
+    shadow_exit_date    = None
+    shadow_exit_price   = None
+    shadow_exit_day     = None
+
     scan_end_ts = pd.Timestamp(tracking_end)
 
     for ts, row in ohlc.iterrows():
@@ -688,11 +714,15 @@ def _evaluate_signal(signal, holidays,
         max_adv = max(max_adv, adv)
 
         if direction == 'LONG':
-            stop_hit   = low  <= stop
-            target_hit = high >= target
+            stop_hit          = low  <= stop
+            target_hit        = high >= target
+            shadow_target_hit = (shadow_target is not None
+                                 and high >= shadow_target)
         else:
-            stop_hit   = high >= stop
-            target_hit = low  <= target
+            stop_hit          = high >= stop
+            target_hit        = low  <= target
+            shadow_target_hit = (shadow_target is not None
+                                 and low <= shadow_target)
 
         if stop_hit and real_exit_outcome is None:
             real_exit_outcome = 'STOP_HIT'
@@ -701,7 +731,24 @@ def _evaluate_signal(signal, holidays,
             real_exit_day     = _count_trading_days(
                 entry_date, ts.date(), holidays)
             print(f"[outcome] {sym} → STOP_HIT Day {real_exit_day}")
+            # prop_005: shadow uses same stop, fires same bar
+            if shadow_target is not None and shadow_exit_outcome is None:
+                shadow_exit_outcome = 'STOP_HIT'
+                shadow_exit_date    = ts.date()
+                shadow_exit_price   = round(stop, 2)
+                shadow_exit_day     = real_exit_day
             break
+
+        # prop_005: shadow STOP_HIT independent path (when real already
+        # resolved to TARGET_HIT but loop continues for Day-6 stats)
+        if (shadow_target is not None
+                and stop_hit
+                and shadow_exit_outcome is None):
+            shadow_exit_outcome = 'STOP_HIT'
+            shadow_exit_date    = ts.date()
+            shadow_exit_price   = round(stop, 2)
+            shadow_exit_day     = _count_trading_days(
+                entry_date, ts.date(), holidays)
 
         if target_hit and real_exit_outcome is None:
             real_exit_outcome = 'TARGET_HIT'
@@ -711,6 +758,17 @@ def _evaluate_signal(signal, holidays,
                 entry_date, ts.date(), holidays)
             print(f"[outcome] {sym} → TARGET_HIT Day {real_exit_day} "
                   f"— continuing for Day 6 shadow")
+
+        # prop_005: shadow TARGET_HIT (against shadow_target, later
+        # bar than real if real hit first). Independent of real.
+        if (shadow_target is not None
+                and shadow_target_hit
+                and shadow_exit_outcome is None):
+            shadow_exit_outcome = 'TARGET_HIT'
+            shadow_exit_date    = ts.date()
+            shadow_exit_price   = round(shadow_target, 2)
+            shadow_exit_day     = _count_trading_days(
+                entry_date, ts.date(), holidays)
 
     # ── DAY 6 EXIT ─ D6A: open_prices first ──────────
     day6_open        = None
@@ -757,6 +815,29 @@ def _evaluate_signal(signal, holidays,
                       f"move {move_pct:+.1f}% Day6 open "
                       f"₹{day6_open:.2f}")
 
+            # prop_005: shadow Day-6 force-exit (when shadow track
+            # active and shadow_target wasn't hit). Day-6 outcome
+            # class is determined by Day-6 OPEN vs entry, not target —
+            # so shadow inherits the same DAY6_* class as real would.
+            # Different exit price tracking is unnecessary; shadow_*
+            # uses same day6_open as real.
+            if (shadow_target is not None
+                    and shadow_exit_outcome is None):
+                move_pct_sh = (day6_open - entry) / entry * 100
+                if direction == 'SHORT':
+                    move_pct_sh = -move_pct_sh
+
+                if move_pct_sh > FLAT_PCT:
+                    shadow_exit_outcome = 'DAY6_WIN'
+                elif move_pct_sh < -FLAT_PCT:
+                    shadow_exit_outcome = 'DAY6_LOSS'
+                else:
+                    shadow_exit_outcome = 'DAY6_FLAT'
+
+                shadow_exit_date  = effective_tracking_end
+                shadow_exit_price = round(day6_open, 2)
+                shadow_exit_day   = 6
+
     if real_exit_outcome:
         pnl_pct = _calc_pnl_pct(
             entry, real_exit_price, direction)
@@ -790,6 +871,21 @@ def _evaluate_signal(signal, holidays,
         signal['exit_type']      = real_exit_outcome
         signal['exit_day']       = real_exit_day
         signal['failure_reason'] = failure_reason
+
+        # prop_005: parallel shadow track. Only writes shadow_outcome
+        # + shadow_r_multiple when shadow_target was present (forward-
+        # only cohort per V6). TARGET_HIT cap moves with target
+        # multiplier — shadow uses TARGET_R_MULTIPLE_SHADOW.
+        if (shadow_target is not None
+                and shadow_exit_outcome is not None):
+            signal['shadow_outcome']    = shadow_exit_outcome
+            signal['shadow_r_multiple'] = _calc_r_multiple(
+                entry=entry, stop=stop,
+                outcome_price=shadow_exit_price,
+                direction=direction,
+                outcome_type=shadow_exit_outcome,
+                target_multiplier=TARGET_R_MULTIPLE_SHADOW,
+            )
 
         # EOD2: data_quality tagging
         signal['data_quality_resolve'] = data_source

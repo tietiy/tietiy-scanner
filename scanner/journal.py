@@ -40,7 +40,11 @@ import shutil
 from datetime import date, datetime, timedelta
 
 sys.path.insert(0, os.path.dirname(__file__))
-from config import PIVOT_LOOKBACK
+from config import (
+    PIVOT_LOOKBACK,
+    TARGET_R_MULTIPLE,
+    TARGET_R_MULTIPLE_SHADOW,
+)
 from calendar_utils import ist_today, ist_now, ist_now_str, is_trading_day
 
 # ── PATHS ─────────────────────────────────────────────
@@ -197,7 +201,11 @@ def _get_exit_date(signal_date_str):
 
 
 # ── TARGET PRICE HELPER ───────────────────────────────
-def _calculate_target(entry, stop, direction):
+def _calculate_target(entry, stop, direction,
+                      multiplier=TARGET_R_MULTIPLE):
+    """prop_005: target = entry ± multiplier × abs(entry-stop).
+    Default multiplier = TARGET_R_MULTIPLE (live = 2.0). Shadow callers
+    pass multiplier=TARGET_R_MULTIPLE_SHADOW (3.0)."""
     try:
         entry = float(entry or 0)
         stop  = float(stop  or 0)
@@ -205,9 +213,9 @@ def _calculate_target(entry, stop, direction):
         if risk <= 0 or entry <= 0:
             return None
         if direction == 'LONG':
-            return round(entry + 2 * risk, 2)
+            return round(entry + multiplier * risk, 2)
         else:
-            return round(entry - 2 * risk, 2)
+            return round(entry - multiplier * risk, 2)
     except Exception:
         return None
 
@@ -287,6 +295,13 @@ def log_signal(sig, layer='MINI'):
     stop         = sig.get('stop', None)
     target_price = _calculate_target(
         scan_price or entry_est, stop, direction)
+    # prop_005 V6: shadow track activates from this commit forward;
+    # pre-existing open positions intentionally excluded.
+    # recover_stuck_signals does NOT backfill shadow_target on
+    # legacy records.
+    shadow_target = _calculate_target(
+        scan_price or entry_est, stop, direction,
+        multiplier=TARGET_R_MULTIPLE_SHADOW)
 
     generation, data_quality = _get_generation(today)
     scan_time_utc = datetime.utcnow().strftime('%H:%M UTC')
@@ -340,6 +355,10 @@ def log_signal(sig, layer='MINI'):
         "atr":              sig.get('atr', None),
         "exit_date":        exit_date,
         "target_price":     target_price,
+        # ── prop_005 shadow track (forward-only) ──────
+        "shadow_target":    shadow_target,
+        "shadow_outcome":   None,
+        "shadow_r_multiple": None,
         # ── open validation (filled by open_validator) ─
         "actual_open":      None,
         "adjusted_rr":      None,
@@ -417,6 +436,10 @@ def log_rejected(sig, rejection_reason,
     stop         = sig.get('stop', None)
     target_price = _calculate_target(
         scan_price, stop, direction)
+    # prop_005 V6: shadow track forward-only — same as primary writer
+    shadow_target = _calculate_target(
+        scan_price, stop, direction,
+        multiplier=TARGET_R_MULTIPLE_SHADOW)
 
     generation, data_quality = _get_generation(today)
     scan_time_utc = datetime.utcnow().strftime('%H:%M UTC')
@@ -462,6 +485,10 @@ def log_rejected(sig, rejection_reason,
         "atr":                 sig.get('atr', None),
         "exit_date":           None,
         "target_price":        target_price,
+        # ── prop_005 shadow track (forward-only) ──────
+        "shadow_target":       shadow_target,
+        "shadow_outcome":      None,
+        "shadow_r_multiple":   None,
         "actual_open":         None,
         "adjusted_rr":         None,
         "entry_valid":         None,
