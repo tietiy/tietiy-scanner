@@ -1,0 +1,114 @@
+# .github/workflows/brain.yml
+# Purpose: Brain nightly run — Step 3 derive → Step 4 verify+generate
+#          → Step 5 LLM gates → Step 6 unified queue + decisions_journal
+#          init + dual-write.
+# Trigger: cron-job.org @ 22:00 IST Mon-Sun (5 min before brain_digest.yml @ 22:05 IST).
+# Touches: output/brain/* (derived views + reasoning_log + unified_proposals
+#          + decisions_journal + history archives) + output/proposed_rules.json
+#          (dual-write if kill_rule/boost_demote candidates surface).
+# Failure mode: alert_failure.py via Telegram.
+#
+# Architecture (Wave 5 backend production fire 2026-04-29):
+# - cron-job.org dispatch (per M-15 reversal lock; no GitHub schedule)
+# - Mon-Sun daily per D-4 cadence lock
+# - Concurrency lock prevents overlap with self
+# - Sequences Step 3 → Step 4 → Step 5 → Step 6 deterministically
+# - Step 7 (Telegram digest) fires separately via brain_digest.yml at 22:05 IST
+#
+# PENDING USER-SIDE: ANTHROPIC_API_KEY secret must be configured in GitHub
+# repo Settings → Secrets → Actions before first production fire. Without
+# this secret, Step 5 LLM gates fail at runtime.
+#
+# Cost: ~$0.10/run × 7 days/week = ~$0.70/week per CORRECTION 4 verified
+# rates ($5/Mtok input + $25/Mtok output Opus 4.7). Well under §1
+# constraint 4 budget.
+
+name: "🧠 Brain Run | derive → verify → reason → output | 22:00 IST cron-job.org"
+
+on:
+  workflow_dispatch:
+
+concurrency:
+  group: tietiy-brain-run
+  cancel-in-progress: false
+
+permissions:
+  contents: write
+
+jobs:
+  brain:
+    runs-on: ubuntu-latest
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: pip install yfinance pandas numpy requests anthropic python-dotenv
+
+      - name: Brain run (Step 3 → 4 → 5 → 6)
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          PYTHONPATH:        ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  BRAIN NIGHTLY RUN — derive + verify + reason + output"
+          echo "════════════════════════════════════════"
+          cd $GITHUB_WORKSPACE/scanner
+          python main.py brain
+
+      - name: Commit and push brain outputs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  COMMITTING BRAIN OUTPUTS"
+          echo "════════════════════════════════════════"
+          git config user.name  "TIE TIY Bot"
+          git config user.email "bot@tietiy.com"
+
+          git add \
+            output/brain/cohort_health.json \
+            output/brain/regime_watch.json \
+            output/brain/portfolio_exposure.json \
+            output/brain/ground_truth_gaps.json \
+            output/brain/reasoning_log.json \
+            output/brain/unified_proposals.json \
+            output/brain/decisions_journal.json \
+            output/brain/history/ \
+            output/proposed_rules.json \
+            2>/dev/null || true
+
+          git diff --cached --quiet && \
+            echo "No brain output changes to commit" && exit 0
+
+          git commit -m "Brain run $(date '+%Y-%m-%d') IST — Step 3+4+5+6 nightly"
+
+          for i in 1 2 3; do
+            git pull --rebase origin main && \
+            git push origin HEAD:main && \
+            echo "Push succeeded on attempt $i" && break
+            echo "Push attempt $i failed — retrying in 10s..."
+            sleep 10
+          done
+
+      - name: Alert on failure
+        if: failure()
+        env:
+          TELEGRAM_TOKEN:   ${{ secrets.TELEGRAM_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+          WORKFLOW_NAME:    "Brain Run"
+          RUN_URL:          ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          PYTHONPATH:       ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          pip install requests --quiet
+          python scanner/alert_failure.py

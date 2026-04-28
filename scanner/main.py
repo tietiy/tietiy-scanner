@@ -987,6 +987,84 @@ def run_eod():
     print("[main] EOD complete.")
 
 
+def run_brain():
+    """Wave 5 brain nightly run: Step 3 derive (via brain_derive.run_all)
+    → Step 4 verify+generate → Step 5 LLM gates → Step 6 unified queue +
+    decisions_journal init.
+
+    Step 7 (Telegram digest) fires via separate brain_digest.yml at 22:05 IST.
+    Locked design commits: 27b60cb, 997d4af, ee4007d, 05570fb, 1e1c786.
+
+    Note: brain_derive.run_all() writes to disk + returns paths only;
+    we re-read the dicts for Steps 4-6 input. Future cleanup: brain_derive
+    could return view_data alongside paths, eliminating roundtrip.
+    """
+    from datetime import datetime, timezone, timedelta
+    from scanner.brain import (
+        brain_input, brain_derive, brain_verify,
+        brain_reason, brain_output)
+
+    _IST = timezone(timedelta(hours=5, minutes=30))
+    now = datetime.now(_IST)
+    run_id = f"brain_run_{now.date().isoformat()}_{now.strftime('%H%M')}"
+    print(f"[brain] run_id: {run_id}")
+
+    # Step 3: derive 4 views (writes to output/brain/* + history archives)
+    step3 = brain_derive.run_all(output_dir="output", data_dir="data")
+    print(f"[brain] Step 3: views={list(step3['views'].keys())} "
+          f"errors={len(step3['errors'])}")
+
+    # Re-load view dicts from disk for Step 4-6 input (Tripwire A workaround)
+    derived_views = {}
+    for name, meta in step3["views"].items():
+        with open(meta["current_path"], "r", encoding="utf-8") as f:
+            derived_views[name] = json.load(f)
+
+    # Re-load truth files for proposed_rules + mini_scanner_rules
+    truth_files = brain_input.load_truth_files("output", "data")
+    proposed_rules = truth_files.get("proposed_rules", {})
+    mini_scanner_rules = truth_files.get("mini_scanner_rules", {})
+
+    # Step 4: deterministic generators + verify
+    step4_candidates = brain_verify.run_step4(
+        derived_views=derived_views, prior_archives={},
+        proposed_rules=proposed_rules,
+        mini_scanner_rules=mini_scanner_rules,
+        output_dir="output")
+    print(f"[brain] Step 4: {len(step4_candidates)} candidates")
+
+    # Step 5: LLM gates (production mode; real Anthropic client)
+    step5_result = brain_reason.run_step5(
+        derived_views=derived_views,
+        step4_candidates=step4_candidates,
+        output_dir="output", mode="production",
+        run_id=run_id)
+    cs = step5_result["cost_summary"]
+    print(f"[brain] Step 5: cost ${cs['total_cost_usd']:.4f} "
+          f"calls={cs['total_calls']}")
+
+    # Step 6: split candidates per V-7 contract
+    cands = step5_result["candidates"]
+    boost_kept = [c for c in cands if c.get("type") == "boost_promote"]
+    other_kept = [c for c in cands
+                   if c.get("type") in ("kill_rule", "boost_demote",
+                                          "cohort_review")]
+    generated = [c for c in cands
+                  if c.get("type") in ("regime_alert", "exposure_warn")]
+
+    step6_result = brain_output.run_step6(
+        step5_kept_candidates=boost_kept + other_kept,
+        step5_generated_alerts=generated,
+        mini_scanner_rules=mini_scanner_rules,
+        derived_views=derived_views,
+        run_id=run_id,
+        as_of_date=now.date().isoformat(),
+        output_dir="output")
+    print(f"[brain] Step 6: surfaced={step6_result['total_surfaced']} "
+          f"dropped={step6_result['total_dropped']} "
+          f"dual_written={step6_result['dual_write_summary']['dual_written']}")
+
+
 # ── ENTRY POINT ───────────────────────────────────────
 if __name__ == '__main__':
     mode = (sys.argv[1]
@@ -999,7 +1077,9 @@ if __name__ == '__main__':
         run_morning_stop_check()
     elif mode == 'eod':
         run_eod()
+    elif mode == 'brain':
+        run_brain()
     else:
         print(f"[main] Unknown mode: {mode}")
         print("Usage: python main.py "
-              "[morning|stops|eod]")
+              "[morning|stops|eod|brain]")
