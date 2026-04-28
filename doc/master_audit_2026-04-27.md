@@ -778,6 +778,8 @@ If brain has a Tier 1 CLI surface (`[needs-verification]` from chat history):
 
 **Status update 2026-04-28 (GAP-04):** PARTIAL — `eod.yml` moved to GitHub native schedule per `bridge_design_v1.md §13.4` (commit `f9d4746`). One of 14 precision-critical workflows now off cron-job.org. Severity remains HIGH because 13 workflows still depend on cron-job.org and the failover playbook (Wave 5 prereq S-4) is still PENDING.
 
+**Status update 2026-04-28 evening (GAP-04 REVERSED):** PARTIAL annotation immediately above is now stale. Tonight's commit `2fc1f35` REVERSED the `f9d4746` eod.yml→GitHub-schedule decision based on observed M-15 evidence (3-of-3 weekday GitHub-schedule workflows missed today: eod.yml, colab_sync.yml, diagnostic.yml; 6-of-6 cron-job.org workflows fired clean). cron-job.org is back to dispatching 14 workflows (was 14 pre-`f9d4746`, briefly 13 post-`f9d4746`, 14 again post-`2fc1f35`); colab_sync.yml + diagnostic.yml remain on GitHub schedule per separate scope. **GAP-04 severity REVERTED to UNCHANGED HIGH** (no PARTIAL credit for what was undone). Failover playbook (Wave 5 prereq S-4) priority elevated per `doc/project_anchor_v1.md §7` D-5 (highest-cost-of-wrong-call decision item). See `project_anchor_v1.md §6.1` for full drift diagnosis.
+
 ### Severity tally
 
 - CRITICAL: 0
