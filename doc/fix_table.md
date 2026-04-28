@@ -326,9 +326,13 @@ Max 3 self-queries per bridge run. `bridge/learner/` folder skeleton in place (e
 
 ### LE-05 — PWA → Telegram deep-link approval
 
-**Status:** PENDING · **Priority:** Wave 4
+**Status:** DEFERRED to Wave UI track · **Priority:** Wave UI (paired with IT-05)
 
-PWA tap Approve → opens Telegram with pre-filled command. User confirms send. Minimal friction, uses existing flow.
+Originally framed as Wave 4 with "PWA tap Approve → opens Telegram with pre-filled command." Audit-first verification 2026-04-28 confirmed this is misaligned: the PWA has no proposal-approval surface today (zero references to `proposed_rules` in `output/*.js`; no Monster/Proposals/Brain tab). The deep-link mechanism itself is one line of HTML, but it requires the IT-05 host surface to attach to. Building that surface piecemeal in Wave 4 would either ship a throwaway stub or smuggle IT-05 work in under an LE-05 label.
+
+Cross-doc alignment: `master_audit_2026-04-27.md` PART 6 + PART 9 + closing assessment, `wave5_prerequisites_2026-04-27.md` Recommended sequence, and `brain_design_v1.md` Step 8 all place LE-05 inside Wave UI / IT-05 / Brain Step 8 (Monster tab). fix_table now agrees.
+
+Approval flow today: Telegram-only via `/approve_rule` + `/reject_rule`. No change to that flow until Wave UI ships.
 
 ### LE-06 — Demotion framework (paired with prop_007)
 
@@ -502,7 +506,7 @@ Full 3-layer rhythm. BR-03 + BR-04 + BR-05 complete + BR-07 complete + DATA-02. 
 
 ### Wave 4 — Proposals + approvals
 
-LE-05 + prop_005 SHIP + prop_007/LE-06 SHIP. (Approval-card UI deferred to Wave UI.)
+✅ Closed 2026-04-28 at 4 shipped items: LE-07 (`/reject_rule`, `c43189a`), prop_005 (parallel-shadow infra, `550b5f0`), LE-06 (boost demotion warnings, `7b96a97`), prop_007 (boost demotion proposals, `c647e94`). LE-05 deferred to Wave UI track (paired with IT-05). Approval-card UI deferred to Wave UI.
 
 ### Wave 5 — Self-queries
 
@@ -580,6 +584,7 @@ HL-01 + MC-01 + OPS-01..04 + prop_001 revival + H-04/D3 + H-06 + H-07.
 | 2026-04-26 | **Wave 2 backend foundation shipped.** 16 bridge files (folder skeleton + thresholds + sdr + display_hints + state_writer + upstream_health + error_handler + bucket_engine + evidence_collector + 3 rules matchers + queries registry + 3 query plugins). TG-01 sidecar code shipped (cron-job.org dashboard PENDING for Apr 26 evening). 3 silent-failure schema bugs fixed in q_signal_today, q_open_positions, evidence_collector — discovered when comparing synthetic fixtures vs real production JSON. **New principle locked: Schema discipline (#12)** — every JSON-reading function gets a real-data sanity check; bridge owns its own schema but uses canonical names when reaching INTO production records. Full project-wide audit ran (19,306 lines, 0 new bugs found). 2 follow-ups tracked: bucket_engine `_MODERATE_SECTOR_WR` to thresholds; dedupe boost/kill matcher calls between evidence_collector and bucket_engine. |
 | 2026-04-26 (night-2) | **Wave 3 Session A/B + Wave 4 Step 1 shipped.** `/reject_rule` Telegram command (`c43189a`). BR-04 EOD composer skeleton (`c94e523`) — 467 lines, reads signal_history resolutions, plain-dict EOD SDRs, `bridge.py` wired for `--phase=EOD`. EOD digest renderer `bridge_telegram_eod.py` (`19d4146`) — 492 lines, section-driven template per §12.3. Renderer escape-pattern bug caught + fixed in code review: `_render_contra_section` had unescaped `=` between `_esc` calls; refactored to plain-string pieces + `_esc` whole body. BR-07 now fully shipped (all 3 renderers). Sessions C (LE-06 boost demotion warnings) + D (eod.yml workflow + cron-job.org schedule) pending. |
 | 2026-04-28 | **Wave 4 Steps 2-4 shipped tonight + Wave 3 Session D shipped earlier this evening.** eod.yml workflow live (`f9d4746`). bridge_design_v1.md §13 EOD-exception note (`d4433e7`). LE-06 boost demotion warnings in EOD digest (`7b96a97`). prop_007 boost demotion proposal generation + approval (`c647e94`). prop_005 reframed and shipped as parallel-shadow infrastructure (`550b5f0`) — NOT the R-multiple solver originally implied; heavy exit-logic rework deferred to `exit_logic_redesign_v1.md` design track. recover_stuck_signals.py Wave 2 migration leftover fixed (`9d4dcb2`). |
+| 2026-04-28 (late-night) | **Wave 4 closed at 4 shipped items: LE-07, prop_005, LE-06, prop_007.** LE-05 placement reclassified DEFERRED to Wave UI track aligning with master_audit, wave5_prerequisites, and brain_design_v1. The PWA host surface required for LE-05 to be user-visible is IT-05 / Brain Step 8 (Monster tab). |
 
 ---
 
