@@ -28,7 +28,7 @@ This document locks the brain-layer design into the repo. Where chat-history det
 
 **Soft constraints (defaults — adjustable with rationale):**
 
-- Nightly run anchored at 22:00 IST (after market close + buffer for any delayed eod_master).
+- Nightly run anchored at 22:00 IST every day Mon-Sun (after market close + buffer for any delayed eod_master). Saturday and Sunday runs read Friday-EOD-stable truth files (signal_history immutable on weekends — verified 2026-04-29 against `.github/workflows/*.yml` cron expressions + cron-job.org dispatch surface). LLM gates always fire (no short-circuit); weekly cost ~$0.70 vs ~$0.50 weekday-only, delta well below $1/day soft cap. Sunday run additionally consumes fresh `weekly_intelligence_latest.json` (Sunday 20:00 IST publication via `weekly_intelligence.yml`). Locked 2026-04-29 per D-4 (`project_anchor_v1.md` §7).
 - Proposal default expiry: 7 days. Auto-expire if no decision by then; brain may re-propose if conditions still warrant.
 - Forward validation window: 30 days. Backtest-derived rules carry `days_validated_forward` counter; rules failing forward auto-demote (no approval needed for demotion).
 - LLM gate count: 3-5 (specifics in §11 open questions).
@@ -78,6 +78,8 @@ scanner/brain/
 ```
 
 Brain does NOT run during market hours. Brain does NOT participate in the bridge phase rhythm (L1/L2/L4). Brain reads `bridge_state_history/*` snapshots from earlier in the day; it does not write to bridge state.
+
+**Weekend behavior (D-4 lock 2026-04-29).** On Sat 22:00 IST: derived views regenerate against Friday-EOD-stable truth files (signal_history.json, patterns.json, proposed_rules.json, mini_scanner_rules.json all immutable Sat/Sun — only `backup_manager.yml` Sat 8:30 IST + `weekend_summary.yml` Sat 9:00 IST run, neither mutates brain inputs). Cohort_health, regime_watch, portfolio_exposure, ground_truth_gaps archives byte-identical to Friday's. Step 4 candidates: cohort_axis + filter_signature stable, only `_<as_of_date>` suffix differs from Friday. Step 5 LLM gates always fire (no short-circuit; per V-12 + CORRECTION 6 the 90-day reasoning_log + decisions_journal context is fed INTO each prompt — short-circuit would break "smarter every day" + disagreement-awareness). decisions_journal appends with `_metadata.warnings: ["no_fresh_trading_inputs_since_<friday_date>"]`. On Sun 22:00 IST: regime_watch picks up fresh weekly_intelligence (~2hr publication lag; `weekly_intelligence.yml` Sun 20:00 IST is the only weekend brain-input mutator); other views identical to Friday. Step 7 Telegram renderer SHOULD format empty-queue Sat/Sun nights as quiet "all clear" rather than alarm — design pass for Step 7 (deferred).
 
 ---
 
@@ -338,6 +340,39 @@ Total Wave-5 brain backend (Steps 1-7): ~2280 LOC, 5-7 sessions.
 **Status values:** `pending`, `approved`, `rejected`, `expired`. Only `pending` is mutable through `/approve` or `/reject`. Approved kill_rules also flow through to `proposed_rules.json` for back-compat audit trail.
 
 **Retention.** `unified_proposals.json` holds the rolling current queue (pending + recently-decided). On nightly run, items older than 90 days OR with status in `{approved, rejected, expired}` for >30 days move to `output/brain/proposals_archive.json`. This prevents the live file from growing unbounded.
+
+### §5.1 Conflict surfacing (D-2 lock 2026-04-29)
+
+When a brain-generated proposal's claim conflicts with an active rule in `data/mini_scanner_rules.json` (kill_pattern, boost_pattern, or watch_pattern), the proposal MUST surface the conflict in `counter` rather than be auto-suppressed. Locked per `project_anchor_v1.md` §7 D-2 + this session's design pass.
+
+**Conflict definition + typology.** A proposal "conflicts with" an active rule iff it targets the same (signal_type, sector, regime) tuple matched by any active rule (wildcard nulls match), AND the proposal's action would produce a rule-level relationship of one of three distinct `conflict_type` values:
+
+| proposal action | conflicts with active | conflict_type |
+|---|---|---|
+| `kill_rule` | matching `boost_pattern` (active=true) | `contradiction` |
+| `boost_promote` | matching `kill_pattern` (active=true) | `contradiction` |
+| `boost_promote` | matching `boost_pattern` same exact (signal, sector, regime) | `redundant` |
+| `boost_promote` | matching `boost_pattern` broader-OR-narrower scope (e.g., new proposal regime-axis covers existing sector-axis rules) | `overlap` |
+| `boost_demote` | (none — proposal targets the boost_pattern by `pattern_id`; not a conflict, a referenced action) | n/a |
+| `cohort_review` / `regime_alert` / `exposure_warn` | (informational; never conflicts) | n/a |
+
+**Concrete case (today's data, 2026-04-29).** Brain's Step 4 generator produced a `boost_promote` candidate for cohort `regime=Bear × signal_type=UP_TRI` (n=96, Tier M). Active boost_patterns `win_001`..`win_007` cover narrower (signal, sector, regime) tuples within that scope (UP_TRI×{Auto,FMCG,IT,Metal,Pharma,Infra}×Bear + BULL_PROXY×any×Bear). The new regime-axis proposal is **overlap**, not redundant — proposal is a SUPERSET of existing rules. Surfacing logic must distinguish: under (signal=UP_TRI, sector=null, regime=Bear) wildcard match, every active win_NNN matches → `decision_metadata.conflicts_with: [{rule_id: "win_001", conflict_type: "overlap"}, {rule_id: "win_002", conflict_type: "overlap"}, ...]`.
+
+Pure dedup against pending `proposed_rules.json` entries is NOT a conflict — handled by Step 6 dual-write deduplication (legacy_id mapping), not §5.1.
+
+**Required surfacing format.** When `decision_metadata.conflicts_with` is non-empty:
+- `counter.evidence[]` MUST include one citation per conflicting rule, in format `"<rule_id> active: <signal> × <sector> × <regime> (n=<n>)"`. Programmatic format, not free-text. Example: `"win_002 active: UP_TRI × FMCG × Bear (n=19)"`.
+- `counter.risks[]` MUST include the exact-match string `"approval would propagate <conflict_type> to mini_scanner_rules.json"` substituting actual conflict_type. If multiple conflict_types co-exist (rare; e.g., one redundant + one overlap), one risk string per distinct type. Example: `"approval would propagate overlap to mini_scanner_rules.json"`.
+- `decision_metadata.conflicts_with` MUST be a list of objects (NOT a flat string list): `[{rule_id: "<id>", conflict_type: "<type>"}, ...]`. Programmatic structured format enables Step 7 Telegram badge rendering ("REDUNDANT" vs "OVERLAP" vs "CONTRADICTION") + future analytics queries.
+
+`brain_verify.verify_proposal` extends the §6 16-violation taxonomy with three new codes enforcing surfacing format:
+- `conflict_evidence_missing` — `decision_metadata.conflicts_with` non-empty but `counter.evidence[]` lacks programmatic-format citation for ≥1 listed rule_id.
+- `conflict_risk_missing` — `decision_metadata.conflicts_with` non-empty but `counter.risks[]` lacks exact-match risk string for ≥1 listed conflict_type.
+- `conflict_metadata_missing` — heuristic detector found a conflict (active rule matches proposal tuple) but `decision_metadata.conflicts_with` is empty/missing.
+
+A proposal failing surfacing is rejected into `verification_failures.json` (same path as other shape failures). Step 6 finalizer MUST run conflict-detection BEFORE verify_proposal (so verify can enforce surfacing on the populated metadata).
+
+**Why surface, not suppress.** Auto-suppression hides cohort classification readiness from the trader, defeating the "smarter every day" reasoning_log mechanism. Surfacing in `counter` aligns with §6 "honest pre-verification" — the trader sees the conflict at approval time, makes the informed call. Differentiated `conflict_type` lets the trader read intent at-a-glance: REDUNDANT = no-op approval; OVERLAP = scope-expansion decision; CONTRADICTION = real safety call. Cost: single-trader skim-and-approve risk on contradiction-type; mitigated by structured counter format + verify_proposal enforcement + Step 7 Telegram badge (deferred to Step 7 design).
 
 ---
 
