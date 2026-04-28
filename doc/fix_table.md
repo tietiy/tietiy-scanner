@@ -457,6 +457,16 @@ Found during F-2 audit 2026-04-28: 8 records with `outcome='OPEN'` but `outcome_
 
 Worth investigating during M-12 fix audit (related — both touch the resolution pipeline). Files to read: `scanner/outcome_evaluator.py` write block, `scanner/recover_stuck_signals.py` write block, `scanner/journal.py` outcome-update path.
 
+### M-14 — eod.yml + colab_sync.yml schedule collision (16:15 IST simultaneous fire)
+
+**Status:** PENDING · **Priority:** L (cosmetic/process — both fire successfully via GitHub Actions parallel runners; no functional risk, but creates concurrent-push race on main that the rebase-fallback handles)
+
+Both workflows configured with identical cron `45 10 * * 1-5` (16:15 IST Mon–Fri). They run in parallel on separate runners. Different output files (eod.yml → `output/bridge_state.json` + `output/bridge_state_history/<date>_EOD.json`; colab_sync.yml → `output/colab_export.json`) — no file-level collision. Push race on main is handled by the existing rebase-fallback infrastructure (visible all day in LTP/stop_check 5-min loops).
+
+Identified during B-2 verification audit 2026-04-28. No code changes during audit.
+
+**Fix proposal (defer):** Move colab_sync.yml from `45 10 * * 1-5` to e.g. `15 11 * * 1-5` (16:45 IST). Gives eod.yml an exclusive 16:15 IST window, leaves colab_sync 30 min later, still post-eod_master. Could pair with M-12 fix audit since both touch workflow scheduling.
+
 ---
 
 ## 📊 TIER 9 — ANALYSIS & INVESTIGATION
@@ -620,6 +630,7 @@ HL-01 + MC-01 + OPS-01..04 + prop_001 revival + H-04/D3 + H-06 + H-07.
 | 2026-04-28 | **Wave 4 Steps 2-4 shipped tonight + Wave 3 Session D shipped earlier this evening.** eod.yml workflow live (`f9d4746`). bridge_design_v1.md §13 EOD-exception note (`d4433e7`). LE-06 boost demotion warnings in EOD digest (`7b96a97`). prop_007 boost demotion proposal generation + approval (`c647e94`). prop_005 reframed and shipped as parallel-shadow infrastructure (`550b5f0`) — NOT the R-multiple solver originally implied; heavy exit-logic rework deferred to `exit_logic_redesign_v1.md` design track. recover_stuck_signals.py Wave 2 migration leftover fixed (`9d4dcb2`). |
 | 2026-04-28 (late-night) | **Wave 4 closed at 4 shipped items: LE-07, prop_005, LE-06, prop_007.** LE-05 placement reclassified DEFERRED to Wave UI track aligning with master_audit, wave5_prerequisites, and brain_design_v1. The PWA host surface required for LE-05 to be user-visible is IT-05 / Brain Step 8 (Monster tab). |
 | 2026-04-28 (mid-day) | **Premarket Phase 1 watch_pattern verified clean + F-2 diagnosis benign + B-3 shipped.** 08:55 IST premarket fire produced clean L1 brief; watch_001 (UP_TRI×Choppy) fired against COALINDIA with full evidence + warning text rendered into Telegram. F-2 (pattern_miner/rule_proposer 4-day stale claim from `system_health.json`) diagnosed as cosmetic step-ordering artifact in `eod_master.yml` — chain ran cleanly Apr 27 per sub-second timestamps. Filed as M-12 (chain_validator step ordering) + M-13 (OPEN-with-outcome_date schema oddity). eod.yml first fire at 16:15 IST cleared by F-2 audit to proceed (verification still pending). B-3 shipped: Anthropic SDK + ANTHROPIC_API_KEY validated against live Messages API with `claude-opus-4-7` (`d6ddc01`). |
+| 2026-04-28 (mid-day) | **B-2 verified — Wave 5 prereq cleared on infrastructure side.** All 6 cron-job.org dispatches (morning_scan, open_validate, premarket, postopen, ltp_updater, stop_check) fired on schedule today with timestamp evidence in git log. eod.yml uses GitHub native schedule per `bridge_design_v1.md §13.4` (deliberate cron-job.org bypass for SPOF reduction). eod_master at 15:35 IST will populate today's chain outputs; eod.yml at 16:15 IST will read fresh data via the 25–55 min buffer. Schedule collision between eod.yml and colab_sync.yml at 16:15 IST surfaced and filed as M-14 (cosmetic, no fire-blocker). All Wave 5 prereqs B-1, B-2, B-3 status: B-2 ✅ verified, B-3 ✅ shipped (`d6ddc01`), B-1 ⏸ pending eod.yml first fire at 16:15 IST today. |
 
 ---
 
