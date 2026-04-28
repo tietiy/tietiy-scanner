@@ -3,14 +3,18 @@
 #          Reads today's resolutions from signal_history (mutated by
 #          outcome_evaluator at 15:35), writes EOD bridge_state.json
 #          + sends always-on EOD digest
-# Trigger: GitHub native schedule @ 4:15 PM IST Mon-Fri (+ workflow_dispatch for manual)
-# Sequence: ~40 min after eod_master.yml at 3:35 PM IST (GitHub schedule drift = 25–55 min effective buffer)
+# Trigger: cron-job.org @ 4:15 PM IST Mon-Fri (workflow_dispatch)
+# Sequence: ~40 min after eod_master.yml at 3:35 PM IST
 # Touches: output/bridge_state.json + output/bridge_state_history/
 # Failure mode: Telegram alert via send_workflow_failure
 #
-# Architecture v2 (2026-04-27):
-# - GitHub native schedule (drift-tolerant — EOD digest, not entry-window-critical)
-# - GitHub schedule + workflow_dispatch (deviation from premarket/postopen which use cron-job.org — see bridge_design_v1.md §13 EOD exception note)
+# Architecture v3 (2026-04-28 — reverses v2 GitHub-native-schedule decision):
+# - cron-job.org triggered (matches premarket.yml + postopen.yml house style)
+# - workflow_dispatch only (no GitHub schedule)
+# - Migration rationale: 2026-04-28 all three weekday GitHub-native-schedule workflows
+#   (eod.yml, colab_sync.yml, diagnostic.yml) missed their tick while all six
+#   cron-job.org dispatches fired clean. Reliability now load-bearing for Wave 5
+#   dependency. See bridge_design_v1.md §13.4 Status update 2026-04-28.
 # - Atomic single commit (bridge_state.json + dated history file)
 # - Reads upstream signal_history.json + eod_prices.json + system_health.json
 #   from prior eod_master commit (15:35 IST chain: outcome_evaluator
@@ -21,11 +25,9 @@
 #   circuit, no render — different from postopen which is conditional)
 # - continue-on-error: digest is supplementary, not critical
 
-name: "🌉 Bridge EOD | Compose+SDR+Telegram digest | 4:15 PM IST GitHub schedule"
+name: "🌉 Bridge EOD | Compose+SDR+Telegram digest | 4:15 PM IST cron-job.org"
 
 on:
-  schedule:
-    - cron: '45 10 * * 1-5'  # 10:45 UTC = 16:15 IST, Mon-Fri only
   workflow_dispatch:
 
 concurrency:

@@ -1193,6 +1193,8 @@ If upstream fails, downstream doesn't fire. chain_validator catches it next morn
 - `master_audit_2026-04-27.md` PART 4 (Workflow audit) GAP-04 (cron-job.org SPOF context)
 - `wave5_prerequisites_2026-04-27.md` S-4 (cron-job.org failover playbook — separate, complementary item)
 
+**Status update 2026-04-28 (decision reversed):** eod.yml migrated from GitHub native schedule back to cron-job.org `workflow_dispatch`. Evidence forcing the reversal: on 2026-04-28, all three weekday GitHub-native-schedule workflows (eod.yml at 16:15 IST, colab_sync.yml at 16:15 IST, diagnostic.yml at 16:30 IST) failed to fire while all six cron-job.org-dispatched workflows (morning_scan, open_validate, premarket, postopen, ltp_updater, stop_check) fired cleanly. The §13.4 rationale assumed GitHub native schedule was sufficiently reliable for drift-tolerant workloads; today's 3-of-3 miss rate disproves that for this repo's load profile. The SPOF-reduction argument is reversed by the reliability concern: eod.yml is now load-bearing for Wave 5 brain layer (which reads `bridge_state_history/<date>_EOD.json` per §11 Q5 of `brain_design_v1.md`); reliable trigger > SPOF avoidance. Manual `workflow_dispatch` retained as user-only safety valve via GitHub UI. cron-job.org now dispatches 15 workflows; failover playbook (Wave 5 prereq S-4) becomes more important. colab_sync.yml + diagnostic.yml NOT migrated tonight (separate audit; not Wave 5 load-bearing). See `eod.yml` Architecture v3 docstring + `fix_table.md` M-15 + change-log for migration commit hash.
+
 ---
 
 ## 14. Error handling and graceful degradation
