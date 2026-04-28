@@ -170,43 +170,51 @@ jobs:
           print('✅ EOD validation passed')
           "
 
-      # ── STEP 6: Chain validator (non-critical) ────
-      - name: "6/8 Chain validator"
-        continue-on-error: true
-        env:
-          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
-        run: |
-          echo "════════════════════════════════════════"
-          echo "  STEP 6/8: CHAIN VALIDATOR"
-          echo "════════════════════════════════════════"
-          cd $GITHUB_WORKSPACE/scanner
-          python chain_validator.py
-
-      # ── STEP 7: Pattern miner (non-critical) ──────
-      - name: "7/8 Pattern miner"
+      # ── STEP 6: Pattern miner (non-critical) ──────
+      # M-12 RESOLVED 2026-04-29: pattern_miner moved BEFORE chain_validator
+      # so chain_validator (step 8) reads pattern_miner's fresh generated_at.
+      # Prior ordering: chain_validator step 6 → pattern_miner step 7 →
+      # rule_proposer step 8 produced false-DEGRADED warnings (chain_validator
+      # read yesterday's generated_at before pattern_miner wrote today's).
+      # See fix_table M-12 + project_anchor §7 D-3 + this commit message.
+      - name: "6/8 Pattern miner"
         if: ${{ inputs.skip_patterns != true }}
         continue-on-error: true
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           echo "════════════════════════════════════════"
-          echo "  STEP 7/8: PATTERN MINER"
+          echo "  STEP 6/8: PATTERN MINER"
           echo "════════════════════════════════════════"
           cd $GITHUB_WORKSPACE/scanner
           python pattern_miner.py
 
-      # ── STEP 8: Rule proposer (non-critical) ──────
-      - name: "8/8 Rule proposer"
+      # ── STEP 7: Rule proposer (non-critical) ──────
+      - name: "7/8 Rule proposer"
         if: ${{ inputs.skip_proposals != true }}
         continue-on-error: true
         env:
           PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
         run: |
           echo "════════════════════════════════════════"
-          echo "  STEP 8/8: RULE PROPOSER"
+          echo "  STEP 7/8: RULE PROPOSER"
           echo "════════════════════════════════════════"
           cd $GITHUB_WORKSPACE/scanner
           python rule_proposer.py
+
+      # ── STEP 8: Chain validator (non-critical) ────
+      # Runs LAST so it reads fresh generated_at from pattern_miner (step 6)
+      # + rule_proposer (step 7). M-12 fix per fix_table + project_anchor §7 D-3.
+      - name: "8/8 Chain validator"
+        continue-on-error: true
+        env:
+          PYTHONPATH: ${{ github.workspace }}:${{ github.workspace }}/scanner
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  STEP 8/8: CHAIN VALIDATOR (post-mining; M-12 fix)"
+          echo "════════════════════════════════════════"
+          cd $GITHUB_WORKSPACE/scanner
+          python chain_validator.py
 
       # ── COMMIT (single atomic update) ──────────────
       - name: Commit and push all outputs
