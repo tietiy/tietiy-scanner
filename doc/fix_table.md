@@ -2,7 +2,7 @@
 
 **Purpose:** Single source of truth for all open work, ship plans, and design decisions.
 **Owner:** Abhishek (decisions) + Claude (execution)
-**Last updated:** 2026-04-26 late-night (Wave 3 Session A/B + Wave 4 Step 1 shipped: BR-04 EOD composer skeleton, EOD digest renderer, /reject_rule)
+**Last updated:** 2026-04-28 (Wave 3 Session D + Wave 4 Steps 2-4 shipped — see change-log row for commit hashes)
 **Canonical status:** This file + `doc/session_context.md` = complete handoff.
 
 ---
@@ -455,9 +455,15 @@ Every Choppy resolution (next 2 weeks) triggers Telegram alert with full context
 
 ### prop_005 — Stop/target rebalance as parameter toggle
 
-**Status:** APPROVE READY · **Priority:** Wave 4
+**Status:** ✅ SHIPPED 2026-04-28 (commits `9d4dcb2` + `550b5f0`) · **Priority:** Wave 4 Step 2 · **Effort:** S (actual)
 
-R-multiple currently 0.44 vs 1.5 target (from 2026-04-25 deep-dive). Parameter toggle to rebalance stop distance vs target distance, ship as config-only change with shadow mode for N signals.
+**What shipped:** `TARGET_R_MULTIPLE_SHADOW = 3.0` constant in `config.py` + parallel-track shadow fields (`shadow_target`, `shadow_outcome`, `shadow_r_multiple`) on every new V6 signal. `journal._calculate_target` parameterised on `multiplier`. `outcome_evaluator._evaluate_signal` augmented in-place with shadow bar-walk + Day-6 force-exit shadow. `recover_stuck_signals` carries shadow logic for the recovery path. Forward-only: pre-prop_005 records do not carry shadow fields and are not backfilled. Smoke 48/48 PASS, real-history SHA256 invariant.
+
+**What did NOT ship and why:** prop_005 was originally framed as the R-multiple solver ("0.44 → 1.5"). Audit-first review revealed the framing was misaligned with the actual lever: R-multiple is dominated by Day-6 forced-exit outcomes (35/36 of 2026-04-27 resolutions, per the eod_anomaly investigation), not by target-multiplier choice. A real R-multiple fix requires exit-logic redesign (Day-6 forced-exit reform, dynamic stops, partial profit-taking) — too heavy for a config-toggle ship. Scope was reframed mid-session to "parallel-shadow infrastructure that lets the heavier exit-logic redesign track measure 3.0× outcomes against today's 2.0× live decisions." The full redesign now tracks separately as `doc/exit_logic_redesign_v1.md` (design-only, not yet drafted).
+
+**Coupling note:** `TARGET_R_MULTIPLE` is the single source of truth for both `_calculate_target` body AND `_calc_r_multiple` TARGET_HIT cap — they must move together if ever changed. `TARGET_R_MULTIPLE_SHADOW` is forward-only metadata; never feeds live trade decisions.
+
+**Audit-first discovery:** mid-session, found `recover_stuck_signals.py` had been silently broken since Wave 2 migration `c312316` (2026-04-23) — a stale `_is_trading_day` import made the module unimportable for 5 days but went undetected because no other code imports it. Fixed as a separate prerequisite commit (`9d4dcb2`) before prop_005 landed.
 
 ### prop_007 — Demotion framework (paired with LE-06)
 
@@ -573,6 +579,7 @@ HL-01 + MC-01 + OPS-01..04 + prop_001 revival + H-04/D3 + H-06 + H-07.
 | 2026-04-25 (night) | **Wave 1 shipped + ENV-01 complete.** CACHE-01 + UX-08 + WIN-RULES + M-05 all VERIFIED. MacBook Air M5 fully set up. Production PWA verified live. |
 | 2026-04-26 | **Wave 2 backend foundation shipped.** 16 bridge files (folder skeleton + thresholds + sdr + display_hints + state_writer + upstream_health + error_handler + bucket_engine + evidence_collector + 3 rules matchers + queries registry + 3 query plugins). TG-01 sidecar code shipped (cron-job.org dashboard PENDING for Apr 26 evening). 3 silent-failure schema bugs fixed in q_signal_today, q_open_positions, evidence_collector — discovered when comparing synthetic fixtures vs real production JSON. **New principle locked: Schema discipline (#12)** — every JSON-reading function gets a real-data sanity check; bridge owns its own schema but uses canonical names when reaching INTO production records. Full project-wide audit ran (19,306 lines, 0 new bugs found). 2 follow-ups tracked: bucket_engine `_MODERATE_SECTOR_WR` to thresholds; dedupe boost/kill matcher calls between evidence_collector and bucket_engine. |
 | 2026-04-26 (night-2) | **Wave 3 Session A/B + Wave 4 Step 1 shipped.** `/reject_rule` Telegram command (`c43189a`). BR-04 EOD composer skeleton (`c94e523`) — 467 lines, reads signal_history resolutions, plain-dict EOD SDRs, `bridge.py` wired for `--phase=EOD`. EOD digest renderer `bridge_telegram_eod.py` (`19d4146`) — 492 lines, section-driven template per §12.3. Renderer escape-pattern bug caught + fixed in code review: `_render_contra_section` had unescaped `=` between `_esc` calls; refactored to plain-string pieces + `_esc` whole body. BR-07 now fully shipped (all 3 renderers). Sessions C (LE-06 boost demotion warnings) + D (eod.yml workflow + cron-job.org schedule) pending. |
+| 2026-04-28 | **Wave 4 Steps 2-4 shipped tonight + Wave 3 Session D shipped earlier this evening.** eod.yml workflow live (`f9d4746`). bridge_design_v1.md §13 EOD-exception note (`d4433e7`). LE-06 boost demotion warnings in EOD digest (`7b96a97`). prop_007 boost demotion proposal generation + approval (`c647e94`). prop_005 reframed and shipped as parallel-shadow infrastructure (`550b5f0`) — NOT the R-multiple solver originally implied; heavy exit-logic rework deferred to `exit_logic_redesign_v1.md` design track. recover_stuck_signals.py Wave 2 migration leftover fixed (`9d4dcb2`). |
 
 ---
 
