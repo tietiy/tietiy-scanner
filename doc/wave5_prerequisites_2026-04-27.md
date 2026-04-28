@@ -99,7 +99,17 @@ These don't block Wave 5 starting, but every one materially improves the foundat
 - **Effort:** M (Wave 3 Session C scope, ~1.5 hrs per `master_audit_2026-04-27.md` PART 5 / Sessions C+D plan).
 - **Sequence:** between B-1 and Brain Step 3.
 
-**SHOULD-FIX tally:** 5 items. ~3-5 hours total work spread across Wave 3 Session C/D + a Wave 4 cleanup session.
+### S-6. mini_scanner.py kill_pattern consumer defensive-read for `regime` field (Step 4 V-13 extension)
+
+- **Cross-ref:** `doc/project_anchor_v1.md §7` D-items + Step 4 design pass V-13 audit (commit-pending) + extension flag.
+- **Why advisory not blocking Step 4:** Brain-side kill_rule candidates on regime-axis cohorts (V-13) extend `mini_scanner_rules.kill_patterns[]` schema with a `regime` field not present in current `kill_001` (sector-only). `scanner/mini_scanner.py` kill_pattern matching logic must `.get('regime')` defensively for brain-generated kill rules to actually activate at scan time.
+- **Why not blocking Step 4 today:** Today's brain-side kill_rule candidate count is **0** after dedup (DOWN_TRI×Bank covered by `kill_001`; UP_TRI×Choppy covered by `prop_011`; DOWN_TRI×Bear has positive edge vs DOWN_TRI baseline). No regime-axis kill rule will reach `mini_scanner.py` at activation time during Step 4 ship.
+- **BLOCKER for:** any future brain-side kill_rule that survives dedup AND trader approves AND targets regime-axis cohort. First such candidate triggers the dependency.
+- **Files:** `scanner/mini_scanner.py` kill_pattern matching block (audit + edit) + smoke test for regime-axis activation.
+- **Effort:** S (~30 min audit + edit + smoke).
+- **Sequence:** Defer until first brain-side kill_rule candidate survives dedup AND trader approves it (likely Wave 5+ post-Step-7 ship). At that point, S-6 becomes blocking.
+
+**SHOULD-FIX tally:** 6 items (was 5; +1 from Step 4 V-13 audit). ~3.5-5.5 hours total work.
 
 ---
 
