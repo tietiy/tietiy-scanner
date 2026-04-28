@@ -353,10 +353,13 @@ When a brain-generated proposal's claim conflicts with an active rule in `data/m
 | `boost_promote` | matching `kill_pattern` (active=true) | `contradiction` |
 | `boost_promote` | matching `boost_pattern` same exact (signal, sector, regime) | `redundant` |
 | `boost_promote` | matching `boost_pattern` broader-OR-narrower scope (e.g., new proposal regime-axis covers existing sector-axis rules) | `overlap` |
+| `boost_promote` | matching `watch_pattern` (active=true) | `overlap` |
 | `boost_demote` | (none — proposal targets the boost_pattern by `pattern_id`; not a conflict, a referenced action) | n/a |
 | `cohort_review` / `regime_alert` / `exposure_warn` | (informational; never conflicts) | n/a |
 
 **Concrete case (today's data, 2026-04-29).** Brain's Step 4 generator produced a `boost_promote` candidate for cohort `regime=Bear × signal_type=UP_TRI` (n=96, Tier M). Active boost_patterns `win_001`..`win_007` cover narrower (signal, sector, regime) tuples within that scope (UP_TRI×{Auto,FMCG,IT,Metal,Pharma,Infra}×Bear + BULL_PROXY×any×Bear). The new regime-axis proposal is **overlap**, not redundant — proposal is a SUPERSET of existing rules. Surfacing logic must distinguish: under (signal=UP_TRI, sector=null, regime=Bear) wildcard match, every active win_NNN matches → `decision_metadata.conflicts_with: [{rule_id: "win_001", conflict_type: "overlap"}, {rule_id: "win_002", conflict_type: "overlap"}, ...]`.
+
+**watch_pattern overlap rationale (added per Phase 1 V-8 audit).** A `boost_promote` proposal whose tuple matches an active `watch_pattern` creates a dual-fire scenario in `mini_scanner.py` matching: in the regime where the watch_pattern fires, the same signal would carry BOTH the watch warning ("⚠️ caution") AND the TAKE_FULL conviction tag. Real trader-confusion + risk surface. Concrete case: today's C2 candidate `boost_promote UP_TRI × Metal × any-regime` matches `watch_001 (UP_TRI × any × Choppy)` — if approved, in Choppy regime UP_TRI×Metal would trigger watch warning AND boost-conviction simultaneously. Surfaced as `overlap` so trader sees the dual-fire risk before approval; not suppressed.
 
 Pure dedup against pending `proposed_rules.json` entries is NOT a conflict — handled by Step 6 dual-write deduplication (legacy_id mapping), not §5.1.
 
