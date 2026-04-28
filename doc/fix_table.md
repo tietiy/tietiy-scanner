@@ -423,6 +423,40 @@ Wraps existing `diagnostic.py --heal`. Schedules periodic health checks. **Never
 
 **Status:** PENDING · **Priority:** Separate decision track
 
+### M-12 — chain_validator runs before pattern_miner/rule_proposer in eod_master.yml
+
+**Status:** PENDING · **Priority:** L (cosmetic — produces daily false-positive DEGRADED warns; no data impact)
+
+In `eod_master.yml`: chain_validator runs at step 6, pattern_miner at step 7, rule_proposer at step 8. chain_validator's `_check_pattern_miner` / `_check_rule_proposer` functions (`scanner/chain_validator.py:228–285`) read each output file's `generated_at` field at execution time — but pattern_miner and rule_proposer haven't written today's outputs yet at step 6. Result: chain_validator reads yesterday's `generated_at` and writes a "Last run: <yesterday>" warn into `system_health.json`. Today's actual chain runs ~125ms later (steps 7-8 complete) but `system_health.json` is never re-written, so the stale warn persists into tomorrow morning's bridge read.
+
+**Symptoms:**
+- L1 premarket brief shows DEGRADED status every morning despite clean overnight chain
+- L4 EOD digest will exhibit the same misleading DEGRADED label going forward
+- Trader sees "PROVISIONAL — partial data" subtitle when underlying data is actually fresh
+
+Diagnosed 2026-04-28 during F-2 audit (premarket fire-result review). Proven by sub-second timestamps on Apr 27 showing the chain wrote three files within ~125ms of each other (`system_health.json` 10:05:51.637Z → `patterns.json` 10:05:51.713Z → `proposed_rules.json` 10:05:51.760Z).
+
+**Two viable fixes (defer implementation):**
+1. Move chain_validator from step 6 to step 9 (post-mining). Cleanest — chain_validator validates what just happened.
+2. Run chain_validator twice — early sanity at step 6 + post-mining truth at step 9. More robust if any consumer depends on early system_health.
+
+No code changes during F-2 audit. Files referenced (read-only): `scanner/chain_validator.py`, `.github/workflows/eod_master.yml`, `output/system_health.json`.
+
+### M-13 — 8 signal_history records carry outcome='OPEN' AND outcome_date set simultaneously
+
+**Status:** PENDING · **Priority:** L (potential data-quality artifact; no current consumer crashes)
+
+Found during F-2 audit 2026-04-28: 8 records with `outcome='OPEN'` but `outcome_date='2026-04-27'` set on the same record. Either `outcome_evaluator` stamps `outcome_date` prematurely on still-OPEN signals, or there's a transitional state in the resolution pipeline that sets `outcome_date` before flipping `outcome` to its terminal value.
+
+**Symptoms:**
+- `patterns.json total_resolved_signals = 161`, but `signal_history` non-OPEN count = 181 (20-record gap)
+- Approximately 8 of the gap is explained by these OPEN-with-outcome_date records
+- Remaining ~12 likely from late-arriving resolutions post-Apr-27 chain (today's 3 + ~9 stragglers)
+
+**Current consumer is defensive:** the EOD composer selector (`composers/eod.py`, see BR-04 Session A above) AND's `outcome != 'OPEN'` with `outcome_date == market_date`, so EOD digests already exclude these records. No production impact today; the question is whether the writer should be cleaned up.
+
+Worth investigating during M-12 fix audit (related — both touch the resolution pipeline). Files to read: `scanner/outcome_evaluator.py` write block, `scanner/recover_stuck_signals.py` write block, `scanner/journal.py` outcome-update path.
+
 ---
 
 ## 📊 TIER 9 — ANALYSIS & INVESTIGATION
@@ -585,6 +619,7 @@ HL-01 + MC-01 + OPS-01..04 + prop_001 revival + H-04/D3 + H-06 + H-07.
 | 2026-04-26 (night-2) | **Wave 3 Session A/B + Wave 4 Step 1 shipped.** `/reject_rule` Telegram command (`c43189a`). BR-04 EOD composer skeleton (`c94e523`) — 467 lines, reads signal_history resolutions, plain-dict EOD SDRs, `bridge.py` wired for `--phase=EOD`. EOD digest renderer `bridge_telegram_eod.py` (`19d4146`) — 492 lines, section-driven template per §12.3. Renderer escape-pattern bug caught + fixed in code review: `_render_contra_section` had unescaped `=` between `_esc` calls; refactored to plain-string pieces + `_esc` whole body. BR-07 now fully shipped (all 3 renderers). Sessions C (LE-06 boost demotion warnings) + D (eod.yml workflow + cron-job.org schedule) pending. |
 | 2026-04-28 | **Wave 4 Steps 2-4 shipped tonight + Wave 3 Session D shipped earlier this evening.** eod.yml workflow live (`f9d4746`). bridge_design_v1.md §13 EOD-exception note (`d4433e7`). LE-06 boost demotion warnings in EOD digest (`7b96a97`). prop_007 boost demotion proposal generation + approval (`c647e94`). prop_005 reframed and shipped as parallel-shadow infrastructure (`550b5f0`) — NOT the R-multiple solver originally implied; heavy exit-logic rework deferred to `exit_logic_redesign_v1.md` design track. recover_stuck_signals.py Wave 2 migration leftover fixed (`9d4dcb2`). |
 | 2026-04-28 (late-night) | **Wave 4 closed at 4 shipped items: LE-07, prop_005, LE-06, prop_007.** LE-05 placement reclassified DEFERRED to Wave UI track aligning with master_audit, wave5_prerequisites, and brain_design_v1. The PWA host surface required for LE-05 to be user-visible is IT-05 / Brain Step 8 (Monster tab). |
+| 2026-04-28 (mid-day) | **Premarket Phase 1 watch_pattern verified clean + F-2 diagnosis benign + B-3 shipped.** 08:55 IST premarket fire produced clean L1 brief; watch_001 (UP_TRI×Choppy) fired against COALINDIA with full evidence + warning text rendered into Telegram. F-2 (pattern_miner/rule_proposer 4-day stale claim from `system_health.json`) diagnosed as cosmetic step-ordering artifact in `eod_master.yml` — chain ran cleanly Apr 27 per sub-second timestamps. Filed as M-12 (chain_validator step ordering) + M-13 (OPEN-with-outcome_date schema oddity). eod.yml first fire at 16:15 IST cleared by F-2 audit to proceed (verification still pending). B-3 shipped: Anthropic SDK + ANTHROPIC_API_KEY validated against live Messages API with `claude-opus-4-7` (`d6ddc01`). |
 
 ---
 
