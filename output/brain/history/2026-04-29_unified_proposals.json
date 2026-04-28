@@ -1,0 +1,261 @@
+{
+  "schema_version": 1,
+  "view_name": "unified_proposals",
+  "as_of_date": "2026-04-29",
+  "run_id": "brain_run_2026-04-29_0306",
+  "_metadata": {
+    "total_step5_candidates": 4,
+    "total_surfaced": 3,
+    "total_dropped_by_top3_cap": 1,
+    "total_rejected_at_verify": 0,
+    "warnings": [
+      "top3_cap_dropped_1_candidates"
+    ],
+    "dropped_due_to_top3_cap": [
+      {
+        "candidate_id": "brain_regime_alert_4fe119ae_2026-04-29",
+        "score_priority": 5.0,
+        "reason": "below_top_3_cap"
+      }
+    ],
+    "dual_write_summary": {
+      "dual_written": 0,
+      "skipped": 3,
+      "written_ids": [],
+      "skipped_types": [
+        "boost_promote",
+        "boost_promote",
+        "exposure_warn"
+      ]
+    }
+  },
+  "stats": {
+    "total": 3,
+    "pending": 3,
+    "approved": 0,
+    "rejected": 0,
+    "expired": 0
+  },
+  "proposals": [
+    {
+      "id": "prop_unified_2026-04-29_001",
+      "legacy_id": null,
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=UP_TRI_2026-04-29",
+      "type": "boost_promote",
+      "source": "brain_step4",
+      "source_step": "step5_or_step4_passthrough",
+      "run_id_origin": "brain_run_2026-04-29_0306",
+      "title": "UP_TRI × Bear: n=96, 94.7% WR, Tier M → boost candidate (TAKE_SMALL)",
+      "claim": {
+        "what": "Promote boost_pattern: signal=UP_TRI, regime=Bear (Tier B / TAKE_SMALL)",
+        "expected_effect": "Surface as Tier-B boost on cohort matches; observed +17.9pp edge over per-signal baseline",
+        "confidence": "high"
+      },
+      "counter": {
+        "evidence": [
+          "Wilson 95% lower bound 0.8815 well above Tier M floor — sample size adequate",
+          "R-multiple 0.61 below Tier S threshold (1.0); promotion is to Tier M (B/TAKE_SMALL) only, not Tier S (A/TAKE_FULL)",
+          "win_001 active: UP_TRI × Auto × Bear (n=21)",
+          "win_002 active: UP_TRI × FMCG × Bear (n=19)",
+          "win_003 active: UP_TRI × IT × Bear (n=18)",
+          "win_004 active: UP_TRI × Metal × Bear (n=15)",
+          "win_005 active: UP_TRI × Pharma × Bear (n=13)",
+          "win_006 active: UP_TRI × Infra × Bear (n=12)"
+        ],
+        "risks": [
+          "Cohort tier may drift on next archive comparison; demotion auto-fires per §3",
+          "R-multiple distribution under D-8 review (Day-6 forced-exit dominance per project_anchor §7 D-8)",
+          "approval would propagate overlap to mini_scanner_rules.json"
+        ]
+      },
+      "reversibility": "1-line revert in mini_scanner_rules.json boost_patterns[]",
+      "evidence_refs": [
+        "cohort_health.json#regime=Bear__signal_type=UP_TRI",
+        "patterns.json#sig=UP_TRI"
+      ],
+      "decision_metadata": {
+        "tier": "M",
+        "n": 96,
+        "wr": 0.9468,
+        "wr_wilson_lower": 0.8815,
+        "edge_pp": 17.9,
+        "r_multiple": 0.61,
+        "cohort_axis": "signal+regime",
+        "cohort_filter": {
+          "signal_type": "UP_TRI",
+          "regime": "Bear"
+        },
+        "proposed_rule_entry": {
+          "id": "boost_brain_4d532dbb",
+          "active": true,
+          "signal": "UP_TRI",
+          "sector": null,
+          "regime": "Bear",
+          "tier": "B",
+          "conviction_tag": "TAKE_SMALL",
+          "reason": "brain_step4: cohort Tier M, n=96, wr=94.7%, edge +17.9pp",
+          "added_date": null,
+          "source": "brain_step4",
+          "evidence": {
+            "wr": 0.9468,
+            "n": 96,
+            "tier": "validated"
+          }
+        },
+        "score_priority": 9.99,
+        "conflicts_with": [
+          {
+            "rule_id": "win_001",
+            "conflict_type": "overlap"
+          },
+          {
+            "rule_id": "win_002",
+            "conflict_type": "overlap"
+          },
+          {
+            "rule_id": "win_003",
+            "conflict_type": "overlap"
+          },
+          {
+            "rule_id": "win_004",
+            "conflict_type": "overlap"
+          },
+          {
+            "rule_id": "win_005",
+            "conflict_type": "overlap"
+          },
+          {
+            "rule_id": "win_006",
+            "conflict_type": "overlap"
+          }
+        ]
+      },
+      "status": "pending",
+      "created_at": "2026-04-29T03:06:09.847243+05:30",
+      "expires_at": "2026-05-06T03:06:09.846924+05:30",
+      "approver": null,
+      "decision_at": null,
+      "decision_reason": null
+    },
+    {
+      "id": "prop_unified_2026-04-29_002",
+      "legacy_id": null,
+      "candidate_id": "brain_boost_promote_signal+sector_sector=Metal__signal_type=UP_TRI_2026-04-29",
+      "type": "boost_promote",
+      "source": "brain_step4",
+      "source_step": "step5_or_step4_passthrough",
+      "run_id_origin": "brain_run_2026-04-29_0306",
+      "title": "UP_TRI × Metal: n=15, 100.0% WR, Tier M → boost candidate (TAKE_SMALL)",
+      "claim": {
+        "what": "Promote boost_pattern: signal=UP_TRI, sector=Metal (Tier B / TAKE_SMALL)",
+        "expected_effect": "Surface as Tier-B boost on cohort matches; observed +23.3pp edge over per-signal baseline",
+        "confidence": "high"
+      },
+      "counter": {
+        "evidence": [
+          "Wilson 95% lower bound 0.7961 well above Tier M floor — sample size adequate",
+          "R-multiple 0.85 below Tier S threshold (1.0); promotion is to Tier M (B/TAKE_SMALL) only, not Tier S (A/TAKE_FULL)",
+          "win_004 active: UP_TRI × Metal × Bear (n=15)",
+          "watch_001 active: UP_TRI × any × Choppy (n=36)"
+        ],
+        "risks": [
+          "Cohort tier may drift on next archive comparison; demotion auto-fires per §3",
+          "R-multiple distribution under D-8 review (Day-6 forced-exit dominance per project_anchor §7 D-8)",
+          "approval would propagate overlap to mini_scanner_rules.json"
+        ]
+      },
+      "reversibility": "1-line revert in mini_scanner_rules.json boost_patterns[]",
+      "evidence_refs": [
+        "cohort_health.json#sector=Metal__signal_type=UP_TRI",
+        "patterns.json#sig=UP_TRI"
+      ],
+      "decision_metadata": {
+        "tier": "M",
+        "n": 15,
+        "wr": 1.0,
+        "wr_wilson_lower": 0.7961,
+        "edge_pp": 23.3,
+        "r_multiple": 0.85,
+        "cohort_axis": "signal+sector",
+        "cohort_filter": {
+          "signal_type": "UP_TRI",
+          "sector": "Metal"
+        },
+        "proposed_rule_entry": {
+          "id": "boost_brain_c784a4ef",
+          "active": true,
+          "signal": "UP_TRI",
+          "sector": "Metal",
+          "regime": null,
+          "tier": "B",
+          "conviction_tag": "TAKE_SMALL",
+          "reason": "brain_step4: cohort Tier M, n=15, wr=100.0%, edge +23.3pp",
+          "added_date": null,
+          "source": "brain_step4",
+          "evidence": {
+            "wr": 1.0,
+            "n": 15,
+            "tier": "validated"
+          }
+        },
+        "score_priority": 9.2,
+        "conflicts_with": [
+          {
+            "rule_id": "win_004",
+            "conflict_type": "overlap"
+          },
+          {
+            "rule_id": "watch_001",
+            "conflict_type": "overlap"
+          }
+        ]
+      },
+      "status": "pending",
+      "created_at": "2026-04-29T03:06:09.847246+05:30",
+      "expires_at": "2026-05-06T03:06:09.846943+05:30",
+      "approver": null,
+      "decision_at": null,
+      "decision_reason": null
+    },
+    {
+      "id": "prop_unified_2026-04-29_003",
+      "legacy_id": null,
+      "candidate_id": "brain_exposure_warn_85371e96_2026-04-29",
+      "type": "exposure_warn",
+      "source": "brain_step5_exposure_correlation_analyzer",
+      "source_step": "step5_or_step4_passthrough",
+      "run_id_origin": "brain_run_2026-04-29_0306",
+      "title": "Portfolio 100% Choppy + 95% UP_TRI; UP_TRI×Choppy×Bank 23.75% concentration",
+      "claim": {
+        "what": "Inform trader: portfolio concentrated by regime + signal_type + cell",
+        "expected_effect": "Trader-facing concentration awareness; no auto-trim",
+        "confidence": "high"
+      },
+      "counter": {
+        "evidence": [
+          "UP_TRI×Choppy cohort tier=Candidate (small n)"
+        ],
+        "risks": [
+          "Concentration may amplify regime-shift downside; informational only"
+        ]
+      },
+      "reversibility": "Informational only; no auto-action to revert",
+      "evidence_refs": [
+        "portfolio_exposure.json",
+        "cohort_health.json"
+      ],
+      "decision_metadata": {
+        "rationale_from_step5": "Portfolio is 100% Choppy regime (above 80% threshold) and 95% UP_TRI signal type, with the UP_TRI×Choppy×Bank cell at 23.75% share exceeding the 20% cell threshold. The matched cohort is only Candidat",
+        "score_priority": 5.0,
+        "conflicts_with": []
+      },
+      "status": "pending",
+      "created_at": "2026-04-29T03:06:09.847248+05:30",
+      "expires_at": "2026-05-06T03:06:09.847073+05:30",
+      "approver": null,
+      "decision_at": null,
+      "decision_reason": null
+    }
+  ],
+  "generated_at": "2026-04-29T03:06:09.849296+05:30"
+}

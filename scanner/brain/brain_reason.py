@@ -989,7 +989,8 @@ def run_step5(
         prior_decisions_journal: Optional[dict | list] = None,
         output_dir: str = "output",
         mode: str = "production",
-        client=None) -> dict:
+        client=None,
+        run_id: Optional[str] = None) -> dict:
     """Step 5 orchestrator. 3 gates fire in sequence; cost tracked
     cumulatively per run; circuit breaker aborts at $5; failures skip
     individual gates without aborting the run.
@@ -997,6 +998,9 @@ def run_step5(
     mode: "production" (default; real Anthropic client) | "smoke"
           (mock client must be passed via client= param).
     client: Anthropic SDK client OR mock. None defaults to real Anthropic().
+    run_id: optional; when provided (Step 6 orchestrator-supplied per
+            Phase 1 LOCK C), threaded into all reasoning_log entries.
+            Falls back to legacy brain_step5_run_<iso> format when None.
     """
     if mode == "production" and client is None:
         from anthropic import Anthropic
@@ -1008,7 +1012,9 @@ def run_step5(
         prior_reasoning_log = _load_reasoning_log(output_dir)
 
     cost_state = RunCostState()
-    run_id = f"brain_step5_run_{datetime.now(_IST).isoformat(timespec='seconds')}"
+    if run_id is None:
+        run_id = (f"brain_step5_run_"
+                  f"{datetime.now(_IST).isoformat(timespec='seconds')}")
 
     # Filter candidates to boost_promote for gate 1 (only these are
     # cohort_promotion_judge's input). Other Step 4 candidate types
