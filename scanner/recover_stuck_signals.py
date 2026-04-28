@@ -62,7 +62,6 @@ from journal import (
 )
 from outcome_evaluator import (
     _load_holidays,
-    _is_trading_day,
     _next_trading_day,
     _get_entry_date,
     _get_nth_trading_day,
