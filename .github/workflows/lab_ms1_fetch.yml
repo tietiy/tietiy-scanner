@@ -1,0 +1,137 @@
+# .github/workflows/lab_ms1_fetch.yml
+# Purpose: MS-1 backtest data fetcher — runs lab/infrastructure/data_fetcher.py
+#          inside GitHub Actions runner. Fetches 188 F&O stocks + ^NSEI +
+#          ^NSEBANK + 7 sector indices over 15-year window (2011-01 → 2026-04).
+#          Wall-time 3-4 hours expected; far exceeds local 10-min Bash timeout
+#          but fits within GitHub's 6-hour job limit.
+#
+# Cache storage decision:
+#   Parquets uploaded as workflow ARTIFACTS (NOT committed to backtest-lab branch).
+#   Rationale: /lab/cache/*.parquet is gitignored per founding commit; cannot
+#   commit. Artifacts retain for 90 days (GitHub default) — user must download
+#   within window to local /lab/cache/ for MS-2/MS-3/MS-4 execution.
+#
+# Trigger: workflow_dispatch (manual via GitHub UI). Not on schedule.
+#
+# Branch: backtest-lab. Workflow file MUST be on the branch you trigger from.
+#
+# How to use (user action required after CC's auto-build session):
+#   1. GitHub repo → Actions tab → "🧪 Lab MS-1 fetch" workflow
+#   2. Click "Run workflow" dropdown → select branch backtest-lab → Run
+#   3. Workflow runs ~3-4 hours; check Actions tab for progress
+#   4. On completion: download "lab-cache" artifact (zip of all parquets)
+#   5. Unzip into local repo /lab/cache/ (or trigger MS-2 in next CC session)
+#
+# This workflow does NOT:
+#   - Touch main branch
+#   - Modify scanner/* source files
+#   - Commit anything back (artifacts only)
+#   - Run MS-2/MS-3/MS-4 (separate sessions)
+#
+# Requires NO secrets (yfinance is free public API).
+
+name: "🧪 Lab MS-1 fetch | 15-yr OHLCV cache via yfinance"
+
+on:
+  workflow_dispatch:
+    inputs:
+      smoke:
+        description: "Smoke mode (5 verification symbols only; ~30 sec)"
+        required: false
+        default: "false"
+        type: choice
+        options:
+          - "false"
+          - "true"
+
+concurrency:
+  group: lab-ms1-fetch
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  fetch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300  # 5 hours; well under GitHub's 6-hour ceiling
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      - name: Checkout backtest-lab
+        uses: actions/checkout@v4
+        with:
+          ref: backtest-lab
+          token: ${{ secrets.GH_TOKEN }}
+
+      - name: Set up Python 3.11
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install yfinance pandas pyarrow numpy
+
+      - name: Run MS-1 data fetcher
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  LAB MS-1 FETCH — 188 stocks + 9 indices × 15 years"
+          echo "════════════════════════════════════════"
+          if [ "${{ inputs.smoke }}" = "true" ]; then
+            echo "SMOKE MODE: 5 verification symbols only"
+            python lab/infrastructure/data_fetcher.py --smoke
+          else
+            echo "FULL MODE: ~190 symbols × 15-year window"
+            python lab/infrastructure/data_fetcher.py
+          fi
+
+      - name: Upload cache artifact
+        if: always()  # upload even on partial failure
+        uses: actions/upload-artifact@v4
+        with:
+          name: lab-cache
+          path: |
+            lab/cache/*.parquet
+            lab/logs/fetch_report.json
+          retention-days: 90  # GitHub default; max 400 for paid plans
+          if-no-files-found: warn
+
+      - name: Print fetch summary
+        if: always()
+        run: |
+          if [ -f lab/logs/fetch_report.json ]; then
+            echo "════════════════════════════════════════"
+            echo "  FETCH SUMMARY"
+            echo "════════════════════════════════════════"
+            python -c "
+          import json
+          with open('lab/logs/fetch_report.json') as f:
+              r = json.load(f)
+          print(f\"Universe size:    {r.get('universe_size')}\")
+          print(f\"Coverage pct:     {r.get('coverage_pct')}%\")
+          print(f\"Coverage status:  {r.get('coverage_status')}\")
+          print(f\"Started:          {r.get('started_at')}\")
+          print(f\"Finished:         {r.get('finished_at')}\")
+          from collections import Counter
+          status_counts = Counter(s.get('status') for s in r.get('results', []))
+          print(f\"By status:        {dict(status_counts)}\")
+          "
+          else
+            echo "fetch_report.json not produced — check earlier step logs"
+          fi
+
+      - name: Tripwire T1 check (coverage < 30%)
+        if: always()
+        run: |
+          if [ -f lab/logs/fetch_report.json ]; then
+            COVERAGE_STATUS=$(python -c "import json; print(json.load(open('lab/logs/fetch_report.json'))['coverage_status'])")
+            if [ "$COVERAGE_STATUS" = "CRITICAL" ]; then
+              echo "::error::T1 TRIPWIRE FIRED: coverage_pct < 30%"
+              echo "MS-2/MS-3 should NOT proceed. User must investigate (yfinance throttling? NSE bhav copy fallback?)."
+              exit 2
+            elif [ "$COVERAGE_STATUS" = "PARTIAL_OK" ]; then
+              echo "::warning::Partial coverage (30-70%); MS-2 may proceed with reduced universe"
+            fi
+          fi
