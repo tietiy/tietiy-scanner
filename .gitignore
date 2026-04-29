@@ -40,3 +40,10 @@ dist/
 
 # Local test output
 /tmp_test/
+
+# Backtest Lab — heavy data caches + tmp artifacts
+/lab/cache/*.parquet
+/lab/cache/*.csv
+/lab/cache/*.feather
+/lab/infrastructure/build/
+/lab/analyses/*.tmp

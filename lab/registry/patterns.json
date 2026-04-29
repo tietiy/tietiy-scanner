@@ -1,0 +1,140 @@
+{
+  "schema_version": "1.0",
+  "founded_date": "2026-04-30",
+  "founding_branch_commit_parent": "588cf26",
+  "founding_branch_commit_self": "TBD-set-post-founding-commit",
+  "patterns": [
+    {
+      "pattern_id": "INV-001",
+      "status": "PRE_REGISTERED",
+      "type": "INVESTIGATION",
+      "registered_date": "2026-04-30",
+      "cohort": {
+        "signal": "UP_TRI",
+        "sector": "Bank",
+        "regime": "Choppy"
+      },
+      "hypothesis_primary": "UP_TRI breakouts in Bank sector during Choppy regime fail because of [mechanism TBD]. Initial candidate mechanisms (investigation may surface others): (1) sector-internal churn — rate-sensitive flows + index rebalancing absorbing breakout momentum; (2) sub-sector heterogeneity — PSU banks behaving differently from private banks; (3) macro-window proximity — RBI policy / Bank earnings windows distort cohort (e.g., ±3 trading days); (4) volume-divergence — weak-volume breakouts are retail-driven, no institutional follow-through. Investigation tests these candidates plus any additional mechanisms surfaced during Phase 3 cohort comparison (LOSER vs WINNER differentiator analysis).",
+      "hypothesis_inverse": "On dates when UP_TRI × Bank × Choppy fails, [pattern TBD] profits. Initial candidate inverse patterns (investigation may surface others): (1) DOWN_TRI × Bank × Choppy on same dates — does shorting the same stocks work? (2) UP_TRI × defensive sectors (Pharma / Energy / FMCG) on same Choppy days — does sector rotation profit? (3) BULL_PROXY (mean-reversion) on same Bank stocks 2-3 days post-failed-breakout — does fade-the-failed-breakout work? Investigation tests these candidates plus any additional inverse patterns surfaced during Phase 3 cross-cohort analysis.",
+      "methodology": "15-year historical backtest (2011-01 → 2026-04); cohort baseline per PROMOTION_PROTOCOL.md Gate 3 thresholds; mechanism analysis (8 differentiators per Gate 5 examples); inverse-pattern search; train/test OOS validation (train 2011-2022 / test 2023-2026); ground-truth validation against /lab/registry/ground_truth_batches/GTB-001.json + GTB-002.json.",
+      "live_evidence_at_registration": {
+        "lifetime_n_resolved": 26,
+        "lifetime_n_open": 3,
+        "lifetime_wr_excl_flat_excl_open": 0.27,
+        "lifetime_breakdown": "W=7 L=18 F=1 OPEN=3",
+        "today_subset": "Today's 17 resolutions are SUBSET of the 26 lifetime resolved (not additional): W=2 L=14 F=1 today",
+        "first_observed": "earliest scan_date in cohort per signal_history",
+        "loss_batches": ["GTB-001 (broader Apr 17 cohort)", "GTB-002 (Apr 29 Bank-specific subset)"],
+        "tier_eligibility_today": "Below Tier A n≥50 minimum AND below Tier B n≥30 minimum. Cannot promote to ANY Lab tier on live evidence alone today. Lab investigation expands n via 15-year backtest replay.",
+        "kill_002_status": "Ships separately on main branch as conviction_tag=LIVE_EVIDENCE_ONLY (per Principle 6); not a Lab-tier ship; awaits S-6 prerequisite + INV-001 validation for potential Lab re-promotion."
+      },
+      "expected_outcome": "Three paths: (a) Structural failure confirmed + mechanism articulated → kill_002 re-promoted to Lab Tier A or S kill (replacing LIVE_EVIDENCE_ONLY tag); (b) Sub-cohort filter found → kill_002 narrowed to specific Bank sub-sectors; remaining sub-cohorts promoted to boost; (c) Recent-regime artifact → kill_002 remains as live operational rule but does NOT earn Lab tier; investigation pivots to regime classifier review.",
+      "promotion_gate_status": {
+        "gate_1_hypothesis_registered": "PASS",
+        "gate_2_backtest_infrastructure_used": "PENDING",
+        "gate_3_oos_protocol": "PENDING",
+        "gate_4_ground_truth_validation": "PENDING",
+        "gate_5_mechanism_explanation": "PENDING",
+        "gate_6_sector_specificity": "PENDING",
+        "gate_7_user_review": "PENDING"
+      },
+      "investigation_artifacts": []
+    },
+    {
+      "pattern_id": "INV-002",
+      "status": "PRE_REGISTERED",
+      "type": "INVESTIGATION",
+      "registered_date": "2026-04-30",
+      "cohort": {
+        "signal": "UP_TRI",
+        "sector": "Bank",
+        "regime": "Bear"
+      },
+      "hypothesis_primary": "UP_TRI × Bank × Bear cohort genuinely profits at near-100% WR due to [mechanism TBD]; n=8 is real signal not statistical artifact. Initial candidate mechanisms (investigation may surface others): (1) Bank stocks oversold during Bear macro; defensive rebound on any breakout signal; (2) rate-cycle correlation — Bear regime often coincides with rate-cut expectations → bank-positive; (3) sample-window bias — Apr 2026 Bear regime was specific 9-day window; cohort may not generalize. Investigation tests for sample-window bias by splitting historical Bear regimes by sub-period and verifying WR holds across multiple Bear episodes (2013, 2016, 2018, 2020, 2022).",
+      "methodology": "Backtest infrastructure same as INV-001; cohort baseline 15 years; mechanism analysis; OOS validation. Specifically test for sample-window bias via sub-period split across multiple historical Bear regimes.",
+      "live_evidence_at_registration": {
+        "lifetime_n": 8,
+        "lifetime_wr": 1.0,
+        "lifetime_breakdown": "W=8 L=0 F=0",
+        "small_sample_warning": true,
+        "tier_eligibility_today": "Insufficient n for any Lab tier (Tier B minimum n=30; Tier A n=50; Tier S n=100). Lab investigation must establish whether 100% WR is genuine cohort edge or small-sample artifact via 15-year backtest expansion."
+      },
+      "expected_outcome": "Three paths: (a) Historical confirmation across multiple Bear episodes → high-confidence Tier S boost (UP_TRI × Bank × Bear with conviction_tag=HIGH); (b) Recent-regime artifact (Apr 2026 Bear was special) → Tier B watch only; flag for re-investigation when next genuine Bear regime arrives; (c) Statistical small-sample noise → reject; document; require larger sample before re-investigation.",
+      "promotion_gate_status": {
+        "gate_1_hypothesis_registered": "PASS",
+        "gate_2_backtest_infrastructure_used": "PENDING",
+        "gate_3_oos_protocol": "PENDING",
+        "gate_4_ground_truth_validation": "PENDING",
+        "gate_5_mechanism_explanation": "PENDING",
+        "gate_6_sector_specificity": "PENDING",
+        "gate_7_user_review": "PENDING"
+      },
+      "investigation_artifacts": []
+    },
+    {
+      "pattern_id": "INV-003",
+      "status": "PRE_REGISTERED",
+      "type": "INVESTIGATION_DISCOVERY_SCAN",
+      "registered_date": "2026-04-30",
+      "cohort": {
+        "scope": "matrix",
+        "signal_axis": ["UP_TRI", "DOWN_TRI", "BULL_PROXY"],
+        "sector_axis": "11 sectors per fno_universe.csv classification",
+        "regime_axis": ["Bear", "Choppy", "Bull"]
+      },
+      "hypothesis_primary": "Some sector × regime × signal triples are reliably profitable; others reliably unprofitable. The 99-cohort matrix surfaces tradeable structure not visible from individual investigations.",
+      "methodology": "Backtest-driven matrix population. For each of 99 cohort triples (3 signals × 11 sectors × 3 regimes), compute backtest baseline statistics (n, W, L, F, WR, avg pnl, Sharpe, max drawdown). Apply train/test OOS protocol per PROMOTION_PROTOCOL.md Gate 3; rank cohorts by tier eligibility.",
+      "live_evidence_at_registration": {
+        "tier_eligibility_today": "N/A — INV-003 is a discovery scan, not a single-cohort hypothesis. Output is the matrix itself; individual cohorts surfaced from the matrix become their own pre-registered investigations."
+      },
+      "expected_outcome": "Matrix population: 99 cohorts ranked by tier eligibility. 3-5 high-conviction promotion candidates (Tier A or S boost) identified for individual deeper investigation. 5-10 kill candidates identified for INV-NN follow-ups. Heat-map visualization stored in /lab/analyses/INV-003/cohort_matrix.html.",
+      "promotion_gate_status": {
+        "gate_1_hypothesis_registered": "PASS",
+        "gate_2_backtest_infrastructure_used": "PENDING",
+        "gate_3_oos_protocol": "PENDING_per_cohort",
+        "gate_4_ground_truth_validation": "PENDING_per_cohort",
+        "gate_5_mechanism_explanation": "PENDING_per_cohort",
+        "gate_6_sector_specificity": "INHERENT_to_matrix_design",
+        "gate_7_user_review": "PENDING"
+      },
+      "investigation_artifacts": [],
+      "note": "INV-003 promotes individual cohorts surfaced from the matrix, not the matrix itself. Each surfaced cohort opens its own pre-registered INV-NN."
+    },
+    {
+      "pattern_id": "INV-005",
+      "status": "PRE_REGISTERED",
+      "type": "INVESTIGATION",
+      "registered_date": "2026-04-30",
+      "cohort": {
+        "signal": "UP_TRI",
+        "sector": "Bank",
+        "regime": "Choppy",
+        "filter_proposed": "macro_proximity_days within ±3 of RBI MPC announcement"
+      },
+      "hypothesis_primary": "UP_TRI × Bank × Choppy within ±3 trading days of RBI MPC announcement fails more than baseline. Mechanism: macro uncertainty around policy decisions distorts technical breakout follow-through.",
+      "methodology": "Calendar-event tagged backtest. RBI MPC dates pulled from public calendar (8 meetings/year). Bank earnings announcement dates from corporate filings. Tag every UP_TRI × Bank × Choppy signal with macro_proximity_days field; split cohort by proximity bucket; test for WR variance.",
+      "live_evidence_at_registration": {
+        "tier_eligibility_today": "Filter pattern; eligibility computed per parent UP_TRI × Bank × Choppy cohort + sub-cohort split. Sub-cohort must independently pass tier requirements per PROMOTION_PROTOCOL.md filter rule."
+      },
+      "expected_outcome": "Filter pattern outcome: either (a) macro-proximity filter materially distinguishes win/loss within cohort → graduates as Tier A or B filter pattern; (b) no material distinction → reject; non-filter mechanisms more important.",
+      "promotion_gate_status": {
+        "gate_1_hypothesis_registered": "PASS",
+        "gate_2_backtest_infrastructure_used": "PENDING",
+        "gate_3_oos_protocol": "PENDING",
+        "gate_4_ground_truth_validation": "PENDING",
+        "gate_5_mechanism_explanation": "PENDING",
+        "gate_6_sector_specificity": "PENDING",
+        "gate_7_user_review": "PENDING"
+      },
+      "investigation_artifacts": [],
+      "note": "Low priority; likely won't execute until INV-001..INV-004 complete. Pre-registered for hypothesis discipline."
+    }
+  ],
+  "rejection_history": [],
+  "promoted_patterns": [],
+  "demoted_patterns": [],
+  "registry_notes": [
+    "INV-004 is intentionally NOT pre-registered. Its threshold specifics depend on findings from INV-001 mechanism analysis (volume-divergence candidate); pre-registering INV-004 with concrete volume thresholds before INV-001 surfaces evidence would be fitting hypothesis to forthcoming evidence (post-hoc disguised as pre-registration). INV-004 enters this registry once INV-001 completes Phase 3 mechanism analysis. See ROADMAP.md Investigation Queue intro for asymmetry-rationale.",
+    "kill_002 is NOT a Lab pattern. kill_002 ships on main branch as conviction_tag=LIVE_EVIDENCE_ONLY based on live signal_history evidence + trader judgment (per Lab Discipline Principle 6). Lab investigation INV-001 may later validate kill_002 against multi-year backtest; if validated, kill_002 may be re-promoted to a Lab tier (S or A) with empirical-cohort tag. Until then, kill_002 is operational-only, not Lab-validated."
+  ]
+}
