@@ -1,7 +1,81 @@
-# Auto-Run Status — 2026-04-30 (CC autonomous build session + execution session)
+# Auto-Run Status — Overnight INV Auto-Mode (2026-04-30 → 2026-05-01)
 
-**Session timestamp:** 2026-04-30 (build phase + cloud-fetch + local-execution phase)
-**Branch:** `backtest-lab` (main branch carries only the dispatcher YAML carve-out per TIY rule 11)
+**Latest session:** Overnight unattended INV auto-mode (user OUT ~6-8 hr).
+**Scope:** INV-001 + INV-002 build + execute. NO INV-003. NO INV-005. NO promotion. NO main.
+**Branch:** `backtest-lab` (main branch carries only the dispatcher YAML carve-out per TIY rule 11).
+
+---
+
+## INV auto-mode session (latest)
+
+| Phase | Status | Commit |
+|-------|--------|--------|
+| 0 — Pre-flight | ✅ All tripwires clean (T1: data exists; T2: 41/41 pytest; T3: 5146 resolved >> 50; T4: 2689 resolved >> 30; T6: 404G disk free) | n/a |
+| 1 — INV-001 build | ✅ 782-line script with 6-section pipeline (lifetime baseline + 6 mechanism candidates + 3 inverse patterns + tier eval + GTB-002 validation + headline) | `e85f44d5` |
+| 2 — INV-001 execute | ✅ 14 KB findings.md generated; runtime 148ms (in-memory pandas operations) | `2fe67daf` |
+| 3 — INV-002 build | ✅ 582-line script with 4-section pipeline (lifetime baseline + Bear sub-period + 3 mechanism candidates + tier eval) | `95a0160e` |
+| 4 — INV-002 execute | ✅ 16 KB findings.md generated; runtime 237ms | `a283299b` |
+| 5 — Status update | ✅ this commit | (next) |
+
+**Tripwires fired this session:** NONE. T5/T7/T9/T10 all clean. T8 not exercised (all pushes succeeded first attempt).
+
+### INV-001 headline (UP_TRI × Bank × Choppy)
+- Lifetime cohort: 5186 signals; 5146 resolved
+- All 6 mechanism candidates: INCONCLUSIVE / DATA_UNAVAILABLE
+- All 3 inverse patterns: NO_INVERSE_SIGNAL
+- **Parent KILL tier: REJECT** (15-yr WR ~52%, statistically near-50%; train→test drift 6.52pp)
+- **GTB-002 validation: GATE_4_PASS** (kill_002 prevents 14L, suppresses 2W; ratio 7.0)
+- Tension: 15-yr backtest does NOT support structural KILL at any Lab tier; but recent loss batch supports operational kill_002. Roughly ROADMAP outcome (c) — recent-regime artifact, not structural failure.
+
+### INV-002 headline (UP_TRI × Bank × Bear)
+- Lifetime cohort: 2689 resolved across 29 Bear sub-periods (15-yr history)
+- Section 2a oversold rebound: INCONCLUSIVE
+- **Section 2b rate-cycle proxy: CANDIDATE** (Bank Nifty 60-day return differentiates at p<0.10)
+- **Section 2c sample-window bias: HIGH_VARIANCE_SAMPLE_WINDOW_SUSPECT** (sub-period WR range > 0.20pp)
+- **Parent BOOST tier: REJECT** (lifetime WR ~53%, fails B floor 0.60; drift 3.03pp)
+- The HIGH_VARIANCE finding directly answers INV-002 trigger: the live n=8 W=8 100% WR is sample-window artifact, NOT structural cohort edge. Matches ROADMAP outcome (b).
+
+### Findings generated (USER REVIEW REQUIRED)
+- `lab/analyses/INV-001_findings.md` — 14325 bytes, 563 lines
+- `lab/analyses/INV-002_findings.md` — 15899 bytes, 562 lines
+
+### Open caveats carried into findings (documented in each banner)
+- **Caveat 1** (sector indices missing): impacts INV-001 Section 3b defensive rotation; impacts INV-002 Section 2b rate-cycle proxy. Backfill deferred to user/CC fresh session.
+- **Caveat 2** (9.31% MS-2 miss-rate): warned at top of each findings.md. INV-001 cohort n=5146 is robust; INV-002 sub-period n at marginal levels is more vulnerable.
+- **Caveat 3** (score column null): INV-001 Section 2e signal-score quartile DATA_UNAVAILABLE.
+- **Caveat 4** (RBI rate calendar out of scope): INV-002 Section 2b uses 60-day return proxy; documented in section.
+
+### User decisions deferred to morning review (per Lab Discipline Principle 6)
+1. INV-001: kill_002 conviction-tag path — LIVE_EVIDENCE_ONLY persist (Section 4 REJECT) vs Tier B/A on operational evidence (Section 5 GATE_4_PASS). Tension between 15-yr null result and short-term loss batch.
+2. INV-002: 100% live WR is sample-window artifact (per HIGH_VARIANCE finding); decide if cohort warrants Tier B watch tracking or full reject.
+3. patterns.json status updates — INV-001 + INV-002 stay PRE_REGISTERED unless user manually transitions per Gate 7.
+4. Section 2b CANDIDATE finding (rate-cycle proxy) — flag for INV-NN with proper RBI calendar (out of scope this session).
+
+### Outstanding for future sessions
+- Caveat 1 backfill (~10 min) — extend MS-1 `_INDEX_SYMBOLS` with 7 sector indices + re-run lab_ms1_fetch.yml workflow
+- Caveat 2 audit (~30-45 min) — investigate 23 missing live signals; categorize root cause
+- INV-003 (99-cohort matrix) — gated on Caveat 1 backfill
+- INV-005 (macro-window) — low priority deferred
+- kill_002 + S-6 + M-17 ship to main — separate main-branch session; depends on user's INV-001 conviction tag decision
+
+### Recommended next step
+- User reads INV-001_findings.md fresh tomorrow morning (full 563 lines)
+- Then reads INV-002_findings.md (562 lines)
+- THEN decides kill_002 path with full context of both findings
+- DO NOT make promotion decisions before reading both end-to-end
+
+### Session end state
+- Branch: `backtest-lab`
+- HEAD commit: (set by next commit)
+- Working tree: clean
+- All commits pushed to origin
+- Next CC session: fresh, with user, for findings review
+
+---
+
+## Earlier sessions (history)
+
+**Session timestamp:** 2026-04-30 (build phase + cloud-fetch + local-execution phase + MS-4 hardening)
 
 ---
 
