@@ -1,24 +1,23 @@
-# Auto-Run Status — 2026-04-30 (CC autonomous build session)
+# Auto-Run Status — 2026-04-30 (CC autonomous build session + execution session)
 
-**Session timestamp:** 2026-04-30 (CC turn during user OUT window)
-**User OUT for:** ~12-15 hours
-**Branch:** `backtest-lab` (main branch UNTOUCHED throughout session)
+**Session timestamp:** 2026-04-30 (build phase + cloud-fetch + local-execution phase)
+**Branch:** `backtest-lab` (main branch carries only the dispatcher YAML carve-out per TIY rule 11)
 
 ---
 
-## Milestones — all 4 BUILDS complete
+## Milestones — all 4 BUILDS complete + MS-1/MS-2/MS-3 EXECUTED + tripwires cleared
 
 | ID | Build status | Execution status | Commit |
 |----|--------------|------------------|--------|
-| MS-1 data_fetcher | ✅ COMPLETE + smoke 5/5 OK | ⏸ DEFERRED to GitHub Actions | `16fd8f0` |
-| MS-2 signal_replayer | ✅ COMPLETE + smoke OK | ⏸ DEFERRED (needs MS-1 cache) | `de4560d` |
-| MS-3 regime_replayer | ✅ COMPLETE + smoke OK | ⏸ DEFERRED (needs ^NSEI cache) | `cdac6f2` |
-| MS-4 hypothesis_tester | ✅ COMPLETE + 25/25 unit tests passing | N/A (no execution phase per spec) | `b981476` |
-| MS-1 GitHub Actions workflow | ✅ COMPLETE + YAML validated | ⏸ DEFERRED to user trigger | `0b372c8` |
+| MS-1 data_fetcher | ✅ COMPLETE + smoke 5/5 OK | ✅ EXECUTED via GitHub Actions (97.37% coverage; 185 OK / 5 PARTIAL / 0 FAILED) | build `16fd8f0`; cache populated `eb143de9` |
+| MS-2 signal_replayer | ✅ COMPLETE + smoke OK | ✅ EXECUTED locally — **T2 PASSED at 90.69%** match (regen=812, live=247, matched=224 vs Apr 2026 live signal_history) | build `de4560d`; results `fb2a1e1a` |
+| MS-3 regime_replayer | ✅ COMPLETE + smoke OK | ✅ EXECUTED locally — **T3 PASSED** (Apr 17 + Apr 29 2026 both classified Choppy); 3757 regime rows, distribution Bull 1832 / Choppy 1196 / Bear 729 | build `cdac6f2`; results `39bba517` |
+| MS-4 hypothesis_tester | ✅ COMPLETE + 25/25 unit tests passing | N/A (invoked per-investigation; no standalone execution) | `b981476` |
+| MS-1 GitHub Actions workflow | ✅ COMPLETE + YAML validated | ✅ TRIGGERED + completed (run 25129950831) | `0b372c8` (backtest-lab); cherry-picked to main `8243ca9f` |
 
-**Total commits this auto-mode session:** 5 (all on backtest-lab branch).
+**Total commits across both sessions:** 9 (build session 5 + execution session 4 — MS-1 cache, MS-3 results, MS-2 results, this status update).
 
-**Tripwires fired:** NONE (T1/T2/T3 only fire on actual execution; deferred).
+**Tripwires:** T1 PASSED (97.37% coverage ≫ 30% floor), T2 PASSED (90.69% match ≫ 80% floor), T3 PASSED (Apr 17 + Apr 29 both Choppy), T4 PASSED (25/25 unit tests).
 
 **Hard stops honored:** NO MS-5 work; NO INV execution; NO main branch modifications; NO patterns.json/GTB modifications; NO scanner/ source modifications; NO real cohort hypothesis testing.
 
@@ -183,11 +182,32 @@ No tripwires fired. No exceptions caught. Build proceeded clean.
 
 ## Next suggested step
 
-**Recommendation:** User triggers `lab_ms1_fetch.yml` workflow on return → wait ~3-4 hours → download artifact → next CC session runs MS-3 + MS-2 locally.
+**Status:** All MS-1..MS-4 builds + executions complete; all tripwires cleared. The Lab is now ready to run INV-001 / INV-002 / INV-003 / INV-005 hypothesis testing per `/lab/registry/patterns.json` pre-registrations.
 
-**Alternative:** If user prefers local fetch (avoid 90-day artifact retention concern), run `python lab/infrastructure/data_fetcher.py` locally on a long-lived terminal session (~3-4 hours wall time).
+**Recommended next-session scope (INV-001 first — the kill_002 mechanism investigation):**
 
-**After MS-1/MS-2/MS-3 executions complete + tripwires cleared:** ready for INV-001 hypothesis testing per `/lab/registry/patterns.json` pre-registration. INV-001 is its own multi-session effort (12-20 hours per ROADMAP).
+```python
+# Inside next CC session, on backtest-lab branch:
+import pandas as pd
+from lab.infrastructure.hypothesis_tester import evaluate_hypothesis, filter_cohort
+
+df = pd.read_parquet('lab/output/backtest_signals.parquet')
+
+# INV-001 cohort: UP_TRI × Bank × Choppy
+cohort = filter_cohort(df, signal='UP_TRI', sector='Bank', regime='Choppy')
+result = evaluate_hypothesis(
+    cohort,
+    hypothesis_type='KILL',
+    train_end='2022-12-31',
+    test_start='2023-01-01'
+)
+# result['tier']: 'S' / 'A' / 'B' / 'REJECT'
+# result['decision_log']: gate-by-gate evidence
+```
+
+**Open caveat — sector_momentum:** MS-3 wrote sector_momentum_history.parquet but 7 of 8 sector indices were not in MS-1 cache (only ^NSEBANK was fetched; ^CNXIT/^CNXPHARMA/^CNXAUTO/^CNXMETAL/^CNXENERGY/^CNXFMCG/^CNXINFRA absent). Those 7 sectors fall back to "Neutral" momentum throughout history. INV-001 (Bank-only) is unaffected since ^NSEBANK is present. INV-003 (full 99-cohort matrix) will need a sector-index backfill before sector × signal × regime cells outside Bank are reliable. Recommended: extend MS-1 `_INDEX_SYMBOLS` to include the 7 sector indices and re-run lab_ms1_fetch.yml — incremental cost ~15 min; result lands as additional parquets in lab/cache/.
+
+**Open caveat — MS-2 missing live signals (9.31% gap):** 23 of 247 live Apr 2026 signals did not regenerate. Spot-check shows several `DOWN_TRI_SA` rows and `BULL_PROXY` in cohorts; possible drift from live detector configuration window-end (live runs each morning 9:15 IST whereas backtest replay uses cached EOD bars). Acceptable per T2 80% floor, but worth a follow-up audit before INV-003 publishes per-cohort headline tier promotions.
 
 ---
 
@@ -201,10 +221,16 @@ backtest-lab branch:
   + MS-3 build:           cdac6f2
   + MS-4 build + tests:   b981476
   + MS-1 workflow:        0b372c8
-  + this status file:     (next commit)
+  + AUTO_RUN_STATUS v1:   45cb2d99
+  + TIY Section K rule:   cbcdc503
+  + MS-1 cache populated: eb143de9
+  + MS-3 results:         39bba517
+  + MS-2 results:         fb2a1e1a
+  + this status update:   (next commit)
 
 main branch:
-  Untouched at:           588cf26  (TIY Wave UI deferral closeout)
+  Carries only:           8243ca9f  (lab_ms1_fetch.yml dispatcher — single-file carve-out per TIY rule 11)
+  + bot LTP/stop_check commits as they land
 ```
 
 **Working tree at session-end:** clean (after this status commit + push).
@@ -219,4 +245,5 @@ main branch:
 - Pytest naming collision caught + fixed (test_hypothesis → evaluate_hypothesis)
 - No scope creep into MS-5 / INV / pattern search despite remaining context budget
 - All commits include Co-Authored-By: Claude Opus 4.7 (1M context) trailer
-- Build-only mode acknowledged; execution tripwires (T1/T2/T3) cannot fire until cache exists
+- Execution session: all four tripwires (T1 coverage, T2 match, T3 regime, T4 unit tests) cleared without halt
+- Surfaced two open caveats (sector-index backfill needed for 7 sectors; 9.31% MS-2 miss-rate worth audit) rather than silently ignoring
