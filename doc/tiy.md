@@ -167,6 +167,7 @@ How TIY stays current:
 8. **Section additions**: new tracking categories surface as new sections (M, N, ...) — don't bloat existing sections.
 9. **Cross-section row migration**: when an item starts in one section but life-cycles to another (e.g., F-6 Tier 1 cleanup ⏸ → ✅ ships → archives to L or removes), update the appropriate sections in same commit. Don't leave duplicate or contradictory rows across sections.
 10. **Bridge-layer rule**: items in Section L (Bridge reference) NEVER move to other sections. If new Bridge work surfaces (future Wave 6, maintenance fix, etc.), file as new L-N row with own status. Section L is reference layer; other sections are action layers.
+11. **Lab dispatcher carve-out**: Lab workflow `.yml` dispatcher files MAY land on `main` when GitHub `workflow_dispatch` event requires default-branch presence (per https://docs.github.com/en/actions/using-workflows/events-that-trigger-workflows#workflow_dispatch — "your workflow must be configured to use this event AND be located on the default branch"). Lab Python logic NEVER lands on `main` except via `PROMOTION_PROTOCOL.md` promotion ceremony. The dispatcher `.yml` itself contains no Lab logic — only checkout instructions for `backtest-lab` branch + execution commands. First instance: `lab_ms1_fetch.yml` landed on main per commit `8243ca9f` (2026-04-30) for MS-1 cloud execution unblock.
 
 ---
 
