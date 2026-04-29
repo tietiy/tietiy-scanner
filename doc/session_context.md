@@ -2,7 +2,7 @@
 
 **Purpose:** Drop-in context for any new Claude session. Read this instead of recalling memory piecemeal.
 **Read order:** This file → `wave_execution_log_2026-04-23.md` → `fix_table.md` → `engineering_dock.md` → `roadmap.md`
-**Last updated:** 2026-04-28 late-night (Wave 4 closed at 4 shipped items + Wave 3 Sessions C+D shipped; head: 0512cd2)
+**Last updated:** 2026-04-29 early-morning (Wave 5 backend complete: 7/7 steps shipped + brain.yml workflow; head: d874180)
 
 -----
 
@@ -36,93 +36,80 @@ Built solo on iPad via Safari + GitHub web editor + Google Colab. Python + yfina
 
 -----
 
-## Bridge Build Status (as of 2026-04-28 late-night)
+## Wave 5 Backend Build Status (as of 2026-04-29 early-morning)
 
-**Head commit on `main`:** `0512cd2`
+**Head commit on `main`:** `d874180`
 
-|Wave  |Layer / Item                                              |Status                              |
-|------|----------------------------------------------------------|------------------------------------|
-|Wave 2|Backend foundation (16 files)                             |✅ SHIPPED 2026-04-26               |
-|Wave 2|TG-01 sidecar (poll concurrency + try/except)             |✅ SHIPPED 2026-04-26               |
-|Wave 2|Schema bug fixes (3 silent-failure bugs caught vs real data)|✅ SHIPPED 2026-04-26             |
-|Wave 3|BR-02 PRE_MARKET composer (`composers/premarket.py`)      |✅ SHIPPED                          |
-|Wave 3|BR-03 POST_OPEN composer (`composers/postopen.py`)        |✅ SHIPPED                          |
-|Wave 3|BR-04 EOD composer — Session A skeleton                   |✅ SHIPPED `c94e523`                |
-|Wave 3|BR-04 EOD composer — Session B digest renderer            |✅ SHIPPED `19d4146`                |
-|Wave 3|BR-04 — Session C (LE-06 boost demotion warnings)         |✅ SHIPPED `7b96a97` 2026-04-28     |
-|Wave 3|BR-04 — Session D (eod.yml workflow)                      |✅ SHIPPED `f9d4746` 2026-04-28 then re-migrated to cron-job.org dispatch via `2fc1f35` evening (M-15 RESOLVED)|
-|Wave 3|BR-05 workflows (premarket.yml + postopen.yml + eod.yml)  |✅ SHIPPED (eod.yml `f9d4746` → cron-job.org `2fc1f35`); B-1 verified manual `a5edc32`; scheduled-tick verification pending tomorrow's first cron-job.org-dispatched fire|
-|Wave 3|BR-07 unified Telegram templates (all 3 renderers)        |✅ SHIPPED 2026-04-26               |
-|Wave 4|Step 1: `/reject_rule` Telegram command (LE-07)           |✅ SHIPPED `c43189a`                |
-|Wave 4|Steps 2–4: prop_005 / LE-06 / prop_007                    |✅ SHIPPED 2026-04-28 (`550b5f0` / `7b96a97` / `c647e94`)|
-|Wave 4|Step 5: LE-05 (PWA → Telegram deep-link approval)         |⏸ DEFERRED to Wave UI (paired with IT-05); see fix_table LE-05|
-|Wave 5|Brain Step 1 — `doc/brain_design_v1.md` design lock        |✅ SHIPPED `720c127` 2026-04-27 evening (closes GAP-33)|
-|Wave 5|Brain Step 2 — folder skeleton (9 stubs in scanner/brain/) |✅ SHIPPED `060d7c9` 2026-04-28                    |
-|Wave 5|Brain Step 3 — derived views layer                         |⏸ DESIGN PASS in flight (audit complete; schema lock-in pending; ~430-500 LOC est.)|
-|Wave 5|Brain Steps 4-7                                            |⏸ PENDING (verify scaffolding / LLM gates / unified queue / approval handlers)|
-|Wave 5|Prereqs B-1/B-2/B-3/B-4                                    |✅ ALL SHIPPED (B-1 manual via `a5edc32` + `2fc1f35`; B-2 verified `10a3fb5`; B-3 SDK ship `d6ddc01`; B-4 doc `720c127`)|
+|Wave  |Layer / Item                                                |Status                                                       |
+|------|------------------------------------------------------------|-------------------------------------------------------------|
+|Wave 2|Backend foundation + TG-01 + schema bug fixes               |✅ SHIPPED 2026-04-26                                         |
+|Wave 3|BR-02..BR-04 composers (Sessions A/B/C/D) + BR-07 renderers |✅ SHIPPED                                                    |
+|Wave 4|Steps 1-4: LE-07 + prop_005 + LE-06 + prop_007              |✅ SHIPPED 2026-04-28                                         |
+|Wave 4|Step 5 LE-05 (PWA → Telegram deep-link)                     |⏸ DEFERRED to Wave UI / IT-05                                |
+|Wave 5|Step 1: brain_design_v1.md design lock                      |✅ SHIPPED `720c127`                                          |
+|Wave 5|Step 2: scanner/brain/ folder skeleton                      |✅ SHIPPED `060d7c9`                                          |
+|Wave 5|Step 3: derived views layer (4 derivers)                    |✅ SHIPPED `76a85f4` 2026-04-29                               |
+|Wave 5|Step 4: verification framework + 4 deterministic generators |✅ SHIPPED `8e5be29` 2026-04-29                               |
+|Wave 5|Step 5: LLM reasoning gates (3 gates Opus 4.7)              |✅ SHIPPED `c047fd2` 2026-04-29                               |
+|Wave 5|Step 6: unified queue + decisions_journal + dual-write      |✅ SHIPPED `05570fb` 2026-04-29                               |
+|Wave 5|Step 7: Telegram /approve + /reject + /explain + brain_digest.yml | ✅ SHIPPED `1e1c786` 2026-04-29                          |
+|Wave 5|brain.yml production-fire workflow + main.py brain mode     |✅ SHIPPED `d874180` 2026-04-29                               |
+|Wave 5|Step 8: PWA Monster tab                                     |⏸ DEFERRED to Wave UI per D-11 (≥1 week trader feedback first)|
 
-**Recent meaningful commits 2026-04-28 (most recent first; bot LTP/stop_check entries omitted):**
-- `0512cd2` doc: fix_table.md — LE-05 reclassified DEFERRED to Wave UI (cross-doc alignment) + Wave 4 closure note
-- `4944c17` doc: fix_table.md — prop_005 reframe (parallel-shadow infrastructure, not R-multiple solver) + Wave 4 ship status update
-- `550b5f0` scanner: prop_005 — promote target multiplier to config + parallel-shadow infrastructure
-- `9d4dcb2` scanner: recover_stuck_signals.py — fix broken _is_trading_day import (Wave 2 migration leftover)
-- `c647e94` scanner: rule_proposer.py + thresholds.py — prop_007 boost demotion proposal generation + approval
-- `7b96a97` bridge: composers/eod.py + thresholds.py — LE-06 boost demotion warnings
-- `d4433e7` doc: bridge_design_v1.md §13 — EOD workflow exception (§13.1 update + new §13.4)
-- `f9d4746` bridge: .github/workflows/eod.yml — L4 EOD workflow (GitHub schedule)
-- `e4d5d6a` doc: fix_table — note thin_fallback companion migration
-- `68063d3` doc: fix_table — mark Wave 2 Bridge follow-up #1 (_MODERATE_SECTOR_WR migration) as DONE
-- `b1359f1` refactor: bridge thresholds — migrate _THIN_FALLBACK constants to thresholds.py
-- `3650f57` doc: master_audit + wave5_prerequisites — GAP-13 reclassified after PWA grep verification
+**Wave 5 backend: 7/7 backend steps shipped 2026-04-29.** Brain end-to-end operational from local manual chain (verified via tonight's smoke + live-data sample runs).
+
+**Tonight's session arc — 11 substantive commits + 4 design commits (chronological):**
+- `76a85f4` Step 3 derived views (4 derivers + standing R-mult Day-6 warn)
+- `31b608f` wave5_prerequisites S-6 advisory (Step 4 audit byproduct)
+- `8e5be29` Step 4 verification + 4 deterministic generators
+- `fe0a669` M-12 fix (chain_validator step reorder; Step 5 prerequisite)
+- `c047fd2` Step 5 LLM reasoning gates (Opus 4.7; reasoning_log accumulation)
+- `27b60cb` brain_design §5.1 + §2 amendments (D-2 + D-4 lock)
+- `997d4af` brain_design §5.1 watch_pattern overlap row (V-8 closure)
+- `ee4007d` brain_design §5.1 verify_conflict_surfacing location correction
+- `05570fb` Step 6 unified queue + decisions_journal + dual-write rule_proposer adapter
+- `1e1c786` Step 7 Telegram approval handlers + brain_digest.yml
+- `d874180` brain.yml production-fire workflow + main.py brain mode
+
+**End-to-end operational chain:**
+truth files → Step 3 derived views → Step 4 verify+generate → Step 5 LLM gates ($0.10/run, smarter-every-day reasoning_log) → Step 6 unified queue + decisions_journal init + dual-write → Step 7 Telegram digest + /approve + /reject + /explain → trader action → mutation: rule_proposer (kill_rule, boost_demote) OR apply_boost_promote → mini_scanner_rules.boost_patterns[] → decisions_journal append (Step 5 90-day lookback for cross-day disagreement awareness)
 
 **Resume point for next session (`apex` / `kabu` trigger):**
 
-Wave 4 closed 2026-04-28 at 4 shipped items: LE-07, prop_005, LE-06, prop_007. LE-05 deferred to Wave UI track. Wave 5 backend bootstrapped: Step 1 doc lock + Step 2 folder skeleton both shipped tonight; Step 3 (derived views) is the next ship target — design pass complete, schema lock-in pending in conversation.
+Wave 5 backend complete (7/7 steps shipped 2026-04-29). Production fire blocked on user-side actions (cron-job.org dashboard entries + ANTHROPIC_API_KEY GitHub secret). Brain end-to-end chain verified via tonight's smoke + live-data sample runs.
 
-**Canonical reference doc shipped tonight:** `doc/project_anchor_v1.md` (commit `50325c7`, 762 LOC). Single 8-Part comprehensive reference with present-state lifecycle + future-state projection + component state + gap inventory + drift report + 11-item decision log. Read this first when resuming.
+**Canonical reference doc:** `doc/project_anchor_v1.md` (commit `50325c7`, 762 LOC). Read first when resuming.
 
-**Tomorrow's first-fire watches (2026-04-29):**
-- 08:55 IST — Phase 1 watch_pattern second production exercise (premarket L1 brief).
-- 16:15 IST — eod.yml first **scheduled-tick** fire via cron-job.org dispatch (post `2fc1f35` migration). **⚠ PENDING USER ACTION:** cron-job.org dashboard entry required for scheduled fire. Title: 'tietiy eod.yml dispatch'; URL: `https://api.github.com/repos/tietiy/tietiy-scanner/actions/workflows/eod.yml/dispatches`; Method: POST; Schedule: `45 10 * * 1-5` UTC (16:15 IST); Body: `{"ref": "main"}`. Without dashboard entry, only manual workflow_dispatch will fire — no scheduled-tick verification possible.
-
-**Tonight's 15 meaningful commits (chronological — see `project_anchor_v1.md §8.3`):**
-- `9d4dcb2` recover_stuck_signals import fix · `550b5f0` prop_005 parallel-shadow infra
-- `4944c17` fix_table prop_005 reframe · `0512cd2` LE-05 deferred to Wave UI
-- `cbdef3d` session_context Wave 4 closure (this row supersedes) · `d6ddc01` B-3 Anthropic SDK + Messages API test
-- `ddd66b7` M-12 + M-13 filed · `10a3fb5` B-2 verified + M-14 filed
-- `9336b32` master_audit GAP-33 RESOLVED · `c278a32` brain_design drift audit
-- `a5edc32` Bridge eod (B-1 manual dispatch artifact) · `51448e8` B-1 verified + M-15 + M-16
-- `2fc1f35` eod.yml migrated to cron-job.org (M-15 RESOLVED) · `060d7c9` Wave 5 Step 2 folder skeleton
-- `50325c7` project_anchor_v1.md (this session's anchor doc)
+**Pending production-fire user actions (NOT blocking next-session work):**
+- `ANTHROPIC_API_KEY` GitHub secret (Settings → Secrets → Actions). Without this, Step 5 LLM gates fail at runtime.
+- cron-job.org dashboard entry — `brain.yml`. URL: `https://api.github.com/repos/tietiy/tietiy-scanner/actions/workflows/brain.yml/dispatches`; Schedule: `30 16 * * *` (16:30 UTC = 22:00 IST Mon-Sun); Body: `{"ref": "main"}`.
+- cron-job.org dashboard entry — `brain_digest.yml`. URL same pattern; Schedule: `35 16 * * *` (22:05 IST Mon-Sun).
+- cron-job.org dashboard entry — `eod.yml` (carryover from 2026-04-28 reversal). Schedule: `45 10 * * 1-5` (16:15 IST weekday).
 
 **Earned next items, in order:**
-1. **Wave 5 Step 3 design lock-in** — schemas for cohort_health / regime_watch / portfolio_exposure / ground_truth_gaps. Audit complete (Parts A–E surfaced earlier in this conversation); user lock-in pending. ~50-60 min remaining for implementation post lock-in.
-2. After Step 3 ships → smoke against tonight's actual archives → live-data sample review → commit.
-3. **Pre-Wave-5-resumption build table** — separate prompt per user direction; planning surface for Steps 4-7.
-4. **Brain Steps 4-7 sequenced** — verify scaffolding (Step 4) → LLM gates (Step 5; depends on D-3 M-12 fix) → unified queue (Step 6; depends on D-2 conflict resolution) → approval handlers (Step 7).
+1. **Observation period** — ≥1 week of brain production runs; collect Telegram-only trader feedback on /approve + /reject + /explain UX. Per D-11 lock, Step 8 PWA Monster tab design pass waits on this data.
+2. **First-fire watches** post user-side actions:
+   - 22:00 IST first scheduled brain.yml fire — verify Step 3+4+5+6 chain runs clean; cohort_health/regime_watch/portfolio_exposure/ground_truth_gaps regenerate; reasoning_log appends; unified_proposals.json + decisions_journal.json get written.
+   - 22:05 IST first scheduled brain_digest.yml fire — verify Telegram digest delivered with 3 cards or empty-queue tone.
+3. **Step 8 PWA Monster tab** (Wave UI session) — design pass with full trader-feedback context.
 
 **Decision items open (per `project_anchor_v1.md §7`):**
-- D-1 Bot username for deep-link tightening (Wave UI scope, recommendation: add to config)
-- D-2 Rule conflict resolution amendment to brain_design §5 (blocks Step 6; recommendation: surface in claim.counter)
-- D-3 M-12 fix vs brain_reason ignore-flag (blocks Step 5 cleanly; recommendation: M-12 fix first, ~30-60 min YAML edit)
-- D-4 Brain weekend cadence Mon-Sun vs Mon-Fri (blocks Step 6+7; recommendation: Mon-Sun daily)
-- D-5 S-4 cron-job.org failover playbook (highest cost-of-wrong-call; recommendation: ship pre-brain.yml)
+- D-1 Bot username for deep-link tightening (Wave UI scope)
+- D-5 S-4 cron-job.org failover playbook (highest cost-of-wrong-call; recommendation: ship pre-Step-8)
 - D-6 master_check discipline (recommendation: relax CLAUDE.md to match observed practice)
-- D-7 M-12 → M-16 (UX-03) → M-13 priority order
-- D-8 exit_logic_redesign DRAFT vs REJECT (recommendation: DRAFT)
-- D-10 Wave UI kickoff trigger (post Wave 5 Steps 3-7 + 1-2 weeks observation)
-- D-11 colab_sync + diagnostic migration (low priority)
+- D-8 exit_logic_redesign DRAFT vs REJECT (recommendation: DRAFT; parallel track)
+- D-10 Wave UI kickoff trigger (post-observation period)
 
-**Parallel track (not blocking Wave 5):**
+**Decision items locked tonight:** D-2 (surface conflicts in counter via §5.1 amendment); D-3 (M-12 fix shipped `fe0a669`); D-4 (Mon-Sun cadence); D-7 (full unified_id text command per Step 7); D-9 (conflict badge format); D-11 (PWA defer to Step 8).
+
+**Parallel track (not blocking Wave 5 production fire):**
 - `doc/exit_logic_redesign_v1.md` — design doc capturing Day-6 forced-exit dominance findings (D-8). Deferred to fresh-headed session.
 
 **Tonight's audit-first lessons hardened:**
-- GAP-13 phantom (audit memory claimed PWA crashes; grep proved zero references).
-- prop_005 reframing (fix_table label assumed wrong lever; audit revealed Day-6 dominance).
-- recover_stuck import broken since Wave 2 migration (silent because manual-only invocation).
-- M-15 GitHub native schedule miss-rate (3-of-3 weekday workflows missed; reversed §13.4 architectural decision).
-- master_audit GAP-04 PARTIAL annotation drift caught + amended this batch closeout.
+- Multi-phase design lock-in discipline (D-2/D-4 → V-questions → implementation) prevented two tripwires from becoming bugs (V-1 alpha tie-break prediction error caught by smoke; brain_verify location ambiguity caught by user before code touched brain_verify).
+- Citation-density grep (`'\`[0-9a-f]{7}\`'`) more robust than literal-string grep for verifying audit-trail integrity.
+- Tripwire surfacing > silent-bulldozing: `brain_derive.run_all()` API mismatch + ANTHROPIC_API_KEY GitHub secret both surfaced before code landed.
+- Phase-discipline (Phase 0/1/2/3 stop-and-confirm) made 5-hour bundled sessions executable without losing track of locked decisions.
 
 -----
 
@@ -166,6 +153,8 @@ Wave 4 closed 2026-04-28 at 4 shipped items: LE-07, prop_005, LE-06, prop_007. L
 09:30 IST  ltp_updater.yml         → every 5min (staggered)
 09:32 IST  stop_check.yml          → every 5min (+2min offset, price sanity layer Apr 22)
 15:35 IST  eod_master.yml          → 8-step chain: backup→outcomes→EOD→telegram→chain→patterns→proposals→commit
+22:00 IST  brain.yml               → Step 3 derive → Step 4 verify → Step 5 LLM gates → Step 6 unified queue (Mon-Sun)
+22:05 IST  brain_digest.yml        → Telegram digest of unified_proposals.json (Mon-Sun)
 Saturdays 08:30         → backup_manager.yml + weekend_summary.yml
 Mondays 08:30           → gap_report.yml
 Sundays 20:00 IST       → weekly_intelligence.yml
@@ -342,5 +331,6 @@ Or use a trigger word — `apex`, `phase2`, `fixlog` — which memory entry 1 de
 |2026-04-26|**Wave 2 backend + TG-01 + Wave 3 Sessions A/B + Wave 4 Step 1.** Wave 2: 16 bridge backend files + TG-01 poll concurrency + 3 schema bugs caught/fixed via real-data sanity audit (new principle locked: schema discipline #12). Wave 3: BR-02/BR-03 composers shipped, BR-04 Session A (`composers/eod.py`, `c94e523`) + Session B (`bridge_telegram_eod.py`, `19d4146`) shipped, BR-07 fully complete (3 renderers), Sessions C+D pending. Wave 4 Step 1: `/reject_rule` Telegram command (`c43189a`, LE-07). Renderer escape-pattern bug caught in code review (`_render_contra_section`); fixed. Head: `03bdeb0`.|
 |2026-04-28|**Wave 4 closed at 4 shipped items + Wave 3 Sessions C+D shipped + tonight's misc fixes.** Wave 4 closure: LE-07 (`c43189a`, prior), prop_005 (`550b5f0` reframed as parallel-shadow infra; not R-multiple solver), LE-06 (`7b96a97`), prop_007 (`c647e94`). LE-05 reclassified DEFERRED to Wave UI / IT-05 (`0512cd2`) after audit-first verification PWA has no proposal surface. Wave 3: Session C (LE-06 inside `7b96a97`) + Session D (eod.yml `f9d4746`, GitHub native schedule per bridge_design_v1.md §13.4 `d4433e7`). Misc: `_THIN_FALLBACK` migration to thresholds.py (`b1359f1` + `68063d3` + `e4d5d6a`), GAP-13 reclassified after PWA grep verification (`3650f57`), recover_stuck_signals.py Wave 2 migration leftover fixed (`9d4dcb2`). Head: `0512cd2`.|
 |2026-04-28 (full session closeout)|**15 commits today** (chronological per `project_anchor_v1.md §8.3`): F-2 audit findings filed M-12+M-13 (`ddd66b7`); B-2 verified + M-14 filed (`10a3fb5`); master_audit GAP-33 RESOLVED + GAP-04 PARTIAL (`9336b32`); brain_design drift audit (`c278a32`); B-1 manual workflow_dispatch verified (`a5edc32` + `51448e8`); eod.yml migrated GitHub schedule → cron-job.org M-15 RESOLVED (`2fc1f35`); Wave 5 Step 2 folder skeleton shipped (`060d7c9`); B-3 Anthropic SDK shipped (`d6ddc01`); prop_005 parallel-shadow infra (`550b5f0`); recover_stuck_signals import fix (`9d4dcb2`); LE-05 deferred Wave UI (`0512cd2`); session_context Wave 4 closure (`cbdef3d` superseded by this row); fix_table prop_005 reframe (`4944c17`); **project_anchor_v1.md comprehensive reference doc** (`50325c7`, 762 LOC, 128 commit citations / 49 unique). master_audit GAP-04 re-amendment lands in this batch closeout commit. Head: `50325c7`.|
+|2026-04-29 (early morning Wave 5 backend complete)|**11 substantive commits + production-fire workflow:** Step 3 derived views (`76a85f4`); Step 4 verify+generate (`8e5be29`); M-12 fix (`fe0a669`); Step 5 LLM gates (`c047fd2`); design lock commits §5.1+§2 (`27b60cb`) + watch_pattern row (`997d4af`) + verify location correction (`ee4007d`); Step 6 unified queue (`05570fb`); Step 7 Telegram approval handlers (`1e1c786`); brain.yml + main.py brain mode (`d874180`); plus wave5_prerequisites S-6 advisory (`31b608f`). Wave 5 backend complete: brain end-to-end operational. Pending production fire on user-side actions (ANTHROPIC_API_KEY secret + 3 cron-job.org dashboard entries). Step 8 PWA Monster tab deferred to Wave UI session per D-11 lock; needs ≥1 week trader feedback first. Head: `d874180`.|
 
 
