@@ -277,7 +277,9 @@ def _check_boost_tier(train_stats: dict, test_stats: dict,
     en = test_stats.get("n_win", 0) + test_stats.get("n_loss", 0)
     twilson = train_stats.get("wilson_lower_95")
     tp_val = train_stats.get("p_value_vs_50")
-    drift = abs(twr - ewr)
+    # Round to 4 decimals to match WR precision and avoid IEEE-754 FP noise at
+    # threshold boundaries (e.g., abs(0.7 - 0.5) = 0.199...996 silently passing < 0.20).
+    drift = round(abs(twr - ewr), 4)
 
     checks = [
         (f"train_wr {twr} >= {thresholds['train_wr_min']}",
@@ -314,7 +316,9 @@ def evaluate_kill_tier(train_stats: dict, test_stats: dict) -> str:
 
     if twr is None or ewr is None:
         return "REJECT"
-    drift = abs(twr - ewr)
+    # Round to 4 decimals to match WR precision and avoid IEEE-754 FP noise at
+    # threshold boundaries (e.g., abs(0.3 - 0.2) = 0.099...998 silently passing < 0.10).
+    drift = round(abs(twr - ewr), 4)
 
     # Tier S
     if (twr <= _KILL_TIER_S["train_wr_max"]

@@ -526,5 +526,198 @@ def test_filter_default_backward_compat():
     assert result["filter_parent_type"] is None
 
 
+# ═════════════════════════════════════════════════════════════════════
+# Group 8: Tier drift-boundary edge cases (BLOCK 3)
+# Strict-< behavior: drift exactly at threshold must FAIL that tier.
+# ═════════════════════════════════════════════════════════════════════
+
+def test_boost_tier_A_to_B_drift_boundary():
+    """Boost: drift=0.15 exactly fails Tier A (strict <0.15); falls to Tier B.
+    train 42/60 = 0.70; test 11/20 = 0.55; drift = abs(0.70 - 0.55) = 0.15."""
+    train = compute_cohort_stats(
+        _build_synthetic_signals(n_win=42, n_loss=18), cohort_filter={})  # 0.70 n=60
+    test = compute_cohort_stats(
+        _build_synthetic_signals(n_win=11, n_loss=9), cohort_filter={})   # 0.55 n=20
+    assert train["wr_excl_flat"] == 0.70
+    assert test["wr_excl_flat"] == 0.55
+    # Wrap in round() to match production drift rounding semantics; raw abs(0.7 - 0.55)
+    # = 0.15000000000000002 due to IEEE-754 FP noise (won't equal 0.15 without rounding).
+    assert round(abs(train["wr_excl_flat"] - test["wr_excl_flat"]), 4) == 0.15
+    tier = evaluate_boost_tier(train, test)
+    # Tier S fails (train_wr<0.75); Tier A fails drift<0.15 strict;
+    # Tier B: train_wr 0.70≥0.60, n 60≥30, test_wr 0.55≥0.50, test_n 20≥15,
+    # drift 0.15<0.20 → B
+    assert tier == "B", f"Expected B (drift=0.15 fails A strict <); got {tier}"
+
+
+def test_boost_tier_B_to_REJECT_drift_boundary():
+    """Boost: drift=0.20 exactly fails Tier B (strict <0.20) → REJECT.
+    train 21/30 = 0.70; test 10/20 = 0.50; drift = abs(0.70 - 0.50) = 0.20."""
+    train = compute_cohort_stats(
+        _build_synthetic_signals(n_win=21, n_loss=9), cohort_filter={})   # 0.70 n=30
+    test = compute_cohort_stats(
+        _build_synthetic_signals(n_win=10, n_loss=10), cohort_filter={})  # 0.50 n=20
+    assert train["wr_excl_flat"] == 0.70
+    assert test["wr_excl_flat"] == 0.50
+    # Wrap in round(); raw abs(0.7 - 0.5) = 0.19999999999999996 due to IEEE-754 FP noise.
+    assert round(abs(train["wr_excl_flat"] - test["wr_excl_flat"]), 4) == 0.20
+    tier = evaluate_boost_tier(train, test)
+    # Tier B fails drift<0.20 strict → REJECT
+    assert tier == "REJECT", f"Expected REJECT (drift=0.20 fails B strict <); got {tier}"
+
+
+def test_kill_tier_S_drift_boundary():
+    """Kill: drift=0.10 exactly fails Tier S (strict <0.10); falls to Tier A.
+    train 20/100 = 0.20; test 9/30 = 0.30; drift = abs(0.20 - 0.30) = 0.10."""
+    train = compute_cohort_stats(
+        _build_synthetic_signals(n_win=20, n_loss=80), cohort_filter={})  # 0.20 n=100
+    test = compute_cohort_stats(
+        _build_synthetic_signals(n_win=9, n_loss=21), cohort_filter={})   # 0.30 n=30
+    assert train["wr_excl_flat"] == 0.20
+    assert test["wr_excl_flat"] == 0.30
+    # Wrap in round(); raw abs(0.2 - 0.3) = 0.09999999999999998 due to IEEE-754 FP noise.
+    assert round(abs(train["wr_excl_flat"] - test["wr_excl_flat"]), 4) == 0.10
+    tier = evaluate_kill_tier(train, test)
+    # Tier S fails drift<0.10 strict; Tier A: train_wr 0.20≤0.35, n 100≥50,
+    # test_wr 0.30≤0.40, test_n 30≥20, drift 0.10<0.15 → A
+    assert tier == "A", f"Expected A (drift=0.10 fails S strict <); got {tier}"
+
+
+def test_kill_tier_A_to_B_drift_boundary():
+    """Kill: drift=0.15 exactly fails Tier A (strict <0.15); falls to Tier B.
+    train 15/50 = 0.30; test 9/20 = 0.45; drift = abs(0.30 - 0.45) = 0.15."""
+    train = compute_cohort_stats(
+        _build_synthetic_signals(n_win=15, n_loss=35), cohort_filter={})  # 0.30 n=50
+    test = compute_cohort_stats(
+        _build_synthetic_signals(n_win=9, n_loss=11), cohort_filter={})   # 0.45 n=20
+    assert train["wr_excl_flat"] == 0.30
+    assert test["wr_excl_flat"] == 0.45
+    # Wrap in round(); raw abs(0.3 - 0.45) = 0.15000000000000002 due to IEEE-754 FP noise.
+    assert round(abs(train["wr_excl_flat"] - test["wr_excl_flat"]), 4) == 0.15
+    tier = evaluate_kill_tier(train, test)
+    # Tier S fails (train_wr 0.30>0.25); Tier A fails drift<0.15 strict;
+    # Tier B: train_wr 0.30≤0.40, n 50≥30, test_wr 0.45≤0.45, test_n 20≥15,
+    # drift 0.15<0.20 → B
+    assert tier == "B", f"Expected B (drift=0.15 fails A strict <); got {tier}"
+
+
+def test_kill_tier_B_to_REJECT_drift_boundary():
+    """Kill: drift=0.20 exactly fails Tier B (strict <0.20) → REJECT.
+    train 25/100 = 0.25; test 9/20 = 0.45; drift = abs(0.25 - 0.45) = 0.20."""
+    train = compute_cohort_stats(
+        _build_synthetic_signals(n_win=25, n_loss=75), cohort_filter={})  # 0.25 n=100
+    test = compute_cohort_stats(
+        _build_synthetic_signals(n_win=9, n_loss=11), cohort_filter={})   # 0.45 n=20
+    assert train["wr_excl_flat"] == 0.25
+    assert test["wr_excl_flat"] == 0.45
+    # Wrap in round() for symmetry with other boundary tests (raw abs(0.25 - 0.45)
+    # happens to be exact 0.20 in this case, but rounding is consistent practice).
+    assert round(abs(train["wr_excl_flat"] - test["wr_excl_flat"]), 4) == 0.20
+    tier = evaluate_kill_tier(train, test)
+    # Tier B fails drift<0.20 strict → REJECT
+    assert tier == "REJECT", f"Expected REJECT (drift=0.20 fails B strict <); got {tier}"
+
+
+# ═════════════════════════════════════════════════════════════════════
+# Group 9: Extreme-WR + degenerate-cohort edge cases (BLOCK 3)
+# ═════════════════════════════════════════════════════════════════════
+
+def test_extreme_wr_zero():
+    """All-loss cohort (wr=0.0): Wilson lower ≈ 0.0; p-value < 0.05 (n=20)."""
+    df = _build_synthetic_signals(n_win=0, n_loss=20)
+    stats = compute_cohort_stats(df, cohort_filter={})
+    assert stats["wr_excl_flat"] == 0.0
+    assert stats["wilson_lower_95"] is not None
+    # Wilson lower for 0/20 is mathematically ≥ 0 (negative possible due to rounding); should be ≈ 0
+    assert stats["wilson_lower_95"] <= 0.01, f"Wilson for 0/20 should ≈ 0; got {stats['wilson_lower_95']}"
+    assert stats["p_value_vs_50"] is not None
+    assert stats["p_value_vs_50"] < 0.05, f"p for 0/20 should be highly significant; got {stats['p_value_vs_50']}"
+
+
+def test_extreme_wr_one_hundred():
+    """All-win cohort (wr=1.0): Wilson lower < 1.0 (binomial CI never reaches 1); p-value < 0.05."""
+    df = _build_synthetic_signals(n_win=20, n_loss=0)
+    stats = compute_cohort_stats(df, cohort_filter={})
+    assert stats["wr_excl_flat"] == 1.0
+    assert stats["wilson_lower_95"] is not None
+    # Wilson lower for 20/20 ≈ 0.84 (below 1.0)
+    assert 0.5 < stats["wilson_lower_95"] < 1.0, f"Wilson for 20/20 should be ~0.84; got {stats['wilson_lower_95']}"
+    assert stats["p_value_vs_50"] is not None
+    assert stats["p_value_vs_50"] < 0.05, f"p for 20/20 should be highly significant; got {stats['p_value_vs_50']}"
+
+
+def test_all_flat_cohort():
+    """20 signals all DAY6_FLAT: wr_excl_flat=None; both tier evaluators REJECT."""
+    train = compute_cohort_stats(
+        _build_synthetic_signals(n_win=0, n_loss=0, n_flat=20), cohort_filter={})
+    test = compute_cohort_stats(
+        _build_synthetic_signals(n_win=0, n_loss=0, n_flat=20), cohort_filter={})
+    assert train["n_total"] == 20
+    assert train["n_flat"] == 20
+    assert train["wr_excl_flat"] is None
+    assert train["wilson_lower_95"] is None
+    # Both evaluators reject on None train_wr
+    assert evaluate_boost_tier(train, test) == "REJECT"
+    assert evaluate_kill_tier(train, test) == "REJECT"
+
+
+def test_p_value_not_significant():
+    """50/100 wins (random): p-value ≈ 1.0 (not significant). evaluate_boost_tier
+    rejects regardless of test_wr (train_wr 0.50 fails Tier B floor 0.60 anyway)."""
+    df = _build_synthetic_signals(n_win=50, n_loss=50)
+    train = compute_cohort_stats(df, cohort_filter={})
+    assert train["wr_excl_flat"] == 0.5
+    # z = (50 - 50) / sqrt(25) = 0 → p = 1.0
+    assert train["p_value_vs_50"] is not None
+    assert train["p_value_vs_50"] > 0.95, f"p for 50/100 should be ≈ 1.0; got {train['p_value_vs_50']}"
+    test = compute_cohort_stats(
+        _build_synthetic_signals(n_win=11, n_loss=9), cohort_filter={})
+    # Tier S/A/B all fail train_wr_min (≥0.75 / ≥0.65 / ≥0.60); REJECT
+    assert evaluate_boost_tier(train, test) == "REJECT"
+
+
+def test_split_boundary_exactly_on_split_date():
+    """Signal exactly on split_date routes to test (>= cutoff per code line 221)."""
+    rows = []
+    for i in range(5):
+        rows.append({"scan_date": "2022-12-15", "symbol": f"A{i}",
+                      "signal": "UP_TRI", "outcome": "DAY6_WIN"})
+    for i in range(5):
+        rows.append({"scan_date": "2023-01-01", "symbol": f"B{i}",
+                      "signal": "UP_TRI", "outcome": "DAY6_WIN"})
+    for i in range(5):
+        rows.append({"scan_date": "2023-06-15", "symbol": f"C{i}",
+                      "signal": "UP_TRI", "outcome": "DAY6_WIN"})
+    df = pd.DataFrame(rows)
+    train, test = train_test_split(df, split_date="2023-01-01")
+    # 2022-12-15 < 2023-01-01 → train (5 rows)
+    # 2023-01-01 >= 2023-01-01 → test (5 rows; >= inclusive)
+    # 2023-06-15 >= 2023-01-01 → test (5 rows)
+    assert len(train) == 5
+    assert len(test) == 10
+    # Verify split_date rows are in test, not train
+    assert all(pd.to_datetime(test["scan_date"]) >= pd.Timestamp("2023-01-01"))
+
+
+def test_outcome_field_missing_column():
+    """signals_df without 'outcome' column: cohort_stats returns zeros + None
+    wr gracefully; evaluate_boost_tier rejects on None train_wr."""
+    df = pd.DataFrame([
+        {"scan_date": "2022-01-01", "symbol": "A", "signal": "UP_TRI"},
+        {"scan_date": "2022-02-01", "symbol": "B", "signal": "UP_TRI"},
+    ])
+    # No 'outcome' column present
+    stats = compute_cohort_stats(df, cohort_filter={})
+    assert stats["n_total"] == 2  # rows present in cohort
+    assert stats["n_win"] == 0
+    assert stats["n_loss"] == 0
+    assert stats["wr_excl_flat"] is None
+    assert stats["wilson_lower_95"] is None
+    test_stats = compute_cohort_stats(
+        _build_synthetic_signals(n_win=10, n_loss=8), cohort_filter={})
+    # train wr_excl_flat=None → evaluate_boost_tier returns REJECT immediately
+    assert evaluate_boost_tier(stats, test_stats) == "REJECT"
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))
