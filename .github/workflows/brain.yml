@@ -27,6 +27,15 @@ name: "🧠 Brain Run | derive → verify → reason → output | 22:00 IST cron
 
 on:
   workflow_dispatch:
+    inputs:
+      mode:
+        description: 'Run mode'
+        required: false
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - api_check
 
 concurrency:
   group: tietiy-brain-run
@@ -55,7 +64,8 @@ jobs:
       - name: Install dependencies
         run: pip install yfinance pandas numpy requests anthropic python-dotenv
 
-      - name: Brain run (Step 3 → 4 → 5 → 6)
+      - name: Brain run full chain (Step 3 → 4 → 5 → 6)
+        if: ${{ inputs.mode == 'production' || inputs.mode == '' }}
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           PYTHONPATH:        ${{ github.workspace }}:${{ github.workspace }}/scanner
@@ -63,10 +73,33 @@ jobs:
           echo "════════════════════════════════════════"
           echo "  BRAIN NIGHTLY RUN — derive + verify + reason + output"
           echo "════════════════════════════════════════"
-          cd $GITHUB_WORKSPACE/scanner
-          python main.py brain
+          cd $GITHUB_WORKSPACE
+          python scanner/main.py brain
+
+      - name: API key check only
+        if: ${{ inputs.mode == 'api_check' }}
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          echo "════════════════════════════════════════"
+          echo "  API KEY CHECK — Anthropic auth verification only"
+          echo "════════════════════════════════════════"
+          pip install anthropic --quiet
+          python <<'EOF'
+          from anthropic import Anthropic
+          client = Anthropic()
+          msg = client.messages.create(
+              model="claude-opus-4-7",
+              max_tokens=5,
+              messages=[{"role": "user", "content": "OK"}]
+          )
+          print(f"API key works. Tokens: in={msg.usage.input_tokens} out={msg.usage.output_tokens}")
+          cost = (msg.usage.input_tokens * 5 + msg.usage.output_tokens * 25) / 1_000_000
+          print(f"Cost: ${cost:.6f}")
+          EOF
 
       - name: Commit and push brain outputs
+        if: ${{ inputs.mode == 'production' || inputs.mode == '' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GH_TOKEN }}
         run: |
