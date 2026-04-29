@@ -2,7 +2,7 @@
   "schema_version": 1,
   "view_name": "unified_proposals",
   "as_of_date": "2026-04-29",
-  "run_id": "brain_run_2026-04-29_0306",
+  "run_id": "brain_run_2026-04-29_2200",
   "_metadata": {
     "total_step5_candidates": 4,
     "total_surfaced": 3,
@@ -13,8 +13,8 @@
     ],
     "dropped_due_to_top3_cap": [
       {
-        "candidate_id": "brain_regime_alert_4fe119ae_2026-04-29",
-        "score_priority": 5.0,
+        "candidate_id": "brain_exposure_warn_26ee5e0b_2026-04-29",
+        "score_priority": 4.0,
         "reason": "below_top_3_cap"
       }
     ],
@@ -25,7 +25,7 @@
       "skipped_types": [
         "boost_promote",
         "boost_promote",
-        "exposure_warn"
+        "regime_alert"
       ]
     }
   },
@@ -44,17 +44,19 @@
       "type": "boost_promote",
       "source": "brain_step4",
       "source_step": "step5_or_step4_passthrough",
-      "run_id_origin": "brain_run_2026-04-29_0306",
+      "run_id_origin": "brain_run_2026-04-29_2200",
       "title": "UP_TRI × Bear: n=96, 94.7% WR, Tier M → boost candidate (TAKE_SMALL)",
       "claim": {
         "what": "Promote boost_pattern: signal=UP_TRI, regime=Bear (Tier B / TAKE_SMALL)",
-        "expected_effect": "Surface as Tier-B boost on cohort matches; observed +17.9pp edge over per-signal baseline",
+        "expected_effect": "Surface as Tier-B boost on cohort matches; observed +30.9pp edge over per-signal baseline",
         "confidence": "high"
       },
       "counter": {
         "evidence": [
           "Wilson 95% lower bound 0.8815 well above Tier M floor — sample size adequate",
           "R-multiple 0.61 below Tier S threshold (1.0); promotion is to Tier M (B/TAKE_SMALL) only, not Tier S (A/TAKE_FULL)",
+          "Prior cohort_promotion_judge approval on 2026-04-29 for the same candidate is consistent with this decision; no disagreement.",
+          "Bear regime is currently absent (0 of last 7 days) but was present 4 of prior 7 days — regime is cyclical, so promotion will become live on next Bear rotation.",
           "win_001 active: UP_TRI × Auto × Bear (n=21)",
           "win_002 active: UP_TRI × FMCG × Bear (n=19)",
           "win_003 active: UP_TRI × IT × Bear (n=18)",
@@ -65,6 +67,8 @@
         "risks": [
           "Cohort tier may drift on next archive comparison; demotion auto-fires per §3",
           "R-multiple distribution under D-8 review (Day-6 forced-exit dominance per project_anchor §7 D-8)",
+          "When Bear regime returns, UP_TRI exposure (currently 16 of 25 open positions) combined with this boost could amplify concentration; portfolio_exposure caps should remain enforced at execution time.",
+          "R-multiple 0.61 reflects D-8 forced-exit dominance per project_anchor §7; if exit policy changes, cohort R-multiple may shift and tier should be re-evaluated.",
           "approval would propagate overlap to mini_scanner_rules.json"
         ]
       },
@@ -78,7 +82,7 @@
         "n": 96,
         "wr": 0.9468,
         "wr_wilson_lower": 0.8815,
-        "edge_pp": 17.9,
+        "edge_pp": 30.9,
         "r_multiple": 0.61,
         "cohort_axis": "signal+regime",
         "cohort_filter": {
@@ -93,7 +97,7 @@
           "regime": "Bear",
           "tier": "B",
           "conviction_tag": "TAKE_SMALL",
-          "reason": "brain_step4: cohort Tier M, n=96, wr=94.7%, edge +17.9pp",
+          "reason": "brain_step4: cohort Tier M, n=96, wr=94.7%, edge +30.9pp",
           "added_date": null,
           "source": "brain_step4",
           "evidence": {
@@ -102,6 +106,7 @@
             "tier": "validated"
           }
         },
+        "llm_enrichment_rationale": "Step 4 tier classification is robust (n=96, Wilson lower 0.8815, +30.9pp edge over UP_TRI baseline) and promotion is correctly capped at Tier M/TAKE_SMALL given R-multiple 0.61. The cohort is regime-gated to Bear, so it will not activate against the current Choppy-concentrated portfolio — concentration risk is deferred until regime rotates. No prior trader rejection on record for this cohort.",
         "score_priority": 9.99,
         "conflicts_with": [
           {
@@ -131,8 +136,8 @@
         ]
       },
       "status": "pending",
-      "created_at": "2026-04-29T03:06:09.847243+05:30",
-      "expires_at": "2026-05-06T03:06:09.846924+05:30",
+      "created_at": "2026-04-29T22:01:32.811196+05:30",
+      "expires_at": "2026-05-06T22:00:57.911982+05:30",
       "approver": null,
       "decision_at": null,
       "decision_reason": null
@@ -144,23 +149,26 @@
       "type": "boost_promote",
       "source": "brain_step4",
       "source_step": "step5_or_step4_passthrough",
-      "run_id_origin": "brain_run_2026-04-29_0306",
-      "title": "UP_TRI × Metal: n=15, 100.0% WR, Tier M → boost candidate (TAKE_SMALL)",
+      "run_id_origin": "brain_run_2026-04-29_2200",
+      "title": "UP_TRI × Metal: n=17, 88.2% WR, Tier M → boost candidate (TAKE_SMALL)",
       "claim": {
         "what": "Promote boost_pattern: signal=UP_TRI, sector=Metal (Tier B / TAKE_SMALL)",
-        "expected_effect": "Surface as Tier-B boost on cohort matches; observed +23.3pp edge over per-signal baseline",
+        "expected_effect": "Surface as Tier-B boost on cohort matches; observed +24.5pp edge over per-signal baseline",
         "confidence": "high"
       },
       "counter": {
         "evidence": [
-          "Wilson 95% lower bound 0.7961 well above Tier M floor — sample size adequate",
-          "R-multiple 0.85 below Tier S threshold (1.0); promotion is to Tier M (B/TAKE_SMALL) only, not Tier S (A/TAKE_FULL)",
+          "Wilson 95% lower bound 0.6566 well above Tier M floor — sample size adequate",
+          "R-multiple 0.72 below Tier S threshold (1.0); promotion is to Tier M (B/TAKE_SMALL) only, not Tier S (A/TAKE_FULL)",
+          "Prior approval for same cohort (Metal × UP_TRI) on 2026-04-29 with n=15, 100% WR; current candidate adds 2 trades and remains in Tier M with stable Wilson lower bound, indicating cohort signal is persisting rather than mean-reverting",
           "win_004 active: UP_TRI × Metal × Bear (n=15)",
           "watch_001 active: UP_TRI × any × Choppy (n=36)"
         ],
         "risks": [
           "Cohort tier may drift on next archive comparison; demotion auto-fires per §3",
           "R-multiple distribution under D-8 review (Day-6 forced-exit dominance per project_anchor §7 D-8)",
+          "Portfolio is 100% Choppy regime and UP_TRI-heavy (16/25); any new Metal × UP_TRI signal that boosts will compound this concentration — trader should weigh sector exposure before acting on TAKE_SMALL boost",
+          "R-multiple 0.72 reflects Day-6 forced-exit dominance (D-8 review pending); if exit policy changes, R-multiple may shift and tier could be revisited",
           "approval would propagate overlap to mini_scanner_rules.json"
         ]
       },
@@ -171,11 +179,11 @@
       ],
       "decision_metadata": {
         "tier": "M",
-        "n": 15,
-        "wr": 1.0,
-        "wr_wilson_lower": 0.7961,
-        "edge_pp": 23.3,
-        "r_multiple": 0.85,
+        "n": 17,
+        "wr": 0.8824,
+        "wr_wilson_lower": 0.6566,
+        "edge_pp": 24.5,
+        "r_multiple": 0.72,
         "cohort_axis": "signal+sector",
         "cohort_filter": {
           "signal_type": "UP_TRI",
@@ -189,16 +197,17 @@
           "regime": null,
           "tier": "B",
           "conviction_tag": "TAKE_SMALL",
-          "reason": "brain_step4: cohort Tier M, n=15, wr=100.0%, edge +23.3pp",
+          "reason": "brain_step4: cohort Tier M, n=17, wr=88.2%, edge +24.5pp",
           "added_date": null,
           "source": "brain_step4",
           "evidence": {
-            "wr": 1.0,
-            "n": 15,
+            "wr": 0.8824,
+            "n": 17,
             "tier": "validated"
           }
         },
-        "score_priority": 9.2,
+        "llm_enrichment_rationale": "Step 4 tier classification is robust (n=17, Wilson lower 0.6566 above Tier M floor, +24.5pp edge over UP_TRI baseline) and promotion is correctly capped at Tier M/TAKE_SMALL given R-multiple 0.72. The sector=Metal filter narrows rather than broadens the existing UP_TRI overweight, and a prior similar candidate for this exact cohort was approved on 2026-04-29 with consistent reasoning.",
+        "score_priority": 9.26,
         "conflicts_with": [
           {
             "rule_id": "win_004",
@@ -211,8 +220,8 @@
         ]
       },
       "status": "pending",
-      "created_at": "2026-04-29T03:06:09.847246+05:30",
-      "expires_at": "2026-05-06T03:06:09.846943+05:30",
+      "created_at": "2026-04-29T22:01:32.811204+05:30",
+      "expires_at": "2026-05-06T22:00:57.912021+05:30",
       "approver": null,
       "decision_at": null,
       "decision_reason": null
@@ -220,42 +229,54 @@
     {
       "id": "prop_unified_2026-04-29_003",
       "legacy_id": null,
-      "candidate_id": "brain_exposure_warn_85371e96_2026-04-29",
-      "type": "exposure_warn",
-      "source": "brain_step5_exposure_correlation_analyzer",
+      "candidate_id": "brain_regime_alert_92d009af_2026-04-29",
+      "type": "regime_alert",
+      "source": "brain_step5",
       "source_step": "step5_or_step4_passthrough",
-      "run_id_origin": "brain_run_2026-04-29_0306",
-      "title": "Portfolio 100% Choppy + 95% UP_TRI; UP_TRI×Choppy×Bank 23.75% concentration",
+      "run_id_origin": "brain_run_2026-04-29_2200",
+      "title": "Regime shift: Bear → Choppy",
       "claim": {
-        "what": "Inform trader: portfolio concentrated by regime + signal_type + cell",
-        "expected_effect": "Trader-facing concentration awareness; no auto-trim",
+        "what": "Regime transition detected: Bear → Choppy",
+        "expected_effect": "A fresh weekly intelligence update (current snapshot is 5 days old) confirming slope remains non-negative and avg_ret20 holds would solidify the Choppy classification vs a transient bounce within a Bear regime.",
         "confidence": "high"
       },
       "counter": {
         "evidence": [
-          "UP_TRI×Choppy cohort tier=Candidate (small n)"
+          "Recent 7d distribution: Choppy 7/7 vs prior 7d: Bear 4/7, Choppy 3/7 (majority flipped from Bear to Choppy)",
+          "days_in_current_regime=7, within alert window (<14)",
+          "Weekly intelligence slope positive (0.003614) with avg_ret20=7.38 and price above EMA50, consistent with exit from Bear",
+          "regime_stability classified as 'stable' on the new Choppy regime, indicating the shift has consolidated"
         ],
         "risks": [
-          "Concentration may amplify regime-shift downside; informational only"
+          "Detection may be one-week wobble misclassified as transition",
+          "Trader manual confirmation required; informational only"
         ]
       },
-      "reversibility": "Informational only; no auto-action to revert",
+      "reversibility": "Informational alert; no system mutation. Auto-suppresses on next run if regime stabilizes.",
       "evidence_refs": [
-        "portfolio_exposure.json",
-        "cohort_health.json"
+        "regime_watch.json#current_regime",
+        "weekly_intelligence_latest.json#regime"
       ],
       "decision_metadata": {
-        "rationale_from_step5": "Portfolio is 100% Choppy regime (above 80% threshold) and 95% UP_TRI signal type, with the UP_TRI×Choppy×Bank cell at 23.75% share exceeding the 20% cell threshold. The matched cohort is only Candidat",
+        "from_regime": "Bear",
+        "to_regime": "Choppy",
+        "transition_evidence": [
+          "Recent 7d distribution: Choppy 7/7 vs prior 7d: Bear 4/7, Choppy 3/7 (majority flipped from Bear to Choppy)",
+          "days_in_current_regime=7, within alert window (<14)",
+          "Weekly intelligence slope positive (0.003614) with avg_ret20=7.38 and price above EMA50, consistent with exit from Bear",
+          "regime_stability classified as 'stable' on the new Choppy regime, indicating the shift has consolidated"
+        ],
+        "llm_rationale": "Recent 7-day window is unanimously Choppy (7/7) while the prior 7-day window was majority Bear (4/7) with only 3 Choppy days, confirming a Bear-to-Choppy transition. Days_in_current_regime is 7, still within the 14-day alert window, and the shift is supported by weekly intelligence showing positive slope (0.003614), avg_ret20 of 7.38, and price above EMA50.",
         "score_priority": 5.0,
         "conflicts_with": []
       },
       "status": "pending",
-      "created_at": "2026-04-29T03:06:09.847248+05:30",
-      "expires_at": "2026-05-06T03:06:09.847073+05:30",
+      "created_at": "2026-04-29T22:01:32.811209+05:30",
+      "expires_at": "2026-05-06T22:01:22.172973+05:30",
       "approver": null,
       "decision_at": null,
       "decision_reason": null
     }
   ],
-  "generated_at": "2026-04-29T03:06:09.849296+05:30"
+  "generated_at": "2026-04-29T22:01:32.818482+05:30"
 }
