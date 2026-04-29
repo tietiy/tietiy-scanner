@@ -54,6 +54,7 @@ Status: COMPLETE 2026-04-29
 | C-2 | project_anchor §3.3 brain module update (Wave 5 1-2 → 1-7 SHIPPED) | ⏸ | 10 min | Tier 1 Item 4 |
 | C-3 | session_context.md namespace disambiguation (S7-D-X vs anchor-D-X) | ⏸ | 10 min | P-1 from Section 4 stocktake |
 | C-4 | fix_table.md BR-series + BR-02/BR-03 doc-drift flip (PARTIAL/PENDING → ✅) | ⏸ | 10 min | Bridge audit findings 2026-04-30 |
+| C-5 | Memory-vs-reality drift cleanup (M-D1..M-D4 in Section M) | ⏸ | 30-45 min | Resolve drift before Wave UI Phase 0 fresh session; closes Section M as it shrinks/empties |
 
 ---
 
@@ -98,6 +99,7 @@ Status: COMPLETE 2026-04-29
 | F-4 | Choppy DOWN_TRI cluster resolution observed | ⏸ | LUPIN/OIL/ONGC outcomes Apr 27-29 |
 | F-5 | M-13 standalone investigation closed | 🔒 | Per anchor-D-7 partial |
 | F-6 | Tier 1 batch cleanup complete (C-1 .. C-4) | ⏸ | Next session ~30-45 min |
+| F-7 | Memory-vs-reality drift cleared (Section M empty) | ⏸ | Per C-5 completion; Wave UI Phase 0 needs clean baseline |
 
 ---
 
@@ -147,6 +149,7 @@ Status: COMPLETE 2026-04-29
 | J-5 | First contradiction-type proposal surfaces | Verify red badge rendering + counter.evidence + /explain expand |
 | J-6 | Card budget exceeds 3800 chars | Re-tune per-card budget per Step 7 V-8 monitoring point |
 | J-7 | LLM cost exceeds $1/run soft warning | Investigate; possibly suppress 1+ gate per §11 Q1 default |
+| J-8 | Wave UI fresh session resumption | Read Section M findings + Tier 1 cleanup complete + ≥1 production brain run observed → then start Phase 0 with clean baseline |
 
 ---
 
@@ -156,7 +159,7 @@ How TIY stays current:
 
 1. **Inline updates** — when CC ships a commit that changes a TIY row, CC updates the row in the same commit (or follow-up commit if scope creep concern).
 2. **Trigger-word recall** — when user asks "what's left" / "show TIY" / "TIY status" / "give me TIY", CC reads doc/tiy.md and surfaces relevant sections (not all — too long).
-3. **Section ordering** — A → L is reading order; sections most-relevant-now first.
+3. **Section ordering** — A → M is reading order; sections most-relevant-now first.
 4. **No stale rows** — items >60 days unchanged should be reviewed: ✅ → archived OR ❓ → re-decision OR removed.
 5. **Cross-reference fix_table.md** — TIY rows mirroring M-NN cite the M-NN id; never duplicate full description.
 6. **Cross-reference anchor §7** — TIY rows mirroring D-NN cite the D-NN id.
@@ -180,3 +183,23 @@ How TIY stays current:
 **Production-fire status**: bridge_state.json daily firing continuous (3 phases per day Mon-Fri); last write Apr 30 10:50 IST today's POST_OPEN.
 
 **Section discipline**: this section is REFERENCE, not action items. Items here are ✅ COMPLETE; row updates only happen if Bridge work resurfaces (hypothetical Wave 6 or maintenance fixes). Per Section K rule 10, Bridge items NEVER migrate to other sections.
+
+---
+
+## SECTION M — MEMORY-VS-REALITY DRIFT (audit findings 2026-04-30)
+
+Discovered during attempted Wave UI Phase 0 audit; CC tripwire surfacing pre-empted bad design locks. To resolve before/during fresh Wave UI session.
+
+| ID | Drift | Memory said | Reality is | Resolution |
+|----|-------|-------------|------------|------------|
+| M-D1 | PWA tab count | "4-tab Signals/Journal/Stats/Intel" | 3-tab Signals/Journal/Stats only (per ui.js:1394-1398) | Verify Intel tab status: never built / rolled back / different file? Update memory + design baseline before Wave UI. |
+| M-D2 | PWA fonts | "Fraunces serif + Geist sans + Geist Mono" | Apple system fonts (-apple-system, BlinkMacSystemFont) per index.html:60-63 | Verify Apr 17 visual-language redesign: shipped then reverted? Or never landed? Resolve before UI-D-5 visual language lock. |
+| M-D3 | UX-03 status | "retirement priority elevated" | Already SUPERSEDED by BR-04 (per fix_table:390-392) | Already correct in fix_table; just stale in TIY/memory. M-16 row in TIY Section E references "resolves at UX-03 retirement" → clarify M-16 actual resolution path. |
+| M-D4 | Wave UI scope | "Step 8 PWA Monster tab" | 10 deliverables: IT-01..IT-06 (6) + bridge §7.7 Contra tab + brain Step 8 Monster tab + LE-05 + UX-08 | Wave UI is multi-track scope, not single-tab work. Design pass must reckon with 6+ tab inflation in bottom nav. Update TIY Section G to enumerate all 10. |
+
+**Status notes:**
+- M-D1, M-D2 require live audit (read ui.js + index.html verbatim) before next Wave UI Phase 0
+- M-D3 just needs TIY Section E M-16 row clarification (~5 min)
+- M-D4 expands TIY Section G from 4 rows to ~10 rows reflecting full Wave UI scope
+
+**Section discipline**: this section is TRANSIENT — exists to track drift findings until resolved. Once all M-D rows resolve via C-5 cleanup, Section M empties and may be archived OR retired. Unlike Section L (permanent reference), Section M has a planned end-state.
