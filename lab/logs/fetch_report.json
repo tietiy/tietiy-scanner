@@ -1,0 +1,63 @@
+{
+  "started_at": "2026-04-29T18:58:44.119136+00:00",
+  "finished_at": "2026-04-29T18:58:50.724227+00:00",
+  "period_start": "2011-01-01",
+  "period_end": "2026-04-30",
+  "universe_size": 5,
+  "smoke_mode": true,
+  "refetch": false,
+  "results": [
+    {
+      "symbol": "RELIANCE.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/RELIANCE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HDFCBANK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HDFCBANK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TCS.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TCS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^NSEI",
+      "status": "OK",
+      "rows": 3757,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_NSEI.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^NSEBANK",
+      "status": "OK",
+      "rows": 3772,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_NSEBANK.parquet",
+      "error": null,
+      "attempts": 1
+    }
+  ],
+  "coverage_pct": 100.0,
+  "coverage_status": "OK"
+}
