@@ -75,6 +75,11 @@ _KILL_TIER_A = {"train_wr_max": 0.35, "train_n_min": 50,
 _KILL_TIER_B = {"train_wr_max": 0.40, "train_n_min": 30,
                  "test_wr_max": 0.45, "test_n_min": 15, "drift_max": 0.20}
 
+# Wilson lower + p-value gates (BOOST only; PROMOTION_PROTOCOL.md lines 65 + 72)
+_BOOST_TIER_S_WILSON_MIN = 0.60
+_BOOST_TIER_A_WILSON_MIN = 0.50
+_BOOST_P_VALUE_MAX = 0.05
+
 # Outcome label sets
 _WIN_OUTCOMES = {"DAY6_WIN", "TARGET_HIT"}
 _LOSS_OUTCOMES = {"DAY6_LOSS", "STOP_HIT"}
@@ -226,39 +231,78 @@ def train_test_split(signals_df: pd.DataFrame,
 
 # ── Tier evaluators (Gate 3) ──────────────────────────────────────────
 
-def evaluate_boost_tier(train_stats: dict, test_stats: dict) -> str:
-    """Returns 'S' / 'A' / 'B' / 'REJECT' per Gate 3 BOOST thresholds."""
+def evaluate_boost_tier(train_stats: dict, test_stats: dict,
+                         decision_log: Optional[list] = None) -> str:
+    """Returns 'S' / 'A' / 'B' / 'REJECT' per Gate 3 BOOST thresholds.
+
+    Tier S/A additionally require train Wilson 95% lower bound + train p-value
+    gates per PROMOTION_PROTOCOL.md Gate 3 lines 65 + 72:
+      Tier S: train_wilson_lower ≥ 0.60 AND train_p_value < 0.05
+      Tier A: train_wilson_lower ≥ 0.50 AND train_p_value < 0.05
+      Tier B: NO Wilson/p gate (watch-only per spec).
+
+    If decision_log is provided, per-criterion pass/fail lines are appended.
+    """
+    log = decision_log if decision_log is not None else []
+    twr = train_stats.get("wr_excl_flat")
+    ewr = test_stats.get("wr_excl_flat")
+
+    if twr is None or ewr is None:
+        log.append("BOOST REJECT: train_wr or test_wr is None (insufficient resolved signals).")
+        return "REJECT"
+
+    if _check_boost_tier(train_stats, test_stats, "S", _BOOST_TIER_S,
+                         _BOOST_TIER_S_WILSON_MIN, require_wilson_p=True, log=log):
+        return "S"
+    if _check_boost_tier(train_stats, test_stats, "A", _BOOST_TIER_A,
+                         _BOOST_TIER_A_WILSON_MIN, require_wilson_p=True, log=log):
+        return "A"
+    if _check_boost_tier(train_stats, test_stats, "B", _BOOST_TIER_B,
+                         wilson_min=None, require_wilson_p=False, log=log):
+        return "B"
+    return "REJECT"
+
+
+def _check_boost_tier(train_stats: dict, test_stats: dict,
+                      tier_name: str, thresholds: dict,
+                      wilson_min: Optional[float],
+                      require_wilson_p: bool,
+                      log: list) -> bool:
+    """Run gate checks for a single boost tier; emit per-criterion log lines.
+    Returns True if all gates pass. Caller guarantees twr/ewr are non-None.
+    """
     twr = train_stats.get("wr_excl_flat")
     tn = train_stats.get("n_win", 0) + train_stats.get("n_loss", 0)
     ewr = test_stats.get("wr_excl_flat")
     en = test_stats.get("n_win", 0) + test_stats.get("n_loss", 0)
-
-    if twr is None or ewr is None:
-        return "REJECT"
+    twilson = train_stats.get("wilson_lower_95")
+    tp_val = train_stats.get("p_value_vs_50")
     drift = abs(twr - ewr)
 
-    # Tier S
-    if (twr >= _BOOST_TIER_S["train_wr_min"]
-            and tn >= _BOOST_TIER_S["train_n_min"]
-            and ewr >= _BOOST_TIER_S["test_wr_min"]
-            and en >= _BOOST_TIER_S["test_n_min"]
-            and drift < _BOOST_TIER_S["drift_max"]):
-        return "S"
-    # Tier A
-    if (twr >= _BOOST_TIER_A["train_wr_min"]
-            and tn >= _BOOST_TIER_A["train_n_min"]
-            and ewr >= _BOOST_TIER_A["test_wr_min"]
-            and en >= _BOOST_TIER_A["test_n_min"]
-            and drift < _BOOST_TIER_A["drift_max"]):
-        return "A"
-    # Tier B
-    if (twr >= _BOOST_TIER_B["train_wr_min"]
-            and tn >= _BOOST_TIER_B["train_n_min"]
-            and ewr >= _BOOST_TIER_B["test_wr_min"]
-            and en >= _BOOST_TIER_B["test_n_min"]
-            and drift < _BOOST_TIER_B["drift_max"]):
-        return "B"
-    return "REJECT"
+    checks = [
+        (f"train_wr {twr} >= {thresholds['train_wr_min']}",
+         twr >= thresholds["train_wr_min"]),
+        (f"train_n {tn} >= {thresholds['train_n_min']}",
+         tn >= thresholds["train_n_min"]),
+        (f"test_wr {ewr} >= {thresholds['test_wr_min']}",
+         ewr >= thresholds["test_wr_min"]),
+        (f"test_n {en} >= {thresholds['test_n_min']}",
+         en >= thresholds["test_n_min"]),
+        (f"drift {round(drift, 4)} < {thresholds['drift_max']}",
+         drift < thresholds["drift_max"]),
+    ]
+    if require_wilson_p:
+        checks.append((f"train_wilson_lower {twilson} >= {wilson_min}",
+                       twilson is not None and twilson >= wilson_min))
+        checks.append((f"train_p_value {tp_val} < {_BOOST_P_VALUE_MAX}",
+                       tp_val is not None and tp_val < _BOOST_P_VALUE_MAX))
+
+    all_pass = all(passed for _, passed in checks)
+    verdict = "PASS" if all_pass else "FAIL"
+    log.append(f"Tier {tier_name} BOOST [{verdict}]:")
+    for desc, passed in checks:
+        log.append(f"  {'✓' if passed else '✗'} {desc}")
+    return all_pass
 
 
 def evaluate_kill_tier(train_stats: dict, test_stats: dict) -> str:
@@ -342,11 +386,12 @@ def evaluate_hypothesis(signals_df: pd.DataFrame,
     train_stats = compute_cohort_stats(train_df, cohort_filter={})
     test_stats = compute_cohort_stats(test_df, cohort_filter={})
 
-    # Evaluate tier
+    # Evaluate tier — collect per-criterion pass/fail log
+    tier_log: list = []
     if hypothesis_type == "BOOST" or hypothesis_type == "FILTER":
         # FILTER inherits BOOST tier criteria by default; caller can call
         # evaluate_kill_tier separately for FILTER on a kill parent
-        tier = evaluate_boost_tier(train_stats, test_stats)
+        tier = evaluate_boost_tier(train_stats, test_stats, decision_log=tier_log)
     else:  # KILL
         tier = evaluate_kill_tier(train_stats, test_stats)
 
@@ -357,6 +402,9 @@ def evaluate_hypothesis(signals_df: pd.DataFrame,
 
     # Decision log: explain WHY this tier was assigned (or REJECT reason)
     decision_log = _build_decision_log(train_stats, test_stats, drift, tier, hypothesis_type)
+    if tier_log:
+        decision_log.append("--- Per-tier gate evaluation ---")
+        decision_log.extend(tier_log)
 
     return {
         "hypothesis": hypothesis_type,

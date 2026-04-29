@@ -219,6 +219,62 @@ def test_boost_reject_insufficient_n():
     assert tier == "REJECT", f"Expected REJECT (train n<30); got {tier}"
 
 
+def test_boost_tier_S_wilson_floor():
+    """Tier S BOOST fails Wilson gate (0.55 < 0.60); falls to Tier A which passes
+    (Wilson 0.55 ≥ 0.50 + p 0.04 < 0.05 + thresholds A all met)."""
+    train_stats = {
+        "wr_excl_flat": 0.76, "n_win": 76, "n_loss": 24, "n_flat": 0,
+        "wilson_lower_95": 0.55,  # < 0.60 → S Wilson gate fails
+        "p_value_vs_50": 0.04,
+    }
+    test_stats = {
+        "wr_excl_flat": 0.66, "n_win": 20, "n_loss": 10, "n_flat": 0,
+        "wilson_lower_95": 0.50, "p_value_vs_50": 0.04,
+    }
+    tier = evaluate_boost_tier(train_stats, test_stats)
+    # S fails Wilson; A check: train_wr 0.76≥0.65 ✓, train_n 100≥50 ✓,
+    # test_wr 0.66≥0.55 ✓, test_n 30≥20 ✓, drift 0.10<0.15 ✓,
+    # Wilson 0.55≥0.50 ✓, p 0.04<0.05 ✓ → A
+    assert tier == "A", f"Expected A (S fails Wilson; A passes); got {tier}"
+
+
+def test_boost_tier_S_p_value_floor():
+    """Tier S BOOST fails p-value gate (0.08 ≥ 0.05); A also fails p; falls to
+    Tier B which has no Wilson/p gate."""
+    train_stats = {
+        "wr_excl_flat": 0.76, "n_win": 76, "n_loss": 24, "n_flat": 0,
+        "wilson_lower_95": 0.65,
+        "p_value_vs_50": 0.08,  # ≥ 0.05 → S+A p gate fail
+    }
+    test_stats = {
+        "wr_excl_flat": 0.66, "n_win": 20, "n_loss": 10, "n_flat": 0,
+        "wilson_lower_95": 0.55, "p_value_vs_50": 0.08,
+    }
+    tier = evaluate_boost_tier(train_stats, test_stats)
+    # S+A fail p; B no p gate: train_wr 0.76≥0.60 ✓, train_n 100≥30 ✓,
+    # test_wr 0.66≥0.50 ✓, test_n 30≥15 ✓, drift 0.10<0.20 ✓ → B
+    assert tier == "B", f"Expected B (S+A fail p; B has no p gate); got {tier}"
+
+
+def test_boost_tier_A_wilson_floor():
+    """Tier A BOOST fails Wilson gate (0.45 < 0.50); falls to Tier B which has
+    no Wilson gate."""
+    train_stats = {
+        "wr_excl_flat": 0.66, "n_win": 33, "n_loss": 17, "n_flat": 0,
+        "wilson_lower_95": 0.45,  # < 0.50 → A Wilson gate fails
+        "p_value_vs_50": 0.04,
+    }
+    test_stats = {
+        "wr_excl_flat": 0.56, "n_win": 14, "n_loss": 11, "n_flat": 0,
+        "wilson_lower_95": 0.40, "p_value_vs_50": 0.04,
+    }
+    tier = evaluate_boost_tier(train_stats, test_stats)
+    # S fails train_wr (0.66<0.75); A fails Wilson (0.45<0.50); B no Wilson:
+    # train_wr 0.66≥0.60 ✓, n 50≥30 ✓, test_wr 0.56≥0.50 ✓,
+    # test_n 25≥15 ✓, drift 0.10<0.20 ✓ → B
+    assert tier == "B", f"Expected B (A fails Wilson; B has no Wilson gate); got {tier}"
+
+
 # ═════════════════════════════════════════════════════════════════════
 # Group 4: evaluate_kill_tier (5 tests — one per tier + 2 reject cases)
 # ═════════════════════════════════════════════════════════════════════
