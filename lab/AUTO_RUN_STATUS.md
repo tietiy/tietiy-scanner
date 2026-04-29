@@ -12,7 +12,7 @@
 | MS-1 data_fetcher | ✅ COMPLETE + smoke 5/5 OK | ✅ EXECUTED via GitHub Actions (97.37% coverage; 185 OK / 5 PARTIAL / 0 FAILED) | build `16fd8f0`; cache populated `eb143de9` |
 | MS-2 signal_replayer | ✅ COMPLETE + smoke OK | ✅ EXECUTED locally — **T2 PASSED at 90.69%** match (regen=812, live=247, matched=224 vs Apr 2026 live signal_history) | build `de4560d`; results `fb2a1e1a` |
 | MS-3 regime_replayer | ✅ COMPLETE + smoke OK | ✅ EXECUTED locally — **T3 PASSED** (Apr 17 + Apr 29 2026 both classified Choppy); 3757 regime rows, distribution Bull 1832 / Choppy 1196 / Bear 729 | build `cdac6f2`; results `39bba517` |
-| MS-4 hypothesis_tester | ✅ COMPLETE + 25/25 unit tests passing | N/A (invoked per-investigation; no standalone execution) | `b981476` |
+| MS-4 hypothesis_tester | ✅ COMPLETE + HARDENED + 41/41 unit tests passing | N/A (invoked per-investigation; no standalone execution) | build `b981476`; hardening `8e1c2e94` + `d5dfc9ac` + `6e80644d` |
 | MS-1 GitHub Actions workflow | ✅ COMPLETE + YAML validated | ✅ TRIGGERED + completed (run 25129950831) | `0b372c8` (backtest-lab); cherry-picked to main `8243ca9f` |
 
 **Total commits across both sessions:** 9 (build session 5 + execution session 4 — MS-1 cache, MS-3 results, MS-2 results, this status update).
@@ -180,9 +180,24 @@ No tripwires fired. No exceptions caught. Build proceeded clean.
 
 ---
 
+## MS-4 hardening (2026-04-30 late session)
+
+Code-review audit of `hypothesis_tester.py` + `test_hypothesis_tester.py` surfaced 1 spec deviation, 1 routing ambiguity, 10 missing edge-case tests, and (as a bonus catch) 1 production FP-precision bug. All four issues fixed in three atomic commits:
+
+| Block | Issue | Resolution | Commit |
+|-------|-------|------------|--------|
+| 1 | Wilson 95% lower + p-value gates not enforced for BOOST Tier S/A despite spec lines 65 + 72 | Added `_check_boost_tier` helper; Tier S requires Wilson ≥0.60 + p<0.05; Tier A requires Wilson ≥0.50 + p<0.05; Tier B unchanged (watch-only per spec) | `8e1c2e94` |
+| 2 | FILTER `hypothesis_type` always routed to BOOST evaluator; no way to express FILTER-on-KILL parent | Added `filter_parent_type` keyword param to `evaluate_hypothesis`; default `None` preserves backward compat (FILTER → BOOST) | `d5dfc9ac` |
+| 3a | 10 missing edge-case tests (drift boundaries, extreme WR, all-FLAT, p-value not significant, split boundary, missing outcome column) | 11 tests added | `6e80644d` |
+| 3b | **FP-precision bug** discovered while writing boundary tests: `abs(0.7 - 0.5) = 0.19999999999999996` slipped under strict `< 0.20` threshold; pattern at exact drift=0.20 silently promoted to Tier B instead of REJECT (also Tier S at exact drift=0.10) | `drift = round(abs(twr - ewr), 4)` in both evaluators (matches existing WR rounding); test assertions wrapped in `round()` to mirror production semantics | `6e80644d` |
+
+**41/41 tests passing.** MS-4 is now fully hardened for INV use. Bug-discovered-and-fixed-same-session = clean discipline win.
+
+---
+
 ## Next suggested step
 
-**Status:** All MS-1..MS-4 builds + executions complete; all tripwires cleared. The Lab is now ready to run INV-001 / INV-002 / INV-003 / INV-005 hypothesis testing per `/lab/registry/patterns.json` pre-registrations.
+**Status:** All MS-1..MS-4 builds + executions complete; MS-4 hardened; all tripwires cleared. The Lab is now ready to run INV-001 / INV-002 / INV-003 / INV-005 hypothesis testing per `/lab/registry/patterns.json` pre-registrations.
 
 **Recommended next-session scope (INV-001 first — the kill_002 mechanism investigation):**
 
@@ -226,6 +241,10 @@ backtest-lab branch:
   + MS-1 cache populated: eb143de9
   + MS-3 results:         39bba517
   + MS-2 results:         fb2a1e1a
+  + AUTO_RUN_STATUS v2:   a72260ae
+  + MS-4 BLOCK 1 (Wilson/p gates):           8e1c2e94
+  + MS-4 BLOCK 2 (FILTER routing):           d5dfc9ac
+  + MS-4 BLOCK 3 (boundary tests + FP fix):  6e80644d
   + this status update:   (next commit)
 
 main branch:
