@@ -458,5 +458,73 @@ def test_hypothesis_end_to_end_kill():
         f"train={result['train_stats']}; test={result['test_stats']}")
 
 
+# ═════════════════════════════════════════════════════════════════════
+# Group 7: FILTER routing (BLOCK 2 — filter_parent_type disambiguation)
+# ═════════════════════════════════════════════════════════════════════
+
+def test_filter_with_kill_parent():
+    """FILTER hypothesis on a kill-parent sub-cohort routes to evaluate_kill_tier.
+    Sub-cohort has low WR (kill-tier-shaped); BOOST evaluator would REJECT
+    while KILL evaluator returns Tier A."""
+    train_rows = []
+    for i in range(60):
+        train_rows.append({
+            "scan_date": f"2020-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}",
+            "symbol": f"X{i}", "signal": "UP_TRI", "sector": "Bank",
+            "regime": "Choppy", "subsector": "PSU",
+            "outcome": "DAY6_WIN" if i < 18 else "DAY6_LOSS",  # 18/60 = 0.30
+        })
+    test_rows = []
+    for i in range(25):
+        test_rows.append({
+            "scan_date": f"2024-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}",
+            "symbol": f"Y{i}", "signal": "UP_TRI", "sector": "Bank",
+            "regime": "Choppy", "subsector": "PSU",
+            "outcome": "DAY6_WIN" if i < 9 else "DAY6_LOSS",  # 9/25 = 0.36
+        })
+    df = pd.DataFrame(train_rows + test_rows)
+    result = evaluate_hypothesis(
+        df, {"signal": "UP_TRI", "sector": "Bank", "regime": "Choppy",
+             "subsector": "PSU"},
+        hypothesis_type="FILTER", filter_parent_type="KILL")
+    # train_wr=0.30 ≤ 0.35 ✓, n=60 ≥ 50 ✓; test_wr=0.36 ≤ 0.40 ✓, n=25 ≥ 20 ✓;
+    # drift=0.06 < 0.15 ✓ → KILL Tier A
+    assert result["tier"] == "A", (
+        f"Expected Tier A via KILL evaluator; got {result['tier']}; "
+        f"train={result['train_stats']}; test={result['test_stats']}")
+    assert result["filter_parent_type"] == "KILL"
+
+
+def test_filter_default_backward_compat():
+    """FILTER without filter_parent_type routes to BOOST (current behavior).
+    Verifies existing callers passing only hypothesis_type='FILTER' still work."""
+    train_rows = []
+    for i in range(60):
+        train_rows.append({
+            "scan_date": f"2020-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}",
+            "symbol": f"X{i}", "signal": "UP_TRI", "sector": "Bank",
+            "regime": "Bull",
+            "outcome": "DAY6_WIN" if i < 42 else "DAY6_LOSS",  # 42/60 = 0.70
+        })
+    test_rows = []
+    for i in range(25):
+        test_rows.append({
+            "scan_date": f"2024-{(i % 12) + 1:02d}-{(i % 28) + 1:02d}",
+            "symbol": f"Y{i}", "signal": "UP_TRI", "sector": "Bank",
+            "regime": "Bull",
+            "outcome": "DAY6_WIN" if i < 15 else "DAY6_LOSS",  # 15/25 = 0.60
+        })
+    df = pd.DataFrame(train_rows + test_rows)
+    # No filter_parent_type → defaults to None → BOOST evaluator (backward-compat)
+    result = evaluate_hypothesis(
+        df, {"signal": "UP_TRI", "sector": "Bank", "regime": "Bull"},
+        hypothesis_type="FILTER")
+    # Boost-shaped: train_wr=0.70 n=60; test_wr=0.60 n=25; drift=0.10 → Tier A
+    assert result["tier"] == "A", (
+        f"Expected Tier A via BOOST evaluator (backward-compat); got {result['tier']}; "
+        f"train={result['train_stats']}; test={result['test_stats']}")
+    assert result["filter_parent_type"] is None
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__, "-v"]))

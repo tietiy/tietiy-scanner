@@ -345,6 +345,7 @@ def evaluate_kill_tier(train_stats: dict, test_stats: dict) -> str:
 def evaluate_hypothesis(signals_df: pd.DataFrame,
                           cohort_filter: dict,
                           hypothesis_type: str = "BOOST",
+                          filter_parent_type: Optional[str] = None,
                           train_period: tuple = ("2011-01-01", "2022-12-31"),
                           test_period: tuple = ("2023-01-01", "2026-04-30"),
                           date_field: str = "scan_date") -> dict:
@@ -360,8 +361,12 @@ def evaluate_hypothesis(signals_df: pd.DataFrame,
     Parameters
     ----------
     hypothesis_type : str
-        'BOOST' | 'KILL' | 'FILTER' (filter inherits parent boost/kill criteria;
-        caller must specify which via parent hypothesis_type semantically.)
+        'BOOST' | 'KILL' | 'FILTER' (filter inherits parent boost/kill criteria).
+    filter_parent_type : Optional[str]
+        Required only when hypothesis_type='FILTER': specifies parent cohort
+        type ('BOOST' or 'KILL'). Default None routes FILTER → BOOST evaluator
+        (backward-compatible with pre-block-2 behavior; matches spec line 107
+        which inherits parent tier criteria).
 
     Returns
     -------
@@ -371,6 +376,8 @@ def evaluate_hypothesis(signals_df: pd.DataFrame,
     """
     if hypothesis_type not in ("BOOST", "KILL", "FILTER"):
         raise ValueError(f"hypothesis_type must be BOOST/KILL/FILTER; got {hypothesis_type!r}")
+    if filter_parent_type is not None and filter_parent_type not in ("BOOST", "KILL"):
+        raise ValueError(f"filter_parent_type must be BOOST/KILL/None; got {filter_parent_type!r}")
 
     # Apply cohort filter once
     cohort_all = filter_cohort(signals_df, cohort_filter)
@@ -386,14 +393,24 @@ def evaluate_hypothesis(signals_df: pd.DataFrame,
     train_stats = compute_cohort_stats(train_df, cohort_filter={})
     test_stats = compute_cohort_stats(test_df, cohort_filter={})
 
-    # Evaluate tier — collect per-criterion pass/fail log
+    # Resolve tier evaluator per hypothesis_type + filter_parent_type
+    # FILTER inherits parent tier criteria per PROMOTION_PROTOCOL.md line 107;
+    # default filter_parent_type=None routes FILTER → BOOST (backward-compat).
     tier_log: list = []
-    if hypothesis_type == "BOOST" or hypothesis_type == "FILTER":
-        # FILTER inherits BOOST tier criteria by default; caller can call
-        # evaluate_kill_tier separately for FILTER on a kill parent
+    effective_evaluator: str  # 'BOOST' or 'KILL' — for decision_log
+    if hypothesis_type == "BOOST":
+        effective_evaluator = "BOOST"
         tier = evaluate_boost_tier(train_stats, test_stats, decision_log=tier_log)
-    else:  # KILL
+    elif hypothesis_type == "KILL":
+        effective_evaluator = "KILL"
         tier = evaluate_kill_tier(train_stats, test_stats)
+    else:  # FILTER
+        if filter_parent_type == "KILL":
+            effective_evaluator = "KILL"
+            tier = evaluate_kill_tier(train_stats, test_stats)
+        else:  # BOOST or None (default backward-compat)
+            effective_evaluator = "BOOST"
+            tier = evaluate_boost_tier(train_stats, test_stats, decision_log=tier_log)
 
     # Drift
     twr = train_stats.get("wr_excl_flat")
@@ -402,12 +419,18 @@ def evaluate_hypothesis(signals_df: pd.DataFrame,
 
     # Decision log: explain WHY this tier was assigned (or REJECT reason)
     decision_log = _build_decision_log(train_stats, test_stats, drift, tier, hypothesis_type)
+    if hypothesis_type == "FILTER":
+        decision_log.append(
+            f"FILTER routing: filter_parent_type={filter_parent_type!r} → "
+            f"using {effective_evaluator} tier evaluator"
+        )
     if tier_log:
         decision_log.append("--- Per-tier gate evaluation ---")
         decision_log.extend(tier_log)
 
     return {
         "hypothesis": hypothesis_type,
+        "filter_parent_type": filter_parent_type if hypothesis_type == "FILTER" else None,
         "cohort": cohort_filter,
         "train_period": train_period,
         "test_period": test_period,
