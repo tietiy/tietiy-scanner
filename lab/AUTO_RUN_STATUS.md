@@ -1,11 +1,61 @@
 # Auto-Run Status — Lab progress log
 
-**Latest session:** INV-003 99-cohort matrix scan (post-Caveat 1 backfill).
+**Latest session:** Documentation lockdown (2026-05-01).
 **Branch:** `backtest-lab` (main branch carries only the dispatcher YAML carve-out per TIY rule 11).
+
+> **Canonical sources going forward:** `lab/FINDINGS_LOG.md` (cross-investigation findings ledger) and `lab/DECISIONS_LOG.md` (pending decisions ledger). This file remains the chronological session log; the two canonical files are the indexed cross-references.
 
 ---
 
-## INV-006 session (2026-04-30, latest)
+## Documentation lockdown session (2026-05-01)
+
+**Summary:** Persistent FINDINGS_LOG + DECISIONS_LOG created; INV-001/002/003/006 statuses → COMPLETED with verdicts + rationales; INV-013 pre-registered as DOWN_TRI exit-timing direction-aware follow-up.
+
+| Block | Action | Commit |
+|---|---|---|
+| pre-Block 1 | INV-006 findings runner-bug advisory banner committed (was uncommitted from prior turn) | `58ccf85e` |
+| 1 | Created `lab/FINDINGS_LOG.md` (146 lines) + `lab/DECISIONS_LOG.md` (73 lines) | `8ad131c7` |
+| 2 | patterns.json: INV-001/002/003/006 PRE_REGISTERED → COMPLETED (5 new fields each: completion_date, verdict, verdict_rationale, findings_path, user_review_timestamp) | `8f992dd1` |
+| 3 | patterns.json: INV-013 pre-registered (DOWN_TRI direction-aware exit-timing follow-up; INVESTIGATION_DISCOVERY_SCAN type) | `a3537320` |
+| 4 | this AUTO_RUN_STATUS update | (next) |
+
+**Verdicts locked into patterns.json:**
+
+| ID | Status | Verdict |
+|---|---|---|
+| INV-001 | COMPLETED | REJECT_PROMOTION |
+| INV-002 | COMPLETED | REJECT_PROMOTION_LIFETIME_TIER_BUT_SECTION_2B_REAL_FILTER |
+| INV-003 | COMPLETED | PARTIAL_PROMOTION_CANDIDATES_IDENTIFIED |
+| INV-006 | COMPLETED | PARTIAL_UP_TRI_D10_CANDIDATE_BULL_PROXY_REJECT_DOWN_TRI_DEFERRED |
+
+**Pre-registered awaiting execution:** INV-005, INV-007, INV-010, INV-012, INV-013.
+
+### Outstanding pending decisions (per `lab/DECISIONS_LOG.md`)
+
+1. **kill_002 ship path** — Lab evidence REJECT promotion; recommended NO SHIP per Lab Discipline Principle 6
+2. **UP_TRI HOLDING_DAYS migration to D10** — defer until INV-007/010/012 complete; batch all changes together
+3. **7 Tier B candidates from INV-003 individual review** — defer to dedicated review session
+4. **Caveat 2 audit (9.31% MS-2 miss-rate)** — investigate 23 missing live Apr 2026 signals before any Tier B candidate promotion
+
+### Lab readiness
+
+- All MS-1..MS-4 infrastructure shipped + Caveat 1 backfill applied
+- 4 investigations COMPLETED with structured verdicts in patterns.json
+- 5 investigations PRE_REGISTERED awaiting execution sessions
+- `lab/FINDINGS_LOG.md` + `lab/DECISIONS_LOG.md` are canonical going forward
+- **Lab is ready for INV-007 / INV-010 / INV-012 execution sessions** (each its own session per scope)
+- **Persistent logs are the canonical source** for all Lab findings + pending decisions; AUTO_RUN_STATUS continues as chronological session log only
+
+### Session end state
+
+- Branch: `backtest-lab`
+- HEAD commit: (set by next commit after this status update)
+- Working tree: clean
+- All commits pushed to origin
+
+---
+
+## INV-006 session (2026-04-30)
 
 | Phase | Status | Commit |
 |-------|--------|--------|
