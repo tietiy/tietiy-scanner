@@ -56,7 +56,10 @@ _BATCH_SIZE = 25
 _BATCH_DELAY_SEC = 2.0
 _RETRY_DELAYS = [5, 15, 30]  # 3 attempts: 5s, 15s, 30s exponential
 _OK_ROW_FLOOR = 1000
-_INDEX_SYMBOLS = ["^NSEI", "^NSEBANK"]
+# Tickers cross-validated against scanner/main.py:SECTOR_INDICES (production scanner
+# uses these 7 sector tickers via yfinance in live runs, confirmed valid).
+_INDEX_SYMBOLS = ["^NSEI", "^NSEBANK", "^CNXIT", "^CNXPHARMA", "^CNXAUTO",
+                  "^CNXMETAL", "^CNXENERGY", "^CNXFMCG", "^CNXINFRA"]
 _SMOKE_SYMBOLS = ["RELIANCE.NS", "HDFCBANK.NS", "TCS.NS", "^NSEI", "^NSEBANK"]
 
 
