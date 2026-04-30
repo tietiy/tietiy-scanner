@@ -4,6 +4,34 @@
 
 **Branch:** backtest-lab
 
+---
+
+## ⚠️  RUNNER BUG ADVISORY (post-hoc audit)
+
+`INV-006 evaluate_signal_all_variants` applied LONG-direction pnl + stop logic uniformly to all signals. DOWN_TRI signals are SHORT-direction (stop above entry); LONG-semantic pnl computation inverts DOWN_TRI sign. **DOWN_TRI exit timing variants in this file are INVALID (inverted).**
+
+**Audit verified (separate session):**
+
+- Live scanner DOWN_TRI handling: **CORRECT** (`scanner/outcome_evaluator.py:716-723` uses `high >= stop` for SHORT)
+- Backtest signal_replayer DOWN_TRI handling: **CORRECT** (`lab/infrastructure/signal_replayer.py:182-222` handles both LONG and SHORT branches)
+- INV-006 runner DOWN_TRI handling: **BUGGED** (`lab/analyses/inv_006_runner.py:evaluate_signal_all_variants` applies LONG semantics to all signals)
+- Affected scope: INV-006 DOWN_TRI variants only; UP_TRI + BULL_PROXY findings remain valid; INV-001/002/003 unaffected (used `hypothesis_tester` direct on `backtest_signals.outcome` column, bypassing runner)
+
+**Validity status:**
+
+| Section | UP_TRI | DOWN_TRI | BULL_PROXY |
+|---|---|---|---|
+| Section 2 variant table | ✅ VALID | ❌ INVALID | ✅ VALID |
+| Section 3 headline | ✅ VALID | ❌ INVALID | ✅ VALID |
+| Drawdown supplementary Section 1 (MAE) | ✅ VALID | ❌ INVALID | ✅ VALID |
+| Drawdown supplementary Section 2 (stop-out) | ✅ VALID | ❌ INVALID (99.89% trivial-stop artifact from wrong-direction stop_price comparison) | ✅ VALID |
+| Drawdown supplementary Section 3 (pnl distribution) | ✅ VALID | ❌ INVALID | ✅ VALID |
+| Drawdown supplementary Section 4 (capital efficiency) | ✅ VALID | ❌ INVALID | ✅ VALID |
+
+DOWN_TRI exit timing requires a direction-aware re-run before any conclusions; deferred to a follow-up investigation (see Section 4 Open Questions).
+
+---
+
 **Signal types tested:** UP_TRI, DOWN_TRI, BULL_PROXY
 
 **Exit variants:** 13 (D2, D3, D4, D5, D6, D7, D8, D10, TRAIL_1.5xATR, TRAIL_2.0xATR, TRAIL_2.5xATR, LADDER_A_50at2R_50atD6, LADDER_B_33_33_34trailing)
@@ -118,17 +146,22 @@
   - `LADDER_B_33_33_34trailing` WR=0.4318 (Δ=-8.82 pp, p=0.0)
 - **Marginal / equivalent:** 7
 
-### DOWN_TRI
+### DOWN_TRI — ⚠️ INVALID — see runner bug advisory at top of file
 
-- **D6 baseline WR:** 0.5347 (n=18097, avg_pnl=0.6072)
-- **Variants beating baseline:** 0
-- **Variants worse than baseline:** 5
+> Numbers below are LONG-direction recomputations applied to SHORT-direction
+> signals; the underlying analysis is inverted (sign flip on pnl + wrong-direction
+> trailing-stop placement). Do NOT use these numbers for promotion or migration
+> decisions. Defer to direction-aware INV-006-followup.
+
+- **D6 baseline WR:** 0.5347 (n=18097, avg_pnl=0.6072) — INVALID
+- **Variants beating baseline:** 0 — INVALID
+- **Variants worse than baseline:** 5 — INVALID
   - `TRAIL_1.5xATR` WR=0.4366 (Δ=-9.81 pp, p=0.0)
   - `TRAIL_2.0xATR` WR=0.4756 (Δ=-5.91 pp, p=0.0)
   - `TRAIL_2.5xATR` WR=0.5012 (Δ=-3.35 pp, p=0.0)
   - `LADDER_A_50at2R_50atD6` WR=0.4167 (Δ=-11.80 pp, p=0.0)
   - `LADDER_B_33_33_34trailing` WR=0.4441 (Δ=-9.06 pp, p=0.0)
-- **Marginal / equivalent:** 7
+- **Marginal / equivalent:** 7 — INVALID
 
 ### BULL_PROXY
 
@@ -158,6 +191,12 @@ Avg WR across 3 signal types per variant (top 5):
 
 **D6 baseline avg WR:** 0.5272
 
+> ⚠️ Universal-best avg WR includes the INVALID DOWN_TRI cell. Re-rank using only
+> UP_TRI + BULL_PROXY (LONG-direction signals where runner semantics match):
+> D10 still leads on avg WR (UP_TRI 0.4983 + BULL_PROXY 0.4988 train-period mean
+> ≈ 0.4986; D6 mean ≈ 0.4759). Universal-best conclusion (D10) survives the
+> DOWN_TRI invalidation.
+
 ---
 
 ## Section 4 — Open questions for user review
@@ -173,6 +212,8 @@ CC does NOT make promotion decisions. The following questions are surfaced for u
 4. **Caveat 2 audit dependency:** any BEATS_BASELINE variant at marginal n needs Caveat 2 audit before promotion to scanner.config update.
 
 5. **patterns.json INV-006 status:** PRE_REGISTERED → COMPLETED is user-only.
+
+6. **INV-006-followup:** DOWN_TRI exit timing requires direction-aware runner. Pre-register as new investigation (extends `evaluate_signal_all_variants` to flip pnl sign + invert stop-direction for SHORT signals; re-runs DOWN_TRI variants only). Until then, DOWN_TRI exit-timing decisions are deferred — current production D6/HOLDING_DAYS=6 stays.
 
 ---
 
