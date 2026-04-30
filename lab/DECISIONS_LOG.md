@@ -1,6 +1,6 @@
 # Lab Decisions Log
 
-**Last updated:** 2026-05-03 (post-INV-013 review)
+**Last updated:** 2026-05-04 (post-INV-010 auto-mode)
 
 This is the canonical persistent ledger of Lab decisions — pending, resolved, and
 blocked. Companion to `FINDINGS_LOG.md` (cross-investigation findings ledger).
@@ -74,6 +74,24 @@ decisions; this file tracks what awaits user judgment.
 - **Decision impact:** scanner architecture change; affects entry/exit logic in scanner_core.py + outcome_evaluator.py
 - **Cross-references:** INV-006 + INV-013
 - **Resolution_date:** TBD
+
+### INV-010 patterns.json status update
+- **From:** PRE_REGISTERED
+- **To:** COMPLETED (after user review)
+- **Status:** PENDING user review
+- **Recommended verdict (TBD):** PARTIAL_SUB_COHORT_TIER_B_BOOST_NO_LIFETIME_EDGE — lifetime BOOST/KILL both REJECT; 4 sub-cohorts earn Tier B (Bank×Choppy, FMCG×Choppy, FMCG×Bull, Other×Bull); GAP_BREAKOUT vs UP_TRI marginal at +0.90pp lifetime WR.
+- **Finalized verdict + rationale:** PENDING user judgment per Lab Discipline Principle 6
+
+### GAP_BREAKOUT scanner integration (if INV-010 surfaces tier candidate)
+- **Status:** PENDING (awaits user review of INV-010 findings)
+- **Lab evidence:** lifetime tier REJECT but 4 sub-cohorts Tier B BOOST; GAP_BREAKOUT vs UP_TRI marginal on lifetime WR (+0.90pp)
+- **Decision context:** three options for user judgment
+  1. **Full signal:** add GAP_BREAKOUT as new signal type to scanner.scanner_core (REJECT lifetime tier — not recommended unless user accepts watch-only Tier B status)
+  2. **Conditional signal:** add GAP_BREAKOUT only for the 4 Tier B sub-cohorts (Bank×Choppy, FMCG×Choppy/Bull, Other×Bull) — adds complexity to scanner; n at margin (65-128) makes Caveat 2 audit critical
+  3. **Archive:** acknowledge GAP_BREAKOUT does not materially beat UP_TRI; defer to other discovery investigations
+- **Implementation scope (if approved):** scanner.scanner_core extension for new signal type + scanner.config new signal registration + bridge composer signal-routing update; production deployment is separate main-branch workstream
+- **Caveat 2 priority:** any sub-cohort promotion needs Caveat 2 audit first (n=65-128 marginal)
+- **Cross-reference:** Bank×Choppy GAP_BREAKOUT earns Tier B (WR 0.58, n=74) despite INV-001 closing same cohort REJECT for UP_TRI — reinforces signal-cohort interaction; not transitive across signal types
 
 ### Caveat 2 audit (9.31% MS-2 miss-rate)
 - **Status:** PENDING

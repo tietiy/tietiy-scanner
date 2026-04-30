@@ -1,6 +1,6 @@
 # Lab Findings Log
 
-**Last updated:** 2026-05-03
+**Last updated:** 2026-05-04
 
 This is the canonical persistent log of all Lab findings. Companion to
 `DECISIONS_LOG.md` (pending decisions + verdict ledger). Individual
@@ -205,6 +205,46 @@ DOWN_TRI cohort is structurally challenged (consistent with Indian equity bull b
 - **Findings:** `lab/analyses/INV-013_findings.md`
 - **Pending decision:** review DOWN_TRI exit migration candidate (D2 strongest); cross-reference with INV-006 UP_TRI D10 finding for unified scanner.config decision (signal-specific exits required: D10 for LONG, D2-D3 for SHORT)
 
+### INV-010 — GAP_BREAKOUT new entry signal discovery
+- **Detection:** n=1827 signals across 183 of 188 F&O stocks × 15-year backtest (1.05s runtime); 0 stocks skipped
+- **Signal definition:** LONG; gap-up >0.5% + 5-day high break + prior 10-day consolidation <5% + volume >1.2× 20d avg
+- **Entry/exit:** entry=today's close; stop=entry×0.95 (5%); target=entry×1.10 (10%; 2:1 RR); D6 hold
+
+**Lifetime cohort:**
+- n_total 1827; n_resolved 1605; n_excl_flat 1605
+- WR 0.5371; Wilson lower 0.5126; p-value vs 50%: significant
+- avg_pnl per resolved trade: positive but modest
+
+**Tier verdicts (lifetime):**
+- BOOST tier: **REJECT** (WR 0.54 below 60% Tier B floor)
+- KILL tier: **REJECT** (WR 0.54 above 40% Tier B ceiling)
+
+**Sub-cohort tier hits (4 of 18 OK cells earn Tier B BOOST):**
+- Bank × Choppy: WR 0.581 (n=74) → BOOST B — *same cohort INV-001 REJECTed for UP_TRI; new signal type performs differently*
+- FMCG × Choppy: WR 0.582 (n=67) → BOOST B
+- FMCG × Bull: WR 0.617 (n=128) → BOOST B
+- Other × Bull: WR 0.646 (n=65) → BOOST B
+- 0 KILL tier hits across all 39 cells (18 OK + 21 INSUFFICIENT_N)
+
+**vs UP_TRI baseline:**
+- UP_TRI baseline WR: 0.5281 (n=71865)
+- GAP_BREAKOUT WR: 0.5371
+- Δ WR: +0.90pp — **MARGINAL/EQUIVALENT** (below 3pp candidate threshold + p<0.05)
+- New signal does not materially beat UP_TRI on lifetime WR
+
+**Headline:** GAP_BREAKOUT lifetime cohort REJECTs at parent tier but 4 sub-cohorts earn Tier B BOOST. New signal does not materially beat UP_TRI on lifetime WR (+0.90pp marginal); however 4 sub-cohorts (Bank×Choppy, FMCG×Choppy, FMCG×Bull, Other×Bull) earn tier — conditional GAP_BREAKOUT signal possible if user accepts sub-cohort restriction. Notable that Bank×Choppy earns Tier B for GAP_BREAKOUT despite INV-001 REJECTing same cohort for UP_TRI.
+
+**Caveats:**
+- Caveat 2 (9.31% MS-2 miss-rate) — INV-010 builds detector from cache directly so not subject to original miss-rate; cache miss-rate (yfinance gaps) may affect detection at margin
+- Sub-cohort n at marginal levels (65-128) — Caveat 2 audit recommended before promotion
+- Detector parameters (0.5% gap, 5% range, 1.2× vol) arbitrary; sensitivity analysis available if findings sit near boundaries
+- NO live or backtest production fix needed; new signal type would require scanner.scanner_core integration on separate main-branch session
+
+- **Status:** COMPLETED (patterns.json status update pending user review)
+- **Findings:** `lab/analyses/INV-010_findings.md`
+- **Output:** `lab/output/backtest_signals_INV010.parquet` (1827 rows)
+- **Pending decision:** review GAP_BREAKOUT viability — full signal vs conditional sub-cohort signal vs archive
+
 ---
 
 ## Pending decisions
@@ -231,3 +271,4 @@ See `lab/DECISIONS_LOG.md` for full ledger. Headline pending items:
 - Three completed discovery investigations (INV-003 117-cohort, INV-006 exit timing, INV-007 vol filter) all converge on a consistent picture: the current signal universe is statistically near-coin-flip after OOS + drift + Wilson gates; no Tier S/A patterns surface from any direction
 - INV-013 (DOWN_TRI direction-aware exit timing) closes the INV-006 runner-bug-fix loop with a structural finding: SHORT signals favor SHORTER holds (D2-D5) — opposite direction from LONG signals (which favor LONGER holds D10). Signal-specific exits required if migration pursued.
 - Four completed exit-timing investigations (INV-006 UP_TRI/BULL_PROXY/DOWN_TRI-invalid + INV-013 DOWN_TRI-corrected) now span the full LONG/SHORT space with consistent semantics
+- INV-010 (GAP_BREAKOUT new signal) completes — lifetime tier REJECT but 4 sub-cohorts earn Tier B BOOST; reinforces that signal-cohort interaction matters (Bank×Choppy was REJECT for UP_TRI but Tier B for GAP_BREAKOUT). Adds INV-010 to discovery space along with INV-003/006/007/013.

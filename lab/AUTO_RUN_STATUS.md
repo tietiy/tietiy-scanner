@@ -1,9 +1,74 @@
 # Auto-Run Status — Lab progress log
 
-**Latest session:** INV-013 DOWN_TRI exit timing direction-aware (2026-05-03; user OUT auto-mode).
+**Latest session:** INV-010 GAP_BREAKOUT new entry signal discovery (2026-05-04; user OUT auto-mode).
 **Branch:** `backtest-lab` (main branch carries only the dispatcher YAML carve-out per TIY rule 11).
 
 > **Canonical sources going forward:** `lab/FINDINGS_LOG.md` (cross-investigation findings ledger) and `lab/DECISIONS_LOG.md` (pending decisions ledger). This file remains the chronological session log; the two canonical files are the indexed cross-references.
+
+---
+
+## INV-010 session (2026-05-04; user OUT auto-mode)
+
+| Phase | Status | Commit |
+|---|---|---|
+| 0 — Pre-flight | ✅ pytest 41/41; 197 cache parquets; fno_universe 188 symbols; INV-010 PRE_REGISTERED | n/a |
+| 1 — INV-010 build | ✅ 769-line script; 4-rule detector; LONG D6 outcome semantics; sector × regime breakdown; UP_TRI baseline comparison | `ca1e17b4` |
+| 2 — INV-010 execute | ✅ 1.05s runtime (very fast vectorized detection); 1827 signals across 183 of 188 stocks; findings.md 8 KB | `53f2c8a2` |
+| 3 — Logs update | ✅ this commit | (next) |
+
+**Tripwires fired:** NONE. T3/T6 cleared (1827 signals within 500-50K range). T5 not exercised (signals > 0). T4/T7/T8/T9/T10 all clean.
+
+### INV-010 headline (data only; NO promotion calls)
+
+**Detection diagnostics:**
+- 1827 GAP_BREAKOUT signals across 183 of 188 F&O stocks × 15-year backtest
+- Signal definition: gap-up >0.5% + 5-day high break + prior 10-day consolidation <5% + volume >1.2× 20d avg
+
+**Lifetime cohort tier verdicts:**
+- BOOST: **REJECT** (WR 0.5371 below Tier B 60% floor)
+- KILL: **REJECT** (WR 0.5371 above Tier B 40% ceiling)
+
+**Sub-cohort tier hits (4 of 18 OK cells earn Tier B BOOST):**
+- Bank × Choppy: WR 0.581 (n=74)
+- FMCG × Choppy: WR 0.582 (n=67)
+- FMCG × Bull: WR 0.617 (n=128)
+- Other × Bull: WR 0.646 (n=65)
+- 0 KILL tier hits across all 39 cells
+
+**vs UP_TRI baseline:**
+- UP_TRI: WR 0.5281 (n=71865)
+- GAP_BREAKOUT: WR 0.5371
+- Δ: **+0.90pp MARGINAL/EQUIVALENT** (below 3pp candidate threshold)
+
+**Notable:** Bank × Choppy earns Tier B for GAP_BREAKOUT despite INV-001 closing same cohort REJECT for UP_TRI. Signal-cohort interaction not transitive across signal types.
+
+### Pending user decisions
+
+1. **INV-010 patterns.json status update:** PRE_REGISTERED → COMPLETED. Recommended verdict: PARTIAL_SUB_COHORT_TIER_B_BOOST_NO_LIFETIME_EDGE.
+2. **GAP_BREAKOUT scanner integration:** three paths surfaced in DECISIONS_LOG (full signal / conditional sub-cohort / archive). User decides per Gate 7.
+3. **Caveat 2 audit dependency:** sub-cohort n at marginal levels (65-128) — Caveat 2 audit priority before any promotion.
+
+### Findings generated
+
+- `lab/analyses/INV-010_findings.md` — 8 KB; 7 sections (caveats / methodology / detection diagnostics / lifetime tier / sub-cohort breakdown / UP_TRI baseline / headline / open questions)
+- `lab/output/backtest_signals_INV010.parquet` — 1827 rows; separate from main backtest_signals.parquet
+
+### Cross-INV synthesis update
+
+INV-010 adds 5th completed discovery investigation (after INV-003/006/007/013). Pattern: signal-specific exits and signal-specific tier eligibility both required if any migration pursued. Three discovery scans (INV-003 / INV-007 / INV-010) all surface same picture: lifetime cohorts at Tier B max; sub-cohort tier hits possible but with marginal n + Caveat 2 vulnerability.
+
+### Lab readiness (updated)
+
+- 7 investigations COMPLETED in patterns.json + 1 awaiting status update (INV-010)
+- 2 investigations PRE_REGISTERED awaiting execution sessions (INV-005 low-priority + INV-012 BTST)
+- INV-010 closes the "new entry signal discovery" loop — 1 of 4 originally pre-registered (INV-007 vol filter, INV-010 GAP_BREAKOUT, INV-012 BTST, INV-005 macro proximity)
+
+### Session end state
+
+- Branch: `backtest-lab`
+- HEAD commit: (set by next commit after this status update)
+- Working tree: clean
+- All commits pushed to origin
 
 ---
 
