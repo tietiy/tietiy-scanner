@@ -1,6 +1,6 @@
 # Lab Decisions Log
 
-**Last updated:** 2026-05-02
+**Last updated:** 2026-05-03
 
 This is the canonical persistent ledger of Lab decisions — pending, resolved, and
 blocked. Companion to `FINDINGS_LOG.md` (cross-investigation findings ledger).
@@ -51,6 +51,21 @@ decisions; this file tracks what awaits user judgment.
 - **Status:** PENDING user review
 - **Recommended verdict (TBD):** NO_EDGE — vol regime filter shows 0 CANDIDATE cells, 1 MARGINAL, 0 tier-earning cells across 9-cell matrix. No filter promotion candidates surfaced. Verdict suggestion: `REJECT_FILTER_NO_VOL_REGIME_EDGE` or similar.
 - **Finalized verdict + rationale:** PENDING user judgment per Lab Discipline Principle 6
+
+### INV-013 patterns.json status update
+- **From:** PRE_REGISTERED
+- **To:** COMPLETED (after user review)
+- **Status:** PENDING user review
+- **Recommended verdict (TBD):** PARTIAL_DOWN_TRI_SHORTER_HOLD_PNL_CANDIDATES_NO_WR_EDGE — 0 variants beat D6 on WR; 6 variants (D2/D3/D4/D5/TRAIL_1.5xATR/LADDER_B) beat on pnl ≥10% relative + p<0.05; D2 strongest at +66.5% rel. DOWN_TRI structurally negative (D6 avg_pnl -0.607%); shorter holds reduce loss but don't produce positive pnl.
+- **Finalized verdict + rationale:** PENDING user judgment per Lab Discipline Principle 6
+- **INV-006 inversion verified:** D6 sum INV-006 (0.5347) + INV-013 (0.4653) = 1.0000 EXACT — runner-bug-fix confirmed mathematically clean
+
+### DOWN_TRI HOLDING_DAYS migration (if INV-013 surfaces candidate)
+- **Status:** PENDING (awaits user review of INV-013 findings)
+- **Lab evidence:** D2 plausibly net positive on pnl (+66.5% rel improvement; -0.203% vs D6 -0.607%); WR slightly higher (0.487 vs 0.4653); but DOWN_TRI cohort structurally negative
+- **Decision context:** combine with UP_TRI D10 + BULL_PROXY D6 decisions for unified scanner.config update. Signal-specific exits required: LONG signals prefer LONGER holds (D10), SHORT signals prefer SHORTER holds (D2-D5). Migration to per-signal HOLDING_DAYS config required.
+- **Implementation scope (if approved):** scanner/config.py per-signal HOLDING_DAYS map (UP_TRI=10, BULL_PROXY=6, DOWN_TRI=2 or 3) instead of single global value
+- **Caveat:** DOWN_TRI structural negativity raises broader question whether to keep DOWN_TRI signal at all (not within INV-013 scope; flag for user)
 
 ### Caveat 2 audit (9.31% MS-2 miss-rate)
 - **Status:** PENDING

@@ -1,6 +1,6 @@
 # Lab Findings Log
 
-**Last updated:** 2026-05-02
+**Last updated:** 2026-05-03
 
 This is the canonical persistent log of all Lab findings. Companion to
 `DECISIONS_LOG.md` (pending decisions + verdict ledger). Individual
@@ -160,6 +160,51 @@ is the cross-investigation ledger.
 - **Findings:** `lab/analyses/INV-007_findings.md`
 - **Pending decision:** review filter surfaces; decide if any warrant filter implementation (recommended: NONE — verdict NO_EDGE)
 
+### INV-013 — DOWN_TRI exit timing direction-aware
+- **Variants tested:** 12 (D2-D10 + 3 ATR trail + 2 profit ladders)
+- **Total DOWN_TRI signals:** 19961 (all direction=SHORT verified); 13 skipped (cohort-end edge)
+- **Direction-aware fix:** SHORT semantics applied (validates against INV-006 LONG-only runner bug); Section 4 inversion verification — D6 sum INV-006+INV-013 = 1.0000 EXACT
+
+**D6 baseline (SHORT-direction, corrected):**
+- WR: 0.4653, n_excl_flat: 18097, Wilson: 0.4581
+- avg_pnl: **-0.6072% (NEGATIVE)** — DOWN_TRI structurally loses at D6
+- R-mult: -0.1596
+
+**Variants BEAT D6 on WR (≥3pp + p<0.05 + n≥100):** 0 (matches INV-006 LONG cohorts pattern)
+
+**Variants WORSE on WR:** 5 — all trailing stops + both ladders
+
+**Variants BEAT D6 on pnl (≥10% relative + p<0.05):** 6
+- D2: -0.203% (vs D6 -0.607%; rel +66.5%; p<0.0001) — strongest
+- D3: -0.269% rel +55.7%
+- D4: -0.376% rel +38.1%
+- D5: -0.496% rel +18.3%; p=0.038
+- TRAIL_1.5xATR: -0.454% rel +25.2%
+- LADDER_B_33_33_34trailing: -0.354% rel +41.8%
+
+**Critical finding — opposite direction from UP_TRI/BULL_PROXY:**
+- LONG signals: LONGER holds (D10) beat D6 on pnl (let winners run)
+- SHORT signals: SHORTER holds (D2-D5) beat D6 on pnl (cut early before mean reversion against trend)
+
+DOWN_TRI cohort is structurally challenged (consistent with Indian equity bull bias 2011-2026); "improvements" reduce loss (less negative pnl) rather than producing positive pnl. Even D2 still loses -0.203% per trade on average.
+
+**Headline finding:** INV-013 finds 0 variants beating D6 on WR but 6 beating on pnl. Strongest is D2 at +66.5% relative pnl improvement. Pattern parallels INV-006 UP_TRI/BULL_PROXY where direction matters but inverts: LONG = let winners run; SHORT = cut early.
+
+**INV-006 inversion verification (Section 4):**
+- D6 INV-006 reported: 0.5347 (INVALID — LONG-direction)
+- D6 INV-013 corrected: 0.4653 (SHORT-direction)
+- Sum: 1.0000 EXACT — clean LONG/SHORT W/L inversion confirmed
+- Trailing/ladder sums diverge from 1.0 because stop placement differs (above vs below entry); not pure sign-flip
+
+**Caveats:**
+- Caveat 2 (9.31% MS-2 miss-rate) inherited; surfaced D2-D5 candidates need Caveat 2 audit before promotion
+- ATR NaN for first 14 days of cache; ATR-based variants flagged ATR_UNAVAILABLE for those signals
+- Direction-aware fix is the primary methodology change; runner code in inv_013_runner.py (NOT modified inv_006_runner.py per scope)
+
+- **Status:** COMPLETED (patterns.json status update pending user review)
+- **Findings:** `lab/analyses/INV-013_findings.md`
+- **Pending decision:** review DOWN_TRI exit migration candidate (D2 strongest); cross-reference with INV-006 UP_TRI D10 finding for unified scanner.config decision (signal-specific exits required: D10 for LONG, D2-D3 for SHORT)
+
 ---
 
 ## Pending decisions
@@ -184,3 +229,5 @@ See `lab/DECISIONS_LOG.md` for full ledger. Headline pending items:
 - Bank cohorts (UP_TRI × Bank in Bear / Choppy) both REJECT — informational about Bank tradeability in current regimes
 - Discovery investigations INV-010 / INV-012 still pre-registered awaiting execution sessions; INV-007 COMPLETED (NO_EDGE verdict)
 - Three completed discovery investigations (INV-003 117-cohort, INV-006 exit timing, INV-007 vol filter) all converge on a consistent picture: the current signal universe is statistically near-coin-flip after OOS + drift + Wilson gates; no Tier S/A patterns surface from any direction
+- INV-013 (DOWN_TRI direction-aware exit timing) closes the INV-006 runner-bug-fix loop with a structural finding: SHORT signals favor SHORTER holds (D2-D5) — opposite direction from LONG signals (which favor LONGER holds D10). Signal-specific exits required if migration pursued.
+- Four completed exit-timing investigations (INV-006 UP_TRI/BULL_PROXY/DOWN_TRI-invalid + INV-013 DOWN_TRI-corrected) now span the full LONG/SHORT space with consistent semantics

@@ -1,9 +1,78 @@
 # Auto-Run Status — Lab progress log
 
-**Latest session:** INV-007 volatility regime filter discovery (2026-05-02; user OUT auto-mode).
+**Latest session:** INV-013 DOWN_TRI exit timing direction-aware (2026-05-03; user OUT auto-mode).
 **Branch:** `backtest-lab` (main branch carries only the dispatcher YAML carve-out per TIY rule 11).
 
 > **Canonical sources going forward:** `lab/FINDINGS_LOG.md` (cross-investigation findings ledger) and `lab/DECISIONS_LOG.md` (pending decisions ledger). This file remains the chronological session log; the two canonical files are the indexed cross-references.
+
+---
+
+## INV-013 session (2026-05-03; user OUT auto-mode)
+
+| Phase | Status | Commit |
+|---|---|---|
+| 0 — Pre-flight | ✅ pytest 41/41; 19961 DOWN_TRI signals all direction='SHORT'; stop>entry on 99.98%; INV-013 PRE_REGISTERED | n/a |
+| 1 — INV-013 build | ✅ 884-line script; SHORT-direction semantics throughout; reuses INV-006 schema with corrected logic | `49a63f45` |
+| 2 — INV-013 execute | ✅ 22s runtime; 19948 evaluated, 13 skipped; findings.md 9.5 KB; T5 sanity check passed | `99a83a78` |
+| 3 — Logs update | ✅ this commit | (next) |
+
+**Tripwires fired:** NONE. T3 not exercised (n=19961 >> 1000 floor). T5 sanity passed (all DOWN_TRI direction=SHORT). T4/T6/T9/T10 all clean.
+
+### INV-013 headline (data only; NO promotion calls)
+
+**D6 baseline (SHORT-direction CORRECTED):**
+- WR: 0.4653, n: 18097
+- avg_pnl: **-0.6072% (NEGATIVE — DOWN_TRI structurally loses at D6)**
+- R-mult: -0.1596
+
+**Variant verdicts:**
+- 0 variants BEAT D6 on WR (matches INV-006 LONG-cohort pattern)
+- 5 variants WORSE on WR (all trailing stops + ladders)
+- **6 variants BEAT D6 on pnl** (≥10% rel + p<0.05): D2 (+66.5%), D3 (+55.7%), D4 (+38.1%), D5 (+18.3%), TRAIL_1.5xATR (+25.2%), LADDER_B (+41.8%)
+
+**Critical finding — direction-opposite of UP_TRI/BULL_PROXY:**
+- LONG signals (UP_TRI/BULL_PROXY): LONGER holds (D10) beat D6 on pnl
+- SHORT signals (DOWN_TRI): **SHORTER** holds (D2-D5) beat D6 on pnl
+
+**INV-006 inversion verification:**
+- D6 INV-006 reported: 0.5347 (INVALID — LONG-direction)
+- D6 INV-013 corrected: 0.4653 (SHORT-direction)
+- Sum: **1.0000 EXACT** — clean LONG/SHORT W/L inversion confirmed; runner-bug-fix is mathematically clean
+
+### Cross-INV synthesis update
+
+Four exit-timing investigations now complete spanning full LONG/SHORT space:
+- INV-006 UP_TRI: D10 plausibly net positive (+16% capital efficiency, +83% pnl)
+- INV-006 BULL_PROXY: D6 baseline holds (D10 net negative -6% capital efficiency)
+- INV-006 DOWN_TRI: INVALID (runner LONG-only bug)
+- **INV-013 DOWN_TRI corrected: D2-D5 beat D6 on pnl; structurally negative cohort**
+
+Signal-specific exit migration required if pursued: LONG=D10, BULL_PROXY=D6, DOWN_TRI=D2 or D3. Single global HOLDING_DAYS no longer optimal.
+
+### Pending user decisions
+
+1. **INV-013 patterns.json status update:** PRE_REGISTERED → COMPLETED. Recommended verdict: PARTIAL_DOWN_TRI_SHORTER_HOLD_PNL_CANDIDATES_NO_WR_EDGE.
+2. **DOWN_TRI HOLDING_DAYS migration to D2 or D3** — pending user review; combines with UP_TRI D10 + BULL_PROXY D6 for unified per-signal config decision.
+3. **DOWN_TRI structural negativity** — raises broader question of keeping DOWN_TRI signal at all (avg_pnl -0.607% at D6; even D2 still -0.203%). Out of INV-013 scope; flag for user.
+4. **Cross-INV synthesis update:** signal-specific exits required if migration approved; scanner/config.py needs per-signal HOLDING_DAYS map.
+
+### Findings generated
+
+- `lab/analyses/INV-013_findings.md` — 9.5 KB; 6 sections (caveats / methodology + direction-aware logic / per-variant table / drawdown + capital efficiency / INV-006 inversion check / headline / open questions)
+
+### Lab readiness (updated)
+
+- 6 investigations COMPLETED in patterns.json + 1 awaiting status update (INV-013)
+- 3 investigations PRE_REGISTERED awaiting execution sessions (INV-005 / INV-010 / INV-012)
+- Exit-timing space now fully covered with direction-aware semantics
+- INV-013 closes the INV-006 runner-bug-fix loop
+
+### Session end state
+
+- Branch: `backtest-lab`
+- HEAD commit: (set by next commit after this status update)
+- Working tree: clean
+- All commits pushed to origin
 
 ---
 
