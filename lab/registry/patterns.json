@@ -297,7 +297,12 @@
     },
     {
       "pattern_id": "INV-013",
-      "status": "PRE_REGISTERED",
+      "status": "COMPLETED",
+      "completion_date": "2026-05-03",
+      "verdict": "PARTIAL_DOWN_TRI_D2_CANDIDATE_COHORT_STRUCTURALLY_NEGATIVE",
+      "verdict_rationale": "12 exit variants tested with corrected SHORT-direction logic. D6 baseline WR 46.5%, avg_pnl -0.607%/trade, R-mult -0.16 (cohort structurally negative across 15 years, n=18,097). 6 variants beat D6 on pnl ≥10%+p<0.05, strongest D2 (+66.5% relative). 0 variants beat D6 on WR. Direction-opposite of UP_TRI: SHORT signals favor shorter holds. Per-signal HOLDING_DAYS map required if migration pursued. INV-006 LONG/SHORT inversion mathematically validated (D6 WRs sum to 1.0000 exact).",
+      "findings_path": "lab/analyses/INV-013_findings.md",
+      "user_review_timestamp": "2026-05-03",
       "type": "INVESTIGATION_DISCOVERY_SCAN",
       "registered_date": "2026-05-01",
       "expected_run_session": "TBD",
