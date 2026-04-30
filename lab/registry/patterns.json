@@ -256,7 +256,12 @@
     },
     {
       "pattern_id": "INV-012",
-      "status": "PRE_REGISTERED",
+      "status": "COMPLETED",
+      "completion_date": "2026-05-06",
+      "verdict": "PARTIAL_4_OF_12_CELLS_TIER_HOLD_OPEN_FIRST_TIER_S_VERIFICATION_PENDING",
+      "verdict_rationale": "4 BTST detectors × 3 hold variants = 12 cells. 4 cells earn Lab tier all on HOLD_OPEN variant: LAST_30MIN_STRENGTH n=8597 WR 77.15% drift 1.64pp (Tier S - first in Lab); SECTOR_LEADER_ROTATION n=6426 WR 69.48% drift 8.48pp (Tier A); POST_PULLBACK_RESUMPTION n=344 WR 72.97% drift 16.58pp (Tier B); INSIDE_DAY_BREAKOUT n=42419 WR 66.89% drift 5.05pp (Tier A but n>50K T6 flagged too lax). HOLD_CLOSE + HOLD_D2 universally REJECT — alpha specifically in overnight gap. Drift sign positive across all 4 → signal stable/improving. Verification gates pending before integration: (1) overnight bias baseline (does unconditional buy-close→sell-open across universe show similar WR?); (2) Caveat 2 audit (9.31% MS-2 miss-rate impact per detector); (3) INSIDE_DAY tightening (additional quality filters to reduce n while maintaining WR). User decision deferred to post-verification.",
+      "findings_path": "lab/analyses/INV-012_findings.md",
+      "user_review_timestamp": "2026-05-06",
       "type": "INVESTIGATION_DISCOVERY_SCAN",
       "registered_date": "2026-04-30",
       "expected_run_session": "TBD (own session)",
