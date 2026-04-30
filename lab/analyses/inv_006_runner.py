@@ -589,10 +589,10 @@ def write_findings_md(matrix: dict, output_path: Path) -> None:
                     f"avg_pnl={baseline.get('avg_pnl_pct')})\n")
             f.write(f"- **Variants beating baseline:** {len(beats)}\n")
             for v in beats:
-                f.write(f"  - `{v[0]}` WR={v[1]} (Δ={v[2]:+.4f} pp, p={v[3]})\n")
+                f.write(f"  - `{v[0]}` WR={v[1]} (Δ={(v[2]*100):+.2f} pp, p={v[3]})\n")
             f.write(f"- **Variants worse than baseline:** {len(worse)}\n")
             for v in worse:
-                f.write(f"  - `{v[0]}` WR={v[1]} (Δ={v[2]:+.4f} pp, p={v[3]})\n")
+                f.write(f"  - `{v[0]}` WR={v[1]} (Δ={(v[2]*100):+.2f} pp, p={v[3]})\n")
             f.write(f"- **Marginal / equivalent:** {len(marginal)}\n\n")
 
         # Universal best?
