@@ -5,7 +5,55 @@
 
 ---
 
-## INV-003 session (2026-04-30, latest)
+## INV-006 session (2026-04-30, latest)
+
+| Phase | Status | Commit |
+|-------|--------|--------|
+| 0 — Pre-flight | ✅ pytest 41/41; 197 cache parquets; ATR-14 sample-checked on HDFCBANK (sane values) | n/a |
+| 1 — INV-006 build | ✅ 671-line script; 12 exit variants × 3 signal types; cache pre-load + per-signal evaluator | `5f774265` |
+| 2 — INV-006 execute | ✅ 87s matrix scan; 105415 signals evaluated; 568 skipped (cohort-end edge); findings.md 12 KB; Section 3 label fix included | `062c4780` |
+| 3 — Status update | ✅ this commit | (next) |
+
+**Tripwires fired:** NONE. T3 not exercised (all signal-type cohorts well above 100 floor: UP_TRI 72K, DOWN_TRI 18K, BULL_PROXY 5K). T4/T5/T6/T9/T10 all clean.
+
+### INV-006 headline (data only; NO promotion calls)
+
+| Signal | D6 baseline WR | Variants BEAT D6 | Variants WORSE | Marginal |
+|---|---|---|---|---|
+| UP_TRI | 0.52 (n=72059) | **0** | 5 | 7 |
+| DOWN_TRI | 0.5347 (n=18097) | **0** | 5 | 7 |
+| BULL_PROXY | 0.5268 (n=4964) | **0** | 5 | 7 |
+
+**Zero variants beat D6** at the 3pp + p<0.05 candidate threshold across any of the 3 signal types. ATR trailing stops + profit ladders all underperform (early-exit dominance — winners cut short). Universal "best by avg WR" candidate is D10 (avg 0.5378 across 3 signals vs D6 0.5272) but +1.06 pp falls below the candidate floor.
+
+This roughly maps to ROADMAP INV-006 outcome (c): "Current D6 confirmed best — no change."
+
+### Findings generated (USER REVIEW REQUIRED)
+
+- `lab/analyses/INV-006_findings.md` — 12 KB; 8 sections (caveats / methodology / 3× per-signal tables / headline / open questions / promotion deferral)
+
+### User decisions deferred
+
+1. **D6 retention vs migration** — findings strongly support keeping current scanner.config TARGET_R_MULTIPLE=2.0 + 6-day hold. User confirms before closing INV-006.
+2. **Risk-adjusted (avg_pnl) cross-check** — WR comparison alone may not capture the full picture. User considers WR + avg_pnl jointly per Open Question 3 in findings.
+3. **patterns.json INV-006 status** — PRE_REGISTERED → COMPLETED is user-only transition.
+4. **Caveat 2 audit dependency** — irrelevant here since no candidate surfaced; INV-006 is a clean negative result.
+
+### Outstanding for future sessions
+
+- INV-007 (volatility regime filter) — pre-registered; awaiting execution session
+- INV-010 (GAP_BREAKOUT new signal) — pre-registered; awaiting execution session
+- INV-012 (BTST signal discovery) — pre-registered; awaiting execution session
+- Caveat 2 audit (~30-45 min) — separate session, gates promotion of any borderline-n INV-003 candidates
+- kill_002 + S-6 + M-17 ship to main — separate main-branch session; depends on user's INV-001 conviction-tag decision
+
+### Recommended next step
+
+User reviews `lab/analyses/INV-006_findings.md` + cross-references INV-003 matrix output. INV-006 outcome (D6 retention) is unambiguous; user judgment is mostly Gate 7 user-review confirmation rather than between-tier choice.
+
+---
+
+## INV-003 session (2026-04-30)
 
 | Phase | Status | Commit |
 |-------|--------|--------|
