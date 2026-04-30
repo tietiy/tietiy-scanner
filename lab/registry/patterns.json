@@ -217,7 +217,12 @@
     },
     {
       "pattern_id": "INV-010",
-      "status": "PRE_REGISTERED",
+      "status": "COMPLETED",
+      "completion_date": "2026-05-04",
+      "verdict": "PARTIAL_LIFETIME_REJECT_4_SUBCOHORT_TIER_B_MARGINAL_N",
+      "verdict_rationale": "GAP_BREAKOUT detector across 188-stock × 15-year cache produced 1827 signals (n_excl_flat 1605). Lifetime cohort WR 53.7%, Δ +0.90pp vs UP_TRI baseline 52.8% (below 3pp candidate threshold). Lifetime BOOST + KILL tiers both REJECT. 4 of 18 viable sector × regime sub-cohorts earn Tier B BOOST (Bank×Choppy n=74 WR 58.1%; FMCG×Choppy n=67 WR 58.2%; FMCG×Bull n=128 WR 61.7%; Other×Bull n=65 WR 64.6%). 0 KILL tier hits across all 39 cells. Notable: Bank×Choppy earns Tier B for GAP_BREAKOUT despite UP_TRI×Bank×Choppy REJECT_PROMOTION (INV-001) — signal-cohort interaction non-transitive across signal types. Caveat 2 vulnerability material at marginal n (65-128). Multiple-comparison concern: 4/39 hits ≈ 10% rate at p<0.05 thresholds = expected false positive rate; further verification required before any promotion.",
+      "findings_path": "lab/analyses/INV-010_findings.md",
+      "user_review_timestamp": "2026-05-04",
       "type": "INVESTIGATION",
       "registered_date": "2026-04-30",
       "expected_run_session": "TBD (own session)",
