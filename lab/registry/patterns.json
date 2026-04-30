@@ -6,7 +6,12 @@
   "patterns": [
     {
       "pattern_id": "INV-001",
-      "status": "PRE_REGISTERED",
+      "status": "COMPLETED",
+      "completion_date": "2026-05-01",
+      "verdict": "REJECT_PROMOTION",
+      "verdict_rationale": "Lab tier REJECT at lifetime cohort n=5146; outlier event Apr 2026 cluster identified; no mechanism candidate surfaced; no inverse pattern; Section 2b filter from INV-002 does not catch Apr cluster (verified Phase 4)",
+      "findings_path": "lab/analyses/INV-001_findings.md",
+      "user_review_timestamp": "2026-05-01",
       "type": "INVESTIGATION",
       "registered_date": "2026-04-30",
       "cohort": {
@@ -42,7 +47,12 @@
     },
     {
       "pattern_id": "INV-002",
-      "status": "PRE_REGISTERED",
+      "status": "COMPLETED",
+      "completion_date": "2026-05-01",
+      "verdict": "REJECT_PROMOTION_LIFETIME_TIER_BUT_SECTION_2B_REAL_FILTER",
+      "verdict_rationale": "Lab parent BOOST tier REJECT; HIGH_VARIANCE_SAMPLE_WINDOW_SUSPECT confirms live n=8 100% WR is sample-window artifact; Section 2b Bank Nifty 60d return is real differentiator (28.26pp Δ WR p<0.001) but does not extend to INV-001 cohort per Phase 4 verification",
+      "findings_path": "lab/analyses/INV-002_findings.md",
+      "user_review_timestamp": "2026-05-01",
       "type": "INVESTIGATION",
       "registered_date": "2026-04-30",
       "cohort": {
@@ -73,7 +83,12 @@
     },
     {
       "pattern_id": "INV-003",
-      "status": "PRE_REGISTERED",
+      "status": "COMPLETED",
+      "completion_date": "2026-05-01",
+      "verdict": "PARTIAL_PROMOTION_CANDIDATES_IDENTIFIED",
+      "verdict_rationale": "117-cohort scan complete; 0 Tier S, 0 Tier A, 7 Tier B candidates surfaced (3 boost + 4 kill); individual review pending in dedicated session; INV-001 + INV-002 cells reproduced (both REJECT confirms standalone investigations)",
+      "findings_path": "lab/analyses/INV-003_findings.md",
+      "user_review_timestamp": "2026-05-01",
       "type": "INVESTIGATION_DISCOVERY_SCAN",
       "registered_date": "2026-04-30",
       "cohort": {
@@ -131,7 +146,12 @@
     },
     {
       "pattern_id": "INV-006",
-      "status": "PRE_REGISTERED",
+      "status": "COMPLETED",
+      "completion_date": "2026-05-01",
+      "verdict": "PARTIAL_UP_TRI_D10_CANDIDATE_BULL_PROXY_REJECT_DOWN_TRI_DEFERRED",
+      "verdict_rationale": "12 exit variants × 3 signals tested. UP_TRI × D10: plausibly net positive (+16% capital efficiency, +83% avg pnl, drawdown 2pp deeper at p5; defer migration decision per DECISIONS_LOG). BULL_PROXY × D10: net negative (-6% capital efficiency); stay D6. DOWN_TRI variants invalid due to runner LONG-only logic; deferred to INV-013. Live + backtest infrastructure verified correct; no production fix needed.",
+      "findings_path": "lab/analyses/INV-006_findings.md",
+      "user_review_timestamp": "2026-05-01",
       "type": "INVESTIGATION_DISCOVERY_SCAN",
       "registered_date": "2026-04-30",
       "expected_run_session": "TBD (own session per signal × variant breakdown)",
