@@ -128,6 +128,147 @@
       },
       "investigation_artifacts": [],
       "note": "Low priority; likely won't execute until INV-001..INV-004 complete. Pre-registered for hypothesis discipline."
+    },
+    {
+      "pattern_id": "INV-006",
+      "status": "PRE_REGISTERED",
+      "type": "INVESTIGATION_DISCOVERY_SCAN",
+      "registered_date": "2026-04-30",
+      "expected_run_session": "TBD (own session per signal × variant breakdown)",
+      "cohort": {
+        "scope": "exit_timing_optimization",
+        "signals_axis": ["UP_TRI", "DOWN_TRI", "BULL_PROXY"],
+        "exit_variants_axis": [
+          "D2", "D3", "D4", "D5", "D6_baseline", "D7", "D8", "D10",
+          "trailing_1.5xATR", "trailing_2xATR", "trailing_2.5xATR",
+          "ladder_50@2R_50@3R", "ladder_33@1.5R_33@2.5R_34@runner"
+        ]
+      },
+      "hypothesis_primary": "D6 exit (current default per scanner.config TARGET_R_MULTIPLE=2.0 + 6-day hold per HOLDING_DAYS) is suboptimal for at least one signal type; alternative exit variants (D2-D10 fixed holds, ATR-based trailing stops, partial-target ladders) yield better risk-adjusted returns. Investigation surfaces optimal exit per signal type via 15-year backtest replay.",
+      "methodology": "For each (signal × exit_variant) combination across 15-year backtest: recompute exit point via the variant's rule (fixed hold = exit at OPEN of N-th trading day post-entry; trailing stop = ATR-multiple-below-running-high; ladder = scale out partial size at R-multiples). Compute lifetime stats per cell (n, W, L, F, WR, avg_pnl, Sharpe approximation, max drawdown, profit factor). Apply train/test OOS split (train 2011-2022, test 2023-2026); run hypothesis_tester per (signal × exit_variant) cohort. Compare each variant to D6 baseline; rank by risk-adjusted return.",
+      "live_evidence_at_registration": {
+        "tier_eligibility_today": "N/A — INV-006 is a discovery investigation across exit-timing parameter space; no specific live cohort to evaluate. Output is the comparison matrix; individual variants surfaced from the matrix become candidates for adoption (separate Gate 7 user review per variant)."
+      },
+      "expected_outcome": "Three paths: (a) Single best exit emerges across all signals → switch all signals to that exit; (b) Different optimal exits per signal type → signal-specific exit rules; (c) Current D6 confirmed best → no change. Adoption of any variant requires update to scanner.config (TARGET_R_MULTIPLE / HOLDING_DAYS / new trailing-stop fields) — separate main-branch session.",
+      "promotion_gate_status": {
+        "gate_1_hypothesis_registered": "PASS",
+        "gate_2_backtest_infrastructure_used": "PENDING",
+        "gate_3_oos_protocol": "PENDING_per_variant",
+        "gate_4_ground_truth_validation": "PENDING_per_variant",
+        "gate_5_mechanism_explanation": "PENDING_per_variant",
+        "gate_6_sector_specificity": "INHERENT_to_matrix_design",
+        "gate_7_user_review": "PENDING"
+      },
+      "investigation_artifacts": [],
+      "note": "Pre-flight requires verifying ATR is computed per stock in signal_replayer output (or recoverable from cache parquets via ta-lib / pandas) for trailing-stop variants. If ATR absent, MS-2 may need lightweight extension to add 14-period ATR column; flagged as a sub-task during INV-006 build phase."
+    },
+    {
+      "pattern_id": "INV-007",
+      "status": "PRE_REGISTERED",
+      "type": "INVESTIGATION_DISCOVERY_SCAN",
+      "registered_date": "2026-04-30",
+      "expected_run_session": "TBD (own session)",
+      "cohort": {
+        "scope": "volatility_regime_filter",
+        "signals_axis": ["UP_TRI", "DOWN_TRI", "BULL_PROXY"],
+        "vol_bucket_axis": ["Low_lt30pct", "Medium_30to70pct", "High_gt70pct"]
+      },
+      "hypothesis_primary": "Filtering existing UP_TRI/DOWN_TRI/BULL_PROXY signals by Nifty 20-day volatility percentile yields better tier-eligibility than unfiltered cohorts. Mechanism: vol regime affects breakout follow-through (low-vol consolidation → breakouts run; high-vol whipsaw → breakouts fail) and tail-event frequency (high-vol regime increases STOP_HIT rate).",
+      "methodology": "Compute Nifty 20-day rolling vol (std-dev of daily returns × sqrt(252)) across 15-year history. Categorize each signal date by rolling-vol percentile bucket (Low <30%, Medium 30-70%, High >70%) using percentile thresholds computed on the full 15-yr Nifty vol distribution. For each (signal × vol_bucket) of 9 cells, run hypothesis_tester (BOOST + KILL). Compare to unfiltered baseline cohort tier from INV-003 matrix.",
+      "live_evidence_at_registration": {
+        "tier_eligibility_today": "N/A — discovery investigation; output is the 9-cell matrix; individual cells become candidates for filter adoption."
+      },
+      "expected_outcome": "Three paths: (a) Single vol regime emerges as dominant for all signals (e.g., low-vol-only filter universally improves WR) → universal vol filter; (b) Signal-specific vol preferences (UP_TRI works in low-vol, DOWN_TRI in high-vol) → signal × vol filter combinations; (c) Vol regime adds no edge → filter rejected.",
+      "promotion_gate_status": {
+        "gate_1_hypothesis_registered": "PASS",
+        "gate_2_backtest_infrastructure_used": "PENDING",
+        "gate_3_oos_protocol": "PENDING_per_cell",
+        "gate_4_ground_truth_validation": "PENDING_per_cell",
+        "gate_5_mechanism_explanation": "PENDING_per_cell",
+        "gate_6_sector_specificity": "PENDING (vol regime may interact with sector momentum)",
+        "gate_7_user_review": "PENDING"
+      },
+      "investigation_artifacts": []
+    },
+    {
+      "pattern_id": "INV-010",
+      "status": "PRE_REGISTERED",
+      "type": "INVESTIGATION",
+      "registered_date": "2026-04-30",
+      "expected_run_session": "TBD (own session)",
+      "cohort": {
+        "scope": "new_entry_signal_discovery",
+        "candidate_signal_id": "GAP_BREAKOUT",
+        "signal_definition": {
+          "rule_1_gap_up": "today_open > prev_close * 1.005",
+          "rule_2_breakout": "today_high > 5_day_high",
+          "rule_3_consolidation": "prior_10d_range / prior_10d_avg_close < 0.05",
+          "all_rules_required": true
+        }
+      },
+      "hypothesis_primary": "A stock breaking 5-day high with gap-up open AND prior 10-day consolidation has higher WR than UP_TRI base case. Mechanism: gap-up confirms institutional pre-market interest; consolidation prior signals supply absorption; combined → breakout has stronger conviction than UP_TRI alone.",
+      "methodology": "Build GAP_BREAKOUT detector implementing the 3-rule signal_definition above; run on 15-year cached parquets (188 stocks). Compute lifetime cohort stats (n, W, L, F, WR, Wilson, p-value); apply train/test OOS split; run hypothesis_tester. Compare to UP_TRI baseline (existing) on same time period + universe. Stratify findings by sector and regime per Gate 6 sector specificity check.",
+      "live_evidence_at_registration": {
+        "tier_eligibility_today": "N/A — GAP_BREAKOUT is a NEW signal type not yet in production scanner; no live evidence exists. Investigation establishes whether the signal warrants addition to scanner.scanner_core."
+      },
+      "expected_outcome": "Three paths: (a) Tier B/A boost surfaces (lifetime n adequate + WR ≥ tier floor + Wilson + drift bounds) → new signal type to add to mini_scanner_rules and scanner.scanner_core; (b) REJECT → signal definition not edged; archive; (c) Tier eligibility only in specific sectors/regimes → conditional new signal (sector × regime filter built into detector).",
+      "promotion_gate_status": {
+        "gate_1_hypothesis_registered": "PASS",
+        "gate_2_backtest_infrastructure_used": "PENDING",
+        "gate_3_oos_protocol": "PENDING",
+        "gate_4_ground_truth_validation": "PENDING",
+        "gate_5_mechanism_explanation": "PENDING",
+        "gate_6_sector_specificity": "PENDING",
+        "gate_7_user_review": "PENDING"
+      },
+      "investigation_artifacts": [],
+      "note": "Adoption of GAP_BREAKOUT requires extension of scanner.scanner_core.detect_signals + scanner.config new signal type registration + bridge composer signal-routing update. Main-branch ship is separate from Lab promotion call."
+    },
+    {
+      "pattern_id": "INV-012",
+      "status": "PRE_REGISTERED",
+      "type": "INVESTIGATION_DISCOVERY_SCAN",
+      "registered_date": "2026-04-30",
+      "expected_run_session": "TBD (own session)",
+      "cohort": {
+        "scope": "btst_signal_discovery",
+        "candidate_btst_variants": [
+          {
+            "id": "BTST_LAST_30MIN_STRENGTH",
+            "definition": "today_close in top 25% of today's range AND today_close > 5_day_high AND today_volume > 1.5 * 20d_avg_volume"
+          },
+          {
+            "id": "BTST_SECTOR_LEADER_ROTATION",
+            "definition": "stock in sector transitioning Lagging→Leading per sector_momentum (today's bucket = Leading; yesterday's bucket = Lagging or Neutral) AND today_close in top 30% of today's range"
+          },
+          {
+            "id": "BTST_POST_PULLBACK_RESUMPTION",
+            "definition": "stock had UP_TRI W (DAY6_WIN or TARGET_HIT) within past 5 trading days AND has since pulled back 3-5% AND today_close at 3-day high"
+          },
+          {
+            "id": "BTST_INSIDE_DAY_BREAKOUT",
+            "definition": "today's range fully inside yesterday's range (today_high <= yesterday_high AND today_low >= yesterday_low) AND tomorrow's open > today's high"
+          }
+        ],
+        "hold_axis": ["next_day_open_exit", "next_day_close_exit", "D2_close_exit"]
+      },
+      "hypothesis_primary": "End-of-day patterns predict next-day open or next-day close strength. Specifically: closing-hour breakout above 5-day high with volume confirmation predicts overnight + next-day continuation. Investigation tests 4 candidate BTST detectors × 3 hold variants = 12 cells; surfaces which (if any) BTST patterns warrant Lab tier eligibility.",
+      "methodology": "Build 4 BTST detectors per candidate_btst_variants definitions. For each (BTST_variant × hold_variant) of 12 cells, replay across 15-year cached parquets; compute outcomes per hold rule; lifetime stats; train/test OOS split; hypothesis_tester. Sector + regime stratification per Gate 6. Note: BTST_INSIDE_DAY_BREAKOUT requires forward-looking 'tomorrow's open' which means the signal fires PRE-OPEN tomorrow; entry execution model differs from D6 (entry at open of trigger day, not post-trigger day).",
+      "live_evidence_at_registration": {
+        "tier_eligibility_today": "N/A — BTST signals are NEW; no live evidence. Investigation establishes whether any BTST candidate warrants addition to scanner."
+      },
+      "expected_outcome": "Three paths: (a) One or more BTST patterns surface as Tier eligible → add to mini_scanner with appropriate hold period (next-day open / next-day close / D2); (b) All BTST patterns REJECT → BTST not viable in this universe; (c) Some BTST patterns work for specific cohorts (sector × regime) → conditional BTST rules.",
+      "promotion_gate_status": {
+        "gate_1_hypothesis_registered": "PASS",
+        "gate_2_backtest_infrastructure_used": "PENDING",
+        "gate_3_oos_protocol": "PENDING_per_cell",
+        "gate_4_ground_truth_validation": "PENDING_per_cell",
+        "gate_5_mechanism_explanation": "PENDING_per_cell",
+        "gate_6_sector_specificity": "PENDING",
+        "gate_7_user_review": "PENDING"
+      },
+      "investigation_artifacts": [],
+      "note": "BTST_INSIDE_DAY_BREAKOUT detection requires next-day open reference; entry model differs from existing D6 LONG signals. Adoption requires bridge L1 PRE_MARKET composer extension to surface BTST entries before market open. BTST signals also carry overnight-gap risk (entry at next-day open, gap-down possible) — risk profile differs from existing intraday signals."
     }
   ],
   "rejection_history": [],
