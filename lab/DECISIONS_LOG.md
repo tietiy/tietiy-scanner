@@ -11,13 +11,6 @@ decisions; this file tracks what awaits user judgment.
 
 ## Pending decisions
 
-### kill_002 ship path
-- **Status:** PENDING (post-INV-007 batch decision recommended)
-- **Lab evidence:** REJECT promotion at any tier (lifetime + Apr verification both inconclusive)
-- **Recommended path:** NO SHIP per Lab Discipline Principle 6 (don't ship rules unsupported by lifetime evidence)
-- **Risk if not shipping:** future Apr-like cluster causes new losses without operational protection
-- **Risk if shipping anyway:** suppresses 5186 historical signals (most winners) to fix 26 outlier losses
-
 ### INV-001 patterns.json status update
 - **From:** PRE_REGISTERED
 - **To:** COMPLETED
@@ -71,7 +64,12 @@ decisions; this file tracks what awaits user judgment.
 
 ## Resolved decisions
 
-(empty initially; populated as decisions are made)
+### kill_002 ship path
+- **Status:** RESOLVED
+- **Resolution:** NO_SHIP_PER_LAB_EVIDENCE
+- **Resolution_rationale:** Lab tier REJECT at lifetime n=5146 (INV-001); Apr cluster Section 2b filter does not catch losses (Phase 4); 4-year declining WR trend acknowledged but lifetime evidence does not support structural KILL rule. Lab Discipline Principle 6: do not ship rules unsupported by lifetime evidence. Apr 2026 outlier event documented; reopen if further loss clusters surface.
+- **Resolution_date:** 2026-05-02
+- **Original-pending context:** Lab evidence REJECT promotion at any tier (lifetime + Apr verification both inconclusive); risk-if-not-shipping was future Apr-like cluster vs risk-if-shipping was suppressing 5186 historical signals (mostly winners) to fix 26 outlier losses.
 
 ---
 
