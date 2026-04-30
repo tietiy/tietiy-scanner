@@ -1,0 +1,1983 @@
+{
+  "started_at": "2026-04-30T05:57:31.111729+00:00",
+  "finished_at": "2026-04-30T05:58:40.164035+00:00",
+  "period_start": "2011-01-01",
+  "period_end": "2026-04-30",
+  "universe_size": 197,
+  "smoke_mode": false,
+  "refetch": false,
+  "results": [
+    {
+      "symbol": "HDFCBANK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HDFCBANK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ICICIBANK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ICICIBANK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "AXISBANK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/AXISBANK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "KOTAKBANK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/KOTAKBANK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SBIN.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SBIN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "INDUSINDBK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/INDUSINDBK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BANDHANBNK.NS",
+      "status": "OK",
+      "rows": 1997,
+      "earliest_date": "2018-03-27",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BANDHANBNK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "FEDERALBNK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/FEDERALBNK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "IDFCFIRSTB.NS",
+      "status": "OK",
+      "rows": 2585,
+      "earliest_date": "2015-11-06",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/IDFCFIRSTB_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "PNB.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/PNB_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CANBK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CANBK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BANKBARODA.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BANKBARODA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "AUBANK.NS",
+      "status": "OK",
+      "rows": 2174,
+      "earliest_date": "2017-07-11",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/AUBANK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "RBLBANK.NS",
+      "status": "OK",
+      "rows": 2385,
+      "earliest_date": "2016-08-31",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/RBLBANK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BAJFINANCE.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BAJFINANCE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BAJAJFINSV.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BAJAJFINSV_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HDFCLIFE.NS",
+      "status": "OK",
+      "rows": 2085,
+      "earliest_date": "2017-11-17",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HDFCLIFE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SBILIFE.NS",
+      "status": "OK",
+      "rows": 2117,
+      "earliest_date": "2017-10-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SBILIFE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ICICIPRULI.NS",
+      "status": "OK",
+      "rows": 2366,
+      "earliest_date": "2016-09-29",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ICICIPRULI_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CHOLAFIN.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CHOLAFIN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "MUTHOOTFIN.NS",
+      "status": "OK",
+      "rows": 3694,
+      "earliest_date": "2011-05-06",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/MUTHOOTFIN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "LICHSGFIN.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/LICHSGFIN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "RECLTD.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/RECLTD_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "PFC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/PFC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "MANAPPURAM.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/MANAPPURAM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ICICIGI.NS",
+      "status": "OK",
+      "rows": 2120,
+      "earliest_date": "2017-09-27",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ICICIGI_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TCS.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TCS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "INFY.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/INFY_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HCLTECH.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HCLTECH_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "WIPRO.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/WIPRO_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TECHM.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TECHM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "MPHASIS.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/MPHASIS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "LTIM.NS",
+      "status": "OK",
+      "rows": 2413,
+      "earliest_date": "2016-07-21",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/LTIM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "PERSISTENT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/PERSISTENT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "COFORGE.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/COFORGE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "OFSS.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/OFSS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "LTTS.NS",
+      "status": "OK",
+      "rows": 2370,
+      "earliest_date": "2016-09-23",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/LTTS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "KPITTECH.NS",
+      "status": "OK",
+      "rows": 1736,
+      "earliest_date": "2019-04-22",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/KPITTECH_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "MARUTI.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/MARUTI_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "M&M.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/M&M_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BAJAJ-AUTO.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BAJAJ-AUTO_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HEROMOTOCO.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HEROMOTOCO_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "EICHERMOT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/EICHERMOT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ASHOKLEY.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ASHOKLEY_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TVSMOTOR.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TVSMOTOR_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BALKRISIND.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BALKRISIND_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "MOTHERSON.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/MOTHERSON_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BHARATFORG.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BHARATFORG_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "APOLLOTYRE.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/APOLLOTYRE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SUNPHARMA.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SUNPHARMA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "DRREDDY.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/DRREDDY_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CIPLA.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CIPLA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "AUROPHARMA.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/AUROPHARMA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "DIVISLAB.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/DIVISLAB_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "LUPIN.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/LUPIN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BIOCON.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BIOCON_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ALKEM.NS",
+      "status": "OK",
+      "rows": 2554,
+      "earliest_date": "2015-12-23",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ALKEM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TORNTPHARM.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TORNTPHARM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "IPCALAB.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/IPCALAB_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "GLENMARK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/GLENMARK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "LAURUSLABS.NS",
+      "status": "OK",
+      "rows": 2313,
+      "earliest_date": "2016-12-19",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/LAURUSLABS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TATASTEEL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TATASTEEL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "JSWSTEEL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/JSWSTEEL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HINDALCO.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HINDALCO_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "VEDL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/VEDL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "COALINDIA.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/COALINDIA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "NMDC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/NMDC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SAIL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SAIL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "JINDALSTEL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/JINDALSTEL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "NATIONALUM.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/NATIONALUM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HINDCOPPER.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HINDCOPPER_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "RELIANCE.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/RELIANCE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ONGC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ONGC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BPCL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BPCL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "IOC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/IOC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "GAIL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/GAIL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "POWERGRID.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/POWERGRID_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "NTPC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/NTPC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TATAPOWER.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TATAPOWER_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ADANIGREEN.NS",
+      "status": "OK",
+      "rows": 1941,
+      "earliest_date": "2018-06-18",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ADANIGREEN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CESC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CESC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HINDUNILVR.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HINDUNILVR_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ITC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ITC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BRITANNIA.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BRITANNIA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "DABUR.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/DABUR_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "MARICO.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/MARICO_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "GODREJCP.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/GODREJCP_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TATACONSUM.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TATACONSUM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TRENT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TRENT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TITAN.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TITAN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "DMART.NS",
+      "status": "OK",
+      "rows": 2250,
+      "earliest_date": "2017-03-21",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/DMART_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ETERNAL.NS",
+      "status": "OK",
+      "rows": 1156,
+      "earliest_date": "2021-07-23",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ETERNAL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "PAGEIND.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/PAGEIND_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ULTRACEMCO.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ULTRACEMCO_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "AMBUJACEM.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/AMBUJACEM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ACC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ACC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SHREECEM.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SHREECEM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "LT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/LT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ADANIPORTS.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ADANIPORTS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "DLF.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/DLF_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "GODREJPROP.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/GODREJPROP_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "PHOENIXLTD.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/PHOENIXLTD_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "PRESTIGE.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/PRESTIGE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BHEL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BHEL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SIEMENS.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SIEMENS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ABB.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ABB_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HAVELLS.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HAVELLS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "VOLTAS.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/VOLTAS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CUMMINSIND.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CUMMINSIND_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HAL.NS",
+      "status": "OK",
+      "rows": 1995,
+      "earliest_date": "2018-04-02",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HAL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BEL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BEL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "COCHINSHIP.NS",
+      "status": "OK",
+      "rows": 2151,
+      "earliest_date": "2017-08-11",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/COCHINSHIP_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "GRSE.NS",
+      "status": "OK",
+      "rows": 1855,
+      "earliest_date": "2018-10-24",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/GRSE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "PIDILITIND.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/PIDILITIND_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "AARTIIND.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/AARTIIND_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "DEEPAKNTR.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/DEEPAKNTR_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "NAVINFLUOR.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/NAVINFLUOR_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SRF.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SRF_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ASIANPAINT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ASIANPAINT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BERGEPAINT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BERGEPAINT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TATACHEM.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TATACHEM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ALKYLAMINE.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ALKYLAMINE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "VINATIORGA.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/VINATIORGA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "DIXON.NS",
+      "status": "OK",
+      "rows": 2127,
+      "earliest_date": "2017-09-18",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/DIXON_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "AMBER.NS",
+      "status": "OK",
+      "rows": 2035,
+      "earliest_date": "2018-01-30",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/AMBER_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "VGUARD.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/VGUARD_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CROMPTON.NS",
+      "status": "OK",
+      "rows": 2461,
+      "earliest_date": "2016-05-13",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CROMPTON_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "WHIRLPOOL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/WHIRLPOOL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BATAINDIA.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BATAINDIA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BHARTIARTL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BHARTIARTL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "IRCTC.NS",
+      "status": "OK",
+      "rows": 1620,
+      "earliest_date": "2019-10-14",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/IRCTC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CONCOR.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CONCOR_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "NAUKRI.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/NAUKRI_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "UBL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/UBL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "UNITDSPR.NS",
+      "status": "PARTIAL",
+      "rows": 471,
+      "earliest_date": "2024-05-30",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/UNITDSPR_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TMPV.NS",
+      "status": "PARTIAL",
+      "rows": 131,
+      "earliest_date": "2025-10-15",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TMPV_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "PVRINOX.NS",
+      "status": "PARTIAL",
+      "rows": 836,
+      "earliest_date": "2022-11-10",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/PVRINOX_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "GMRAIRPORT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/GMRAIRPORT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "IRFC.NS",
+      "status": "OK",
+      "rows": 1296,
+      "earliest_date": "2021-01-29",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/IRFC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SHRIRAMFIN.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SHRIRAMFIN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ABCAPITAL.NS",
+      "status": "OK",
+      "rows": 2138,
+      "earliest_date": "2017-09-01",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ABCAPITAL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "LTF.NS",
+      "status": "OK",
+      "rows": 3624,
+      "earliest_date": "2011-08-12",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/LTF_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "JIOFIN.NS",
+      "status": "PARTIAL",
+      "rows": 658,
+      "earliest_date": "2023-08-21",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/JIOFIN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SUNDARMFIN.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SUNDARMFIN_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ANGELONE.NS",
+      "status": "OK",
+      "rows": 1377,
+      "earliest_date": "2020-10-05",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ANGELONE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "MFSL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/MFSL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "YESBANK.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/YESBANK_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "BSE.NS",
+      "status": "OK",
+      "rows": 2280,
+      "earliest_date": "2017-02-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/BSE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CDSL.NS",
+      "status": "OK",
+      "rows": 2181,
+      "earliest_date": "2017-06-30",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CDSL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CAMS.NS",
+      "status": "OK",
+      "rows": 1377,
+      "earliest_date": "2020-10-05",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CAMS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "MCX.NS",
+      "status": "OK",
+      "rows": 3486,
+      "earliest_date": "2012-03-09",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/MCX_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TATAELXSI.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TATAELXSI_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "CYIENT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/CYIENT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ESCORTS.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ESCORTS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ENDURANCE.NS",
+      "status": "OK",
+      "rows": 2354,
+      "earliest_date": "2016-10-19",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ENDURANCE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ZYDUSLIFE.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ZYDUSLIFE_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "AJANTPHARM.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/AJANTPHARM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ABBOTINDIA.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ABBOTINDIA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HINDZINC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HINDZINC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "APLAPOLLO.NS",
+      "status": "OK",
+      "rows": 3545,
+      "earliest_date": "2011-12-14",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/APLAPOLLO_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "WELCORP.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/WELCORP_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "JSWENERGY.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/JSWENERGY_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "TORNTPOWER.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/TORNTPOWER_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ADANIPOWER.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ADANIPOWER_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "ADANIENT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/ADANIENT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "HINDPETRO.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/HINDPETRO_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "OIL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/OIL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "VBL.NS",
+      "status": "OK",
+      "rows": 2341,
+      "earliest_date": "2016-11-08",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/VBL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "COLPAL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/COLPAL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "EMAMILTD.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/EMAMILTD_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "JUBLFOOD.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/JUBLFOOD_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "NYKAA.NS",
+      "status": "OK",
+      "rows": 1104,
+      "earliest_date": "2021-11-10",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/NYKAA_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "JKCEMENT.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/JKCEMENT_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "RAMCOCEM.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/RAMCOCEM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "RVNL.NS",
+      "status": "OK",
+      "rows": 1741,
+      "earliest_date": "2019-04-11",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/RVNL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "KEC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/KEC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "THERMAX.NS",
+      "status": "OK",
+      "rows": 3777,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/THERMAX_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "KPIL.NS",
+      "status": "PARTIAL",
+      "rows": 702,
+      "earliest_date": "2023-05-30",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/KPIL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "PIIND.NS",
+      "status": "OK",
+      "rows": 3666,
+      "earliest_date": "2011-06-15",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/PIIND_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "SUMICHEM.NS",
+      "status": "OK",
+      "rows": 1548,
+      "earliest_date": "2020-01-27",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/SUMICHEM_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "GNFC.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/GNFC_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "COROMANDEL.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/COROMANDEL_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "APOLLOHOSP.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/APOLLOHOSP_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "MAXHEALTH.NS",
+      "status": "OK",
+      "rows": 1407,
+      "earliest_date": "2020-08-21",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/MAXHEALTH_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "FORTIS.NS",
+      "status": "OK",
+      "rows": 3778,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/FORTIS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "METROPOLIS.NS",
+      "status": "OK",
+      "rows": 1739,
+      "earliest_date": "2019-04-15",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/METROPOLIS_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "LALPATHLAB.NS",
+      "status": "OK",
+      "rows": 2555,
+      "earliest_date": "2015-12-23",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/LALPATHLAB_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "INDIGO.NS",
+      "status": "OK",
+      "rows": 2583,
+      "earliest_date": "2015-11-10",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/INDIGO_NS.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^NSEI",
+      "status": "OK",
+      "rows": 3757,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_NSEI.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^NSEBANK",
+      "status": "OK",
+      "rows": 3772,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_NSEBANK.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^CNXIT",
+      "status": "OK",
+      "rows": 3772,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_CNXIT.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^CNXPHARMA",
+      "status": "OK",
+      "rows": 3752,
+      "earliest_date": "2011-01-31",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_CNXPHARMA.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^CNXAUTO",
+      "status": "OK",
+      "rows": 3626,
+      "earliest_date": "2011-07-12",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_CNXAUTO.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^CNXMETAL",
+      "status": "OK",
+      "rows": 3626,
+      "earliest_date": "2011-07-12",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_CNXMETAL.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^CNXENERGY",
+      "status": "OK",
+      "rows": 3738,
+      "earliest_date": "2011-01-31",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_CNXENERGY.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^CNXFMCG",
+      "status": "OK",
+      "rows": 3737,
+      "earliest_date": "2011-01-31",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_CNXFMCG.parquet",
+      "error": null,
+      "attempts": 1
+    },
+    {
+      "symbol": "^CNXINFRA",
+      "status": "OK",
+      "rows": 3757,
+      "earliest_date": "2011-01-03",
+      "latest_date": "2026-04-29",
+      "parquet_path": "lab/cache/_index_CNXINFRA.parquet",
+      "error": null,
+      "attempts": 1
+    }
+  ],
+  "coverage_pct": 97.46,
+  "coverage_status": "OK"
+}
