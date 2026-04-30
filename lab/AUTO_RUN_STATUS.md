@@ -1,10 +1,87 @@
-# Auto-Run Status — Overnight INV Auto-Mode (2026-04-30 → 2026-05-01)
+# Auto-Run Status — Lab progress log
 
-**Latest session:** Overnight unattended INV auto-mode (user OUT ~6-8 hr).
-**Scope:** INV-001 + INV-002 build + execute. NO INV-003. NO INV-005. NO promotion. NO main.
+**Latest session:** INV-003 99-cohort matrix scan (post-Caveat 1 backfill).
 **Branch:** `backtest-lab` (main branch carries only the dispatcher YAML carve-out per TIY rule 11).
 
 ---
+
+## INV-003 session (2026-04-30, latest)
+
+| Phase | Status | Commit |
+|-------|--------|--------|
+| 0 — Pre-flight | ✅ All tripwires clean (T1 data: 3 outputs + 7 sector indices; T2: 41/41 pytest; T5: not exercised) | n/a |
+| 1 — INV-003 build | ✅ 425-line script; 117-cohort matrix (13 sectors × 3 regimes × 3 signals; ROADMAP spec was 99 but actual data has 13 sectors) | `a44b148e` |
+| 2 — INV-003 execute | ✅ Runtime 970ms; findings.md 13.8 KB; 8 sections | `d7a107a8` |
+| 3 — Status update | ✅ this commit | (next) |
+
+**Tripwires fired:** NONE. T3 didn't halt (used as INSUFFICIENT_N flag per spec; 4 cohorts flagged). T4 didn't fire (0 eval errors).
+
+### INV-003 headline (data only; NO promotion calls)
+
+| Bucket | Count |
+|---|---|
+| Total cohorts evaluated | 117 |
+| Boost candidates (Tier S/A/B BOOST) | **3** (all Tier B) |
+| Kill candidates (Tier S/A/B KILL) | **4** (all Tier B) |
+| REJECT cohorts | 106 |
+| INSUFFICIENT_N | 4 |
+| Eval errors | 0 |
+
+**No Tier S or A surfaced anywhere in the matrix** — all 7 surfaced candidates are Tier B (watch-only per spec). This is consistent with the broader-market intuition that 15-year average WR is rarely far from coin-flip; most patterns shake out as REJECT once OOS-discipline + drift bounds + Wilson gates are applied.
+
+**Boost candidates (Tier B):**
+- `Pharma × Bull × BULL_PROXY` — train n=161, train WR 0.61, test WR 0.53, drift 8.4pp
+- `CapGoods × Bear × UP_TRI` — train n=754, train WR 0.60, test WR 0.56, drift 4.9pp
+- `Chem × Bear × UP_TRI` — train n=938, train WR 0.60, test WR 0.53, drift 7.3pp
+
+**Kill candidates (Tier B):**
+- `Other × Bear × BULL_PROXY` — train n=35 (**borderline**; Caveat 2 vulnerable)
+- `Infra × Choppy × BULL_PROXY` — train n=129, train WR 0.38, test WR 0.45, drift 7pp
+- `FMCG × Bull × DOWN_TRI` — train n=625, train WR 0.38, test WR 0.43, drift 5.2pp
+- `Energy × Bear × DOWN_TRI` — train n=243, train WR 0.40, test WR 0.44, drift 3.6pp
+
+### Cross-validation with prior INV results (internal consistency check)
+
+| Standalone INV | Cell verdict | Prior verdict | Match? |
+|---|---|---|---|
+| INV-001 (UP_TRI × Bank × Choppy) | REJECT | REJECT | ✓ |
+| INV-002 (UP_TRI × Bank × Bear) | REJECT | REJECT | ✓ |
+
+Both INV-001 and INV-002 cells in INV-003 matrix REJECT — internally consistent with standalone investigations. Cohort filters and tier evaluators behave identically in matrix-scan vs single-investigation contexts.
+
+### Findings generated (USER REVIEW REQUIRED)
+
+- `lab/analyses/INV-003_findings.md` — 13865 bytes, 8 sections (A boost / B kill / C reject / D insufficient_n / E headline / F open questions / promotion deferral / caveats banner)
+
+### User decisions deferred (per Lab Discipline Principle 6)
+
+1. **Boost candidates → potential mechanism INV follow-ups:** decide which of the 3 Tier B boost cohorts (Pharma/CapGoods/Chem) warrant pre-registration as INV-006/007/008+
+2. **Kill candidates → potential `mini_scanner_rules.kill_patterns` promotion:** apply Gate 4 (GTB validation) + Gate 5 (mechanism) + Gate 7 (user review) before any patterns.json transition. Note: `Other × Bear × BULL_PROXY` n=35 is borderline marginal — Caveat 2 audit highly relevant
+3. **kill_002 path with INV-003 context:** matrix shows no Bank × Choppy cohort better explains Apr 2026 cluster than the original kill_002 candidate. INV-001 standalone (REJECT) + INV-003 matrix cell (REJECT) + Phase 4 60d_ret subset analysis (kill_002_v2 had no effect) all align — kill_002 conviction-tag path needs user judgment with full picture
+4. **patterns.json status:** INV-001/002/003 stay PRE_REGISTERED; user-only transition to COMPLETED
+5. **Caveat 2 audit:** required before promoting any borderline-n candidate (especially Other × Bear × BULL_PROXY at n=35, Pharma × Bull × BULL_PROXY at n=161)
+
+### Outstanding for future sessions
+
+- Caveat 2 audit (~30-45 min) — investigate the 23 missing live signals from MS-2 cross-validation; categorize root cause; re-validate borderline-n INV-003 candidates after audit
+- INV-005 (macro-window) — low priority deferred per founding spec
+- kill_002 + S-6 + M-17 ship to main — separate main-branch session; depends on user's INV-001 conviction-tag decision informed by INV-003 cross-reference
+- Mechanism INVs (INV-006+) for any boost candidates user opts to follow up
+
+### Recommended next step
+
+User reviews `lab/analyses/INV-003_findings.md` end-to-end with fresh judgment. Then synthesizes across INV-001 / INV-002 / INV-003 + Phase 4 cluster verification before any promotion calls. NO single-finding-driven decisions; the 3-investigation picture should converge or surface tensions for further investigation.
+
+### Session end state
+
+- Branch: `backtest-lab`
+- HEAD commit: (set by next commit after this status update)
+- Working tree: clean
+- All commits pushed to origin
+
+---
+
+## Earlier sessions (history below)
 
 ## INV auto-mode session (latest)
 
