@@ -289,6 +289,35 @@
       },
       "investigation_artifacts": [],
       "note": "BTST_INSIDE_DAY_BREAKOUT detection requires next-day open reference; entry model differs from existing D6 LONG signals. Adoption requires bridge L1 PRE_MARKET composer extension to surface BTST entries before market open. BTST signals also carry overnight-gap risk (entry at next-day open, gap-down possible) — risk profile differs from existing intraday signals."
+    },
+    {
+      "pattern_id": "INV-013",
+      "status": "PRE_REGISTERED",
+      "type": "INVESTIGATION_DISCOVERY_SCAN",
+      "registered_date": "2026-05-01",
+      "expected_run_session": "TBD",
+      "cohort": {
+        "scope": "DOWN_TRI signals only across 15-year backtest",
+        "signal_filter": "DOWN_TRI",
+        "regime_filter": "ALL"
+      },
+      "hypothesis_primary": "INV-006 DOWN_TRI exit timing was invalidated by runner bug (LONG-only pnl + stop semantics applied to SHORT-direction signals). After fixing runner with direction-aware logic, identify whether D6 is optimal exit for DOWN_TRI signals or whether some other variant beats it.",
+      "methodology": "1. Fix lab/analyses/inv_006_runner.py evaluate_signal_all_variants to detect signal direction and apply correct pnl + stop semantics per direction (LONG: pnl = exit/entry-1, stop_hit = low<=stop ; SHORT: pnl = entry/exit-1, stop_hit = high>=stop). 2. Re-run with same 12 exit variants for DOWN_TRI signals only. 3. Compute lifetime cohort + train/test split + tier evaluation per variant. 4. Compare to D6 baseline. Use updated INV-006 schema.",
+      "live_evidence_at_registration": {
+        "tier_eligibility_today": "N/A — investigates analysis methodology gap (INV-006 runner DOWN_TRI bug); no specific live cohort to evaluate."
+      },
+      "expected_outcome": "(a) D6 confirmed best for DOWN_TRI → no change; (b) Some other variant beats D6 on WR + pnl jointly → DOWN_TRI-specific exit migration candidate; (c) DOWN_TRI exits show no clear winner → maintain D6 default.",
+      "promotion_gate_status": {
+        "gate_1_hypothesis_registered": "PASS",
+        "gate_2_backtest_infrastructure_used": "PENDING",
+        "gate_3_oos_protocol": "PENDING_per_variant",
+        "gate_4_ground_truth_validation": "PENDING_per_variant",
+        "gate_5_mechanism_explanation": "PENDING_per_variant",
+        "gate_6_sector_specificity": "PENDING",
+        "gate_7_user_review": "PENDING"
+      },
+      "investigation_artifacts": [],
+      "note": "Pre-registered as follow-up to INV-006 runner bug audit. NO live or backtest production fix needed (live scanner outcome_evaluator.py:716-723 + signal_replayer.py:182-222 both verified correct for SHORT direction); only INV-006 runner code requires direction-aware logic before DOWN_TRI variants can be re-validated."
     }
   ],
   "rejection_history": [],
