@@ -1,6 +1,6 @@
 # Lab Decisions Log
 
-**Last updated:** 2026-05-03
+**Last updated:** 2026-05-03 (post-INV-013 review)
 
 This is the canonical persistent ledger of Lab decisions — pending, resolved, and
 blocked. Companion to `FINDINGS_LOG.md` (cross-investigation findings ledger).
@@ -52,20 +52,28 @@ decisions; this file tracks what awaits user judgment.
 - **Recommended verdict (TBD):** NO_EDGE — vol regime filter shows 0 CANDIDATE cells, 1 MARGINAL, 0 tier-earning cells across 9-cell matrix. No filter promotion candidates surfaced. Verdict suggestion: `REJECT_FILTER_NO_VOL_REGIME_EDGE` or similar.
 - **Finalized verdict + rationale:** PENDING user judgment per Lab Discipline Principle 6
 
-### INV-013 patterns.json status update
-- **From:** PRE_REGISTERED
-- **To:** COMPLETED (after user review)
-- **Status:** PENDING user review
-- **Recommended verdict (TBD):** PARTIAL_DOWN_TRI_SHORTER_HOLD_PNL_CANDIDATES_NO_WR_EDGE — 0 variants beat D6 on WR; 6 variants (D2/D3/D4/D5/TRAIL_1.5xATR/LADDER_B) beat on pnl ≥10% relative + p<0.05; D2 strongest at +66.5% rel. DOWN_TRI structurally negative (D6 avg_pnl -0.607%); shorter holds reduce loss but don't produce positive pnl.
-- **Finalized verdict + rationale:** PENDING user judgment per Lab Discipline Principle 6
-- **INV-006 inversion verified:** D6 sum INV-006 (0.5347) + INV-013 (0.4653) = 1.0000 EXACT — runner-bug-fix confirmed mathematically clean
+### DOWN_TRI signal viability (entire signal type)
+- **Status:** PENDING
+- **Lab evidence:** DOWN_TRI lifetime backtest negative across 15 years (n=18,097, WR 46.5%, avg_pnl -0.607%/trade, R-mult -0.16). Even best exit variant (D2) still produces -0.20% avg pnl per trade.
+- **Question:** should DOWN_TRI be retired from scanner entirely, kept with structural caveat, or restricted to specific cohorts only (per INV-003 Tier B kill candidates: FMCG×Bull, Energy×Bear)?
+- **Decision impact:** live scanner architecture; signal taxonomy
+- **Source:** INV-013 Section 5 (headline) + Section 2 (per-variant table)
+- **Cross-references:** INV-001 Section 3a (DOWN_TRI inverse pattern); INV-003 (FMCG×Bull DOWN_TRI Tier B kill, Energy×Bear DOWN_TRI Tier B kill)
+- **Recommended timing:** defer until INV-010 + INV-012 complete; final decision in Phase 2 calibration session
+- **Resolution_date:** TBD
 
-### DOWN_TRI HOLDING_DAYS migration (if INV-013 surfaces candidate)
-- **Status:** PENDING (awaits user review of INV-013 findings)
-- **Lab evidence:** D2 plausibly net positive on pnl (+66.5% rel improvement; -0.203% vs D6 -0.607%); WR slightly higher (0.487 vs 0.4653); but DOWN_TRI cohort structurally negative
-- **Decision context:** combine with UP_TRI D10 + BULL_PROXY D6 decisions for unified scanner.config update. Signal-specific exits required: LONG signals prefer LONGER holds (D10), SHORT signals prefer SHORTER holds (D2-D5). Migration to per-signal HOLDING_DAYS config required.
-- **Implementation scope (if approved):** scanner/config.py per-signal HOLDING_DAYS map (UP_TRI=10, BULL_PROXY=6, DOWN_TRI=2 or 3) instead of single global value
-- **Caveat:** DOWN_TRI structural negativity raises broader question whether to keep DOWN_TRI signal at all (not within INV-013 scope; flag for user)
+### DOWN_TRI HOLDING_DAYS migration (if signal kept)
+- **Status:** PENDING (depends on DOWN_TRI viability decision above)
+- **Lab evidence:** D2 best variant +66.5% pnl improvement vs D6 baseline; D3-D5 also valid candidates (+18-56% pnl)
+- **Decision context:** combine with UP_TRI D10 (INV-006) and BULL_PROXY D6 (INV-006) for unified scanner.config update; requires per-signal HOLDING_DAYS map architecture change (not single constant)
+- **Resolution_date:** TBD
+
+### Per-signal HOLDING_DAYS architecture migration
+- **Status:** PENDING
+- **Lab evidence:** INV-006 + INV-013 demonstrate LONG signals favor longer holds (D10 for UP_TRI), SHORT signals favor shorter holds (D2-D3 for DOWN_TRI). Single HOLDING_DAYS constant in scanner.config insufficient.
+- **Decision impact:** scanner architecture change; affects entry/exit logic in scanner_core.py + outcome_evaluator.py
+- **Cross-references:** INV-006 + INV-013
+- **Resolution_date:** TBD
 
 ### Caveat 2 audit (9.31% MS-2 miss-rate)
 - **Status:** PENDING
