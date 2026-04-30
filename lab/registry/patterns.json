@@ -184,7 +184,12 @@
     },
     {
       "pattern_id": "INV-007",
-      "status": "PRE_REGISTERED",
+      "status": "COMPLETED",
+      "completion_date": "2026-05-02",
+      "verdict": "NO_EDGE_REJECT_FILTER",
+      "verdict_rationale": "9-cell matrix (3 signals × 3 vol buckets) shows 0 CANDIDATE cells; 1 MARGINAL (BULL_PROXY × Medium -2.02pp); 0 tier-earning cells. Nifty 20-day vol percentile filtering does not yield material edge.",
+      "findings_path": "lab/analyses/INV-007_findings.md",
+      "user_review_timestamp": "2026-05-02",
       "type": "INVESTIGATION_DISCOVERY_SCAN",
       "registered_date": "2026-04-30",
       "expected_run_session": "TBD (own session)",
