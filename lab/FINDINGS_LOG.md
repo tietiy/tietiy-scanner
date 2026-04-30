@@ -1,6 +1,6 @@
 # Lab Findings Log
 
-**Last updated:** 2026-05-01
+**Last updated:** 2026-05-02
 
 This is the canonical persistent log of all Lab findings. Companion to
 `DECISIONS_LOG.md` (pending decisions + verdict ledger). Individual
@@ -121,6 +121,45 @@ is the cross-investigation ledger.
 - **Findings:** `lab/analyses/INV-006_findings.md`
 - **Findings banner committed:** `58ccf85e`
 
+### INV-007 — Volatility regime filter discovery
+- **Cohorts evaluated:** 9 cells (3 signals × 3 vol buckets: Low/Medium/High)
+- **Vol definition:** Nifty 20-day rolling realized vol × √252; bucket thresholds p30=0.1082, p70=0.1604 (15-yr distribution)
+- **Bucket day counts:** Low 1121 / Medium 1494 / High 1121
+
+**Unfiltered baselines (vol-NaN signals excluded; 761 dropped of 105987):**
+- UP_TRI: n=71248, WR 0.5283
+- DOWN_TRI: n=17751, WR 0.4474
+- BULL_PROXY: n=4965, WR 0.5003
+
+**Surfaces found:**
+- CANDIDATE: 0 (none cleared |Δ WR| ≥ 5pp + p<0.05 + n≥100)
+- MARGINAL: 1 (BULL_PROXY × Medium −2.02pp; below CANDIDATE threshold but directional)
+- NO_EDGE: 8
+
+**Tier-earning cells (BOOST or KILL S/A/B):** 0 — all 9 cells reach REJECT on both hypothesis types
+
+**Cross-bucket avg Δ WR:**
+- Low: −0.07pp (signal-specific; signs vary)
+- Medium: −0.74pp (signal-specific)
+- High: +1.22pp (signal-specific; magnitude <2pp)
+
+**Largest single-cell deltas:**
+- BULL_PROXY × High +3.29pp (above baseline; below CANDIDATE threshold)
+- BULL_PROXY × Medium −2.02pp (MARGINAL)
+- UP_TRI × High +1.28pp
+- DOWN_TRI × High −0.91pp
+
+**Headline finding:** Vol regime filter does not yield clear edge in current universe. No filter promotion candidates surfaced; vol regime adds no statistically significant differentiation to UP_TRI / DOWN_TRI / BULL_PROXY signals in 15-year backtest.
+
+**Caveats:**
+- Vol warm-up exclusion: 20 days dropped (761 signals, 0.72% of universe)
+- Caveat 2 (9.31% MS-2 miss-rate) inherited but unlikely to swing verdict given uniform NO_EDGE across cells
+- Direction handling correct: hypothesis_tester.evaluate_hypothesis used exclusively (no LONG-only manual recomputation; INV-006 runner bug pattern avoided)
+
+- **Status:** COMPLETED (patterns.json status update pending user review)
+- **Findings:** `lab/analyses/INV-007_findings.md`
+- **Pending decision:** review filter surfaces; decide if any warrant filter implementation (recommended: NONE — verdict NO_EDGE)
+
 ---
 
 ## Pending decisions
@@ -143,4 +182,5 @@ See `lab/DECISIONS_LOG.md` for full ledger. Headline pending items:
 - D6 exit confirmed strong baseline; D10 candidate for UP_TRI specifically (+16% capital efficiency, -2pp deeper p5 tail)
 - Apr 2026 cluster appears outlier event, not structural pattern — Phase 4 verification ruled out the Section 2b filter as explanation
 - Bank cohorts (UP_TRI × Bank in Bear / Choppy) both REJECT — informational about Bank tradeability in current regimes
-- Discovery investigations INV-007 / INV-010 / INV-012 still pre-registered awaiting execution sessions
+- Discovery investigations INV-010 / INV-012 still pre-registered awaiting execution sessions; INV-007 COMPLETED (NO_EDGE verdict)
+- Three completed discovery investigations (INV-003 117-cohort, INV-006 exit timing, INV-007 vol filter) all converge on a consistent picture: the current signal universe is statistically near-coin-flip after OOS + drift + Wilson gates; no Tier S/A patterns surface from any direction

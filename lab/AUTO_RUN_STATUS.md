@@ -1,9 +1,60 @@
 # Auto-Run Status — Lab progress log
 
-**Latest session:** Documentation lockdown (2026-05-01).
+**Latest session:** INV-007 volatility regime filter discovery (2026-05-02; user OUT auto-mode).
 **Branch:** `backtest-lab` (main branch carries only the dispatcher YAML carve-out per TIY rule 11).
 
 > **Canonical sources going forward:** `lab/FINDINGS_LOG.md` (cross-investigation findings ledger) and `lab/DECISIONS_LOG.md` (pending decisions ledger). This file remains the chronological session log; the two canonical files are the indexed cross-references.
+
+---
+
+## INV-007 session (2026-05-02; user OUT auto-mode)
+
+| Phase | Status | Commit |
+|---|---|---|
+| 0 — Pre-flight | ✅ pytest 41/41; Nifty parquet sane (3757 rows; 1 NaN dropped); 404G disk free | n/a |
+| 1 — INV-007 build | ✅ 543-line script; 9-cell vol-bucket × signal matrix; uses hypothesis_tester.evaluate_hypothesis (no LONG-only bug) | `56e7049a` |
+| 2 — INV-007 execute | ✅ 235ms runtime; 9 cells evaluated; 7.2 KB findings.md | `9dfa74a0` |
+| 3 — Logs update | ✅ this commit | (next) |
+
+**Tripwires fired:** NONE. T3 not exercised (all cells n_excl_flat ≥ 1279, well above 100 floor). T4/T5/T9/T10 all clean.
+
+### INV-007 headline (data only; NO promotion calls)
+
+| Metric | Value |
+|---|---|
+| Cells evaluated | 9 (3 signals × 3 vol buckets) |
+| **CANDIDATE filter cells** | **0** (none cleared 5pp + p<0.05 + n≥100) |
+| MARGINAL cells | 1 (BULL_PROXY × Medium −2.02pp) |
+| Tier-earning cells (S/A/B) | **0** — all 9 REJECT on both BOOST and KILL |
+| INSUFFICIENT_N | 0 |
+| Eval errors | 0 |
+
+**Verdict:** Vol regime filter does not yield clear edge in 15-year backtest. No filter promotion candidates surfaced. Cross-bucket avg deltas all <2pp; signal-specific not universal.
+
+**Vol percentile thresholds (15-yr):** Low <p30 (vol < 0.1082), Medium p30-p70, High >p70 (vol > 0.1604).
+
+### Pending user decisions
+
+1. **INV-007 patterns.json status update:** PRE_REGISTERED → COMPLETED. Recommended verdict: NO_EDGE / REJECT_FILTER (matches headline). User finalizes per `DECISIONS_LOG.md`.
+2. **UP_TRI HOLDING_DAYS migration to D10** — still deferred; awaiting INV-010 + INV-012 completion before batch decision. INV-007 result does not change this decision (vol regime not a filter; D10 question independent).
+3. **Cross-INV synthesis update:** INV-003 (117-cohort) + INV-006 (exit timing) + INV-007 (vol filter) now all complete with consistent picture — current signal universe statistically near-coin-flip after OOS + drift + Wilson gates; no Tier S/A patterns from any direction.
+
+### Findings generated
+
+- `lab/analyses/INV-007_findings.md` — 7.2 KB; 6 sections (caveats / methodology / per-cell / surfaces / tier eval / cross-signal / headline / open questions)
+
+### Lab readiness (updated)
+
+- 5 investigations COMPLETED in patterns.json + 1 awaiting status update (INV-007)
+- 4 investigations PRE_REGISTERED awaiting execution sessions (INV-005 / INV-010 / INV-012 / INV-013)
+- INV-007 NO_EDGE verdict adds to converging picture: 3 discovery scans (INV-003 / INV-006 / INV-007) all surface near-coin-flip lifetime statistics
+
+### Session end state
+
+- Branch: `backtest-lab`
+- HEAD commit: (set by next commit after this status update)
+- Working tree: clean
+- All commits pushed to origin
 
 ---
 

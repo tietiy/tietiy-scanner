@@ -1,6 +1,6 @@
 # Lab Decisions Log
 
-**Last updated:** 2026-05-01
+**Last updated:** 2026-05-02
 
 This is the canonical persistent ledger of Lab decisions — pending, resolved, and
 blocked. Companion to `FINDINGS_LOG.md` (cross-investigation findings ledger).
@@ -51,6 +51,13 @@ decisions; this file tracks what awaits user judgment.
 - **Status:** PENDING (defer to dedicated review session)
 - **Boost candidates:** Pharma × Bull × BULL_PROXY (n=161), CapGoods × Bear × UP_TRI (n=754), Chem × Bear × UP_TRI (n=938)
 - **Kill candidates:** Other × Bear × BULL_PROXY (n=35), Infra × Choppy × BULL_PROXY (n=129), FMCG × Bull × DOWN_TRI (n=625), Energy × Bear × DOWN_TRI (n=243)
+
+### INV-007 patterns.json status update
+- **From:** PRE_REGISTERED
+- **To:** COMPLETED (after user review)
+- **Status:** PENDING user review
+- **Recommended verdict (TBD):** NO_EDGE — vol regime filter shows 0 CANDIDATE cells, 1 MARGINAL, 0 tier-earning cells across 9-cell matrix. No filter promotion candidates surfaced. Verdict suggestion: `REJECT_FILTER_NO_VOL_REGIME_EDGE` or similar.
+- **Finalized verdict + rationale:** PENDING user judgment per Lab Discipline Principle 6
 
 ### Caveat 2 audit (9.31% MS-2 miss-rate)
 - **Status:** PENDING
