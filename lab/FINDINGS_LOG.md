@@ -1,6 +1,6 @@
 # Lab Findings Log
 
-**Last updated:** 2026-05-04
+**Last updated:** 2026-05-05
 
 This is the canonical persistent log of all Lab findings. Companion to
 `DECISIONS_LOG.md` (pending decisions + verdict ledger). Individual
@@ -245,6 +245,48 @@ DOWN_TRI cohort is structurally challenged (consistent with Indian equity bull b
 - **Output:** `lab/output/backtest_signals_INV010.parquet` (1827 rows)
 - **Pending decision:** review GAP_BREAKOUT viability — full signal vs conditional sub-cohort signal vs archive
 
+### INV-012 — BTST signal discovery
+- **Detectors tested:** 4 (BTST_LAST_30MIN_STRENGTH, BTST_SECTOR_LEADER_ROTATION, BTST_POST_PULLBACK_RESUMPTION, BTST_INSIDE_DAY_BREAKOUT)
+- **Hold variants:** 3 (HOLD_OPEN = T+1 open exit; HOLD_CLOSE = T+1 close exit; HOLD_D2 = T+2 close exit)
+- **Total cells:** 12 (4 × 3)
+- **Total signal records:** 134,848 (37s runtime)
+
+**Per-detector signal counts:**
+- BTST_LAST_30MIN_STRENGTH: 16,727
+- BTST_SECTOR_LEADER_ROTATION: 15,603
+- BTST_POST_PULLBACK_RESUMPTION: 605
+- BTST_INSIDE_DAY_BREAKOUT: 101,913 (T6 flagged: above 50K — may be too lax; investigation continued; flagged for user review on detector tightening)
+
+**🌟 FIRST TIER S in Lab history — 4 of 12 cells earn Lab tier (S/A/B); ALL on HOLD_OPEN variant:**
+- **BTST_LAST_30MIN_STRENGTH × HOLD_OPEN: WR 0.7715, n_excl_flat 8597, drift 1.64pp, avg_pnl 0.3827%/trade → BOOST TIER S** ⭐
+- BTST_SECTOR_LEADER_ROTATION × HOLD_OPEN: WR 0.6948, n 6426, drift 8.48pp, avg_pnl 0.2228%/trade → BOOST TIER A
+- BTST_POST_PULLBACK_RESUMPTION × HOLD_OPEN: WR 0.7297, n 344, drift 16.58pp, avg_pnl 0.3678%/trade → BOOST TIER B (drift large; n marginal)
+- BTST_INSIDE_DAY_BREAKOUT × HOLD_OPEN: WR 0.6689, n 42419, drift 5.05pp, avg_pnl 0.1851%/trade → BOOST TIER A
+
+**HOLD_CLOSE + HOLD_D2 universally REJECT across all 4 detectors.** Cross-detector pattern: end-of-day momentum signals predict next-day OPEN gap-up; alpha decays during the day. Holding overnight only captures the gap; holding through the day exposes to mean reversion.
+
+**vs UP_TRI baseline:** UP_TRI WR 0.5281 (n=71,865, D6 hold). BTST HOLD_OPEN materially exceeds at WR 0.67-0.77 — but BTST is a different time horizon (overnight vs D6 swing) so direct comparison is structural rather than apples-to-apples.
+
+**Critical context — first Tier S in Lab:**
+- Across 7 prior completed investigations (INV-001/002/003/006/007/010/013), maximum tier surfaced was Tier B (in INV-003 sub-cohorts and INV-010 sub-cohorts). 0 Tier S or A across hundreds of cohorts tested.
+- INV-012 produces 1 Tier S + 2 Tier A + 1 Tier B in a single investigation.
+- Suspicion-check warranted: is the result a real edge, a methodology artifact (overnight gap-up bias in the universe), or a multiple-comparison artifact?
+- 4/12 hits at p<0.05 thresholds = 33% rate >> 5% expected false positive rate. NOT a multiple-comparison artifact at face value.
+- Could be detector design hitting a real overnight gap bias — Indian equities have well-documented overnight bias. The Tier S finding may be capturing this rather than a unique edge.
+- avg_pnl per HOLD_OPEN trade modest (0.18-0.38%) but with high WR + large n, potentially economically meaningful for overnight stat-arb-like strategy IF execution costs allow.
+
+**Caveats:**
+- Caveat 2 (9.31% MS-2 miss-rate) inherited; sub-cohort tier hits at marginal n vulnerable
+- T6 flagged for BTST_INSIDE_DAY_BREAKOUT (n=101,913 above 50K threshold — likely too lax detector); user may want to tighten before promotion
+- BTST architectural impact: scanner integration would require bridge L1 PRE_MARKET composer extension + L2 POST_OPEN exit composer — separate main-branch workstream
+- Overnight execution costs (slippage on T+1 open) NOT modeled in pnl; real-world edge may be lower than backtest WR suggests
+- Drift sign: positive drift means test_WR > train_WR (signal stable or improving across periods) — NOT a decaying pattern
+
+- **Status:** COMPLETED (patterns.json status update pending user review)
+- **Findings:** `lab/analyses/INV-012_findings.md` (29.5 KB; 7 sections)
+- **Output:** `lab/output/backtest_signals_INV012.parquet` (134,848 rows; 5.2 MB)
+- **Pending decision:** review BTST viability with appropriate skepticism given the Tier S landmark; user judgment per Gate 7 before any scanner integration
+
 ---
 
 ## Pending decisions
@@ -272,3 +314,5 @@ See `lab/DECISIONS_LOG.md` for full ledger. Headline pending items:
 - INV-013 (DOWN_TRI direction-aware exit timing) closes the INV-006 runner-bug-fix loop with a structural finding: SHORT signals favor SHORTER holds (D2-D5) — opposite direction from LONG signals (which favor LONGER holds D10). Signal-specific exits required if migration pursued.
 - Four completed exit-timing investigations (INV-006 UP_TRI/BULL_PROXY/DOWN_TRI-invalid + INV-013 DOWN_TRI-corrected) now span the full LONG/SHORT space with consistent semantics
 - INV-010 (GAP_BREAKOUT new signal) completes — lifetime tier REJECT but 4 sub-cohorts earn Tier B BOOST; reinforces that signal-cohort interaction matters (Bank×Choppy was REJECT for UP_TRI but Tier B for GAP_BREAKOUT). Adds INV-010 to discovery space along with INV-003/006/007/013.
+- INV-012 (BTST signal discovery) completes with **Lab's first Tier S** (BTST_LAST_30MIN_STRENGTH × HOLD_OPEN, WR 0.77 n=8597). 4 of 12 cells earn tier; all on HOLD_OPEN variant. Cross-detector pattern: overnight gap-up captures alpha; intraday hold mean-reverts. Notable inflection in Lab landscape — first non-coin-flip cohort surfaces from a different time horizon (overnight vs swing) and a different signal family (BTST vs technical breakout). Suspicion check warranted before promotion: real edge vs Indian-equity overnight gap bias artifact vs methodology bias.
+- 8 completed investigations with 1 Tier S, 2 Tier A, 1 Tier B + several sub-cohort Tier B hits across the discovery space. Lab cumulative picture has shifted from "uniformly near-coin-flip" to "swing signals near-coin-flip; BTST overnight signals show edge."

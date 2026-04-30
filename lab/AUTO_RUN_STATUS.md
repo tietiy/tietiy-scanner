@@ -1,9 +1,90 @@
 # Auto-Run Status — Lab progress log
 
-**Latest session:** INV-010 GAP_BREAKOUT new entry signal discovery (2026-05-04; user OUT auto-mode).
+**Latest session:** INV-012 BTST signal discovery (2026-05-05; user OUT auto-mode). 🌟 **First Tier S in Lab history.**
 **Branch:** `backtest-lab` (main branch carries only the dispatcher YAML carve-out per TIY rule 11).
 
 > **Canonical sources going forward:** `lab/FINDINGS_LOG.md` (cross-investigation findings ledger) and `lab/DECISIONS_LOG.md` (pending decisions ledger). This file remains the chronological session log; the two canonical files are the indexed cross-references.
+
+---
+
+## INV-012 session (2026-05-05; user OUT auto-mode)
+
+| Phase | Status | Commit |
+|---|---|---|
+| 0 — Pre-flight | ✅ pytest 41/41; 197 cache parquets; sector_momentum 8 indexed sectors; INV-012 PRE_REGISTERED | n/a |
+| 1 — INV-012 build | ✅ 915-line script; 4 BTST detectors × 3 hold variants; LONG semantics throughout | `22d299b1` |
+| 2 — INV-012 execute | ✅ 37s runtime (vectorized detection); 134,848 signal records; findings.md 29.5 KB | `87532e19` |
+| 3 — Logs update | ✅ this commit | (next) |
+
+**Tripwires fired:** T6 NOTE for BTST_INSIDE_DAY_BREAKOUT (n=101,913 above 50K threshold — flagged in findings, investigation continued; user may want to tighten detector). T3/T4/T5/T7-T10 all clean.
+
+### INV-012 headline (data only; NO promotion calls)
+
+**🌟 4 of 12 cells earn Lab tier — ALL on HOLD_OPEN (overnight) variant:**
+
+| Detector | Hold | n_excl_flat | WR | Drift_pp | avg_pnl | Tier |
+|---|---|---|---|---|---|---|
+| BTST_LAST_30MIN_STRENGTH | HOLD_OPEN | 8597 | **0.7715** | 1.64 | 0.3827% | **BOOST S** ⭐ |
+| BTST_SECTOR_LEADER_ROTATION | HOLD_OPEN | 6426 | 0.6948 | 8.48 | 0.2228% | BOOST A |
+| BTST_POST_PULLBACK_RESUMPTION | HOLD_OPEN | 344 | 0.7297 | 16.58 | 0.3678% | BOOST B |
+| BTST_INSIDE_DAY_BREAKOUT | HOLD_OPEN | 42419 | 0.6689 | 5.05 | 0.1851% | BOOST A |
+
+**HOLD_CLOSE + HOLD_D2 universally REJECT** across all 4 detectors. Cross-detector pattern: end-of-day momentum signals predict next-day OPEN gap-up; alpha decays during the day. Holding overnight only captures the gap.
+
+**FIRST TIER S in Lab history.** Across 7 prior completed investigations (INV-001/002/003/006/007/010/013), maximum tier surfaced was Tier B. INV-012 produces 1 Tier S + 2 Tier A + 1 Tier B in a single investigation.
+
+**vs UP_TRI baseline:** UP_TRI WR 0.5281 (n=71,865, D6 hold). BTST HOLD_OPEN WR 0.67-0.77 — but different time horizon (overnight vs swing) so structural rather than apples-to-apples.
+
+### Suspicion-check (warranted given Tier S landmark)
+
+- 4/12 hits at p<0.05 thresholds = 33% rate >> 5% expected false-positive rate → NOT a multiple-comparison artifact at face value
+- May be capturing well-documented Indian-equity overnight gap bias rather than unique edge
+- avg_pnl 0.18-0.38%/trade modest; overnight execution costs (slippage on T+1 open) NOT modeled — real-world edge potentially lower
+- BTST_INSIDE_DAY_BREAKOUT detector too lax (n=101,913) — tighten before integration
+- Drift sign: positive (test_WR > train_WR) = signal stable or improving across periods, NOT decaying
+
+### Pending user decisions
+
+1. **INV-012 patterns.json status update:** PRE_REGISTERED → COMPLETED. Recommended verdict: PARTIAL_TIER_S_HOLD_OPEN_FOUR_DETECTORS_HOLD_CLOSE_D2_REJECT.
+2. **BTST scanner integration:** three-path framework (full BTST / top-tier-only / validate-before-integrate). User judgment required given Tier S landmark.
+3. **Tighten BTST_INSIDE_DAY_BREAKOUT** before any integration (T6 flagged).
+4. **Caveat 2 audit dependency:** Tier S finding warrants Caveat 2 audit before promotion regardless of path chosen.
+
+### Findings generated
+
+- `lab/analyses/INV-012_findings.md` — 29.5 KB; 7 sections (caveats / methodology / detection diagnostics / 12-cell tier table / sub-cohort breakdown / UP_TRI baseline + cross-detector synthesis / headline / open questions)
+- `lab/output/backtest_signals_INV012.parquet` — 134,848 rows; 5.2 MB
+
+### Cross-INV synthesis update (Lab landscape shift)
+
+8 completed investigations now span discovery space across multiple dimensions:
+
+| Investigation | Type | Outcome |
+|---|---|---|
+| INV-001 (UP_TRI Bank Choppy) | structural | REJECT |
+| INV-002 (UP_TRI Bank Bear) | small-sample | REJECT |
+| INV-003 (117-cohort matrix) | discovery | 7 Tier B sub-cohorts |
+| INV-006 (exit timing UP_TRI/BULL_PROXY) | parameter scan | D6 baseline holds |
+| INV-007 (vol regime filter) | filter discovery | NO_EDGE |
+| INV-010 (GAP_BREAKOUT new signal) | new signal | 4 sub-cohort Tier B BOOST |
+| INV-013 (DOWN_TRI direction-aware) | parameter scan | D2-D5 pnl-better |
+| **INV-012 (BTST)** | **new signal type** | **1 Tier S + 2 Tier A + 1 Tier B** |
+
+Pre-INV-012 picture: "swing signals statistically near-coin-flip after OOS gates."
+Post-INV-012 picture: "swing signals near-coin-flip; BTST overnight signals show meaningful edge."
+
+### Lab readiness (updated)
+
+- 8 investigations COMPLETED in patterns.json + 1 awaiting status update (INV-012)
+- 1 investigation PRE_REGISTERED: INV-005 low-priority (RBI macro-proximity filter; deferred indefinitely per prior session)
+- INV-012 closes "new signal type discovery" loop with strongest finding to date
+
+### Session end state
+
+- Branch: `backtest-lab`
+- HEAD commit: (set by next commit after this status update)
+- Working tree: clean
+- All commits pushed to origin
 
 ---
 

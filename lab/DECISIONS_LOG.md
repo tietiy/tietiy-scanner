@@ -1,6 +1,6 @@
 # Lab Decisions Log
 
-**Last updated:** 2026-05-04 (post-INV-010 auto-mode)
+**Last updated:** 2026-05-05 (post-INV-012 auto-mode)
 
 This is the canonical persistent ledger of Lab decisions — pending, resolved, and
 blocked. Companion to `FINDINGS_LOG.md` (cross-investigation findings ledger).
@@ -92,6 +92,29 @@ decisions; this file tracks what awaits user judgment.
 - **Implementation scope (if approved):** scanner.scanner_core extension for new signal type + scanner.config new signal registration + bridge composer signal-routing update; production deployment is separate main-branch workstream
 - **Caveat 2 priority:** any sub-cohort promotion needs Caveat 2 audit first (n=65-128 marginal)
 - **Cross-reference:** Bank×Choppy GAP_BREAKOUT earns Tier B (WR 0.58, n=74) despite INV-001 closing same cohort REJECT for UP_TRI — reinforces signal-cohort interaction; not transitive across signal types
+
+### INV-012 patterns.json status update
+- **From:** PRE_REGISTERED
+- **To:** COMPLETED (after user review)
+- **Status:** PENDING user review
+- **Recommended verdict (TBD):** PARTIAL_TIER_S_HOLD_OPEN_FOUR_DETECTORS_HOLD_CLOSE_D2_REJECT — 4 of 12 cells earn Lab tier (S/A/B); ALL on HOLD_OPEN variant. BTST_LAST_30MIN_STRENGTH × HOLD_OPEN earns FIRST TIER S in Lab history (WR 0.7715, n 8597, drift 1.64pp). HOLD_CLOSE + HOLD_D2 universally REJECT. Cross-detector pattern: end-of-day momentum predicts next-day OPEN gap-up; alpha decays during the day.
+- **Finalized verdict + rationale:** PENDING user judgment per Lab Discipline Principle 6 — Tier S finding requires extra scrutiny (Lab landmark; suspicion-check warranted)
+
+### BTST scanner integration (if INV-012 surfaces tier candidate — **YES, 4 cells earn tier**)
+- **Status:** PENDING (awaits user review of INV-012 findings)
+- **Lab evidence:** 1 Tier S + 2 Tier A + 1 Tier B all on HOLD_OPEN variant; HOLD_CLOSE + HOLD_D2 universally REJECT
+- **Decision context — three-path framework:**
+  1. **Full BTST integration:** add all 4 detectors as new BTST signal types in scanner_core.py with HOLD_OPEN exit only. Architectural change — BTST has different time horizon than swing signals. Bridge L1 PRE_MARKET composer extension + L2 POST_OPEN exit composer required.
+  2. **Top-tier-only integration:** add only BTST_LAST_30MIN_STRENGTH (Tier S) as priority signal; defer Tier A/B detectors. Lower implementation cost; validates Tier S landmark before broader rollout.
+  3. **Validate-before-integrate:** before scanner integration, run additional verification (Caveat 2 audit; out-of-sample forward-test on Apr-May 2026 live data; tighten BTST_INSIDE_DAY_BREAKOUT detector since T6 flagged at 101,913 signals).
+- **Implementation scope (if approved):** scanner.scanner_core extension for BTST signal types + scanner.config new signal registration + bridge L1 PRE_MARKET composer extension + L2 POST_OPEN exit composer extension + entry/exit logic for overnight hold; production deployment is separate main-branch architectural workstream
+- **Caveat 2 priority:** Tier S finding at marginal-Caveat-2 audit lock (audit not yet executed)
+- **Suspicion-check items:**
+  - Multiple-comparison: 4/12 = 33% hit rate at p<0.05 thresholds (vs 5% expected false-positive rate) — NOT artifact at face value, but Tier S concentration on single hold variant suggests real overnight bias
+  - Indian-equity overnight gap bias: well-documented pattern in NSE F&O segment; INV-012 may be capturing this rather than a unique edge — verification via overnight gap distribution (out of INV-012 scope; flagged for follow-up)
+  - Execution costs: avg_pnl 0.18-0.38%/trade; overnight execution slippage on T+1 open NOT modeled; real-world edge may be lower
+  - BTST_INSIDE_DAY_BREAKOUT detector too lax (n=101,913 vs T6 50K threshold) — tighten before integration
+- **Cross-reference:** first Tier S in Lab history; landmark relative to 7 prior REJECT verdicts on swing signals
 
 ### Caveat 2 audit (9.31% MS-2 miss-rate)
 - **Status:** PENDING
