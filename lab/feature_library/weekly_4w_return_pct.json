@@ -1,0 +1,16 @@
+{
+  "feature_id": "weekly_4w_return_pct",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.08",
+    "medium": "-0.08 to 0.08",
+    "high": ">0.08"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "Smooths daily noise; institutional swing-trader timeframe (4-week return).",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

@@ -1,0 +1,16 @@
+{
+  "feature_id": "swing_high_count_20d",
+  "value_type": "int",
+  "value_range": "0-10",
+  "level_thresholds": {
+    "low": "<2",
+    "medium": "2-3",
+    "high": ">3"
+  },
+  "direction": "bullish (low — fewer recent highs = breakout potential)",
+  "mechanism": "Count of pivot highs in last 20 bars via existing detect_pivots; few highs = price compressing toward breakout. v2 addition (Q2 resolution).",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "pattern",
+  "spec_version": "v2.1"
+}

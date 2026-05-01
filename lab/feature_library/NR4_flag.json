@@ -1,0 +1,16 @@
+{
+  "feature_id": "NR4_flag",
+  "value_type": "bool",
+  "value_range": "0/1",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "both",
+  "mechanism": "Today's range = narrowest of last 4 days. Classical pre-breakout volatility-contraction pattern.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "compression",
+  "spec_version": "v2.1"
+}

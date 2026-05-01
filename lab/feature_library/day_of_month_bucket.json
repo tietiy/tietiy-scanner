@@ -1,0 +1,16 @@
+{
+  "feature_id": "day_of_month_bucket",
+  "value_type": "categorical",
+  "value_range": "wk1 / wk2 / wk3 / wk4",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "both (regime-dep)",
+  "mechanism": "Day-of-month bucket: 1-7 (wk1), 8-14 (wk2), 15-21 (wk3), 22-31 (wk4). Calendar-event proxy.",
+  "data_source": "signal-row",
+  "computation_complexity": "cheap",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

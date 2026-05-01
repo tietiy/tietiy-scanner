@@ -1,0 +1,16 @@
+{
+  "feature_id": "range_compression_10d",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.03",
+    "medium": "0.03-0.07",
+    "high": ">0.07"
+  },
+  "direction": "bullish (low)",
+  "mechanism": "Tighter range over 10d = accumulation/distribution; 10d timeframe captures intermediate compression.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "compression",
+  "spec_version": "v2.1"
+}

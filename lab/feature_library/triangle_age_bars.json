@@ -1,0 +1,16 @@
+{
+  "feature_id": "triangle_age_bars",
+  "value_type": "int",
+  "value_range": "0-100",
+  "level_thresholds": {
+    "low": "<10",
+    "medium": "10-30",
+    "high": ">30"
+  },
+  "direction": "bullish (medium — not too old)",
+  "mechanism": "Bars since triangle pattern initiated. Too new = not enough confirmation; too old = breakout may have already failed or pattern broken.",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "pattern",
+  "spec_version": "v2.1"
+}

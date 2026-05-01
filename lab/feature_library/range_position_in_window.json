@@ -1,0 +1,16 @@
+{
+  "feature_id": "range_position_in_window",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.25",
+    "medium": "0.25-0.75",
+    "high": ">0.75"
+  },
+  "direction": "both (regime-dep)",
+  "mechanism": "Close position in 20d high-low range; <0.25 near low (potential reversal), >0.75 near high (continuation candidate).",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "compression",
+  "spec_version": "v2.1"
+}

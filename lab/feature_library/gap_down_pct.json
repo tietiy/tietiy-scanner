@@ -1,0 +1,16 @@
+{
+  "feature_id": "gap_down_pct",
+  "value_type": "float",
+  "value_range": "-0.1 to 0.1",
+  "level_thresholds": {
+    "low": "<-0.02",
+    "medium": "-0.02 to -0.005",
+    "high": ">-0.005"
+  },
+  "direction": "bearish (high+ | abs)",
+  "mechanism": "today_open / prev_close - 1; if negative, gap down. Mirrors gap_up_pct for downside.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "pattern",
+  "spec_version": "v2.1"
+}

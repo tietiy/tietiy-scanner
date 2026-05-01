@@ -1,0 +1,16 @@
+{
+  "feature_id": "vol_trend_slope_20d",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.02",
+    "medium": "-0.02 to 0.02",
+    "high": ">0.02"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "Linear regression slope of 20d volume; rising vol = accumulation; falling vol = distribution or quiet phase.",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "volume",
+  "spec_version": "v2.1"
+}

@@ -1,0 +1,16 @@
+{
+  "feature_id": "range_compression_60d",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.08",
+    "medium": "0.08-0.20",
+    "high": ">0.20"
+  },
+  "direction": "bullish (low)",
+  "mechanism": "Tighter range over 60d = quarterly-scale accumulation/distribution; longer base = explosive breakout potential.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "compression",
+  "spec_version": "v2.1"
+}

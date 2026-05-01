@@ -1,0 +1,16 @@
+{
+  "feature_id": "body_to_range_ratio",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.3",
+    "medium": "0.3-0.7",
+    "high": ">0.7"
+  },
+  "direction": "bullish (high)",
+  "mechanism": "abs(close - open) / (high - low); large body = decisive move; small body = indecision (doji-like).",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "volume",
+  "spec_version": "v2.1"
+}

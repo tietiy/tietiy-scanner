@@ -1,0 +1,16 @@
+{
+  "feature_id": "stock_rs_vs_nifty_60d",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.10",
+    "medium": "-0.10 to 0.10",
+    "high": ">0.10"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "Stock 60d return - Nifty 60d return; relative strength vs broad market.",
+  "data_source": "OHLCV+external",
+  "computation_complexity": "medium",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

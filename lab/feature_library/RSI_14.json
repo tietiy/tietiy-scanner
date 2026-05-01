@@ -1,0 +1,16 @@
+{
+  "feature_id": "RSI_14",
+  "value_type": "float",
+  "value_range": "0-100",
+  "level_thresholds": {
+    "low": "<30",
+    "medium": "30-70",
+    "high": ">70"
+  },
+  "direction": "both (oversold/overbought)",
+  "mechanism": "Classical 14-period RSI momentum oscillator; <30 oversold rebound candidate, >70 overbought reversal candidate.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

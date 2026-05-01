@@ -1,0 +1,16 @@
+{
+  "feature_id": "fvg_unfilled_above_count",
+  "value_type": "int",
+  "value_range": "0-20",
+  "level_thresholds": {
+    "low": "<2",
+    "medium": "2-5",
+    "high": ">5"
+  },
+  "direction": "bullish (high; targets)",
+  "mechanism": "Unfilled FVGs above current price within 60d; more unfilled FVGs = more potential targets in upward direction.",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "institutional_zone",
+  "spec_version": "v2.1"
+}

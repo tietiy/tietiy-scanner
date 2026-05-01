@@ -1,0 +1,16 @@
+{
+  "feature_id": "nifty_60d_return_pct",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.10",
+    "medium": "-0.10 to 0.10",
+    "high": ">0.10"
+  },
+  "direction": "both",
+  "mechanism": "Nifty 50 60-day return; quarterly broad-market context.",
+  "data_source": "external",
+  "computation_complexity": "cheap",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

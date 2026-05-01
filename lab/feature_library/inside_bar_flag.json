@@ -1,0 +1,16 @@
+{
+  "feature_id": "inside_bar_flag",
+  "value_type": "bool",
+  "value_range": "0/1",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "both",
+  "mechanism": "Today's high <= prev_high AND today's low >= prev_low; complement to Family 1 inside_day_flag.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "pattern",
+  "spec_version": "v2.1"
+}

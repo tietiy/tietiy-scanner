@@ -1,0 +1,16 @@
+{
+  "feature_id": "bollinger_squeeze_20d",
+  "value_type": "bool",
+  "value_range": "0/1",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "bullish",
+  "mechanism": "Bollinger Band width < Keltner Channel width = volatility contraction; classical pre-breakout setup.",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "compression",
+  "spec_version": "v2.1"
+}

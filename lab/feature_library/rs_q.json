@@ -1,0 +1,16 @@
+{
+  "feature_id": "rs_q",
+  "value_type": "categorical",
+  "value_range": "Weak / Neutral / Strong",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "bullish (Strong)",
+  "mechanism": "Existing scanner field — 3-bucket relative strength classification; reuse signal-row.",
+  "data_source": "signal-row",
+  "computation_complexity": "cheap",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

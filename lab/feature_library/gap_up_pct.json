@@ -1,0 +1,16 @@
+{
+  "feature_id": "gap_up_pct",
+  "value_type": "float",
+  "value_range": "-0.1 to 0.1",
+  "level_thresholds": {
+    "low": "<0.005",
+    "medium": "0.005-0.02",
+    "high": ">0.02"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "today_open / prev_close - 1; if positive, gap up. Reuse from existing GAP_BREAKOUT detector logic.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "pattern",
+  "spec_version": "v2.1"
+}

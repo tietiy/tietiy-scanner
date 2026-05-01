@@ -1,0 +1,16 @@
+{
+  "feature_id": "days_to_monthly_expiry",
+  "value_type": "int",
+  "value_range": "0-30",
+  "level_thresholds": {
+    "low": "<5",
+    "medium": "5-15",
+    "high": ">15"
+  },
+  "direction": "both",
+  "mechanism": "Days to monthly F&O expiry (last Thursday of month); calendar-event proxy. Computable from signal date + NSE expiry calendar.",
+  "data_source": "signal-row",
+  "computation_complexity": "cheap",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

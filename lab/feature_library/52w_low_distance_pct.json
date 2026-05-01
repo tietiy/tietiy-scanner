@@ -1,0 +1,16 @@
+{
+  "feature_id": "52w_low_distance_pct",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.05",
+    "medium": "0.05-0.20",
+    "high": ">0.20"
+  },
+  "direction": "bearish (low)",
+  "mechanism": "% above 52w low; near-52w-low signals weakness or potential value zone.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "institutional_zone",
+  "spec_version": "v2.1"
+}

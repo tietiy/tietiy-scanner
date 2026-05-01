@@ -1,0 +1,16 @@
+{
+  "feature_id": "atr_compression_pct",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.5",
+    "medium": "0.5-1.0",
+    "high": ">1.0"
+  },
+  "direction": "bullish (low)",
+  "mechanism": "Current ATR / 60d avg ATR; <1 = vol contraction; <0.5 = strong contraction. Complements range-based features with true-range perspective.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "compression",
+  "spec_version": "v2.1"
+}

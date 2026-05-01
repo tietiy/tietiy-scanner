@@ -1,0 +1,16 @@
+{
+  "feature_id": "consolidation_quality",
+  "value_type": "categorical",
+  "value_range": "tight / loose / none",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "bullish (tight)",
+  "mechanism": "Human-readable bucket combining range tightness + parallel/wedge geometry. tight = textbook consolidation; loose = noisy chop; none = no clear pattern.",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "compression",
+  "spec_version": "v2.1"
+}

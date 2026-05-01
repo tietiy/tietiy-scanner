@@ -1,0 +1,16 @@
+{
+  "feature_id": "ema50_slope_5d_pct",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.01",
+    "medium": "-0.01 to 0.01",
+    "high": ">0.01"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "(ema50 today / ema50 5d ago - 1); rate of EMA50 change over 5d; rising = trend acceleration.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

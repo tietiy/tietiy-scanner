@@ -1,0 +1,16 @@
+{
+  "feature_id": "advance_decline_ratio_20d",
+  "value_type": "float",
+  "value_range": "0-3",
+  "level_thresholds": {
+    "low": "<0.5",
+    "medium": "0.5-1.5",
+    "high": ">1.5"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "20d cumulative advance/decline ratio across F&O universe; high = sustained breadth supportive of trend.",
+  "data_source": "cross-stock",
+  "computation_complexity": "expensive",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

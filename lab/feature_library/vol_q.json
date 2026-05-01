@@ -1,0 +1,16 @@
+{
+  "feature_id": "vol_q",
+  "value_type": "categorical",
+  "value_range": "Thin / Average / High",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "bullish (High)",
+  "mechanism": "Existing scanner field — 3-bucket vol classification computed in detect_signals; reuse for combination filter.",
+  "data_source": "signal-row",
+  "computation_complexity": "cheap",
+  "family": "volume",
+  "spec_version": "v2.1"
+}

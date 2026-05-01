@@ -1,0 +1,16 @@
+{
+  "feature_id": "MACD_signal",
+  "value_type": "categorical",
+  "value_range": "bull / bear / neutral",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "bullish (bull)",
+  "mechanism": "MACD vs signal-line state; bull = MACD above signal line; classical momentum convergence indicator.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

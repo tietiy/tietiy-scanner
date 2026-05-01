@@ -1,0 +1,16 @@
+{
+  "feature_id": "ema_alignment",
+  "value_type": "categorical",
+  "value_range": "bull / mixed / bear",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "bullish (bull)",
+  "mechanism": "Classical 'bullish stack' (price > EMA20 > EMA50 > EMA200) vs 'bearish stack'. Captures multi-timeframe trend in single category.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

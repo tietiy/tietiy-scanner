@@ -1,0 +1,16 @@
+{
+  "feature_id": "inside_day_streak",
+  "value_type": "int",
+  "value_range": "0-10",
+  "level_thresholds": {
+    "low": "<2",
+    "medium": "2-3",
+    "high": ">3"
+  },
+  "direction": "bullish (high)",
+  "mechanism": "Consecutive inside days; longer streak = stronger compression = stronger breakout candidate.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "compression",
+  "spec_version": "v2.1"
+}

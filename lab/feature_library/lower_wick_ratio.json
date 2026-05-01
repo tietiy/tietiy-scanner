@@ -1,0 +1,16 @@
+{
+  "feature_id": "lower_wick_ratio",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.2",
+    "medium": "0.2-0.5",
+    "high": ">0.5"
+  },
+  "direction": "bullish (high — buying support)",
+  "mechanism": "(min(open,close) - low) / (high - low); long lower wick = buyers supported at lows; rejection of weakness.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "volume",
+  "spec_version": "v2.1"
+}

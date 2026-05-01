@@ -1,0 +1,16 @@
+{
+  "feature_id": "bank_nifty_60d_return_pct",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.10",
+    "medium": "-0.10 to 0.10",
+    "high": ">0.10"
+  },
+  "direction": "both (per INV-002 finding)",
+  "mechanism": "Per INV-002 Section 2b, 60d Bank Nifty return materially differentiates Bank-cohort UP_TRI WR. Encodes that filter directly.",
+  "data_source": "external",
+  "computation_complexity": "cheap",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

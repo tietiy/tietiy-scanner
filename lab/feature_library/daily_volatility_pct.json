@@ -1,0 +1,16 @@
+{
+  "feature_id": "daily_volatility_pct",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.015",
+    "medium": "0.015-0.04",
+    "high": ">0.04"
+  },
+  "direction": "regime-dependent",
+  "mechanism": "20d std-dev of daily log returns; complements range_compression with vol-of-vol perspective.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

@@ -1,0 +1,16 @@
+{
+  "feature_id": "round_number_proximity_pct",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.005",
+    "medium": "0.005-0.02",
+    "high": ">0.02"
+  },
+  "direction": "both",
+  "mechanism": "% to nearest round-number price (₹100, ₹500, ₹1000 etc.); psychological levels often act as magnets/barriers.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "institutional_zone",
+  "spec_version": "v2.1"
+}

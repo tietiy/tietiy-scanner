@@ -1,0 +1,16 @@
+{
+  "feature_id": "triangle_quality_descending",
+  "value_type": "float",
+  "value_range": "0-100",
+  "level_thresholds": {
+    "low": "<33",
+    "medium": "33-67",
+    "high": ">67"
+  },
+  "direction": "bearish (high)",
+  "mechanism": "Symmetric to ascending; expects negative slope on highs + flat slope on lows.",
+  "data_source": "OHLCV",
+  "computation_complexity": "expensive",
+  "family": "pattern",
+  "spec_version": "v2.1"
+}

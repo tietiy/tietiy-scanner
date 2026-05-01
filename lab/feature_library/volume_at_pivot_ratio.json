@@ -1,0 +1,16 @@
+{
+  "feature_id": "volume_at_pivot_ratio",
+  "value_type": "float",
+  "value_range": "0-10",
+  "level_thresholds": {
+    "low": "<1.0",
+    "medium": "1.0-2.0",
+    "high": ">2.0"
+  },
+  "direction": "bullish (high)",
+  "mechanism": "Volume on the pivot bar / 20d avg; high pivot vol = stronger pivot, more conviction in pattern.",
+  "data_source": "signal-row+OHLCV",
+  "computation_complexity": "medium",
+  "family": "volume",
+  "spec_version": "v2.1"
+}

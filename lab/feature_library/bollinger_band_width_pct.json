@@ -1,0 +1,16 @@
+{
+  "feature_id": "bollinger_band_width_pct",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.04",
+    "medium": "0.04-0.10",
+    "high": ">0.10"
+  },
+  "direction": "bullish (low)",
+  "mechanism": "BB width / mid-band; lower = more contracted volatility, higher breakout potential.",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "compression",
+  "spec_version": "v2.1"
+}

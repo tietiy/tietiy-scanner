@@ -1,0 +1,16 @@
+{
+  "feature_id": "daily_60d_return_pct",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.10",
+    "medium": "-0.10 to 0.10",
+    "high": ">0.10"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "(close T / close T-60 - 1); 60-day rate of change; quarterly momentum.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

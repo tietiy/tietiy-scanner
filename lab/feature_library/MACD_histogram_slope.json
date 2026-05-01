@@ -1,0 +1,16 @@
+{
+  "feature_id": "MACD_histogram_slope",
+  "value_type": "categorical",
+  "value_range": "rising / falling / flat",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "bullish (rising)",
+  "mechanism": "Direction of MACD histogram change (today vs 3d ago); rising = momentum strengthening.",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

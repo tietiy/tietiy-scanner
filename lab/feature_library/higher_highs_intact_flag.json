@@ -1,0 +1,16 @@
+{
+  "feature_id": "higher_highs_intact_flag",
+  "value_type": "bool",
+  "value_range": "0/1",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "bullish (1 — sequence maintained)",
+  "mechanism": "Take last 3 pivot highs from last 60 bars; return 1 if pivot[i] > pivot[i-1] > pivot[i-2]; intact uptrend structure. v2 addition (Q2 resolution).",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "pattern",
+  "spec_version": "v2.1"
+}

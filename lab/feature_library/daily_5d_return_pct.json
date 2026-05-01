@@ -1,0 +1,16 @@
+{
+  "feature_id": "daily_5d_return_pct",
+  "value_type": "float",
+  "value_range": "-0.5 to 0.5",
+  "level_thresholds": {
+    "low": "<-0.03",
+    "medium": "-0.03 to 0.03",
+    "high": ">0.03"
+  },
+  "direction": "both",
+  "mechanism": "(close T / close T-5 - 1); 5-day rate of change; week-scale momentum.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

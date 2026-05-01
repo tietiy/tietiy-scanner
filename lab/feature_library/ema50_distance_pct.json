@@ -1,0 +1,16 @@
+{
+  "feature_id": "ema50_distance_pct",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.05",
+    "medium": "-0.05 to 0.05",
+    "high": ">0.05"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "(close - ema50) / ema50; price relative to EMA50; positive = above swing-trend MA.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

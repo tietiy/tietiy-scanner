@@ -1,0 +1,16 @@
+{
+  "feature_id": "nifty_vol_percentile_20d",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.30",
+    "medium": "0.30-0.70",
+    "high": ">0.70"
+  },
+  "direction": "both (regime-dep)",
+  "mechanism": "Nifty 20-day rolling vol percentile across 15-yr distribution; per INV-007, vol bucket is signal-specific (no universal edge surfaced).",
+  "data_source": "external",
+  "computation_complexity": "cheap",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

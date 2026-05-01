@@ -1,0 +1,16 @@
+{
+  "feature_id": "uptrend_age_days",
+  "value_type": "int",
+  "value_range": "0-200",
+  "level_thresholds": {
+    "low": "<20",
+    "medium": "20-60",
+    "high": ">60"
+  },
+  "direction": "bullish (medium — not too mature)",
+  "mechanism": "Bars since last EMA50 cross-up; balances 'new trend may not have legs' (low) vs 'old trend may be exhausted' (high).",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

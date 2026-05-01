@@ -1,0 +1,16 @@
+{
+  "feature_id": "market_breadth_pct",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.30",
+    "medium": "0.30-0.60",
+    "high": ">0.60"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "% F&O stocks above 50d EMA; cross-stock breadth indicator. High = universe-wide participation.",
+  "data_source": "cross-stock",
+  "computation_complexity": "expensive",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

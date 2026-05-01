@@ -1,0 +1,16 @@
+{
+  "feature_id": "close_pos_in_range",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.3",
+    "medium": "0.3-0.7",
+    "high": ">0.7"
+  },
+  "direction": "bullish (high)",
+  "mechanism": "INV-012 BTST primitive: (close - low) / (high - low). Close in top 30% of range with volume signature predicts overnight gap-up follow-through above universe baseline; close in bottom 30% predicts overnight reversal pressure. v2.1 addition (Q1 resolution).",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "volume",
+  "spec_version": "v2.1"
+}

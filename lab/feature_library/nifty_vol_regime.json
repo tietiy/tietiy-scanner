@@ -1,0 +1,16 @@
+{
+  "feature_id": "nifty_vol_regime",
+  "value_type": "categorical",
+  "value_range": "Low / Medium / High",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "both",
+  "mechanism": "Categorical wrapper over nifty_vol_percentile_20d using INV-007 bucket boundaries (p30, p70).",
+  "data_source": "external",
+  "computation_complexity": "cheap",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

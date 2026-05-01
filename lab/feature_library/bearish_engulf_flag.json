@@ -1,0 +1,16 @@
+{
+  "feature_id": "bearish_engulf_flag",
+  "value_type": "bool",
+  "value_range": "0/1",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "bearish (1)",
+  "mechanism": "Today's bearish candle (close<open) fully engulfs prior bullish candle's body; classical reversal pattern.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "pattern",
+  "spec_version": "v2.1"
+}

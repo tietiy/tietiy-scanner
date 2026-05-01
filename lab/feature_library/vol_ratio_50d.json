@@ -1,0 +1,16 @@
+{
+  "feature_id": "vol_ratio_50d",
+  "value_type": "float",
+  "value_range": "0-10",
+  "level_thresholds": {
+    "low": "<0.7",
+    "medium": "0.7-1.5",
+    "high": ">1.5"
+  },
+  "direction": "bullish (high)",
+  "mechanism": "today_vol / 50d_avg; vol relative to quarterly baseline.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "volume",
+  "spec_version": "v2.1"
+}

@@ -1,0 +1,16 @@
+{
+  "feature_id": "support_zone_distance_atr",
+  "value_type": "float",
+  "value_range": "0-20",
+  "level_thresholds": {
+    "low": "<1",
+    "medium": "1-3",
+    "high": ">3"
+  },
+  "direction": "bullish (low)",
+  "mechanism": "ATRs to nearest support per existing scanner_core detect_pivots zones; reuse signal-row fields for cheap access. Low = potential bounce zone.",
+  "data_source": "signal-row",
+  "computation_complexity": "cheap",
+  "family": "institutional_zone",
+  "spec_version": "v2.1"
+}

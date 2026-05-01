@@ -1,0 +1,16 @@
+{
+  "feature_id": "vol_climax_flag",
+  "value_type": "bool",
+  "value_range": "0/1",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "both (regime-dep)",
+  "mechanism": "vol > 2.5× 20d avg; extreme volume often signals reversal (capitulation low or distribution high).",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "volume",
+  "spec_version": "v2.1"
+}

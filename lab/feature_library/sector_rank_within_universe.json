@@ -1,0 +1,16 @@
+{
+  "feature_id": "sector_rank_within_universe",
+  "value_type": "int",
+  "value_range": "1-13",
+  "level_thresholds": {
+    "low": "<5",
+    "medium": "5-9",
+    "high": ">9"
+  },
+  "direction": "bullish (low rank = top)",
+  "mechanism": "Stock's sector ranking among all 13 sectors by 20d return; rank 1 = leading sector.",
+  "data_source": "cross-stock",
+  "computation_complexity": "medium",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

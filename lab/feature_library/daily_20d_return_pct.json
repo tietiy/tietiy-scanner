@@ -1,0 +1,16 @@
+{
+  "feature_id": "daily_20d_return_pct",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.05",
+    "medium": "-0.05 to 0.05",
+    "high": ">0.05"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "(close T / close T-20 - 1); 20-day rate of change; month-scale momentum.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

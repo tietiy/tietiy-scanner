@@ -1,0 +1,16 @@
+{
+  "feature_id": "fib_382_proximity_atr",
+  "value_type": "float",
+  "value_range": "0-10",
+  "level_thresholds": {
+    "low": "<0.5",
+    "medium": "0.5-1.5",
+    "high": ">1.5"
+  },
+  "direction": "both (bounce zone)",
+  "mechanism": "38.2% retracement of last impulse; widely-used bounce zone for trend continuation. See Family 2 algorithm spec.",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "institutional_zone",
+  "spec_version": "v2.1"
+}

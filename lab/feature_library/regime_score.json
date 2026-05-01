@@ -1,0 +1,16 @@
+{
+  "feature_id": "regime_score",
+  "value_type": "int",
+  "value_range": "-1 to 2",
+  "level_thresholds": {
+    "low": null,
+    "medium": null,
+    "high": null
+  },
+  "direction": "regime-dependent",
+  "mechanism": "Existing scanner numeric regime score per ret20-bucketed mapping; reuse signal-row field.",
+  "data_source": "signal-row",
+  "computation_complexity": "cheap",
+  "family": "regime",
+  "spec_version": "v2.1"
+}

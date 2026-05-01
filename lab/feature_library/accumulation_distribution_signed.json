@@ -1,0 +1,16 @@
+{
+  "feature_id": "accumulation_distribution_signed",
+  "value_type": "float",
+  "value_range": "-1 to 1",
+  "level_thresholds": {
+    "low": "<-0.3 distribution",
+    "medium": "-0.3 to 0.3 neutral",
+    "high": ">0.3 accumulation"
+  },
+  "direction": "bullish (high — positive = accumulation)",
+  "mechanism": "Sum of (close - open) × vol over 20d window, normalized to [-1,1]. Positive = net accumulation; negative = net distribution. v2 collapse of mirrored pair (Q3 resolution).",
+  "data_source": "OHLCV",
+  "computation_complexity": "medium",
+  "family": "volume",
+  "spec_version": "v2.1"
+}

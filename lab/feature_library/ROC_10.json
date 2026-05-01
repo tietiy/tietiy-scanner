@@ -1,0 +1,16 @@
+{
+  "feature_id": "ROC_10",
+  "value_type": "float",
+  "value_range": "-0.5 to 0.5",
+  "level_thresholds": {
+    "low": "<-0.03",
+    "medium": "-0.03 to 0.03",
+    "high": ">0.03"
+  },
+  "direction": "bullish (high+)",
+  "mechanism": "Rate of change: (close T / close T-10 - 1); simple 10-day momentum oscillator.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "momentum",
+  "spec_version": "v2.1"
+}

@@ -1,0 +1,16 @@
+{
+  "feature_id": "ob_bullish_proximity",
+  "value_type": "float",
+  "value_range": "0-10",
+  "level_thresholds": {
+    "low": "<0.5",
+    "medium": "0.5-2",
+    "high": ">2"
+  },
+  "direction": "bullish (low)",
+  "mechanism": "ATRs to nearest bullish order block (institutional accumulation candle); price often respects these on retest. Low = entry near accumulation zone.",
+  "data_source": "OHLCV",
+  "computation_complexity": "expensive",
+  "family": "institutional_zone",
+  "spec_version": "v2.1"
+}

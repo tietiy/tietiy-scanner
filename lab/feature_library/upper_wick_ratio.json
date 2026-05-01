@@ -1,0 +1,16 @@
+{
+  "feature_id": "upper_wick_ratio",
+  "value_type": "float",
+  "value_range": "0-1",
+  "level_thresholds": {
+    "low": "<0.2",
+    "medium": "0.2-0.5",
+    "high": ">0.5"
+  },
+  "direction": "bearish (high — selling pressure)",
+  "mechanism": "(high - max(open,close)) / (high - low); long upper wick = sellers stepped in at highs; rejection signal.",
+  "data_source": "OHLCV",
+  "computation_complexity": "cheap",
+  "family": "volume",
+  "spec_version": "v2.1"
+}
