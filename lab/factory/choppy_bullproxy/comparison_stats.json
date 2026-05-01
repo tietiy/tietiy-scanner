@@ -1,0 +1,155 @@
+{
+  "total_choppy_bullproxy": 175,
+  "horizon_breakdown": {
+    "D3": 135,
+    "D5": 40
+  },
+  "groups": {
+    "VALIDATED": {
+      "count": 0
+    },
+    "PRELIMINARY": {
+      "count": 0
+    },
+    "REJECTED": {
+      "count": 96,
+      "lifetime": {
+        "test_wr_mean": 0.6397581362366563,
+        "test_wr_median": 0.6346989966555183,
+        "baseline_wr_mean": 0.48486805907559916,
+        "edge_pp_mean": 0.15489007716105707,
+        "drift_train_test_mean": 0.07035440230935736,
+        "test_n_mean": 95.6875,
+        "test_n_median": 95.0
+      },
+      "live": {
+        "live_n_mean": 6.90625,
+        "live_n_median": 7.0,
+        "live_n_total": 663,
+        "live_w_total": 192,
+        "live_l_total": 471,
+        "live_wr_mean": 0.2938492063492063
+      },
+      "horizon_distribution": {
+        "D3": 63,
+        "D5": 33
+      },
+      "phase_4_tier_distribution": {
+        "S": 51,
+        "A": 45
+      },
+      "feature_count_distribution": {
+        "1": 2,
+        "2": 21,
+        "3": 73
+      }
+    },
+    "WATCH": {
+      "count": 79,
+      "lifetime": {
+        "test_wr_mean": 0.65461686564726,
+        "test_wr_median": 0.6545454545454545,
+        "baseline_wr_mean": 0.4927382748480437,
+        "edge_pp_mean": 0.16187859079921596,
+        "drift_train_test_mean": 0.06531613622704358,
+        "test_n_mean": 76.0632911392405,
+        "test_n_median": 63.0
+      },
+      "live": {
+        "live_n_mean": 0.7721518987341772,
+        "live_n_median": 0.0,
+        "live_n_total": 61,
+        "live_w_total": 2,
+        "live_l_total": 59,
+        "live_wr_mean": 0.015151515151515152
+      },
+      "horizon_distribution": {
+        "D3": 72,
+        "D5": 7
+      },
+      "phase_4_tier_distribution": {
+        "S": 48,
+        "A": 29,
+        "B": 2
+      },
+      "feature_count_distribution": {
+        "1": 1,
+        "2": 12,
+        "3": 66
+      }
+    }
+  },
+  "live_universe": {
+    "n_live": 8,
+    "n_w": 2,
+    "n_l": 6,
+    "n_f": 0,
+    "live_wr_excl_f": 0.25,
+    "sample_signals": [
+      {
+        "id": "2026-04-20-ALKEM-BULL_PROXY",
+        "symbol": "ALKEM.NS",
+        "date": "2026-04-20",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "pnl_pct": -6.33
+      },
+      {
+        "id": "2026-04-20-EICHERMOT-BULL_PROXY",
+        "symbol": "EICHERMOT.NS",
+        "date": "2026-04-20",
+        "outcome": "DAY6_LOSS",
+        "wlf": "L",
+        "pnl_pct": -1.24
+      },
+      {
+        "id": "2026-04-20-INDUSINDBK-BULL_PROXY",
+        "symbol": "INDUSINDBK.NS",
+        "date": "2026-04-20",
+        "outcome": "TARGET_HIT",
+        "wlf": "W",
+        "pnl_pct": 3.96
+      },
+      {
+        "id": "2026-04-20-SBILIFE-BULL_PROXY",
+        "symbol": "SBILIFE.NS",
+        "date": "2026-04-20",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "pnl_pct": -1.07
+      },
+      {
+        "id": "2026-04-20-SUNDARMFIN-BULL_PROXY",
+        "symbol": "SUNDARMFIN.NS",
+        "date": "2026-04-20",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "pnl_pct": -4.24
+      },
+      {
+        "id": "2026-04-20-VOLTAS-BULL_PROXY",
+        "symbol": "VOLTAS.NS",
+        "date": "2026-04-20",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "pnl_pct": 5.36
+      },
+      {
+        "id": "2026-04-21-MFSL-BULL_PROXY",
+        "symbol": "MFSL.NS",
+        "date": "2026-04-21",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "pnl_pct": -3.19
+      },
+      {
+        "id": "2026-04-23-HINDZINC-BULL_PROXY",
+        "symbol": "HINDZINC.NS",
+        "date": "2026-04-23",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "pnl_pct": -2.99
+      }
+    ]
+  }
+}
