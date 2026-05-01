@@ -111,8 +111,28 @@ class CachedIndicators:
     ema50_series: Optional[pd.Series] = None
     ema200_series: Optional[pd.Series] = None
     atr_series: Optional[pd.Series] = None
-    pivot_high_idx: list = field(default_factory=list)  # list of (date, price)
-    pivot_low_idx: list = field(default_factory=list)
+    # 3B additions ────────────────────────────────────────────────────────
+    # Pivots (full history; list of (Timestamp, price))
+    pivot_highs: list = field(default_factory=list)
+    pivot_lows: list = field(default_factory=list)
+    # Bollinger Bands at signal (B4: 20-period SMA, 2.0σ)
+    bb_mid_at_signal: Optional[float] = None
+    bb_upper_at_signal: Optional[float] = None
+    bb_lower_at_signal: Optional[float] = None
+    bb_width_at_signal: Optional[float] = None
+    # Keltner Channels at signal (B4: 20-period EMA, 1.5×ATR)
+    kc_mid_at_signal: Optional[float] = None
+    kc_upper_at_signal: Optional[float] = None
+    kc_lower_at_signal: Optional[float] = None
+    kc_width_at_signal: Optional[float] = None
+    # 52-week extremes
+    high_52w_at_signal: Optional[float] = None
+    low_52w_at_signal: Optional[float] = None
+    # Rolling range_compression_20d series (used by compression_duration +
+    # consolidation_zone_distance_atr); full history.
+    range_compression_20d_series: Optional[pd.Series] = None
+    # 60-bar avg ATR for atr_compression_pct
+    atr_avg_60d_at_signal: Optional[float] = None
     weekly_ohlcv: Optional[pd.DataFrame] = None
 
 
@@ -225,7 +245,10 @@ class FeatureExtractor:
         feats.update(self._compute_family_momentum(cache, ohlcv, signal_row))
         feats.update(self._compute_family_volume(cache, ohlcv, signal_row))
         feats.update(self._compute_family_regime_cheap(cache, ohlcv, signal_row))
-        # Sub-block 3B/3C families — placeholders return NaN until implemented
+        # Sub-block 3B families
+        feats.update(self._compute_family_compression(cache, ohlcv, signal_row))
+        feats.update(self._compute_family_zones_no_fib(cache, ohlcv, signal_row))
+        # Sub-block 3C families — placeholders return NaN until implemented
         for s in self.registry.list_all():
             if s.feature_id not in feats:
                 feats[s.feature_id] = np.nan
@@ -263,8 +286,66 @@ class FeatureExtractor:
             float(cache.atr_series.iloc[-1])
             if len(cache.atr_series) and not pd.isna(cache.atr_series.iloc[-1])
             else np.nan)
-        # Pivots — defer to 3B/3C (uses scanner_core.detect_pivots)
-        # Weekly resampled — defer to 3B/3C if needed
+        # 60-bar avg ATR (for atr_compression_pct)
+        if len(cache.atr_series) >= 60:
+            cache.atr_avg_60d_at_signal = float(
+                cache.atr_series.iloc[-60:].mean())
+        # ── Pivots (C1 spec — reuse scanner_core.detect_pivots) ──────────
+        # detect_pivots returns df with bool pivot_low/pivot_high columns.
+        # Last `lookback` bars cannot have a pivot identified yet (by design).
+        try:
+            pivot_df = _scanner_detect_pivots(ohlcv)
+            ph_mask = pivot_df["pivot_high"].values
+            pl_mask = pivot_df["pivot_low"].values
+            high_arr = ohlcv["High"].values
+            low_arr = ohlcv["Low"].values
+            idx = ohlcv.index
+            cache.pivot_highs = [
+                (idx[i], float(high_arr[i]))
+                for i in range(len(ohlcv)) if ph_mask[i]
+            ]
+            cache.pivot_lows = [
+                (idx[i], float(low_arr[i]))
+                for i in range(len(ohlcv)) if pl_mask[i]
+            ]
+        except Exception:
+            cache.pivot_highs = []
+            cache.pivot_lows = []
+        # ── Bollinger Bands (B4: 20 SMA, 2σ) ─────────────────────────────
+        if len(ohlcv) >= 20:
+            close20 = ohlcv["Close"].iloc[-20:]
+            mid = float(close20.mean())
+            std = float(close20.std(ddof=0))
+            cache.bb_mid_at_signal = mid
+            cache.bb_upper_at_signal = mid + 2.0 * std
+            cache.bb_lower_at_signal = mid - 2.0 * std
+            cache.bb_width_at_signal = (
+                cache.bb_upper_at_signal - cache.bb_lower_at_signal)
+        # ── Keltner Channels (B4: 20 EMA, 1.5×ATR) ───────────────────────
+        if (cache.ema20_at_signal is not None and not pd.isna(cache.ema20_at_signal)
+                and not pd.isna(cache.atr_at_signal)):
+            kc_mid = cache.ema20_at_signal
+            cache.kc_mid_at_signal = kc_mid
+            cache.kc_upper_at_signal = kc_mid + 1.5 * cache.atr_at_signal
+            cache.kc_lower_at_signal = kc_mid - 1.5 * cache.atr_at_signal
+            cache.kc_width_at_signal = (
+                cache.kc_upper_at_signal - cache.kc_lower_at_signal)
+        # ── 52-week extremes (252 trading days) ──────────────────────────
+        if len(ohlcv) >= 252:
+            cache.high_52w_at_signal = float(ohlcv["High"].iloc[-252:].max())
+            cache.low_52w_at_signal = float(ohlcv["Low"].iloc[-252:].min())
+        elif len(ohlcv) >= 50:
+            # Use available history if not full year
+            cache.high_52w_at_signal = float(ohlcv["High"].max())
+            cache.low_52w_at_signal = float(ohlcv["Low"].min())
+        # ── Rolling range_compression_20d series ─────────────────────────
+        # range_compression = (rolling_max_high - rolling_min_low) / rolling_mean_close
+        if len(ohlcv) >= 20:
+            roll_max = ohlcv["High"].rolling(20).max()
+            roll_min = ohlcv["Low"].rolling(20).min()
+            roll_mean_close = ohlcv["Close"].rolling(20).mean()
+            cache.range_compression_20d_series = (
+                (roll_max - roll_min) / roll_mean_close.replace(0, np.nan))
         return cache
 
     # ── Stock history loader ──────────────────────────────────────────
@@ -446,6 +527,159 @@ class FeatureExtractor:
 
         # Cross-stock features (deferred to later sub-block) — leave as NaN
         # sector_rank_within_universe, market_breadth_pct, advance_decline_ratio_20d
+
+        return feats
+
+    # ── Family 1 — Compression / range (15 features) ──────────────────
+
+    def _compute_family_compression(self, cache: CachedIndicators,
+                                      ohlcv: pd.DataFrame, signal: pd.Series) -> dict:
+        feats: dict = {}
+        h = ohlcv["High"]; l = ohlcv["Low"]; c = ohlcv["Close"]
+        rng = h - l  # daily range series
+
+        # ── NR4 / NR7 — today's range narrowest of last 4 / 7 ─────────
+        if len(rng) >= 4:
+            today_rng = float(rng.iloc[-1])
+            min4 = float(rng.iloc[-4:].min())
+            feats["NR4_flag"] = bool(today_rng <= min4 + 1e-12)
+        else:
+            feats["NR4_flag"] = np.nan
+        if len(rng) >= 7:
+            today_rng = float(rng.iloc[-1])
+            min7 = float(rng.iloc[-7:].min())
+            feats["NR7_flag"] = bool(today_rng <= min7 + 1e-12)
+        else:
+            feats["NR7_flag"] = np.nan
+
+        # ── atr_compression_pct = current_ATR / 60d avg ATR ────────────
+        feats["atr_compression_pct"] = self._safe_div(
+            cache.atr_at_signal, cache.atr_avg_60d_at_signal)
+
+        # ── range_compression_Nd = (highN - lowN) / mean_closeN ────────
+        for n in (5, 10, 20, 60):
+            feats[f"range_compression_{n}d"] = self._range_compression(ohlcv, n)
+
+        # ── range_position_in_window = (close - low20) / (high20 - low20) ──
+        if len(ohlcv) >= 20:
+            tail = ohlcv.iloc[-20:]
+            hi = float(tail["High"].max()); lo = float(tail["Low"].min())
+            denom = hi - lo
+            feats["range_position_in_window"] = (
+                (cache.close_at_signal - lo) / denom if denom > 0 else np.nan)
+        else:
+            feats["range_position_in_window"] = np.nan
+
+        # ── compression_duration: trailing days where range_compression_20d < 0.05 ──
+        s = cache.range_compression_20d_series
+        if s is not None and len(s) > 0:
+            count = 0
+            for v in reversed(s.values):
+                if pd.isna(v):
+                    break
+                if v < 0.05:
+                    count += 1
+                else:
+                    break
+            feats["compression_duration"] = int(count)
+        else:
+            feats["compression_duration"] = np.nan
+
+        # ── Bollinger Band width % (BB upper-lower / mid) ─────────────
+        if (cache.bb_mid_at_signal is not None and cache.bb_mid_at_signal != 0
+                and cache.bb_width_at_signal is not None):
+            feats["bollinger_band_width_pct"] = (
+                cache.bb_width_at_signal / cache.bb_mid_at_signal)
+        else:
+            feats["bollinger_band_width_pct"] = np.nan
+
+        # ── Bollinger Squeeze: BB_width < KC_width ─────────────────────
+        if (cache.bb_width_at_signal is not None
+                and cache.kc_width_at_signal is not None):
+            feats["bollinger_squeeze_20d"] = bool(
+                cache.bb_width_at_signal < cache.kc_width_at_signal)
+        else:
+            feats["bollinger_squeeze_20d"] = np.nan
+
+        # ── coiled_spring_score (A3) ──────────────────────────────────
+        rc20 = feats.get("range_compression_20d")
+        ema_align = self._ema_alignment(
+            cache.close_at_signal, cache.ema20_at_signal,
+            cache.ema50_at_signal, cache.ema200_at_signal)
+        feats["coiled_spring_score"] = self._coiled_spring_score(rc20, ema_align)
+
+        # ── consolidation_quality (A4) ────────────────────────────────
+        feats["consolidation_quality"] = self._consolidation_quality(
+            rc20, feats["coiled_spring_score"])
+
+        # ── inside_day_flag: today.H ≤ prev.H AND today.L ≥ prev.L ──
+        if len(ohlcv) >= 2:
+            prev = ohlcv.iloc[-2]
+            feats["inside_day_flag"] = bool(
+                cache.high_at_signal <= prev["High"]
+                and cache.low_at_signal >= prev["Low"])
+        else:
+            feats["inside_day_flag"] = np.nan
+
+        # ── inside_day_streak: consecutive trailing inside days ──────
+        feats["inside_day_streak"] = self._inside_day_streak(ohlcv)
+
+        return feats
+
+    # ── Family 2 — Institutional zones (no Fib; 16 features) ───────────
+
+    def _compute_family_zones_no_fib(self, cache: CachedIndicators,
+                                       ohlcv: pd.DataFrame, signal: pd.Series) -> dict:
+        feats: dict = {}
+        c = cache.close_at_signal
+        atr = cache.atr_at_signal
+
+        # ── 52w_high_distance_pct = (high_52w - close) / high_52w ─────
+        if cache.high_52w_at_signal and cache.high_52w_at_signal > 0:
+            feats["52w_high_distance_pct"] = (
+                (cache.high_52w_at_signal - c) / cache.high_52w_at_signal)
+        else:
+            feats["52w_high_distance_pct"] = np.nan
+
+        # ── 52w_low_distance_pct = (close - low_52w) / low_52w ────────
+        if cache.low_52w_at_signal and cache.low_52w_at_signal > 0:
+            feats["52w_low_distance_pct"] = (
+                (c - cache.low_52w_at_signal) / cache.low_52w_at_signal)
+        else:
+            feats["52w_low_distance_pct"] = np.nan
+
+        # ── breakout_strength_atr (B5) ────────────────────────────────
+        feats["breakout_strength_atr"] = self._breakout_strength_atr(cache, ohlcv)
+
+        # ── consolidation_zone_distance_atr (B6) ──────────────────────
+        feats["consolidation_zone_distance_atr"] = (
+            self._consolidation_zone_distance_atr(cache, ohlcv))
+
+        # ── FVG features (A1, 4 features) ─────────────────────────────
+        fvg_feats = self._fvg_features(cache, ohlcv, lookback=60)
+        feats.update(fvg_feats)
+
+        # ── OB features (A2, 2 features) ──────────────────────────────
+        ob_feats = self._ob_features(cache, ohlcv, lookback=60)
+        feats.update(ob_feats)
+
+        # ── pivot_distance_atr — ATRs to nearest pivot (high or low) ──
+        feats["pivot_distance_atr"] = self._pivot_distance_atr(cache)
+
+        # ── prior_swing_high/low_distance_pct — last 20-bar swing ──
+        feats["prior_swing_high_distance_pct"] = (
+            self._prior_swing_distance_pct(cache, swing="high", lookback=20))
+        feats["prior_swing_low_distance_pct"] = (
+            self._prior_swing_distance_pct(cache, swing="low", lookback=20))
+
+        # ── resistance/support_zone_distance_atr — nearest pivot above/below ──
+        feats["resistance_zone_distance_atr"] = (
+            self._zone_distance_atr(cache, side="resistance"))
+        feats["support_zone_distance_atr"] = (
+            self._zone_distance_atr(cache, side="support"))
+
+        # ── round_number_proximity_pct (B7) ──────────────────────────
+        feats["round_number_proximity_pct"] = self._round_number_proximity(c)
 
         return feats
 
@@ -815,3 +1049,330 @@ class FeatureExtractor:
             return int((last_thu - scan_date).days)
         except Exception:
             return -1
+
+    # ────────────────────────────────────────────────────────────────────
+    # 3B helpers — compression / institutional zones
+    # ────────────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _range_compression(ohlcv: pd.DataFrame, n: int) -> float:
+        """range_compression_Nd = (max(high[-N:]) - min(low[-N:])) / mean(close[-N:])"""
+        if len(ohlcv) < n:
+            return np.nan
+        try:
+            tail = ohlcv.iloc[-n:]
+            hi = float(tail["High"].max())
+            lo = float(tail["Low"].min())
+            mc = float(tail["Close"].mean())
+            if mc <= 0 or pd.isna(hi) or pd.isna(lo) or pd.isna(mc):
+                return np.nan
+            return (hi - lo) / mc
+        except Exception:
+            return np.nan
+
+    @staticmethod
+    def _coiled_spring_score(rc20: float, ema_align: str) -> float:
+        """Per A3: 0.5*compression + 0.5*trend; 0-100."""
+        if rc20 is None or pd.isna(rc20):
+            return np.nan
+        comp = max(0.0, min(100.0, 100.0 - (rc20 / 0.10) * 100.0))
+        if ema_align == "bull":
+            trend = 100.0
+        elif ema_align == "mixed":
+            trend = 50.0
+        else:
+            trend = 0.0
+        return float(comp * 0.5 + trend * 0.5)
+
+    @staticmethod
+    def _consolidation_quality(rc20: float, coil_score: float) -> str:
+        """Per A4: tight / loose / none."""
+        if rc20 is None or pd.isna(rc20) or pd.isna(coil_score):
+            return "none"
+        if rc20 < 0.05 and coil_score > 67:
+            return "tight"
+        if rc20 < 0.10:
+            return "loose"
+        return "none"
+
+    @staticmethod
+    def _inside_day_streak(ohlcv: pd.DataFrame) -> int:
+        """Count of trailing inside days: today.H ≤ prev.H AND today.L ≥ prev.L."""
+        if len(ohlcv) < 2:
+            return 0
+        try:
+            high = ohlcv["High"].values
+            low = ohlcv["Low"].values
+            count = 0
+            for i in range(len(ohlcv) - 1, 0, -1):
+                if high[i] <= high[i - 1] and low[i] >= low[i - 1]:
+                    count += 1
+                else:
+                    break
+            return int(count)
+        except Exception:
+            return 0
+
+    def _breakout_strength_atr(self, cache: CachedIndicators,
+                                 ohlcv: pd.DataFrame) -> float:
+        """B5: if close > nearest_resistance: (close-res)/ATR; else 0."""
+        if pd.isna(cache.atr_at_signal) or cache.atr_at_signal <= 0:
+            return np.nan
+        # Nearest resistance = most recent pivot high <= today.close (i.e.
+        # the resistance level just broken). If close > that pivot, return
+        # ATRs above; else 0 (no breakout).
+        pivot_highs = cache.pivot_highs
+        if not pivot_highs:
+            return 0.0
+        # Look at pivot highs in last 60 trading days
+        cutoff = cache.scan_date - timedelta(days=120)  # ~60 trading days, generous
+        recent = [(d, p) for d, p in pivot_highs if d >= cutoff]
+        if not recent:
+            recent = pivot_highs[-5:]
+        # Find the highest pivot high that is <= close (i.e. broken through)
+        broken = [p for d, p in recent if p <= cache.close_at_signal]
+        if not broken:
+            return 0.0
+        nearest_res = max(broken)  # closest below close
+        return (cache.close_at_signal - nearest_res) / cache.atr_at_signal
+
+    def _consolidation_zone_distance_atr(self, cache: CachedIndicators,
+                                            ohlcv: pd.DataFrame) -> float:
+        """B6: in last 30 bars, find any bar with range_compression_20d < 0.05.
+        If found, base = lowest low in those 30 bars; distance = (close-base)/ATR."""
+        if pd.isna(cache.atr_at_signal) or cache.atr_at_signal <= 0:
+            return np.nan
+        if len(ohlcv) < 30:
+            return np.nan
+        s = cache.range_compression_20d_series
+        if s is None or len(s) < 30:
+            return np.nan
+        try:
+            tail_rc = s.iloc[-30:]
+            qualifies = (tail_rc < 0.05).any()
+            if not qualifies:
+                return np.nan
+            base = float(ohlcv["Low"].iloc[-30:].min())
+            return (cache.close_at_signal - base) / cache.atr_at_signal
+        except Exception:
+            return np.nan
+
+    def _fvg_features(self, cache: CachedIndicators,
+                        ohlcv: pd.DataFrame, lookback: int = 60) -> dict:
+        """A1: 3-candle FVG detection.
+        Bullish FVG: bar[i-2].high < bar[i].low AND gap > 0.25*ATR_at_bar[i-1].
+        Bearish FVG: bar[i-2].low > bar[i].high AND gap > 0.25*ATR_at_bar[i-1].
+        Filled if any subsequent bar's low ≤ bar[i-2].high (bullish) or
+        high ≥ bar[i-2].low (bearish).
+        """
+        out = {
+            "fvg_above_proximity": np.nan,
+            "fvg_below_proximity": np.nan,
+            "fvg_unfilled_above_count": np.nan,
+            "fvg_unfilled_below_count": np.nan,
+        }
+        if (len(ohlcv) < 3 or cache.atr_series is None
+                or pd.isna(cache.atr_at_signal) or cache.atr_at_signal <= 0):
+            return out
+        n = len(ohlcv)
+        start = max(2, n - lookback)
+        high = ohlcv["High"].values
+        low = ohlcv["Low"].values
+        atrS = cache.atr_series.values
+        # Each unfilled FVG: (lower_edge, upper_edge)
+        unfilled = []
+        for i in range(start, n):
+            atr_b2 = atrS[i - 1] if i - 1 < len(atrS) else np.nan
+            if pd.isna(atr_b2) or atr_b2 <= 0:
+                continue
+            # Bullish FVG
+            if high[i - 2] < low[i]:
+                gap = low[i] - high[i - 2]
+                if gap > 0.25 * atr_b2:
+                    lower_edge = float(high[i - 2])
+                    upper_edge = float(low[i])
+                    # Check fill: any bar j>i with low ≤ lower_edge
+                    filled = False
+                    for j in range(i + 1, n):
+                        if low[j] <= lower_edge:
+                            filled = True; break
+                    if not filled:
+                        unfilled.append((lower_edge, upper_edge))
+                    continue
+            # Bearish FVG
+            if low[i - 2] > high[i]:
+                gap = low[i - 2] - high[i]
+                if gap > 0.25 * atr_b2:
+                    lower_edge = float(high[i])
+                    upper_edge = float(low[i - 2])
+                    filled = False
+                    for j in range(i + 1, n):
+                        if high[j] >= upper_edge:
+                            filled = True; break
+                    if not filled:
+                        unfilled.append((lower_edge, upper_edge))
+        # Classify by side relative to close
+        c = cache.close_at_signal
+        atr = cache.atr_at_signal
+        above_distances = []
+        below_distances = []
+        for low_e, up_e in unfilled:
+            if c < low_e:
+                above_distances.append((low_e - c) / atr)
+            elif c > up_e:
+                below_distances.append((c - up_e) / atr)
+            # else zone straddles close = treat as effectively filled; skip
+        out["fvg_above_proximity"] = (
+            float(min(above_distances)) if above_distances else np.nan)
+        out["fvg_below_proximity"] = (
+            float(min(below_distances)) if below_distances else np.nan)
+        out["fvg_unfilled_above_count"] = int(len(above_distances))
+        out["fvg_unfilled_below_count"] = int(len(below_distances))
+        return out
+
+    def _ob_features(self, cache: CachedIndicators,
+                       ohlcv: pd.DataFrame, lookback: int = 60) -> dict:
+        """A2: Order Block detection.
+        Bullish OB = last bearish (close<open) candle before 3+ consecutive
+        bullish (close>open) bars whose cumulative close-to-close gain > 2×ATR
+        (measured at OB candle). Bearish OB = symmetric.
+        OB persists until invalidated (subsequent close breaks OB body in
+        opposite direction). Proximity = ATRs from close to OB body midpoint.
+        """
+        out = {"ob_bullish_proximity": np.nan, "ob_bearish_proximity": np.nan}
+        if (len(ohlcv) < 5 or cache.atr_series is None
+                or pd.isna(cache.atr_at_signal) or cache.atr_at_signal <= 0):
+            return out
+        n = len(ohlcv)
+        start = max(0, n - lookback)
+        op = ohlcv["Open"].values
+        cl = ohlcv["Close"].values
+        atrS = cache.atr_series.values
+
+        bull_obs = []  # list of (idx, body_mid, body_low, body_high)
+        bear_obs = []
+
+        for i in range(start, n - 3):
+            # Bullish OB candidate: bar i is bearish; bars i+1..i+3 all bullish
+            if cl[i] < op[i]:
+                if (cl[i + 1] > op[i + 1] and cl[i + 2] > op[i + 2]
+                        and cl[i + 3] > op[i + 3]):
+                    cum_gain = cl[i + 3] - cl[i]
+                    atr_at_ob = atrS[i] if i < len(atrS) else np.nan
+                    if (not pd.isna(atr_at_ob) and atr_at_ob > 0
+                            and cum_gain > 2.0 * atr_at_ob):
+                        body_low = min(op[i], cl[i])
+                        body_high = max(op[i], cl[i])
+                        body_mid = (op[i] + cl[i]) / 2.0
+                        # Invalidation: any subsequent close < body_low
+                        invalidated = False
+                        for j in range(i + 4, n):
+                            if cl[j] < body_low:
+                                invalidated = True; break
+                        if not invalidated:
+                            bull_obs.append((i, body_mid, body_low, body_high))
+            # Bearish OB candidate: bar i is bullish; bars i+1..i+3 all bearish
+            if cl[i] > op[i]:
+                if (cl[i + 1] < op[i + 1] and cl[i + 2] < op[i + 2]
+                        and cl[i + 3] < op[i + 3]):
+                    cum_loss = cl[i] - cl[i + 3]
+                    atr_at_ob = atrS[i] if i < len(atrS) else np.nan
+                    if (not pd.isna(atr_at_ob) and atr_at_ob > 0
+                            and cum_loss > 2.0 * atr_at_ob):
+                        body_low = min(op[i], cl[i])
+                        body_high = max(op[i], cl[i])
+                        body_mid = (op[i] + cl[i]) / 2.0
+                        # Invalidation: any subsequent close > body_high
+                        invalidated = False
+                        for j in range(i + 4, n):
+                            if cl[j] > body_high:
+                                invalidated = True; break
+                        if not invalidated:
+                            bear_obs.append((i, body_mid, body_low, body_high))
+
+        c = cache.close_at_signal
+        atr = cache.atr_at_signal
+        if bull_obs:
+            # Most recent (highest i) bullish OB
+            _, mid, _, _ = max(bull_obs, key=lambda t: t[0])
+            out["ob_bullish_proximity"] = abs(c - mid) / atr
+        if bear_obs:
+            _, mid, _, _ = max(bear_obs, key=lambda t: t[0])
+            out["ob_bearish_proximity"] = abs(c - mid) / atr
+        return out
+
+    def _pivot_distance_atr(self, cache: CachedIndicators) -> float:
+        """ATRs from close to nearest pivot (high or low) by date — most recent."""
+        if pd.isna(cache.atr_at_signal) or cache.atr_at_signal <= 0:
+            return np.nan
+        all_pivots = []
+        if cache.pivot_highs:
+            all_pivots.append(cache.pivot_highs[-1])  # most recent high
+        if cache.pivot_lows:
+            all_pivots.append(cache.pivot_lows[-1])  # most recent low
+        if not all_pivots:
+            return np.nan
+        # Most recent by date
+        most_recent = max(all_pivots, key=lambda t: t[0])
+        _, price = most_recent
+        return abs(cache.close_at_signal - price) / cache.atr_at_signal
+
+    def _prior_swing_distance_pct(self, cache: CachedIndicators,
+                                     swing: str, lookback: int = 20) -> float:
+        """% to most recent swing (high or low) within last `lookback` trading days."""
+        c = cache.close_at_signal
+        if c <= 0 or pd.isna(c):
+            return np.nan
+        pivots = cache.pivot_highs if swing == "high" else cache.pivot_lows
+        if not pivots:
+            return np.nan
+        # Filter to last 20 trading days using ohlcv index
+        try:
+            ohlcv_index = cache.ohlcv.index
+            if len(ohlcv_index) < lookback:
+                cutoff_date = ohlcv_index[0]
+            else:
+                cutoff_date = ohlcv_index[-lookback]
+            recent_pivots = [(d, p) for d, p in pivots if d >= cutoff_date]
+            if not recent_pivots:
+                return np.nan
+            # Most recent
+            _, price = max(recent_pivots, key=lambda t: t[0])
+            return abs(price - c) / c
+        except Exception:
+            return np.nan
+
+    def _zone_distance_atr(self, cache: CachedIndicators, side: str) -> float:
+        """Resistance: ATRs to nearest pivot HIGH above close. Support: nearest
+        pivot LOW below close. NaN if no qualifying pivot."""
+        if pd.isna(cache.atr_at_signal) or cache.atr_at_signal <= 0:
+            return np.nan
+        c = cache.close_at_signal
+        if side == "resistance":
+            candidates = [p for _, p in cache.pivot_highs if p > c]
+            if not candidates:
+                return np.nan
+            nearest = min(candidates)
+            return (nearest - c) / cache.atr_at_signal
+        else:  # support
+            candidates = [p for _, p in cache.pivot_lows if p < c]
+            if not candidates:
+                return np.nan
+            nearest = max(candidates)
+            return (c - nearest) / cache.atr_at_signal
+
+    @staticmethod
+    def _round_number_proximity(close: float) -> float:
+        """B7: price-scaled round number proximity_pct."""
+        if pd.isna(close) or close <= 0:
+            return np.nan
+        if close <= 100:
+            step = 10
+        elif close <= 1000:
+            step = 100
+        elif close <= 10000:
+            step = 500
+        else:
+            step = 1000
+        nearest = round(close / step) * step
+        return abs(close - nearest) / close
