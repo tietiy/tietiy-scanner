@@ -1,0 +1,83 @@
+{
+  "total_choppy_downtri": 25,
+  "horizon_breakdown": {
+    "D2": 16,
+    "D1": 9
+  },
+  "groups": {
+    "VALIDATED": {
+      "count": 0
+    },
+    "PRELIMINARY": {
+      "count": 0
+    },
+    "REJECTED": {
+      "count": 0
+    },
+    "WATCH": {
+      "count": 25,
+      "lifetime": {
+        "test_wr_mean": 0.6819618195585526,
+        "test_wr_median": 0.6785714285714286,
+        "baseline_wr_mean": 0.5309365269939861,
+        "edge_pp_mean": 0.1510252925645666,
+        "drift_train_test_mean": 0.08254653240587832,
+        "test_n_mean": 75.96,
+        "test_n_median": 73.0
+      },
+      "live": {
+        "live_n_mean": 0.8,
+        "live_n_median": 1.0,
+        "live_n_total": 20,
+        "live_w_total": 6,
+        "live_l_total": 14,
+        "live_wr_mean": 0.2111111111111111
+      },
+      "horizon_distribution": {
+        "D2": 16,
+        "D1": 9
+      },
+      "phase_4_tier_distribution": {
+        "S": 13,
+        "A": 12
+      },
+      "feature_count_distribution": {
+        "2": 1,
+        "3": 24
+      }
+    }
+  },
+  "live_universe": {
+    "n_live": 3,
+    "n_w": 0,
+    "n_l": 3,
+    "n_f": 0,
+    "live_wr_excl_f": 0.0,
+    "sample_signals": [
+      {
+        "id": "2026-04-16-LUPIN-DOWN_TRI",
+        "symbol": "LUPIN.NS",
+        "date": "2026-04-16",
+        "outcome": "DAY6_LOSS",
+        "wlf": "L",
+        "pnl_pct": -1.35
+      },
+      {
+        "id": "2026-04-17-OIL-DOWN_TRI",
+        "symbol": "OIL.NS",
+        "date": "2026-04-17",
+        "outcome": "DAY6_LOSS",
+        "wlf": "L",
+        "pnl_pct": -0.62
+      },
+      {
+        "id": "2026-04-20-ONGC-DOWN_TRI",
+        "symbol": "ONGC.NS",
+        "date": "2026-04-20",
+        "outcome": "DAY6_LOSS",
+        "wlf": "L",
+        "pnl_pct": -1.11
+      }
+    ]
+  }
+}
