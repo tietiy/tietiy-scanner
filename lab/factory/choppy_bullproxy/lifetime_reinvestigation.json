@@ -1,0 +1,150 @@
+{
+  "lifetime_universe": {
+    "n": 1931,
+    "n_w": 879,
+    "n_l": 893,
+    "baseline_wr": 0.49604966139954854
+  },
+  "live_finding": {
+    "n_live": 8,
+    "live_wr": 0.25,
+    "live_verdict": "KILL"
+  },
+  "filters_tested": [
+    {
+      "name": "F1: ema_bull AND coiled=medium",
+      "required": [
+        "ema_alignment=bull",
+        "coiled_spring_score=medium"
+      ],
+      "forbidden": [],
+      "n_matched": 776,
+      "n_matched_wl": 717,
+      "n_matched_w": 359,
+      "n_matched_l": 358,
+      "matched_wr": 0.500697350069735,
+      "match_rate": 0.4018643190056965,
+      "n_skipped": 1155,
+      "skipped_wr": 0.4928909952606635,
+      "verdict": "no edge"
+    },
+    {
+      "name": "F2: ema_alignment=bull",
+      "required": [
+        "ema_alignment=bull"
+      ],
+      "forbidden": [],
+      "n_matched": 850,
+      "n_matched_wl": 778,
+      "n_matched_w": 388,
+      "n_matched_l": 390,
+      "matched_wr": 0.4987146529562982,
+      "match_rate": 0.44018643190056966,
+      "n_skipped": 1081,
+      "skipped_wr": 0.4939637826961771,
+      "verdict": "no edge"
+    },
+    {
+      "name": "F3: coiled_spring_score=medium",
+      "required": [
+        "coiled_spring_score=medium"
+      ],
+      "forbidden": [],
+      "n_matched": 1020,
+      "n_matched_wl": 941,
+      "n_matched_w": 473,
+      "n_matched_l": 468,
+      "matched_wr": 0.5026567481402763,
+      "match_rate": 0.5282237182806836,
+      "n_skipped": 911,
+      "skipped_wr": 0.48856799037304455,
+      "verdict": "no edge"
+    },
+    {
+      "name": "F4: market_breadth_pct=high",
+      "required": [
+        "market_breadth_pct=high"
+      ],
+      "forbidden": [],
+      "n_matched": 611,
+      "n_matched_wl": 552,
+      "n_matched_w": 304,
+      "n_matched_l": 248,
+      "matched_wr": 0.5507246376811594,
+      "match_rate": 0.31641636457793887,
+      "n_skipped": 1320,
+      "skipped_wr": 0.4713114754098361,
+      "verdict": "MARGINAL"
+    },
+    {
+      "name": "F5: higher_highs_intact_flag=True",
+      "required": [
+        "higher_highs_intact_flag=True"
+      ],
+      "forbidden": [],
+      "n_matched": 629,
+      "n_matched_wl": 571,
+      "n_matched_w": 310,
+      "n_matched_l": 261,
+      "matched_wr": 0.542907180385289,
+      "match_rate": 0.32573795960642155,
+      "n_skipped": 1302,
+      "skipped_wr": 0.47377185678601164,
+      "verdict": "no edge"
+    },
+    {
+      "name": "F6: ema_bull + coiled=medium + market_breadth=high",
+      "required": [
+        "ema_alignment=bull",
+        "coiled_spring_score=medium",
+        "market_breadth_pct=high"
+      ],
+      "forbidden": [],
+      "n_matched": 286,
+      "n_matched_wl": 255,
+      "n_matched_w": 144,
+      "n_matched_l": 111,
+      "matched_wr": 0.5647058823529412,
+      "match_rate": 0.14810978767477992,
+      "n_skipped": 1645,
+      "skipped_wr": 0.48450889914304546,
+      "verdict": "MARGINAL"
+    },
+    {
+      "name": "F7: forbid (ema20_dist=high AND market_breadth=high)",
+      "required": [],
+      "forbidden": [
+        "ema20_distance_pct=high",
+        "market_breadth_pct=high"
+      ],
+      "n_matched": 959,
+      "n_matched_wl": 886,
+      "n_matched_w": 428,
+      "n_matched_l": 458,
+      "matched_wr": 0.48306997742663654,
+      "match_rate": 0.4966338684619368,
+      "n_skipped": 972,
+      "skipped_wr": 0.5090293453724605,
+      "verdict": "no edge"
+    },
+    {
+      "name": "F8: day_of_week=Tue + bull EMA",
+      "required": [
+        "day_of_week=Tue",
+        "ema_alignment=bull"
+      ],
+      "forbidden": [],
+      "n_matched": 208,
+      "n_matched_wl": 185,
+      "n_matched_w": 100,
+      "n_matched_l": 85,
+      "matched_wr": 0.5405405405405406,
+      "match_rate": 0.10771620921802175,
+      "n_skipped": 1723,
+      "skipped_wr": 0.49086326402016384,
+      "verdict": "no edge"
+    }
+  ],
+  "promising_filters": [],
+  "overall_verdict": "KILL_CONFIRMED"
+}
