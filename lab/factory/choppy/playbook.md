@@ -261,6 +261,67 @@ Only `MACD_histogram_slope=falling` shows weak negative effect at lifetime (-2.4
 
 ---
 
+## Comprehensive Lifetime Exploration v2 (added 2026-05-02 night)
+
+A deeper L1-L5 multi-axis investigation across the full 35,290-signal
+lifetime universe replaces the earlier "Choppy is uniformly hostile" framing
+with a **tri-modal** interpretation. Authoritative source:
+[`lifetime/synthesis.md`](lifetime/synthesis.md).
+
+### Headline shifts
+
+1. **Choppy is not uniform.** Three distinct sub-regimes drive different
+   filter behavior:
+   - High-vol stress (~28%, baseline 55.7% UP_TRI)
+   - Medium-vol equilibrium (~51%, baseline 49.2% UP_TRI — the *hostile* sub-regime)
+   - Low-vol quiet (~21%, baseline 55.1%)
+
+2. **L3 surfaced novel dominant patterns the cell investigations missed.**
+   All three signal types' lifetime-best 2-feat combos anchor on
+   `market_breadth_pct × nifty_vol_regime`, not `ema_alignment × coiled_spring`:
+   | Signal | Combo | n | WR | Lift |
+   |---|---|---|---|---|
+   | UP_TRI | `breadth=medium AND vol=High` | 4546 | 60.1% | +7.9pp |
+   | DOWN_TRI | `breadth=medium AND vol=Medium` | 1727 | 55.2% | +9.1pp |
+   | BULL_PROXY | `breadth=high AND multi_tf=high` | 507 | 56.4% | +6.8pp (sub-threshold) |
+
+3. **Vol-gating is essential.** UP_TRI breadth=medium **inverts**:
+   −5.5pp lift in Medium-vol cohort, +7.9pp in High-vol cohort. Apply
+   `nifty_vol_regime` as a first-class filter, not a confounder.
+
+4. **F1 (ema_bull + coiled=medium) does NOT surface** as a top-20 combo for
+   any signal type at lifetime (failed n≥100, lift≥+5pp, p<0.01 bar). F1 is
+   a regime-shift adaptive filter, not a structural Choppy edge.
+
+5. **Strong calendar/sector edges:**
+   - February UP_TRI catastrophic (−16.2pp); DOWN_TRI exceptional (+16.2pp)
+   - wk3 DOWN_TRI +9.5pp / UP_TRI −3.9pp (mid-month inversion)
+   - DOWN_TRI Friday −6.2pp (avoid)
+   - AVOID: UP_TRI×Metal, DOWN_TRI×Pharma
+
+### Revised decision flow (v2)
+
+Branch on signal_type, then sub-screen by vol/calendar/sector before
+applying any pattern filter. Reference pseudocode in
+[`synthesis.md` § Choppy regime decision flow](lifetime/synthesis.md).
+
+### Cell-level posture changes
+
+| Cell | v1.1 status | v2 status |
+|---|---|---|
+| UP_TRI | F1 TAKE_SMALL only | Add lifetime-confirmed `breadth=medium × vol=High` pattern as TAKE_FULL candidate; F1 retained as regime-shift adaptive TAKE_SMALL |
+| DOWN_TRI | DEFERRED | **UPGRADABLE** — `breadth=medium × vol=Medium × wk3` (+11.7pp, n=1295) is a viable lifetime-validated TAKE_FULL candidate when filtered by Pharma-exclusion + non-Friday |
+| BULL_PROXY | KILL | KILL reconfirmed (best lifetime combo only +6.8pp, below +10pp threshold) |
+
+### Confidence on revised production
+
+Confidence is **MEDIUM-HIGH** for the L3 dominant combos because they
+qualified at large n with conservative p-thresholds and vol-gating
+confirmed in L4. They have NOT been live-validated in Apr 2026 data —
+quarterly Phase-5 re-runs need to track these patterns explicitly.
+
+---
+
 ## Update Log
 
 - **v1 (2026-05-02):** Initial Choppy regime synthesis from 3 cell investigations:
@@ -269,3 +330,4 @@ Only `MACD_histogram_slope=falling` shows weak negative effect at lifetime (-2.4
   - BULL_PROXY cell: KILL (0/175 Phase-4 patterns validated, 25% live WR)
   - Aggregate match rate 19.6%; default action SKIP for unmatched
 - **v1.1 (2026-05-02 evening):** Lifetime validation across V1/V2/V3 surfaced significant disagreement between live April 2026 findings and 15-yr lifetime data. F1 lift collapses from +23pp to +1.7pp. Universal anti-features 3 of 4 REFUTED. BULL_PROXY KILL confirmed. Production recommendations revised to more conservative postures.
+- **v2 (2026-05-02 night):** Comprehensive L1-L5 lifetime exploration replaces "uniformly hostile" framing with **tri-modal** sub-regime structure. Novel `market_breadth × nifty_vol` patterns promoted; F1 demoted; vol/calendar/sector first-class filters added. See `lifetime/synthesis.md`.

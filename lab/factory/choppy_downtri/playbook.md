@@ -92,6 +92,79 @@ INV-013 (DOWN_TRI D2 dominance) said D2 outperforms D6 by 2-4pp WR across regime
 - Whether DOWN_TRI×Choppy is structurally dead in current high-vol regime (similar to BULL_PROXY×Choppy finding) or just under-observed
 - Whether D2 is genuinely the right horizon or if a finer split (D1 + D2 conditional) would better discriminate
 
+## Comprehensive Lifetime Exploration v2 (added 2026-05-02 night)
+
+L3 combinatorial search across **6,287 lifetime DOWN_TRI×Choppy signals**
+unlocked this cell from DEFERRED to **UPGRADABLE** by surfacing a
+lifetime-validated filter family that didn't require live-window
+discrimination. Authoritative source:
+[`../choppy/lifetime/synthesis.md`](../choppy/lifetime/synthesis.md).
+
+### Promoted lifetime pattern (DOWN_TRI×Choppy)
+
+| Tier | Filter | n | WR | Lift |
+|---|---|---|---|---|
+| **Best lifetime combo** | `market_breadth=medium AND nifty_vol=Medium AND wk3 AND bank_nifty_20d=medium` (effective via 3-feat top) | 1295 | 57.8% | **+11.7pp** |
+| **Strong 2-feat anchor** | `market_breadth=medium AND nifty_vol=Medium` | 1727 | 55.2% | +9.1pp |
+| Calendar variant | `wk3 × bank_nifty_20d=medium` | 1295 | 57.8% | +11.7pp |
+| RSI-confirmed | `RSI=medium × vol=Medium × breadth=medium` | 1508 | 56.1% | +10.0pp |
+
+132 qualifying combos surfaced — robust, not single-pattern fragility.
+
+### L4 stratification surfacings
+
+- **Vol-gating is critical.** `breadth=medium` lift breakdown:
+  Low-vol −5.6pp | **Medium-vol +9.1pp** ✓ | High-vol −3.0pp
+  Apply only inside `nifty_vol_regime=Medium` cohort.
+- **AVOID sectors:** Pharma −4.7pp (catastrophic), Metal −1.8pp, Bank −1.3pp
+- **Best sector:** Other +4.1pp
+- **Calendar edges:**
+  - **wk3 +9.5pp** (n=1718) — strongest weekly bucket
+  - **wk4 −7.1pp** (avoid)
+  - Friday −6.2pp (avoid)
+  - Best month: Feb +16.2pp (n=711) — symmetric inverse of UP_TRI's Feb hostility
+  - Worst month: Sep −12.7pp; Mar −10.6pp
+
+### Revised production posture (v2)
+
+Cell is upgraded from **DEFERRED** to **CANDIDATE** based on lifetime
+evidence, even though live April-2026 data still produced only 3 signals
+(all losses; small n, possibly under-observed sub-regime).
+
+| Filter outcome | Action | Sizing |
+|---|---|---|
+| `breadth=medium AND vol=Medium AND wk3 AND bank_nifty=medium` AND non-Friday AND sector ∉ {Pharma, Metal} | **TAKE_FULL** | full position (new lifetime-validated) |
+| `breadth=medium AND vol=Medium` AND non-Friday AND sector ∉ {Pharma, Metal} | **TAKE_SMALL** | half position |
+| sector=Pharma | **SKIP** | structural mismatch (−4.7pp) |
+| feat_day_of_week=Fri | **SKIP** | (−6.2pp) |
+| feat_day_of_month_bucket=wk4 | **TAKE_SMALL_AT_MOST** | (−7.1pp) |
+| No filter match | **SKIP** | unchanged default |
+
+### Confidence delta
+
+| State | v1 | v2 |
+|---|---|---|
+| Cell classification | DEFERRED | **CANDIDATE** (lifetime-derived filter; awaits live validation) |
+| Filter availability | None | TAKE_FULL + TAKE_SMALL tiers |
+| Default | TAKE_SMALL or SKIP | SKIP unless filter matches |
+
+### What unlocks PROMOTED status
+
+- Quarterly Phase-5 re-runs accumulate ≥15 live DOWN_TRI×Choppy×breadth=medium×vol=Medium signals
+- Live matched WR ≥ 50% on those signals
+- At that point: upgrade CANDIDATE → VALIDATED, deploy with full confidence
+
+### What was unexpected
+
+The cell looked dead at v1 (3 live losses, no Phase-5 winners). But the
+lifetime data has 6,287 DOWN_TRI×Choppy signals — the cell's prior data
+sparsity was an *April-2026 sub-regime* artifact, not a structural void.
+The 2-feat combinatorial search bypasses the Phase-5 winners-vs-rejected
+split that originally blocked filter articulation.
+
+---
+
 ## Update Log
 
 - **v1 (2026-05-02):** Cell classified DEFERRED. 25 Phase-4 survivors all WATCH in Phase 5; live universe of 3 signals (all losses) too sparse for filter articulation. Re-evaluate after next quarterly Phase 5 run.
+- **v2 (2026-05-02 night):** L3 lifetime combinatorial search across 6,287 signals surfaced robust filter family (132 qualifying combos). Cell **upgraded DEFERRED → CANDIDATE**. New TAKE_FULL/TAKE_SMALL tiers added based on `breadth=medium × vol=Medium` lifetime pattern. Awaits live validation. See `../choppy/lifetime/synthesis.md`.

@@ -132,7 +132,95 @@ See `lab/factory/choppy/lifetime_validation_summary.md` for full analysis.
 
 ---
 
+## Comprehensive Lifetime Exploration v2 (added 2026-05-02 night)
+
+L3 combinatorial search across **1,931 lifetime BULL_PROXY×Choppy signals**
+**reaffirms KILL verdict** with two new pieces of evidence. Authoritative
+source: [`../choppy/lifetime/synthesis.md`](../choppy/lifetime/synthesis.md).
+
+### Sparsity confirmation
+
+L3's qualifying-combo count per signal type (n≥100, lift≥+5pp, p<0.01):
+
+| Signal | 2-feat qualifying | 3-feat qualifying |
+|---|---|---|
+| UP_TRI | 151 | 965 |
+| DOWN_TRI | 132 | 883 |
+| **BULL_PROXY** | **10** | 81 |
+
+BULL_PROXY produces 7-15× fewer qualifying combos than UP_TRI/DOWN_TRI.
+The signal type is structurally weaker in Choppy regime — not a single
+killing feature, but a thin edge surface overall.
+
+### Best lifetime combo (still sub-threshold for promotion)
+
+| Filter | n | WR | Lift |
+|---|---|---|---|
+| `breadth=high AND multi_tf_alignment=high AND consolidation_quality=none` | 325 | 58.8% | **+9.2pp** |
+| `breadth=high AND multi_tf_alignment=high` | 507 | 56.4% | +6.8pp |
+
+The +9.2pp peak is BELOW the +10pp threshold for filter promotion. Even
+the best lifetime combo doesn't clear the deployment bar.
+
+### Sector reach collapse
+
+Only **2 of 13 sectors** meet n≥200 for BULL_PROXY×Choppy:
+- FMCG: n=224, 54.2% WR (+4.6pp)
+- Bank: n=349, 50.5% WR (+0.9pp)
+
+The other 11 sectors don't accumulate enough lifetime signals for stable
+sector-conditional filtering. This is a structural sparsity, not just a
+data window artifact.
+
+### L4 vol-conditional findings (for narrow-exception revisit)
+
+| Vol regime | breadth=high cohort | n | WR | Lift |
+|---|---|---|---|---|
+| Low | matched | 178 | 57.1% | +7.4pp |
+| Medium | matched | 294 | 55.8% | +6.2pp |
+| High | matched | 139 | 51.1% | +1.5pp |
+
+A consistent +6-7pp lift in Low/Medium vol with `breadth=high × multi_tf=high`,
+but small n (139-294 per bucket) and below threshold.
+
+### KILL verdict — reaffirmed
+
+| Evidence | Verdict |
+|---|---|
+| Live April 2026 (n=8, 25% WR) | KILL |
+| V3 lifetime re-investigation (8 filters, none > +10pp) | KILL CONFIRMED |
+| **L3 comprehensive search** (10 qualifying combos, peak +9.2pp) | **KILL RECONFIRMED** |
+| Sector reach collapse (only 2 of 13 sectors meet n≥200) | structural weakness |
+
+The narrow-exception hypothesis (compression-coil BULL_PROXY) was tested
+in V3 at +0.5pp lift on n=776 — refuted. L3's `breadth=high × multi_tf=high`
+is a different pattern (momentum-quality, not compression-coil) and is
+modestly above baseline but still sub-threshold.
+
+### Production posture (unchanged)
+
+| Condition | Action |
+|---|---|
+| BULL_PROXY signal fires in Choppy regime | **REJECT** |
+| Even if signal matches `breadth=high × multi_tf=high` | REJECT (sub-threshold) |
+
+The lifetime evidence does NOT unlock a TAKE rule. Bridge-layer suppression
+of all Choppy BULL_PROXY signals remains the production stance.
+
+### When to re-evaluate
+
+- L3 `breadth=high × multi_tf=high` accumulates 100+ live matches with WR
+  ≥58% in non-April-2026 data → upgrade CANDIDATE
+- Scanner adjusts BULL_PROXY signal definition to capture compression-coil
+  variants → re-test narrow-exception hypothesis
+- Choppy regime classification is refined (e.g., split into stress / balance
+  / quiet sub-regimes per L3 finding) → BULL_PROXY may show edge in
+  Low/Medium-vol Choppy specifically (the Choppy→Trend transition zone)
+
+---
+
 ## Update Log
 
 - **v1 (2026-05-02):** Cell classified KILL based on 8 live signals (25% WR) + 0% Phase 5 validation across 96 REJECTED Phase-4 patterns. Production verdict: REJECT all Choppy BULL_PROXY signals. Compression-coil narrow exception documented as future research item.
 - **v1.1 (2026-05-02 evening):** Lifetime validation tested KILL verdict against 1,931 signals. No filter beats +10pp threshold; compression-coil hypothesis +0.5pp at scale. KILL verdict CONFIRMED.
+- **v2 (2026-05-02 night):** L3 comprehensive search produced only 10 qualifying 2-feat combos (vs 151 UP_TRI / 132 DOWN_TRI) with peak +9.2pp on n=325 — still sub-threshold. KILL verdict **RECONFIRMED**. Sector reach collapses (only FMCG/Bank meet n≥200). See `../choppy/lifetime/synthesis.md`.

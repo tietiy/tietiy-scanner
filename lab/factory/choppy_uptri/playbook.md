@@ -187,7 +187,64 @@ Recommended production posture:
 
 ---
 
+## Comprehensive Lifetime Exploration v2 (added 2026-05-02 night)
+
+L3 combinatorial search across 27,072 lifetime UP_TRI×Choppy signals
+surfaced a **stronger lifetime pattern that F1 missed**. Authoritative
+source: [`../choppy/lifetime/synthesis.md`](../choppy/lifetime/synthesis.md).
+
+### Promoted lifetime pattern (UP_TRI×Choppy)
+
+| Tier | Filter | n | WR | Lift |
+|---|---|---|---|---|
+| **Best lifetime combo (3-feat)** | `market_breadth=medium AND nifty_vol=High AND MACD_signal=bull` | 3318 | 62.5% | **+10.2pp** |
+| **Strong lifetime combo (2-feat)** | `market_breadth=medium AND nifty_vol=High` | 4546 | 60.1% | +7.9pp |
+| Calendar variant | `wk4 AND 52w_low_distance=high` | 3805 | 60.3% | +8.0pp |
+| F1 (this cell) — lifetime | `ema_bull AND coiled=medium` | (failed n+lift+p bar) | — | — |
+
+F1 did NOT meet qualifying criteria at lifetime (n≥100 + lift≥+5pp + p<0.01).
+The cell's discriminator analysis surfaced a real April-2026-window edge
+but missed the dominant lifetime structure.
+
+### L4 stratification surfacings
+
+- **Vol-gating is critical.** `breadth=medium` lift breakdown:
+  Low-vol +1.2pp | Medium-vol **−5.5pp** | High-vol **+7.9pp** ✓
+  Apply only inside `nifty_vol_regime=High` cohort.
+- **Avoid Metal sector** — UP_TRI×Choppy×Metal: −2.2pp lift on n=2092.
+- **Calendar edges:**
+  - Best months: Sep +11.7pp, Mar +10.0pp, Oct +7.3pp
+  - **Catastrophic month: Feb −16.2pp** (n=3338) — likely Indian Budget vol
+  - wk4 +4.8pp, wk3 −3.9pp
+
+### Revised production posture (v2)
+
+| Filter outcome | Action | Sizing |
+|---|---|---|
+| `breadth=medium AND vol=High AND MACD bull` AND month ≠ Feb AND sector ≠ Metal | **TAKE_FULL** | full position; new lifetime-validated tier |
+| `breadth=medium AND vol=High` (without MACD bull confirm) AND non-disqualified | **TAKE_FULL** | slightly smaller than 3-feat tier |
+| F1 `ema_bull AND coiled=medium` (without breadth/vol structure) | **TAKE_SMALL** | regime-shift adaptive only; track for re-validation |
+| sector=Metal OR month=Feb | **SKIP** | structural mismatch |
+| No filter match | **SKIP** | default unchanged |
+
+### Confidence delta
+
+| Pattern | v1.1 | v2 |
+|---|---|---|
+| F1 (cell-derived) | LOW (+1.7pp lifetime) | LOW — unchanged; retain as regime-shift filter |
+| Lifetime breadth=medium × vol=High | (not surfaced before) | **MEDIUM-HIGH** (+7.9pp on n=4546, p<0.001, vol-gated) |
+
+### Open question (high-priority)
+
+Does the L3 pattern (`breadth=medium × vol=High × MACD bull`) hold up in
+2026+ live data? It has not been validated in any live window. Quarterly
+Phase-5 re-runs should explicitly track it. If it sustains, this becomes
+the cell's primary filter and F1 a secondary regime-shift tool.
+
+---
+
 ## Update Log
 
 - **v1 (2026-05-02):** Initial reverse engineering from Phase 1-5 outputs. F1 recommended; n=20 matched, 58% WR, +23pp lift over 35% baseline.
 - **v1.1 (2026-05-02 evening):** Lifetime validation surfaced regime-shift dependency. F1 lift collapses to +1.7pp at 15-yr scale. Confidence downgraded MEDIUM → LOW. Production: TAKE_SMALL only.
+- **v2 (2026-05-02 night):** L3 combinatorial search surfaced lifetime-dominant pattern (`breadth=medium × vol=High × MACD bull`, +10.2pp on n=3318) that F1 missed. New TAKE_FULL tier added; F1 retained as regime-shift adaptive TAKE_SMALL. See `../choppy/lifetime/synthesis.md`.
