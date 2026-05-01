@@ -248,7 +248,9 @@ class FeatureExtractor:
         # Sub-block 3B families
         feats.update(self._compute_family_compression(cache, ohlcv, signal_row))
         feats.update(self._compute_family_zones_no_fib(cache, ohlcv, signal_row))
-        # Sub-block 3C families — placeholders return NaN until implemented
+        # Sub-block 3C-1 family
+        feats.update(self._compute_family_pattern(cache, ohlcv, signal_row))
+        # Sub-block 3C-2 families — placeholders return NaN until implemented
         for s in self.registry.list_all():
             if s.feature_id not in feats:
                 feats[s.feature_id] = np.nan
@@ -680,6 +682,37 @@ class FeatureExtractor:
 
         # ── round_number_proximity_pct (B7) ──────────────────────────
         feats["round_number_proximity_pct"] = self._round_number_proximity(c)
+
+        return feats
+
+    # ── Family 6 — Patterns (17 features; 3C-1) ────────────────────────
+
+    def _compute_family_pattern(self, cache: CachedIndicators,
+                                  ohlcv: pd.DataFrame, signal: pd.Series) -> dict:
+        """Triangle (5) + swing (4) + candle flags (8) = 17 features.
+
+        Reuses cache.pivot_highs / pivot_lows (already populated for full
+        ohlcv history during _compute_cached_indicators)."""
+        feats: dict = {}
+
+        # ── Triangle features (5) ────────────────────────────────────
+        tri = self._triangle_features(cache, ohlcv, lookback=30)
+        feats["triangle_quality_ascending"] = tri["quality_ascending"]
+        feats["triangle_quality_descending"] = tri["quality_descending"]
+        feats["triangle_compression_pct"] = tri["compression_pct"]
+        feats["triangle_touches_count"] = tri["touches"]
+        feats["triangle_age_bars"] = tri["age_bars"]
+
+        # ── Swing features (4) ───────────────────────────────────────
+        sw = self._swing_features(cache, ohlcv, lookback=20)
+        feats["swing_high_count_20d"] = sw["swing_high_count_20d"]
+        feats["swing_low_count_20d"] = sw["swing_low_count_20d"]
+        feats["last_swing_high_distance_atr"] = sw["last_swing_high_distance_atr"]
+        feats["higher_highs_intact_flag"] = sw["higher_highs_intact_flag"]
+
+        # ── Candle flag features (8) ─────────────────────────────────
+        cf = self._candle_flag_features(cache, ohlcv)
+        feats.update(cf)
 
         return feats
 
@@ -1376,3 +1409,267 @@ class FeatureExtractor:
             step = 1000
         nearest = round(close / step) * step
         return abs(close - nearest) / close
+
+    # ────────────────────────────────────────────────────────────────────
+    # 3C-1 helpers — pattern features (triangle / swing / candle flags)
+    # ────────────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _pivots_in_window(pivots, window_start_date) -> list:
+        """Filter pivot list (date, price) to entries with date >= window_start."""
+        return [(d, p) for d, p in pivots if d >= window_start_date]
+
+    @staticmethod
+    def _linregress_slope_r2(x_vals, y_vals) -> tuple:
+        """Linear regression on (x_vals, y_vals); returns (slope, intercept, r²).
+        Returns (nan, nan, 0) if fewer than 2 distinct x or y points."""
+        if len(x_vals) < 2 or len(y_vals) < 2:
+            return (np.nan, np.nan, 0.0)
+        try:
+            x_arr = np.asarray(x_vals, dtype=float)
+            y_arr = np.asarray(y_vals, dtype=float)
+            if np.std(x_arr) == 0 or np.std(y_arr) == 0:
+                # Perfectly flat case: slope=0, r² = undefined → treat as 1.0
+                # (perfectly linear horizontal fits the points exactly)
+                slope = 0.0
+                intercept = float(np.mean(y_arr))
+                # If y_arr is constant, residuals are 0, so r² = 1
+                r_squared = 1.0 if np.std(y_arr) == 0 else 0.0
+                return (slope, intercept, r_squared)
+            slope, intercept = np.polyfit(x_arr, y_arr, 1)
+            y_pred = slope * x_arr + intercept
+            ss_res = float(np.sum((y_arr - y_pred) ** 2))
+            ss_tot = float(np.sum((y_arr - np.mean(y_arr)) ** 2))
+            r_squared = 1.0 - ss_res / ss_tot if ss_tot > 0 else 0.0
+            return (float(slope), float(intercept), float(max(0.0, r_squared)))
+        except Exception:
+            return (np.nan, np.nan, 0.0)
+
+    @staticmethod
+    def _count_pivots_within_atr(pivot_xs, pivot_ys, slope, intercept, atr) -> int:
+        """Count pivots whose price is within ±atr of regression line."""
+        if pd.isna(slope) or pd.isna(intercept) or pd.isna(atr) or atr <= 0:
+            return 0
+        try:
+            count = 0
+            for x, y in zip(pivot_xs, pivot_ys):
+                line_y = slope * x + intercept
+                if abs(y - line_y) <= atr:
+                    count += 1
+            return int(count)
+        except Exception:
+            return 0
+
+    def _triangle_features(self, cache: CachedIndicators,
+                             ohlcv: pd.DataFrame, lookback: int = 30) -> dict:
+        """Compute all 5 triangle features in one pass.
+
+        Returns dict with: quality_ascending, quality_descending,
+        compression_pct, touches, age_bars.
+        """
+        out = {
+            "quality_ascending": 0.0,
+            "quality_descending": 0.0,
+            "compression_pct": np.nan,
+            "touches": 0,
+            "age_bars": 0,
+        }
+        if (len(ohlcv) < lookback or pd.isna(cache.atr_at_signal)
+                or cache.atr_at_signal <= 0):
+            return out
+
+        # Window: last `lookback` bars
+        window = ohlcv.iloc[-lookback:]
+        window_start = window.index[0]
+        # Filter cached pivots to window
+        ph_in = self._pivots_in_window(cache.pivot_highs, window_start)
+        pl_in = self._pivots_in_window(cache.pivot_lows, window_start)
+
+        # Compression factor (B2, B3) — always computable when window has bars
+        high_30d_range = float(window["High"].max() - window["Low"].min())
+        current_range = float(window["High"].iloc[-1] - window["Low"].iloc[-1])
+        out["compression_pct"] = (
+            current_range / high_30d_range
+            if high_30d_range > 0 else np.nan)
+
+        if len(ph_in) < 3 or len(pl_in) < 3:
+            # Insufficient pivots → quality 0; touches 0; age 0
+            return out
+
+        # Convert to (bar_index, price) where bar_index = position within window
+        # so regression x-axis is uniform.
+        # Use ordinal date offset for numeric x-axis.
+        date_to_pos = {d: i for i, d in enumerate(window.index)}
+        ph_x = np.array([date_to_pos[d] for d, _ in ph_in], dtype=float)
+        ph_y = np.array([p for _, p in ph_in], dtype=float)
+        pl_x = np.array([date_to_pos[d] for d, _ in pl_in], dtype=float)
+        pl_y = np.array([p for _, p in pl_in], dtype=float)
+
+        high_slope, high_intercept, high_r2 = self._linregress_slope_r2(ph_x, ph_y)
+        low_slope, low_intercept, low_r2 = self._linregress_slope_r2(pl_x, pl_y)
+
+        # Slope normalization (B1)
+        mean_price = float(window["Close"].mean())
+        if mean_price <= 0:
+            return out
+        high_slope_norm = high_slope / mean_price
+        low_slope_norm = low_slope / mean_price
+
+        # Touch counts
+        atr = cache.atr_at_signal
+        high_touches = self._count_pivots_within_atr(
+            ph_x, ph_y, high_slope, high_intercept, atr)
+        low_touches = self._count_pivots_within_atr(
+            pl_x, pl_y, low_slope, low_intercept, atr)
+        touch_count = high_touches + low_touches
+
+        # Compression factor for score: 1 - (current/high_30d_range)
+        compression_factor = (
+            max(0.0, 1.0 - (current_range / high_30d_range))
+            if high_30d_range > 0 else 0.0)
+
+        # Ascending: flat highs, rising lows
+        asc_score = 0.0
+        if (abs(high_slope_norm) < 0.005 and low_slope_norm > 0.005):
+            asc_score = (touch_count * 10.0
+                          + low_r2 * 30.0 + high_r2 * 30.0
+                          + compression_factor * 30.0)
+            asc_score = max(0.0, min(100.0, asc_score))
+        out["quality_ascending"] = float(asc_score)
+
+        # Descending: falling highs, flat lows
+        desc_score = 0.0
+        if (high_slope_norm < -0.005 and abs(low_slope_norm) < 0.005):
+            desc_score = (touch_count * 10.0
+                            + low_r2 * 30.0 + high_r2 * 30.0
+                            + compression_factor * 30.0)
+            desc_score = max(0.0, min(100.0, desc_score))
+        out["quality_descending"] = float(desc_score)
+
+        # Touches: report total (high + low)
+        out["touches"] = int(touch_count)
+
+        # Age: bars since first pivot in window that's part of triangle structure.
+        # Heuristic: bars since the earliest pivot_high or pivot_low in window.
+        all_pivot_pos = list(ph_x) + list(pl_x)
+        if all_pivot_pos:
+            earliest_pos = int(min(all_pivot_pos))
+            out["age_bars"] = int(lookback - 1 - earliest_pos)
+
+        return out
+
+    def _swing_features(self, cache: CachedIndicators,
+                          ohlcv: pd.DataFrame, lookback: int = 20) -> dict:
+        """Pivot-based swing features."""
+        out = {
+            "swing_high_count_20d": 0,
+            "swing_low_count_20d": 0,
+            "last_swing_high_distance_atr": np.nan,
+            "higher_highs_intact_flag": False,
+        }
+        if len(ohlcv) < 2:
+            return out
+        # Window: last 20 bars
+        n = len(ohlcv)
+        if n >= lookback:
+            window_start = ohlcv.index[-lookback]
+        else:
+            window_start = ohlcv.index[0]
+
+        ph_in_20 = [(d, p) for d, p in cache.pivot_highs if d >= window_start]
+        pl_in_20 = [(d, p) for d, p in cache.pivot_lows if d >= window_start]
+        out["swing_high_count_20d"] = int(len(ph_in_20))
+        out["swing_low_count_20d"] = int(len(pl_in_20))
+
+        # last_swing_high_distance_atr — over last 30 bars per spec
+        if n >= 30:
+            window_30_start = ohlcv.index[-30]
+        else:
+            window_30_start = ohlcv.index[0]
+        ph_in_30 = [(d, p) for d, p in cache.pivot_highs if d >= window_30_start]
+        if (ph_in_30 and not pd.isna(cache.atr_at_signal)
+                and cache.atr_at_signal > 0):
+            # Most recent
+            _, recent_price = max(ph_in_30, key=lambda t: t[0])
+            out["last_swing_high_distance_atr"] = (
+                abs(cache.close_at_signal - recent_price)
+                / cache.atr_at_signal)
+
+        # higher_highs_intact_flag — last 3 pivot_highs in chronological order
+        if len(cache.pivot_highs) >= 3:
+            last3 = cache.pivot_highs[-3:]
+            if (last3[0][1] < last3[1][1] < last3[2][1]):
+                out["higher_highs_intact_flag"] = True
+
+        return out
+
+    @staticmethod
+    def _candle_flag_features(cache: CachedIndicators,
+                                ohlcv: pd.DataFrame) -> dict:
+        """8 candle pattern flags + gap features."""
+        out = {
+            "bullish_engulf_flag": False,
+            "bearish_engulf_flag": False,
+            "hammer_flag": False,
+            "shooting_star_flag": False,
+            "inside_bar_flag": False,
+            "outside_bar_flag": False,
+            "gap_up_pct": 0.0,
+            "gap_down_pct": 0.0,
+        }
+        if len(ohlcv) < 2:
+            return out
+
+        today = ohlcv.iloc[-1]
+        prev = ohlcv.iloc[-2]
+        t_o = float(today["Open"]); t_c = float(today["Close"])
+        t_h = float(today["High"]); t_l = float(today["Low"])
+        p_o = float(prev["Open"]); p_c = float(prev["Close"])
+        p_h = float(prev["High"]); p_l = float(prev["Low"])
+
+        # Bullish engulf
+        if (t_c > t_o and p_c < p_o
+                and t_o <= p_c and t_c >= p_o):
+            out["bullish_engulf_flag"] = True
+
+        # Bearish engulf (symmetric)
+        if (t_c < t_o and p_c > p_o
+                and t_o >= p_c and t_c <= p_o):
+            out["bearish_engulf_flag"] = True
+
+        # Hammer: small body, long lower wick, at recent low
+        rng = t_h - t_l
+        if rng > 0:
+            body = abs(t_c - t_o)
+            lower_wick = min(t_o, t_c) - t_l
+            upper_wick = t_h - max(t_o, t_c)
+            body_ratio = body / rng
+            lower_wick_ratio = lower_wick / rng
+            upper_wick_ratio = upper_wick / rng
+            # Recent-low check: today's low <= min(low[-10:])
+            lookback = 10 if len(ohlcv) >= 10 else len(ohlcv)
+            recent_low = float(ohlcv["Low"].iloc[-lookback:].min())
+            at_recent_low = t_l <= recent_low + 1e-12
+            if body_ratio < 0.3 and lower_wick_ratio > 0.6 and at_recent_low:
+                out["hammer_flag"] = True
+            # Shooting star: small body, long upper wick, at recent high
+            recent_high = float(ohlcv["High"].iloc[-lookback:].max())
+            at_recent_high = t_h >= recent_high - 1e-12
+            if body_ratio < 0.3 and upper_wick_ratio > 0.6 and at_recent_high:
+                out["shooting_star_flag"] = True
+
+        # Inside bar: today.high < prev.high AND today.low > prev.low (strict)
+        if t_h < p_h and t_l > p_l:
+            out["inside_bar_flag"] = True
+
+        # Outside bar: today.high > prev.high AND today.low < prev.low (strict)
+        if t_h > p_h and t_l < p_l:
+            out["outside_bar_flag"] = True
+
+        # Gaps (signed split into up/down)
+        if p_c > 0:
+            ratio = (t_o - p_c) / p_c
+            out["gap_up_pct"] = float(max(0.0, ratio))
+            out["gap_down_pct"] = float(max(0.0, -ratio))
+
+        return out
