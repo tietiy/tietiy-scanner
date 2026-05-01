@@ -67,16 +67,30 @@ _DEFERRED_3A = (  # historical: 3A deferred these to 3C-2; now implemented
 # Cross-stock minimum universe coverage required to compute breadth/AD/rank;
 # below this we return NaN for these 3 features (graceful fallback).
 _CROSS_STOCK_MIN_COVERAGE = 100
-# Sector index ticker map (matches scanner/main.py SECTOR_INDICES)
+# Sector index ticker map (matches scanner/main.py SECTOR_INDICES base 8) +
+# v2.1.1 extension: 4 additional sectors mapped via primary→fallback chain
+# to close the 31% universe coverage gap surfaced in Block 4 validation.
+#
+# Each value is a tuple of parquet filenames tried in order; first found wins.
+# "Other" (catch-all heterogeneous sector) deliberately not mapped — NaN is
+# correct semantics.
 _SECTOR_INDEX_MAP = {
-    "Bank":   "_index_NSEBANK.parquet",
-    "IT":     "_index_CNXIT.parquet",
-    "Pharma": "_index_CNXPHARMA.parquet",
-    "Auto":   "_index_CNXAUTO.parquet",
-    "Metal":  "_index_CNXMETAL.parquet",
-    "Energy": "_index_CNXENERGY.parquet",
-    "FMCG":   "_index_CNXFMCG.parquet",
-    "Infra":  "_index_CNXINFRA.parquet",
+    "Bank":     ("_index_NSEBANK.parquet",),
+    "IT":       ("_index_CNXIT.parquet",),
+    "Pharma":   ("_index_CNXPHARMA.parquet",),
+    "Auto":     ("_index_CNXAUTO.parquet",),
+    "Metal":    ("_index_CNXMETAL.parquet",),
+    "Energy":   ("_index_CNXENERGY.parquet",),
+    "FMCG":     ("_index_CNXFMCG.parquet",),
+    "Infra":    ("_index_CNXINFRA.parquet",),
+    # v2.1.1 extensions — primary → fallback (per spec amendment A2)
+    "Health":   ("_index_NIFTYHEALTHCARE.parquet", "_index_CNXPHARMA.parquet"),
+    "Consumer": ("_index_NIFTYCONSUMERDURABLES.parquet", "_index_CNXFMCG.parquet"),
+    "Chem":     ("_index_NIFTYCHEMICAL.parquet",
+                  "_index_NIFTYMIDCAP100.parquet", "_index_NSEI.parquet"),
+    "CapGoods": ("_index_NIFTYINDIAMANUFACTURING.parquet",
+                  "_index_NIFTYMIDCAP100.parquet", "_index_NSEI.parquet"),
+    # "Other" intentionally absent → leaves sector_index_*d_return_pct NaN
 }
 _NIFTY_INDEX_FILE = "_index_NSEI.parquet"
 _BANK_NIFTY_INDEX_FILE = "_index_NSEBANK.parquet"
@@ -160,11 +174,22 @@ class FeatureExtractor:
         self._nifty_close = self._load_index_close(_NIFTY_INDEX_FILE)
         self._bank_nifty_close = self._load_index_close(_BANK_NIFTY_INDEX_FILE)
         self._sector_indices: dict[str, pd.Series] = {}
-        for sector, fname in _SECTOR_INDEX_MAP.items():
-            try:
-                self._sector_indices[sector] = self._load_index_close(fname)
-            except FileNotFoundError:
-                self._sector_indices[sector] = None  # Sector index unavailable
+        for sector, fname_chain in _SECTOR_INDEX_MAP.items():
+            # v2.1.1: each value is a tuple of parquet filenames; try each
+            # in order, log a warning if primary missing but fallback used.
+            self._sector_indices[sector] = None
+            primary = fname_chain[0]
+            for i, fname in enumerate(fname_chain):
+                try:
+                    self._sector_indices[sector] = self._load_index_close(fname)
+                    if i > 0:
+                        import sys as _sys
+                        print(f"feature_extractor: sector {sector!r} primary "
+                              f"{primary} missing; using fallback {fname}",
+                              file=_sys.stderr)
+                    break
+                except FileNotFoundError:
+                    continue
         # Pre-compute Nifty vol percentile thresholds from full history
         self._vol_thresholds = self._compute_nifty_vol_thresholds()
         # Cross-stock universe (3C-2): pre-load 188 stock closes at __init__,
@@ -857,8 +882,8 @@ class FeatureExtractor:
         ohlcv history during _compute_cached_indicators)."""
         feats: dict = {}
 
-        # ── Triangle features (5) ────────────────────────────────────
-        tri = self._triangle_features(cache, ohlcv, lookback=30)
+        # ── Triangle features (5) — v2.1.1: 60-bar window ──────────────
+        tri = self._triangle_features(cache, ohlcv, lookback=60)
         feats["triangle_quality_ascending"] = tri["quality_ascending"]
         feats["triangle_quality_descending"] = tri["quality_descending"]
         feats["triangle_compression_pct"] = tri["compression_pct"]
@@ -1623,8 +1648,19 @@ class FeatureExtractor:
             return 0
 
     def _triangle_features(self, cache: CachedIndicators,
-                             ohlcv: pd.DataFrame, lookback: int = 30) -> dict:
+                             ohlcv: pd.DataFrame, lookback: int = 60) -> dict:
         """Compute all 5 triangle features in one pass.
+
+        v2.1.1 algorithm (supersedes original v2.1):
+        - 60-bar window (was 30) — accommodates PIVOT_LOOKBACK=10 spacing
+          constraint that requires ≥21 bars between same-type pivots.
+        - ≥3 total pivots in window (any combo) — was 3+3 strict, structurally
+          impossible in 30 bars with live PIVOT_LOOKBACK.
+        - trendline_respect_score: % of bars in window where bar.high is
+          within 1 ATR of upper trendline AND bar.low within 1 ATR of lower
+          trendline. Validates structural fit beyond sparse pivot R².
+        - Composite score: trendline_respect (50) + touch_count (5x) +
+          compression_factor (30) + slope_alignment (15).
 
         Returns dict with: quality_ascending, quality_descending,
         compression_pct, touches, age_bars.
@@ -1640,79 +1676,122 @@ class FeatureExtractor:
                 or cache.atr_at_signal <= 0):
             return out
 
-        # Window: last `lookback` bars
         window = ohlcv.iloc[-lookback:]
         window_start = window.index[0]
-        # Filter cached pivots to window
         ph_in = self._pivots_in_window(cache.pivot_highs, window_start)
         pl_in = self._pivots_in_window(cache.pivot_lows, window_start)
 
-        # Compression factor (B2, B3) — always computable when window has bars
-        high_30d_range = float(window["High"].max() - window["Low"].min())
+        # Compression pct (B2, B3) — always computable when window has bars
+        high_window_range = float(window["High"].max() - window["Low"].min())
         current_range = float(window["High"].iloc[-1] - window["Low"].iloc[-1])
         out["compression_pct"] = (
-            current_range / high_30d_range
-            if high_30d_range > 0 else np.nan)
+            current_range / high_window_range
+            if high_window_range > 0 else np.nan)
 
-        if len(ph_in) < 3 or len(pl_in) < 3:
-            # Insufficient pivots → quality 0; touches 0; age 0
+        # ≥3 total pivots required (relaxed from 3+3 strict in v2.1)
+        total_pivots = len(ph_in) + len(pl_in)
+        if total_pivots < 3:
             return out
 
-        # Convert to (bar_index, price) where bar_index = position within window
-        # so regression x-axis is uniform.
-        # Use ordinal date offset for numeric x-axis.
         date_to_pos = {d: i for i, d in enumerate(window.index)}
         ph_x = np.array([date_to_pos[d] for d, _ in ph_in], dtype=float)
         ph_y = np.array([p for _, p in ph_in], dtype=float)
         pl_x = np.array([date_to_pos[d] for d, _ in pl_in], dtype=float)
         pl_y = np.array([p for _, p in pl_in], dtype=float)
 
-        high_slope, high_intercept, high_r2 = self._linregress_slope_r2(ph_x, ph_y)
-        low_slope, low_intercept, low_r2 = self._linregress_slope_r2(pl_x, pl_y)
+        # Fit trendlines: each side requires ≥2 points; degenerate to flat
+        # through single point if only 1 available.
+        if len(ph_in) >= 2:
+            high_slope, high_intercept, _high_r2 = self._linregress_slope_r2(
+                ph_x, ph_y)
+        elif len(ph_in) == 1:
+            high_slope, high_intercept = 0.0, float(ph_y[0])
+        else:
+            high_slope, high_intercept = np.nan, np.nan
 
-        # Slope normalization (B1)
+        if len(pl_in) >= 2:
+            low_slope, low_intercept, _low_r2 = self._linregress_slope_r2(
+                pl_x, pl_y)
+        elif len(pl_in) == 1:
+            low_slope, low_intercept = 0.0, float(pl_y[0])
+        else:
+            low_slope, low_intercept = np.nan, np.nan
+
         mean_price = float(window["Close"].mean())
         if mean_price <= 0:
             return out
-        high_slope_norm = high_slope / mean_price
-        low_slope_norm = low_slope / mean_price
+        high_slope_norm = (high_slope / mean_price
+                             if not pd.isna(high_slope) else np.nan)
+        low_slope_norm = (low_slope / mean_price
+                            if not pd.isna(low_slope) else np.nan)
 
-        # Touch counts
         atr = cache.atr_at_signal
-        high_touches = self._count_pivots_within_atr(
-            ph_x, ph_y, high_slope, high_intercept, atr)
-        low_touches = self._count_pivots_within_atr(
-            pl_x, pl_y, low_slope, low_intercept, atr)
+
+        # Touch counts: pivots within 1 ATR of regression line
+        high_touches = (
+            self._count_pivots_within_atr(ph_x, ph_y, high_slope,
+                                            high_intercept, atr)
+            if not pd.isna(high_slope) else 0)
+        low_touches = (
+            self._count_pivots_within_atr(pl_x, pl_y, low_slope,
+                                            low_intercept, atr)
+            if not pd.isna(low_slope) else 0)
         touch_count = high_touches + low_touches
 
-        # Compression factor for score: 1 - (current/high_30d_range)
+        # trendline_respect_score: % of bars in window where bar.high within
+        # 1 ATR of upper trendline AND bar.low within 1 ATR of lower
+        # trendline. If a trendline is NaN (no points), that side
+        # contributes 0 (no respect possible).
+        x_full = np.arange(lookback, dtype=float)
+        if not pd.isna(high_slope) and not pd.isna(high_intercept):
+            upper_line = high_slope * x_full + high_intercept
+            high_respect = np.abs(window["High"].values - upper_line) <= atr
+        else:
+            high_respect = np.zeros(lookback, dtype=bool)
+        if not pd.isna(low_slope) and not pd.isna(low_intercept):
+            lower_line = low_slope * x_full + low_intercept
+            low_respect = np.abs(window["Low"].values - lower_line) <= atr
+        else:
+            low_respect = np.zeros(lookback, dtype=bool)
+        both_respect = high_respect & low_respect
+        trendline_respect_score = float(both_respect.sum()) / lookback
+
+        # compression_factor (in [0,1]): higher = current bar narrower than
+        # window peak range
         compression_factor = (
-            max(0.0, 1.0 - (current_range / high_30d_range))
-            if high_30d_range > 0 else 0.0)
+            max(0.0, 1.0 - (current_range / high_window_range))
+            if high_window_range > 0 else 0.0)
 
-        # Ascending: flat highs, rising lows
-        asc_score = 0.0
-        if (abs(high_slope_norm) < 0.005 and low_slope_norm > 0.005):
-            asc_score = (touch_count * 10.0
-                          + low_r2 * 30.0 + high_r2 * 30.0
-                          + compression_factor * 30.0)
-            asc_score = max(0.0, min(100.0, asc_score))
-        out["quality_ascending"] = float(asc_score)
+        # Direction validation: slope_alignment_score = 100 if direction
+        # passes; else 0
+        def _ascending_passes() -> bool:
+            if pd.isna(high_slope_norm) or pd.isna(low_slope_norm):
+                return False
+            return (abs(high_slope_norm) < 0.005
+                      and low_slope_norm > 0.005)
 
-        # Descending: falling highs, flat lows
-        desc_score = 0.0
-        if (high_slope_norm < -0.005 and abs(low_slope_norm) < 0.005):
-            desc_score = (touch_count * 10.0
-                            + low_r2 * 30.0 + high_r2 * 30.0
-                            + compression_factor * 30.0)
-            desc_score = max(0.0, min(100.0, desc_score))
-        out["quality_descending"] = float(desc_score)
+        def _descending_passes() -> bool:
+            if pd.isna(high_slope_norm) or pd.isna(low_slope_norm):
+                return False
+            return (high_slope_norm < -0.005
+                      and abs(low_slope_norm) < 0.005)
 
-        # Touches: report total (high + low)
+        # Composite formula (v2.1.1)
+        # base = trendline_respect (50) + touches (5x) + compression (30)
+        base_score = (trendline_respect_score * 50.0
+                        + touch_count * 5.0
+                        + compression_factor * 30.0)
+
+        if _ascending_passes():
+            asc_score = base_score + 100.0 * 0.15  # slope_alignment_score = 100
+            out["quality_ascending"] = float(max(0.0, min(100.0, asc_score)))
+        if _descending_passes():
+            desc_score = base_score + 100.0 * 0.15
+            out["quality_descending"] = float(max(0.0, min(100.0, desc_score)))
+
         out["touches"] = int(touch_count)
 
-        # Age: bars since first pivot in window that's part of triangle structure.
-        # Heuristic: bars since the earliest pivot_high or pivot_low in window.
+        # Age: bars since earliest pivot in window
         all_pivot_pos = list(ph_x) + list(pl_x)
         if all_pivot_pos:
             earliest_pos = int(min(all_pivot_pos))
