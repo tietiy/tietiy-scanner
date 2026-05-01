@@ -331,32 +331,47 @@ class FeatureExtractor:
     # ── Public API ────────────────────────────────────────────────────
 
     def extract(self, signals_df: pd.DataFrame) -> pd.DataFrame:
-        """Add 114 feat_* columns to signals_df. Batches by symbol for cache efficiency."""
+        """Add 114 feat_* columns to signals_df. Batches by symbol for cache
+        efficiency. Builds feature rows as dicts first, then concats — preserves
+        mixed dtypes (categorical strings + numeric) without pandas dtype
+        coercion errors.
+        """
         if signals_df.empty:
             return signals_df.copy()
 
         feat_ids = sorted(s.feature_id for s in self.registry.list_all())
-        # Pre-allocate output columns with NaN
-        out = signals_df.copy()
-        for fid in feat_ids:
-            out[f"{_FEAT_PREFIX}{fid}"] = np.nan
+        # Build per-row dict; keyed by signal index so concat aligns correctly.
+        rows: dict = {}
+        errors: dict = {}
 
-        # Group by symbol
         by_symbol = signals_df.groupby("symbol", sort=False)
         for symbol, group in by_symbol:
             try:
                 stock_df = self._load_stock_history(symbol)
             except FileNotFoundError:
-                # Mark all features for this symbol's signals as NaN; continue
+                # All signals for this symbol left as full-NaN row
+                for idx in group.index:
+                    rows[idx] = {fid: np.nan for fid in feat_ids}
                 continue
             for idx, signal_row in group.iterrows():
                 try:
                     feat_dict = self.extract_single(signal_row, stock_df)
-                    for fid, val in feat_dict.items():
-                        out.at[idx, f"{_FEAT_PREFIX}{fid}"] = val
-                except Exception as exc:  # noqa: BLE001 — extractor must be robust
-                    # Per-signal failure leaves NaN; surface in caller logs
-                    out.at[idx, f"{_FEAT_PREFIX}_extractor_error"] = str(exc)[:200]
+                    rows[idx] = feat_dict
+                except Exception as exc:  # noqa: BLE001
+                    rows[idx] = {fid: np.nan for fid in feat_ids}
+                    errors[idx] = str(exc)[:200]
+
+        # Construct features DataFrame with feat_<id> column names and same
+        # index as signals_df.
+        feat_df = pd.DataFrame.from_dict(rows, orient="index")
+        feat_df = feat_df.reindex(columns=feat_ids)
+        feat_df.columns = [f"{_FEAT_PREFIX}{c}" for c in feat_df.columns]
+        feat_df = feat_df.reindex(signals_df.index)
+
+        out = pd.concat([signals_df, feat_df], axis=1)
+        if errors:
+            err_col = pd.Series(errors, name=f"{_FEAT_PREFIX}_extractor_error")
+            out = out.join(err_col, how="left")
         return out
 
     def extract_single(self, signal_row: pd.Series,
