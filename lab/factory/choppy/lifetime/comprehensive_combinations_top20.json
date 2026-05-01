@@ -1,0 +1,1366 @@
+{
+  "by_signal_type": {
+    "UP_TRI": {
+      "n": 27072,
+      "baseline_wr": 0.522688728024819,
+      "n_qualifying_2feat": 151,
+      "n_qualifying_3feat": 965,
+      "f1_appearance": null,
+      "f1_rank_in_2feat": null,
+      "top20_combinations": [
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ]
+          ],
+          "n_match": 4954,
+          "n_match_wl": "4546",
+          "n_w": 2734,
+          "n_l": 1812,
+          "wr": 0.6014078310602727,
+          "lift_pp": 0.07871910303545371,
+          "p_value": 1.4544471971324345e-26
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 4954,
+          "n_match_wl": "4546",
+          "n_w": 2734,
+          "n_l": 1812,
+          "wr": 0.6014078310602727,
+          "lift_pp": 0.07871910303545371,
+          "p_value": 1.4544471971324345e-26
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 4952,
+          "n_match_wl": "4544",
+          "n_w": 2732,
+          "n_l": 1812,
+          "wr": 0.6012323943661971,
+          "lift_pp": 0.0785436663413781,
+          "p_value": 1.952588862620191e-26
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "MACD_signal",
+              "bull"
+            ]
+          ],
+          "n_match": 3622,
+          "n_match_wl": "3318",
+          "n_w": 2074,
+          "n_l": 1244,
+          "wr": 0.625075346594334,
+          "lift_pp": 0.10238661856951492,
+          "p_value": 1.571331923992594e-32
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "MACD_histogram_sign",
+              "positive"
+            ]
+          ],
+          "n_match": 3622,
+          "n_match_wl": "3318",
+          "n_w": 2074,
+          "n_l": 1244,
+          "wr": 0.625075346594334,
+          "lift_pp": 0.10238661856951492,
+          "p_value": 1.571331923992594e-32
+        },
+        {
+          "features": [
+            [
+              "MACD_signal",
+              "bull"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "market_breadth_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 3622,
+          "n_match_wl": "3318",
+          "n_w": 2074,
+          "n_l": 1244,
+          "wr": 0.625075346594334,
+          "lift_pp": 0.10238661856951492,
+          "p_value": 1.571331923992594e-32
+        },
+        {
+          "features": [
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "MACD_histogram_sign",
+              "positive"
+            ],
+            [
+              "market_breadth_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 3622,
+          "n_match_wl": "3318",
+          "n_w": 2074,
+          "n_l": 1244,
+          "wr": 0.625075346594334,
+          "lift_pp": 0.10238661856951492,
+          "p_value": 1.571331923992594e-32
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "RSI_14",
+              "medium"
+            ]
+          ],
+          "n_match": 4229,
+          "n_match_wl": "3876",
+          "n_w": 2347,
+          "n_l": 1529,
+          "wr": 0.6055211558307534,
+          "lift_pp": 0.08283242780593436,
+          "p_value": 3.6760043989756723e-25
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "consolidation_quality",
+              "none"
+            ]
+          ],
+          "n_match": 4206,
+          "n_match_wl": "3884",
+          "n_w": 2340,
+          "n_l": 1544,
+          "wr": 0.6024716786817713,
+          "lift_pp": 0.07978295065695229,
+          "p_value": 1.5993729802196241e-23
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "52w_low_distance_pct",
+              "high"
+            ]
+          ],
+          "n_match": 4248,
+          "n_match_wl": "3805",
+          "n_w": 2295,
+          "n_l": 1510,
+          "wr": 0.6031537450722734,
+          "lift_pp": 0.08046501704745435,
+          "p_value": 2.0746008216885576e-23
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "52w_low_distance_pct",
+              "high"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 4248,
+          "n_match_wl": "3805",
+          "n_w": 2295,
+          "n_l": 1510,
+          "wr": 0.6031537450722734,
+          "lift_pp": 0.08046501704745435,
+          "p_value": 2.0746008216885576e-23
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "52w_low_distance_pct",
+              "high"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 4227,
+          "n_match_wl": "3788",
+          "n_w": 2285,
+          "n_l": 1503,
+          "wr": 0.603220696937698,
+          "lift_pp": 0.08053196891287895,
+          "p_value": 2.303400239932907e-23
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "52w_low_distance_pct",
+              "high"
+            ],
+            [
+              "bank_nifty_20d_return_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 3141,
+          "n_match_wl": "2802",
+          "n_w": 1760,
+          "n_l": 1042,
+          "wr": 0.6281227694503926,
+          "lift_pp": 0.10543404142557355,
+          "p_value": 2.675147331717257e-29
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "bank_nifty_20d_return_pct",
+              "medium"
+            ],
+            [
+              "52w_low_distance_pct",
+              "high"
+            ]
+          ],
+          "n_match": 3141,
+          "n_match_wl": "2802",
+          "n_w": 1760,
+          "n_l": 1042,
+          "wr": 0.6281227694503926,
+          "lift_pp": 0.10543404142557355,
+          "p_value": 2.675147331717257e-29
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "coiled_spring_score",
+              "low"
+            ]
+          ],
+          "n_match": 3599,
+          "n_match_wl": "3319",
+          "n_w": 2030,
+          "n_l": 1289,
+          "wr": 0.6116300090388671,
+          "lift_pp": 0.08894128101404808,
+          "p_value": 7.317791314390363e-25
+        },
+        {
+          "features": [
+            [
+              "MACD_signal",
+              "bull"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 5603,
+          "n_match_wl": "5118",
+          "n_w": 2956,
+          "n_l": 2162,
+          "wr": 0.5775693630324346,
+          "lift_pp": 0.05488063500761553,
+          "p_value": 3.5023048120397104e-15
+        },
+        {
+          "features": [
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "MACD_histogram_sign",
+              "positive"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 5603,
+          "n_match_wl": "5118",
+          "n_w": 2956,
+          "n_l": 2162,
+          "wr": 0.5775693630324346,
+          "lift_pp": 0.05488063500761553,
+          "p_value": 3.5023048120397104e-15
+        },
+        {
+          "features": [
+            [
+              "MACD_signal",
+              "bull"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ]
+          ],
+          "n_match": 5608,
+          "n_match_wl": "5123",
+          "n_w": 2958,
+          "n_l": 2165,
+          "wr": 0.5773960569978528,
+          "lift_pp": 0.054707328973033764,
+          "p_value": 4.045383090975299e-15
+        },
+        {
+          "features": [
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "MACD_histogram_sign",
+              "positive"
+            ]
+          ],
+          "n_match": 5608,
+          "n_match_wl": "5123",
+          "n_w": 2958,
+          "n_l": 2165,
+          "wr": 0.5773960569978528,
+          "lift_pp": 0.054707328973033764,
+          "p_value": 4.045383090975299e-15
+        },
+        {
+          "features": [
+            [
+              "MACD_signal",
+              "bull"
+            ],
+            [
+              "nifty_vol_regime",
+              "High"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 5608,
+          "n_match_wl": "5123",
+          "n_w": 2958,
+          "n_l": 2165,
+          "wr": 0.5773960569978528,
+          "lift_pp": 0.054707328973033764,
+          "p_value": 4.045383090975299e-15
+        }
+      ]
+    },
+    "DOWN_TRI": {
+      "n": 6287,
+      "baseline_wr": 0.4607563325008919,
+      "n_qualifying_2feat": 132,
+      "n_qualifying_3feat": 883,
+      "f1_appearance": null,
+      "f1_rank_in_2feat": null,
+      "top20_combinations": [
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "Medium"
+            ]
+          ],
+          "n_match": 1903,
+          "n_match_wl": "1727",
+          "n_w": 953,
+          "n_l": 774,
+          "wr": 0.5518239722061378,
+          "lift_pp": 0.0910676397052459,
+          "p_value": 3.614678057923878e-14
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "Medium"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 1903,
+          "n_match_wl": "1727",
+          "n_w": 953,
+          "n_l": 774,
+          "wr": 0.5518239722061378,
+          "lift_pp": 0.0910676397052459,
+          "p_value": 3.614678057923878e-14
+        },
+        {
+          "features": [
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ],
+            [
+              "nifty_vol_regime",
+              "Medium"
+            ],
+            [
+              "market_breadth_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 1903,
+          "n_match_wl": "1727",
+          "n_w": 953,
+          "n_l": 774,
+          "wr": 0.5518239722061378,
+          "lift_pp": 0.0910676397052459,
+          "p_value": 3.614678057923878e-14
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "Medium"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 1901,
+          "n_match_wl": "1725",
+          "n_w": 952,
+          "n_l": 773,
+          "wr": 0.5518840579710145,
+          "lift_pp": 0.0911277254701226,
+          "p_value": 4.157518911218252e-14
+        },
+        {
+          "features": [
+            [
+              "nifty_vol_regime",
+              "Medium"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ],
+            [
+              "market_breadth_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 1901,
+          "n_match_wl": "1725",
+          "n_w": 952,
+          "n_l": 773,
+          "wr": 0.5518840579710145,
+          "lift_pp": 0.0911277254701226,
+          "p_value": 4.157518911218252e-14
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "bank_nifty_20d_return_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 1444,
+          "n_match_wl": "1295",
+          "n_w": 748,
+          "n_l": 547,
+          "wr": 0.5776061776061776,
+          "lift_pp": 0.11684984510528573,
+          "p_value": 4.453519013449024e-17
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "bank_nifty_20d_return_pct",
+              "medium"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 1444,
+          "n_match_wl": "1295",
+          "n_w": 748,
+          "n_l": 547,
+          "wr": 0.5776061776061776,
+          "lift_pp": 0.11684984510528573,
+          "p_value": 4.453519013449024e-17
+        },
+        {
+          "features": [
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ],
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "bank_nifty_20d_return_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 1444,
+          "n_match_wl": "1295",
+          "n_w": 748,
+          "n_l": 547,
+          "wr": 0.5776061776061776,
+          "lift_pp": 0.11684984510528573,
+          "p_value": 4.453519013449024e-17
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "Medium"
+            ],
+            [
+              "RSI_14",
+              "medium"
+            ]
+          ],
+          "n_match": 1663,
+          "n_match_wl": "1508",
+          "n_w": 846,
+          "n_l": 662,
+          "wr": 0.5610079575596817,
+          "lift_pp": 0.10025162505878982,
+          "p_value": 7.543617188044407e-15
+        },
+        {
+          "features": [
+            [
+              "RSI_14",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "Medium"
+            ],
+            [
+              "market_breadth_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 1663,
+          "n_match_wl": "1508",
+          "n_w": 846,
+          "n_l": 662,
+          "wr": 0.5610079575596817,
+          "lift_pp": 0.10025162505878982,
+          "p_value": 7.543617188044407e-15
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "bank_nifty_20d_return_pct",
+              "medium"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 1437,
+          "n_match_wl": "1289",
+          "n_w": 744,
+          "n_l": 545,
+          "wr": 0.5771916214119472,
+          "lift_pp": 0.11643528891105537,
+          "p_value": 6.144209584942604e-17
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ],
+            [
+              "bank_nifty_20d_return_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 1437,
+          "n_match_wl": "1289",
+          "n_w": 744,
+          "n_l": 545,
+          "wr": 0.5771916214119472,
+          "lift_pp": 0.11643528891105537,
+          "p_value": 6.144209584942604e-17
+        },
+        {
+          "features": [
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ],
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ]
+          ],
+          "n_match": 1718,
+          "n_match_wl": "1540",
+          "n_w": 856,
+          "n_l": 684,
+          "wr": 0.5558441558441558,
+          "lift_pp": 0.09508782334326393,
+          "p_value": 8.657188125635532e-14
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 1710,
+          "n_match_wl": "1533",
+          "n_w": 851,
+          "n_l": 682,
+          "wr": 0.5551206784083497,
+          "lift_pp": 0.09436434590745779,
+          "p_value": 1.651081192173726e-13
+        },
+        {
+          "features": [
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ],
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 1710,
+          "n_match_wl": "1533",
+          "n_w": 851,
+          "n_l": 682,
+          "wr": 0.5551206784083497,
+          "lift_pp": 0.09436434590745779,
+          "p_value": 1.651081192173726e-13
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 1710,
+          "n_match_wl": "1533",
+          "n_w": 851,
+          "n_l": 682,
+          "wr": 0.5551206784083497,
+          "lift_pp": 0.09436434590745779,
+          "p_value": 1.651081192173726e-13
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "bank_nifty_20d_return_pct",
+              "medium"
+            ],
+            [
+              "RSI_14",
+              "medium"
+            ]
+          ],
+          "n_match": 1300,
+          "n_match_wl": "1161",
+          "n_w": 676,
+          "n_l": 485,
+          "wr": 0.5822566752799311,
+          "lift_pp": 0.1215003427790392,
+          "p_value": 1.208265581180063e-16
+        },
+        {
+          "features": [
+            [
+              "RSI_14",
+              "medium"
+            ],
+            [
+              "day_of_month_bucket",
+              "wk3"
+            ],
+            [
+              "bank_nifty_20d_return_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 1300,
+          "n_match_wl": "1161",
+          "n_w": 676,
+          "n_l": 485,
+          "wr": 0.5822566752799311,
+          "lift_pp": 0.1215003427790392,
+          "p_value": 1.208265581180063e-16
+        },
+        {
+          "features": [
+            [
+              "nifty_vol_regime",
+              "Medium"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ],
+            [
+              "RSI_14",
+              "medium"
+            ]
+          ],
+          "n_match": 2464,
+          "n_match_wl": "2207",
+          "n_w": 1154,
+          "n_l": 1053,
+          "wr": 0.5228817399184413,
+          "lift_pp": 0.06212540741754946,
+          "p_value": 5.347198979424864e-09
+        },
+        {
+          "features": [
+            [
+              "RSI_14",
+              "medium"
+            ],
+            [
+              "nifty_vol_regime",
+              "Medium"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 2464,
+          "n_match_wl": "2207",
+          "n_w": 1154,
+          "n_l": 1053,
+          "wr": 0.5228817399184413,
+          "lift_pp": 0.06212540741754946,
+          "p_value": 5.347198979424864e-09
+        }
+      ]
+    },
+    "BULL_PROXY": {
+      "n": 1931,
+      "baseline_wr": 0.49604966139954854,
+      "n_qualifying_2feat": 10,
+      "n_qualifying_3feat": 81,
+      "f1_appearance": null,
+      "f1_rank_in_2feat": null,
+      "top20_combinations": [
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ]
+          ],
+          "n_match": 562,
+          "n_match_wl": "507",
+          "n_w": 286,
+          "n_l": 221,
+          "wr": 0.5641025641025641,
+          "lift_pp": 0.06805290270301556,
+          "p_value": 0.002493431804483582
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 562,
+          "n_match_wl": "507",
+          "n_w": 286,
+          "n_l": 221,
+          "wr": 0.5641025641025641,
+          "lift_pp": 0.06805290270301556,
+          "p_value": 0.002493431804483582
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 557,
+          "n_match_wl": "504",
+          "n_w": 284,
+          "n_l": 220,
+          "wr": 0.5634920634920635,
+          "lift_pp": 0.06744240209251495,
+          "p_value": 0.002804111403833274
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ],
+            [
+              "52w_low_distance_pct",
+              "high"
+            ]
+          ],
+          "n_match": 533,
+          "n_match_wl": "481",
+          "n_w": 272,
+          "n_l": 209,
+          "wr": 0.5654885654885655,
+          "lift_pp": 0.06943890408901698,
+          "p_value": 0.0025823851115256303
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ],
+            [
+              "52w_high_distance_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 464,
+          "n_match_wl": "422",
+          "n_w": 242,
+          "n_l": 180,
+          "wr": 0.5734597156398105,
+          "lift_pp": 0.07741005424026193,
+          "p_value": 0.0015340976187685658
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "52w_high_distance_pct",
+              "medium"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ]
+          ],
+          "n_match": 464,
+          "n_match_wl": "422",
+          "n_w": 242,
+          "n_l": 180,
+          "wr": 0.5734597156398105,
+          "lift_pp": 0.07741005424026193,
+          "p_value": 0.0015340976187685658
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "52w_high_distance_pct",
+              "medium"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 505,
+          "n_match_wl": "461",
+          "n_w": 259,
+          "n_l": 202,
+          "wr": 0.561822125813449,
+          "lift_pp": 0.0657724644139005,
+          "p_value": 0.0051482676282058795
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "52w_high_distance_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 507,
+          "n_match_wl": "462",
+          "n_w": 259,
+          "n_l": 203,
+          "wr": 0.5606060606060606,
+          "lift_pp": 0.06455639920651202,
+          "p_value": 0.0059982573812396795
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "52w_high_distance_pct",
+              "medium"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 507,
+          "n_match_wl": "462",
+          "n_w": 259,
+          "n_l": 203,
+          "wr": 0.5606060606060606,
+          "lift_pp": 0.06455639920651202,
+          "p_value": 0.0059982573812396795
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ],
+            [
+              "consolidation_quality",
+              "none"
+            ]
+          ],
+          "n_match": 362,
+          "n_match_wl": "325",
+          "n_w": 191,
+          "n_l": 134,
+          "wr": 0.5876923076923077,
+          "lift_pp": 0.0916426462927592,
+          "p_value": 0.0010379515542534822
+        },
+        {
+          "features": [
+            [
+              "market_breadth_pct",
+              "high"
+            ],
+            [
+              "consolidation_quality",
+              "none"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ]
+          ],
+          "n_match": 362,
+          "n_match_wl": "325",
+          "n_w": 191,
+          "n_l": 134,
+          "wr": 0.5876923076923077,
+          "lift_pp": 0.0916426462927592,
+          "p_value": 0.0010379515542534822
+        },
+        {
+          "features": [
+            [
+              "higher_highs_intact_flag",
+              "True"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ]
+          ],
+          "n_match": 549,
+          "n_match_wl": "497",
+          "n_w": 276,
+          "n_l": 221,
+          "wr": 0.5553319919517102,
+          "lift_pp": 0.0592823305521617,
+          "p_value": 0.00920763086319862
+        },
+        {
+          "features": [
+            [
+              "higher_highs_intact_flag",
+              "True"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 549,
+          "n_match_wl": "497",
+          "n_w": 276,
+          "n_l": 221,
+          "wr": 0.5553319919517102,
+          "lift_pp": 0.0592823305521617,
+          "p_value": 0.00920763086319862
+        },
+        {
+          "features": [
+            [
+              "higher_highs_intact_flag",
+              "True"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 545,
+          "n_match_wl": "493",
+          "n_w": 274,
+          "n_l": 219,
+          "wr": 0.5557809330628803,
+          "lift_pp": 0.05973127166333181,
+          "p_value": 0.008927474470882924
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "consolidation_quality",
+              "none"
+            ]
+          ],
+          "n_match": 391,
+          "n_match_wl": "364",
+          "n_w": 210,
+          "n_l": 154,
+          "wr": 0.5769230769230769,
+          "lift_pp": 0.08087341552352834,
+          "p_value": 0.0023204162901321653
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "consolidation_quality",
+              "none"
+            ],
+            [
+              "advance_decline_ratio_20d",
+              "low"
+            ]
+          ],
+          "n_match": 391,
+          "n_match_wl": "364",
+          "n_w": 210,
+          "n_l": 154,
+          "wr": 0.5769230769230769,
+          "lift_pp": 0.08087341552352834,
+          "p_value": 0.0023204162901321653
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "consolidation_quality",
+              "none"
+            ],
+            [
+              "compression_duration",
+              "low"
+            ]
+          ],
+          "n_match": 391,
+          "n_match_wl": "364",
+          "n_w": 210,
+          "n_l": 154,
+          "wr": 0.5769230769230769,
+          "lift_pp": 0.08087341552352834,
+          "p_value": 0.0023204162901321653
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "consolidation_quality",
+              "none"
+            ],
+            [
+              "52w_low_distance_pct",
+              "high"
+            ]
+          ],
+          "n_match": 383,
+          "n_match_wl": "356",
+          "n_w": 206,
+          "n_l": 150,
+          "wr": 0.5786516853932584,
+          "lift_pp": 0.08260202399370986,
+          "p_value": 0.002069686470265189
+        },
+        {
+          "features": [
+            [
+              "higher_highs_intact_flag",
+              "True"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ],
+            [
+              "ema20_slope_5d_pct",
+              "medium"
+            ]
+          ],
+          "n_match": 432,
+          "n_match_wl": "391",
+          "n_w": 223,
+          "n_l": 168,
+          "wr": 0.5703324808184144,
+          "lift_pp": 0.07428281941886583,
+          "p_value": 0.0033372900753140568
+        },
+        {
+          "features": [
+            [
+              "day_of_month_bucket",
+              "wk4"
+            ],
+            [
+              "consolidation_quality",
+              "none"
+            ],
+            [
+              "multi_tf_alignment_score",
+              "high"
+            ]
+          ],
+          "n_match": 341,
+          "n_match_wl": "319",
+          "n_w": 187,
+          "n_l": 132,
+          "wr": 0.5862068965517241,
+          "lift_pp": 0.09015723515217555,
+          "p_value": 0.0013839818557424754
+        }
+      ]
+    }
+  }
+}
