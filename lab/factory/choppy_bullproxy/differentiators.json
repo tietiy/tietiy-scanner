@@ -1,0 +1,667 @@
+{
+  "rejected_vs_watch_top_diffs": [
+    {
+      "feature_id": "ema20_distance_pct",
+      "level": "high",
+      "winners_count": 39,
+      "winners_pct": 0.40625,
+      "rejected_count": 3,
+      "rejected_pct": 0.0379746835443038,
+      "differentiator_score": 0.3682753164556962
+    },
+    {
+      "feature_id": "market_breadth_pct",
+      "level": "high",
+      "winners_count": 74,
+      "winners_pct": 0.7708333333333334,
+      "rejected_count": 32,
+      "rejected_pct": 0.4050632911392405,
+      "differentiator_score": 0.36577004219409287
+    },
+    {
+      "feature_id": "coiled_spring_score",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 23,
+      "rejected_pct": 0.2911392405063291,
+      "differentiator_score": -0.2911392405063291
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "bull",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 21,
+      "rejected_pct": 0.26582278481012656,
+      "differentiator_score": -0.26582278481012656
+    },
+    {
+      "feature_id": "higher_highs_intact_flag",
+      "level": "False",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 17,
+      "rejected_pct": 0.21518987341772153,
+      "differentiator_score": -0.21518987341772153
+    },
+    {
+      "feature_id": "day_of_week",
+      "level": "Tue",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 10,
+      "rejected_pct": 0.12658227848101267,
+      "differentiator_score": -0.12658227848101267
+    },
+    {
+      "feature_id": "MACD_histogram_sign",
+      "level": "positive",
+      "winners_count": 19,
+      "winners_pct": 0.19791666666666666,
+      "rejected_count": 6,
+      "rejected_pct": 0.0759493670886076,
+      "differentiator_score": 0.12196729957805906
+    },
+    {
+      "feature_id": "MACD_signal",
+      "level": "bull",
+      "winners_count": 19,
+      "winners_pct": 0.19791666666666666,
+      "rejected_count": 6,
+      "rejected_pct": 0.0759493670886076,
+      "differentiator_score": 0.12196729957805906
+    },
+    {
+      "feature_id": "higher_highs_intact_flag",
+      "level": "True",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 8,
+      "rejected_pct": 0.10126582278481013,
+      "differentiator_score": -0.10126582278481013
+    },
+    {
+      "feature_id": "MACD_histogram_slope",
+      "level": "falling",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 8,
+      "rejected_pct": 0.10126582278481013,
+      "differentiator_score": -0.10126582278481013
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "none",
+      "winners_count": 16,
+      "winners_pct": 0.16666666666666666,
+      "rejected_count": 6,
+      "rejected_pct": 0.0759493670886076,
+      "differentiator_score": 0.09071729957805906
+    },
+    {
+      "feature_id": "compression_duration",
+      "level": "low",
+      "winners_count": 19,
+      "winners_pct": 0.19791666666666666,
+      "rejected_count": 9,
+      "rejected_pct": 0.11392405063291139,
+      "differentiator_score": 0.08399261603375527
+    },
+    {
+      "feature_id": "advance_decline_ratio_20d",
+      "level": "low",
+      "winners_count": 21,
+      "winners_pct": 0.21875,
+      "rejected_count": 12,
+      "rejected_pct": 0.1518987341772152,
+      "differentiator_score": 0.0668512658227848
+    },
+    {
+      "feature_id": "ema20_distance_pct",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 5,
+      "rejected_pct": 0.06329113924050633,
+      "differentiator_score": -0.06329113924050633
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "medium",
+      "winners_count": 11,
+      "winners_pct": 0.11458333333333333,
+      "rejected_count": 6,
+      "rejected_pct": 0.0759493670886076,
+      "differentiator_score": 0.03863396624472573
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "low",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 3,
+      "rejected_pct": 0.0379746835443038,
+      "differentiator_score": -0.0379746835443038
+    },
+    {
+      "feature_id": "fib_50_proximity_atr",
+      "level": "low",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 3,
+      "rejected_pct": 0.0379746835443038,
+      "differentiator_score": -0.0379746835443038
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 3,
+      "rejected_pct": 0.0379746835443038,
+      "differentiator_score": -0.0379746835443038
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "mixed",
+      "winners_count": 3,
+      "winners_pct": 0.03125,
+      "rejected_count": 0,
+      "rejected_pct": 0.0,
+      "differentiator_score": 0.03125
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "high",
+      "winners_count": 24,
+      "winners_pct": 0.25,
+      "rejected_count": 22,
+      "rejected_pct": 0.27848101265822783,
+      "differentiator_score": -0.028481012658227833
+    }
+  ],
+  "live_signal_audit": {
+    "n_winners": 2,
+    "n_losers": 6,
+    "winner_symbols": [
+      "INDUSINDBK.NS",
+      "VOLTAS.NS"
+    ],
+    "loser_symbols": [
+      "ALKEM.NS",
+      "EICHERMOT.NS",
+      "SBILIFE.NS",
+      "SUNDARMFIN.NS",
+      "MFSL.NS",
+      "HINDZINC.NS"
+    ],
+    "feature_audit": [
+      {
+        "feature_id": "ema_alignment",
+        "winner_values": [
+          "mixed",
+          "mixed"
+        ],
+        "loser_values": [
+          "mixed",
+          "mixed",
+          "mixed",
+          "mixed",
+          "mixed",
+          "mixed"
+        ]
+      },
+      {
+        "feature_id": "coiled_spring_score",
+        "winner_values": [
+          25.0,
+          25.0
+        ],
+        "loser_values": [
+          25.0,
+          25.0,
+          25.0,
+          25.0,
+          25.0,
+          25.0
+        ]
+      },
+      {
+        "feature_id": "MACD_signal",
+        "winner_values": [
+          "bull",
+          "bull"
+        ],
+        "loser_values": [
+          "bull",
+          "bull",
+          "bull",
+          "bull",
+          "bull",
+          "bull"
+        ]
+      },
+      {
+        "feature_id": "MACD_histogram_slope",
+        "winner_values": [
+          "rising",
+          "rising"
+        ],
+        "loser_values": [
+          "rising",
+          "falling",
+          "rising",
+          "rising",
+          "falling",
+          "falling"
+        ]
+      },
+      {
+        "feature_id": "MACD_histogram_sign",
+        "winner_values": [
+          "positive",
+          "positive"
+        ],
+        "loser_values": [
+          "positive",
+          "positive",
+          "positive",
+          "positive",
+          "positive",
+          "positive"
+        ]
+      },
+      {
+        "feature_id": "RSI_14",
+        "winner_values": [
+          56.63436162480625,
+          58.56859123379274
+        ],
+        "loser_values": [
+          61.204557786218125,
+          55.5164060779564,
+          68.9365544934377,
+          58.6290942427626,
+          60.862351630942605,
+          77.24526110911458
+        ]
+      },
+      {
+        "feature_id": "ROC_10",
+        "winner_values": [
+          0.09406703332698196,
+          0.1639954440522442
+        ],
+        "loser_values": [
+          0.07303157093952084,
+          0.08925483119031496,
+          0.11753100338218725,
+          0.10511238431026881,
+          0.1000800607908181,
+          0.05855010535343874
+        ]
+      },
+      {
+        "feature_id": "nifty_vol_regime",
+        "winner_values": [
+          "High",
+          "High"
+        ],
+        "loser_values": [
+          "High",
+          "High",
+          "High",
+          "High",
+          "High",
+          "High"
+        ]
+      },
+      {
+        "feature_id": "market_breadth_pct",
+        "winner_values": [
+          0.723404255319149,
+          0.723404255319149
+        ],
+        "loser_values": [
+          0.723404255319149,
+          0.723404255319149,
+          0.723404255319149,
+          0.723404255319149,
+          0.75,
+          0.6914893617021277
+        ]
+      },
+      {
+        "feature_id": "advance_decline_ratio_20d",
+        "winner_values": [
+          0.17274421080649455,
+          0.17274421080649455
+        ],
+        "loser_values": [
+          0.17274421080649455,
+          0.17274421080649455,
+          0.17274421080649455,
+          0.17274421080649455,
+          0.16156507852009583,
+          0.1870005327650506
+        ]
+      },
+      {
+        "feature_id": "regime_score",
+        "winner_values": [
+          1.0,
+          1.0
+        ],
+        "loser_values": [
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      {
+        "feature_id": "sector_momentum_state",
+        "winner_values": [
+          "Leading",
+          "Neutral"
+        ],
+        "loser_values": [
+          "Neutral",
+          "Leading",
+          "Leading",
+          "Leading",
+          "Leading",
+          "Leading"
+        ]
+      },
+      {
+        "feature_id": "52w_high_distance_pct",
+        "winner_values": [
+          0.12065847791161673,
+          0.09131121642969985
+        ],
+        "loser_values": [
+          0.049127833487823375,
+          0.11992709599027947,
+          0.0701219512195122,
+          0.11113080467919177,
+          0.12877144051354028,
+          0.19222377136979876
+        ]
+      },
+      {
+        "feature_id": "52w_low_distance_pct",
+        "winner_values": [
+          0.26121393368916546,
+          0.21166156120394156
+        ],
+        "loser_values": [
+          0.19630205808643703,
+          0.38768081233834656,
+          0.3216225695594467,
+          0.19404761904761905,
+          0.4199105392350106,
+          0.4876883808691897
+        ]
+      },
+      {
+        "feature_id": "ema20_distance_pct",
+        "winner_values": [
+          0.025745882732394105,
+          0.057795369753203
+        ],
+        "loser_values": [
+          0.03964692478012707,
+          0.024073651290972498,
+          0.0342912373563985,
+          0.024969135345504035,
+          0.008991929112161928,
+          0.040673093705953206
+        ]
+      },
+      {
+        "feature_id": "ema50_slope_5d_pct",
+        "winner_values": [
+          -0.0020451934723857423,
+          0.00448650976489362
+        ],
+        "loser_values": [
+          0.0035952125252876055,
+          -0.0006708415699810955,
+          0.00257968633444583,
+          -0.0016225822230667708,
+          0.0034724118050937225,
+          0.00898601785951647
+        ]
+      },
+      {
+        "feature_id": "ema50_slope_20d_pct",
+        "winner_values": [
+          -0.048488275493742794,
+          -0.045141033852044044
+        ],
+        "loser_values": [
+          -0.0188787137976556,
+          -0.03334282979257541,
+          -0.02966531291950647,
+          -0.04766417287081359,
+          -0.037110868618594695,
+          -0.025930147706387796
+        ]
+      },
+      {
+        "feature_id": "consolidation_quality",
+        "winner_values": [
+          "none",
+          "none"
+        ],
+        "loser_values": [
+          "none",
+          "none",
+          "none",
+          "none",
+          "none",
+          "none"
+        ]
+      },
+      {
+        "feature_id": "range_compression_60d",
+        "winner_values": [
+          0.24882195573719462,
+          0.28155481328636517
+        ],
+        "loser_values": [
+          0.15231947195916387,
+          0.2452652467741493,
+          0.2050920220261987,
+          0.2587912532841603,
+          0.2726352015460735,
+          0.42427693733353805
+        ]
+      },
+      {
+        "feature_id": "higher_highs_intact_flag",
+        "winner_values": [
+          true,
+          true
+        ],
+        "loser_values": [
+          false,
+          true,
+          true,
+          true,
+          true,
+          false
+        ]
+      },
+      {
+        "feature_id": "swing_high_count_20d",
+        "winner_values": [
+          0.0,
+          0.0
+        ],
+        "loser_values": [
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "feature_id": "vol_q",
+        "winner_values": [
+          "Thin",
+          "Average"
+        ],
+        "loser_values": [
+          "Average",
+          "Average",
+          "Thin",
+          "Thin",
+          "Average",
+          "Average"
+        ]
+      },
+      {
+        "feature_id": "vol_ratio_20d",
+        "winner_values": [
+          0.6122557269805312,
+          1.2029942507250708
+        ],
+        "loser_values": [
+          0.5101407736872919,
+          0.9546258159169337,
+          0.8797921253034768,
+          0.564775110258508,
+          0.6263700656946335,
+          0.797182455633602
+        ]
+      },
+      {
+        "feature_id": "obv_slope_20d_pct",
+        "winner_values": [
+          0.00010319193849136849,
+          0.00012466649249691245
+        ],
+        "loser_values": [
+          -0.00024712898608322765,
+          0.0006184935284524242,
+          0.0002967136551144712,
+          4.5287984757445566e-05,
+          5.1972107300586686e-05,
+          0.002161630329191918
+        ]
+      },
+      {
+        "feature_id": "fib_618_proximity_atr",
+        "winner_values": [],
+        "loser_values": [
+          1.1860139083084285
+        ]
+      },
+      {
+        "feature_id": "fib_50_proximity_atr",
+        "winner_values": [],
+        "loser_values": [
+          0.21946048342428529
+        ]
+      },
+      {
+        "feature_id": "fib_382_proximity_atr",
+        "winner_values": [],
+        "loser_values": [
+          0.7470929414598579
+        ]
+      },
+      {
+        "feature_id": "fvg_unfilled_above_count",
+        "winner_values": [
+          4.0,
+          1.0
+        ],
+        "loser_values": [
+          0.0,
+          2.0,
+          1.0,
+          0.0,
+          2.0,
+          2.0
+        ]
+      },
+      {
+        "feature_id": "ob_bullish_proximity",
+        "winner_values": [],
+        "loser_values": [
+          2.7061088280561023,
+          2.902457454415654
+        ]
+      },
+      {
+        "feature_id": "support_zone_distance_atr",
+        "winner_values": [
+          0.030195694304279135,
+          0.29894501632321074
+        ],
+        "loser_values": [
+          1.7046450939368543,
+          1.0429084400316968,
+          0.3114270916244046,
+          0.5594696830957132,
+          0.4390274281756612,
+          0.219201143470815
+        ]
+      },
+      {
+        "feature_id": "resistance_zone_distance_atr",
+        "winner_values": [
+          0.20382266439173632,
+          0.45773336458127206
+        ],
+        "loser_values": [
+          0.28179436739209063,
+          0.18858692924320444,
+          1.5179285987561315,
+          0.35793635376276856,
+          0.3395887795211414,
+          1.814675613797105
+        ]
+      },
+      {
+        "feature_id": "day_of_week",
+        "winner_values": [
+          "Mon",
+          "Mon"
+        ],
+        "loser_values": [
+          "Mon",
+          "Mon",
+          "Mon",
+          "Mon",
+          "Tue",
+          "Thu"
+        ]
+      },
+      {
+        "feature_id": "day_of_month_bucket",
+        "winner_values": [
+          "wk3",
+          "wk3"
+        ],
+        "loser_values": [
+          "wk3",
+          "wk3",
+          "wk3",
+          "wk3",
+          "wk3",
+          "wk4"
+        ]
+      }
+    ]
+  },
+  "winner_distinguishing_features": []
+}
