@@ -1,0 +1,45 @@
+{
+  "lifetime_baseline": {
+    "n": 27072,
+    "n_w": 12636,
+    "n_l": 11539,
+    "wr": 0.522688728024819
+  },
+  "live_comparison": {
+    "live_baseline_wr": 0.349,
+    "live_F1_wr": 0.579,
+    "live_F1_lift_pp": 0.23,
+    "live_F4_wr": 0.667,
+    "live_F4_lift_pp": 0.317
+  },
+  "lifetime_F1": {
+    "name": "F1: ema_bull AND coiled=medium",
+    "n_total": 27072,
+    "n_matched": 7569,
+    "n_matched_w": 3644,
+    "n_matched_l": 3106,
+    "matched_wr": 0.5398518518518518,
+    "match_rate": 0.27958776595744683,
+    "n_skipped": 19503,
+    "n_skipped_w": 8992,
+    "n_skipped_l": 8433,
+    "skipped_wr": 0.5160401721664275,
+    "lift_over_lifetime_baseline": 0.017163123827032778,
+    "verdict": "CONFIRMED (within 5pp)"
+  },
+  "lifetime_F4": {
+    "name": "F4: F1 + no falling MACD + no HHs intact",
+    "n_total": 27072,
+    "n_matched": 2712,
+    "n_matched_w": 1343,
+    "n_matched_l": 1087,
+    "matched_wr": 0.5526748971193416,
+    "match_rate": 0.10017730496453901,
+    "n_skipped": 24360,
+    "n_skipped_w": 11293,
+    "n_skipped_l": 10452,
+    "skipped_wr": 0.5193377787997241,
+    "lift_over_lifetime_baseline": 0.029986169094522563,
+    "verdict": "WEAKENED (5-15pp lower than live)"
+  }
+}
