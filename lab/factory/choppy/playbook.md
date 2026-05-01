@@ -227,6 +227,40 @@ For SKIP (any cell, no match):
 
 ---
 
+## Lifetime Validation Summary (added 2026-05-02 evening)
+
+Cross-checked all live findings against 35,496 lifetime Choppy signals from `enriched_signals.parquet`:
+
+| Live finding | Lifetime verdict | Confidence change |
+|---|---|---|
+| F1 filter +23pp lift (UP_TRI) | **WEAKENED to +1.7pp** at 15-yr scale | MEDIUM → LOW |
+| Universal anti-features (4 features) | **3 of 4 REFUTED** — direction inverted | MEDIUM → REFUTED |
+| BULL_PROXY KILL verdict | **CONFIRMED** (no filter beats +10pp) | HIGH → HIGH |
+| DOWN_TRI DEFERRED | unchanged | unchanged |
+
+**Headline interpretation**: Live April 2026 findings captured a hostile-Choppy sub-regime exploit, not Choppy regime structural truth. F1 is **regime-shift adaptive** — works in hostile sub-regimes (35% baseline) but produces near-zero edge in friendly sub-regimes (52% baseline). Universal anti-features were sub-regime artifacts.
+
+**Production posture revised**: more conservative across all 3 cells. See `lab/factory/choppy/lifetime_validation_summary.md` for detailed analysis.
+
+### Revised production recommendations
+
+| Signal | Action |
+|---|---|
+| UP_TRI Choppy + F1 match | **TAKE_SMALL only** (not TAKE_FULL); deploy with regime-shift caveat |
+| UP_TRI Choppy without F1 match | **SKIP** (default unchanged) |
+| DOWN_TRI Choppy | TAKE_SMALL or SKIP (default; cell DEFERRED) |
+| BULL_PROXY Choppy (any) | **REJECT** (KILL verdict confirmed at lifetime) |
+
+The TAKE_FULL tier is suspended for UP_TRI×Choppy until F1 lift recurs in another live sub-regime.
+
+### Universal anti-features — DO NOT use as kill conditions
+
+The synthesis playbook v1 listed `higher_highs_intact_flag=True`, `ema20_distance_pct=high`, `MACD_histogram_slope=falling`, `market_breadth_pct=high` as universal Choppy kill conditions. **3 of 4 are REFUTED at lifetime scale**. Production should NOT reject signals based on these features — they were April 2026 artifacts.
+
+Only `MACD_histogram_slope=falling` shows weak negative effect at lifetime (-2.4pp).
+
+---
+
 ## Update Log
 
 - **v1 (2026-05-02):** Initial Choppy regime synthesis from 3 cell investigations:
@@ -234,3 +268,4 @@ For SKIP (any cell, no match):
   - DOWN_TRI cell: DEFERRED (live n=3, all losses)
   - BULL_PROXY cell: KILL (0/175 Phase-4 patterns validated, 25% live WR)
   - Aggregate match rate 19.6%; default action SKIP for unmatched
+- **v1.1 (2026-05-02 evening):** Lifetime validation across V1/V2/V3 surfaced significant disagreement between live April 2026 findings and 15-yr lifetime data. F1 lift collapses from +23pp to +1.7pp. Universal anti-features 3 of 4 REFUTED. BULL_PROXY KILL confirmed. Production recommendations revised to more conservative postures.

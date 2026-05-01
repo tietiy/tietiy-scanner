@@ -166,6 +166,28 @@ Sector breakdown of winners: utilities/power (TATAPOWER, NTPC, POWERGRID, TORNTP
 
 ---
 
+## Lifetime Validation (V1 — added 2026-05-02 evening)
+
+**F1 lift weakened significantly at lifetime scale.**
+
+| Metric | Live (Apr 2026, n=91) | Lifetime (15yr, n=27,072) |
+|---|---|---|
+| Baseline WR | 34.9% | 52.3% |
+| F1 match rate | 22.0% | 28.0% — generalizes |
+| F1 matched WR | 57.9% | 54.0% |
+| **F1 lift over baseline** | **+23.0pp** | **+1.7pp** |
+| F4 lift over baseline | +31.7pp | +3.0pp |
+
+**Verdict downgrade**: confidence MEDIUM → **LOW**. F1 is a regime-shift adaptive filter that exploits hostile Choppy sub-regimes (e.g., April 2026), not a structural Choppy edge. At 15-yr lifetime aggregate, F1 produces near-zero edge.
+
+Recommended production posture:
+- Deploy F1 with explicit "regime-shift adaptive" caveat; **TAKE_SMALL only** (not TAKE_FULL) until F1 lift recurs in another hostile-Choppy sub-regime
+- Track per-sub-regime in quarterly Phase 5 re-runs
+- See `lab/factory/choppy/lifetime_validation_summary.md` for full analysis
+
+---
+
 ## Update Log
 
-- **v1 (2026-05-02):** Initial reverse engineering from Phase 1-5 outputs. F1 (`ema_alignment=bull AND coiled_spring_score=medium`) recommended for Choppy UP_TRI cell. n=20 matched, 58% WR, +23pp lift over 35% baseline.
+- **v1 (2026-05-02):** Initial reverse engineering from Phase 1-5 outputs. F1 recommended; n=20 matched, 58% WR, +23pp lift over 35% baseline.
+- **v1.1 (2026-05-02 evening):** Lifetime validation surfaced regime-shift dependency. F1 lift collapses to +1.7pp at 15-yr scale. Confidence downgraded MEDIUM → LOW. Production: TAKE_SMALL only.

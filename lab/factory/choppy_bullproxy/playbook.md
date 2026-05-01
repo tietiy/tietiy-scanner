@@ -116,6 +116,23 @@ This suggests the BULL_PROXY signal definition itself favors the momentum-extend
 - Whether INDUSINDBK and VOLTAS won for fundamental reasons (earnings, news) outside our feature space
 - Whether the 8-signal sample is regime-transitional (early-Choppy after Bear) vs established Choppy
 
+## Lifetime Validation (V3 — added 2026-05-02 evening)
+
+**KILL verdict CONFIRMED at lifetime scale.**
+
+Tested 8 candidate filters against 1,931 lifetime BULL_PROXY × Choppy signals (50% baseline WR). Best filter: F6 (`ema_bull AND coiled=medium AND market_breadth=high`) at +6.9pp lift on n=286 — MARGINAL but **below the +10pp threshold for filter promotion**.
+
+The compression-coil narrow-exception hypothesis from C2 differentiator analysis does NOT replicate at lifetime — F1 (`ema_bull AND coiled=medium`) lifts only +0.5pp on 776 lifetime matches.
+
+**Sector breakdown** (lifetime, n≥50): Energy 58.1% (+8.5pp), Auto 54.5%, FMCG 54.2% are above-baseline; Infra 39.6% (−10pp) and Other/IT/Pharma deeply negative. Sector-conditional approaches don't clear the +10pp bar either.
+
+**Confidence: HIGH for KILL verdict** — both live and lifetime evidence converge.
+
+See `lab/factory/choppy/lifetime_validation_summary.md` for full analysis.
+
+---
+
 ## Update Log
 
 - **v1 (2026-05-02):** Cell classified KILL based on 8 live signals (25% WR) + 0% Phase 5 validation across 96 REJECTED Phase-4 patterns. Production verdict: REJECT all Choppy BULL_PROXY signals. Compression-coil narrow exception documented as future research item.
+- **v1.1 (2026-05-02 evening):** Lifetime validation tested KILL verdict against 1,931 signals. No filter beats +10pp threshold; compression-coil hypothesis +0.5pp at scale. KILL verdict CONFIRMED.
