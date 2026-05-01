@@ -1,0 +1,3689 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-01T21:27:17.023468Z",
+  "metadata": {
+    "phase_1_input": "/Users/abhisheklalwani/code/tietiy-scanner/lab/output/combinations_lifetime.parquet",
+    "phase_5_input": "/Users/abhisheklalwani/code/tietiy-scanner/lab/output/combinations_live_validated.parquet",
+    "tier_distribution": {
+      "CANDIDATE": 345,
+      "DORMANT_REGIME": 108,
+      "DEPRECATED": 5,
+      "DORMANT_DEFERRED": 6,
+      "ACTIVE_WATCH": 57,
+      "ACTIVE_TAKE_SMALL": 1,
+      "DORMANT_INSUFFICIENT_DATA": 22
+    }
+  },
+  "barcodes": [
+    {
+      "barcode_id": "bc_3380e53e741c",
+      "pattern_id": "3380e53e741c5d66",
+      "tier": "ACTIVE_TAKE_SMALL",
+      "action": "TAKE_SMALL",
+      "score": 65.1,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D15"
+      },
+      "features": [
+        {
+          "feature_id": "day_of_month_bucket",
+          "level": "wk1"
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "level": "high"
+        }
+      ],
+      "feature_count": 4,
+      "mechanism": {
+        "text": "Early-month calendar flows (pension/institutional rebalancing) combined with extreme range compression and weak market breadth create conditions where weak hands capitulate during oversold periods, allowing mean reversion setups to resolve upward once selling exhaustion occurs. The bearish medium-term trend ensures positioning remains light, reducing resistance to the technical bounce from compressed ranges.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 135,
+        "lifetime_wr": 0.6567164179104478,
+        "baseline_wr": 0.5409504550050556,
+        "edge_pp": 0.1158,
+        "drift_train_test": 0.0087,
+        "live_n": 16,
+        "live_wr": 0.75,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 53.2,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_TAKE_SMALL",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_639d60d668e9",
+      "pattern_id": "639d60d668e97d2f",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 63.9,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D15"
+      },
+      "features": [
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "level": "low"
+        }
+      ],
+      "feature_count": 1,
+      "mechanism": {
+        "text": "After a prolonged Nifty decline (low 60-day return), an upward triangle breakout in bear market conditions likely captures weak_hands_capitulation followed by institutional_accumulation as smart money positions for mean_reversion. The D15 cohort timing may align with monthly settlement flows when better-capitalized participants step in after retail exhaustion.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 45,
+        "lifetime_wr": 0.7777777777777778,
+        "baseline_wr": 0.5409504550050556,
+        "edge_pp": 0.2368,
+        "drift_train_test": 0.0662,
+        "live_n": 31,
+        "live_wr": 0.8064516129032258,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 49.2,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_020a3b6b0b35",
+      "pattern_id": "020a3b6b0b353688",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 63.0,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "coiled_spring_score",
+          "level": "medium"
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Uptrending stocks trading far above their 20-day EMA in strong breadth environments often represent institutional accumulation into momentum leaders, where choppy consolidation acts as a coiled spring that resolves upward as weak hands exit and smart money continues positioning. The medium coiled spring score suggests sufficient energy buildup without the overextension that typically precedes mean reversion failures.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 707,
+        "lifetime_wr": 0.5726744186046512,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0789,
+        "drift_train_test": 0.0989,
+        "live_n": 20,
+        "live_wr": 0.5789473684210527,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 46.3,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_4c59f3f4f83d",
+      "pattern_id": "4c59f3f4f83dec51",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 62.2,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D15"
+      },
+      "features": [
+        {
+          "feature_id": "day_of_month_bucket",
+          "level": "wk1"
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "low"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Early-month breakouts from bull flag patterns in deeply oversold, weak breadth environments likely capture mean_reversion bounces as weak hands capitulate and price returns toward the 200-day EMA. The 15-day holding period allows enough time for the initial panic selling to exhaust while avoiding extended continuation of the bear trend.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 78,
+        "lifetime_wr": 0.6753246753246753,
+        "baseline_wr": 0.5409504550050556,
+        "edge_pp": 0.1344,
+        "drift_train_test": 0.0232,
+        "live_n": 13,
+        "live_wr": 0.8461538461538461,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 43.4,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_e69824a8a547",
+      "pattern_id": "e69824a8a5478243",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 62.1,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks at 52-week highs during broader market weakness and compressed ranges represent relative strength that often attracts institutional accumulation, as smart money positions in names showing resilience before anticipated regime transition. The combination of isolated strength and market compression creates asymmetric setups where these leaders break out once broader conditions stabilize.",
+        "concept": "smart_money_positioning",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 30,
+        "lifetime_wr": 0.8,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.2698,
+        "drift_train_test": 0.0881,
+        "live_n": 15,
+        "live_wr": 1.0,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 41.3,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_683b56193b36",
+      "pattern_id": "683b56193b36b14f",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 62.0,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "level": "low"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks forming bullish triangles near 52-week lows during broad market weakness create asymmetric setups where weak hands have already capitulated, leaving compressed coils ready to resolve upward once selling exhaustion is reached. The combination of bearish sentiment and deeply oversold positioning allows mean reversion to trigger when chart patterns complete with minimal overhead resistance.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 31,
+        "lifetime_wr": 0.8064516129032258,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.2763,
+        "drift_train_test": 0.1055,
+        "live_n": 17,
+        "live_wr": 1.0,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 40.8,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_bab356db9064",
+      "pattern_id": "bab356db9064d824",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 62.0,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "MACD_signal",
+          "level": "bull"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs with bullish MACD in strong market breadth environments suggest trend continuation supported by institutional accumulation, while the choppy intraday pattern filters out weak momentum breakouts that lack follow-through. The D5 cohort timing captures early institutional positioning before the broader market recognizes the strength, giving an edge before the pattern becomes overcrowded.",
+        "concept": "trend_continuation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 539,
+        "lifetime_wr": 0.5629770992366412,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0692,
+        "drift_train_test": 0.0787,
+        "live_n": 15,
+        "live_wr": 0.5714285714285714,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 40.7,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_1a4151f0e64a",
+      "pattern_id": "1a4151f0e64ad4e3",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 62.0,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "MACD_histogram_sign",
+          "level": "positive"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs in a strong market breadth environment with positive MACD momentum suggest institutional accumulation during a consolidation phase, where choppy price action shakes out weak hands before continuation. The pattern captures smart money positioning during temporary pauses in established uptrends, exploiting the tendency for breakout resumption when breadth remains healthy.",
+        "concept": "institutional_accumulation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 539,
+        "lifetime_wr": 0.5629770992366412,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0692,
+        "drift_train_test": 0.0787,
+        "live_n": 15,
+        "live_wr": 0.5714285714285714,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 40.7,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_9ef9c671d28c",
+      "pattern_id": "9ef9c671d28c6794",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 61.5,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks making new highs with strong momentum (high distance from 52w high and EMA20) in an uptrend with intact higher highs exhibit classic trend_continuation behavior, as institutional accumulation often drives sustained breakouts. The choppy regime filters out false breakouts by requiring recent price action to confirm strength, reducing whipsaw entries during indecisive periods.",
+        "concept": "trend_continuation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 70,
+        "lifetime_wr": 0.7272727272727273,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.2366,
+        "drift_train_test": 0.0419,
+        "live_n": 3,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 66.7,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_78faa31f3a7a",
+      "pattern_id": "78faa31f3a7ade57",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 61.4,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 1,
+      "mechanism": {
+        "text": "Inside bars following a triangle breakout during bear regimes signal consolidation after initial downside exhaustion, allowing mean reversion as weak hands capitulate and price stabilizes before continuation or reversal. The D6 timing captures the specific window where volatility compression resolves with institutional participants re-entering at more favorable levels.",
+        "concept": "mean_reversion",
+        "clarity": 62
+      },
+      "evidence_summary": {
+        "lifetime_n": 358,
+        "lifetime_wr": 0.6193181818181818,
+        "baseline_wr": 0.5159924741298213,
+        "edge_pp": 0.1033,
+        "drift_train_test": 0.0932,
+        "live_n": 13,
+        "live_wr": 0.9230769230769231,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 47.4,
+        "convergence": 70.0,
+        "mechanism": 62.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_094512c3d5aa",
+      "pattern_id": "094512c3d5aa678d",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 60.9,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "52w_low_distance_pct",
+          "level": "medium"
+        },
+        {
+          "feature_id": "ema_alignment",
+          "level": "mixed"
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "High range compression near 52-week lows creates a coiled spring setup where bearish weakness has exhausted itself, allowing the upside triangle breakout to capture mean reversion as weak hands capitulate and the stock decompresses toward fair value. The mixed EMA alignment suggests the pattern catches early-stage trend transitions before momentum indicators fully align.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 193,
+        "lifetime_wr": 0.6473684210526316,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.1172,
+        "drift_train_test": 0.1096,
+        "live_n": 19,
+        "live_wr": 0.8421052631578947,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 39.0,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_838ddee491fc",
+      "pattern_id": "838ddee491fc65b9",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 59.8,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs with strong upward momentum and extended distance from moving averages often attract institutional accumulation as breakout confirmation, while the choppy D5 cohort filters for consolidation that shakes out weak hands before continuation. The combination captures trend continuation setups where smart money positions during brief consolidation after establishing new highs.",
+        "concept": "trend_continuation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 70,
+        "lifetime_wr": 0.7,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.2062,
+        "drift_train_test": 0.0159,
+        "live_n": 3,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 63.1,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_e01afed05fb8",
+      "pattern_id": "e01afed05fb8a153",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 59.4,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "level": "low"
+        }
+      ],
+      "feature_count": 1,
+      "mechanism": {
+        "text": "Following a sustained 60-day decline in a bear market, an upward triangle breakout on day 10 likely captures mean_reversion as weak hands have been shaken out and institutional buyers step in at technical support levels. The pattern's edge emerges from catching the transition point where selling exhaustion meets accumulation demand after an extended drawdown.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 45,
+        "lifetime_wr": 0.7333333333333333,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.2032,
+        "drift_train_test": 0.0911,
+        "live_n": 32,
+        "live_wr": 0.875,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 34.1,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_ed7a77b23cc9",
+      "pattern_id": "ed7a77b23cc9c0c6",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 59.4,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_signal",
+          "level": "bull"
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "level": "medium"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The bullish MACD signal during choppy price action with high market breadth suggests institutional accumulation, where smart money builds positions during sideways consolidation before an upside breakout. The medium coiled spring score indicates sufficient energy buildup during the choppy phase, positioning for trend continuation once the triangle pattern resolves upward.",
+        "concept": "institutional_accumulation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 1053,
+        "lifetime_wr": 0.5440464666021297,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0534,
+        "drift_train_test": 0.0646,
+        "live_n": 6,
+        "live_wr": 0.8333333333333334,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 44.5,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_acb4b0a341f8",
+      "pattern_id": "acb4b0a341f8e42f",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 59.3,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D15"
+      },
+      "features": [
+        {
+          "feature_id": "day_of_month_bucket",
+          "level": "wk1"
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "False"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Early-month buying pressure in downtrends near major support (low distance to 200EMA) creates short-term mean reversion bounces as weak hands capitulate and price finds temporary equilibrium. The upward triangle breakout captures this reflexive snap-back before the dominant bear trend reasserts.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 74,
+        "lifetime_wr": 0.6756756756756757,
+        "baseline_wr": 0.5409504550050556,
+        "edge_pp": 0.1347,
+        "drift_train_test": 0.0667,
+        "live_n": 12,
+        "live_wr": 0.9166666666666666,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 33.9,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_ef3ee04ea8ac",
+      "pattern_id": "ef3ee04ea8ac94a2",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 59.1,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D15"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs that compress volatility during a weak market period may signal institutional accumulation, as strong hands absorb supply without breaking technical structure. The upward triangle formation suggests coiling energy for continuation once the broader bearish regime exhausts, catching retail positioned for further weakness.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 30,
+        "lifetime_wr": 0.8333333333333334,
+        "baseline_wr": 0.5409504550050556,
+        "edge_pp": 0.2924,
+        "drift_train_test": 0.0245,
+        "live_n": 15,
+        "live_wr": 0.7333333333333333,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 60.7,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_56b675b8048c",
+      "pattern_id": "56b675b8048c6304",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 58.1,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "ROC_10",
+          "level": "high"
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "level": "medium"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "High momentum (ROC_10) combined with strong market breadth suggests institutional accumulation during a consolidation phase, where uptrending stocks coil before resuming their trend. The choppy price action shakes out weak hands while smart money positions ahead of trend continuation, creating an edge as the spring unwinds.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 850,
+        "lifetime_wr": 0.5538089480048367,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.06,
+        "drift_train_test": 0.0784,
+        "live_n": 22,
+        "live_wr": 0.5238095238095238,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 42.5,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_9e5164ae0698",
+      "pattern_id": "9e5164ae0698899a",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 57.8,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "consolidation_quality",
+          "level": "none"
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The inside bar consolidation after an uptrend triangle in a weak momentum environment (low EMA slope) likely represents smart money accumulation as weak hands exit during the deceptive bear phase, creating a coiled setup that resumes the original trend once consolidation completes. The pattern filters for deliberate pauses within established structures rather than genuine reversals, exploiting retail capitulation at false breakdown points.",
+        "concept": "smart_money_positioning",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 168,
+        "lifetime_wr": 0.6506024096385542,
+        "baseline_wr": 0.5159924741298213,
+        "edge_pp": 0.1346,
+        "drift_train_test": 0.1179,
+        "live_n": 7,
+        "live_wr": 1.0,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 41.2,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_215644d99e41",
+      "pattern_id": "215644d99e4187d7",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 57.5,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_signal",
+          "level": "bull"
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "level": "high"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The bullish MACD signal within choppy consolidation near the 382 retracement suggests institutional accumulation as smart money accumulates positions during sideways price action before continuation. Strong market breadth confirms broad participation, reducing the risk that the setup is an isolated false breakout.",
+        "concept": "institutional_accumulation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 507,
+        "lifetime_wr": 0.5593561368209256,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0687,
+        "drift_train_test": 0.0859,
+        "live_n": 6,
+        "live_wr": 0.6666666666666666,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 38.3,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_534e0b0278be",
+      "pattern_id": "534e0b0278be13eb",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 56.9,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_histogram_sign",
+          "level": "positive"
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "level": "high"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The pattern captures trend continuation where MACD momentum confirms an uptrend while the stock consolidates (choppy) near a key Fibonacci retracement level during strong market breadth, suggesting institutional accumulation before resuming the uptrend. The high market breadth provides tailwind as sector rotation drives capital into technically-positioned names showing momentum confirmation.",
+        "concept": "trend_continuation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 507,
+        "lifetime_wr": 0.5593561368209256,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0687,
+        "drift_train_test": 0.0859,
+        "live_n": 6,
+        "live_wr": 0.6666666666666666,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 38.3,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_277451cab0a4",
+      "pattern_id": "277451cab0a44647",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 56.8,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D15"
+      },
+      "features": [
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "High range compression after a weak 60-day market decline with narrow breadth suggests capitulation and exhaustion of selling pressure, creating conditions where an upward triangle breakout catches late bears offside during mean reversion. The D15 timing captures the window when weak hands have exited and institutional buyers can re-enter at compressed volatility levels with minimal resistance.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 34,
+        "lifetime_wr": 0.8529411764705882,
+        "baseline_wr": 0.5409504550050556,
+        "edge_pp": 0.312,
+        "drift_train_test": 0.1169,
+        "live_n": 22,
+        "live_wr": 0.7272727272727273,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 53.1,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_49f0978c33bb",
+      "pattern_id": "49f0978c33bbd68e",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 56.5,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_histogram_slope",
+          "level": "rising"
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "level": "high"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The rising MACD histogram during choppy conditions suggests accumulation by smart money positioning ahead of a breakout, with high market breadth confirming broad participation rather than narrow speculation. The Fibonacci 382 retracement level acts as a technical magnet where institutional buyers recognize value, creating support that increases probability of upward continuation.",
+        "concept": "smart_money_positioning",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 454,
+        "lifetime_wr": 0.5695067264573991,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0788,
+        "drift_train_test": 0.1079,
+        "live_n": 6,
+        "live_wr": 0.6666666666666666,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 37.1,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_dfaf09abadd1",
+      "pattern_id": "dfaf09abadd144a2",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 56.0,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "ROC_10",
+          "level": "high"
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs with strong momentum in choppy markets suggest institutional accumulation during consolidation, where smart money positions ahead of breakout continuation while retail hesitates at perceived resistance levels. The intact higher-highs structure confirms buyer commitment despite broader market choppiness, indicating strength that typically precedes further upside.",
+        "concept": "institutional_accumulation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 133,
+        "lifetime_wr": 0.6,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.1062,
+        "drift_train_test": 0.0134,
+        "live_n": 3,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 48.4,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_901864933ac3",
+      "pattern_id": "901864933ac3f498",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 55.8,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_histogram_slope",
+          "level": "rising"
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "level": "medium"
+        },
+        {
+          "feature_id": "ema_alignment",
+          "level": "bull"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The combination of bullish momentum alignment (rising MACD histogram, EMA bull structure) emerging from a choppy consolidation period suggests institutional accumulation has concluded, with the coiled spring indicating compressed volatility ready to release as trend continuation begins. This pattern captures the transition from sideways distribution absorption to directional markup as smart money positioning becomes visible through technical momentum divergence.",
+        "concept": "institutional_accumulation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 1191,
+        "lifetime_wr": 0.542489270386266,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0518,
+        "drift_train_test": 0.0514,
+        "live_n": 4,
+        "live_wr": 0.75,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 47.8,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_ffa768682794",
+      "pattern_id": "ffa768682794c5f8",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 55.8,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_histogram_slope",
+          "level": "rising"
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "high"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "During choppy consolidation phases in uptrends, institutional accumulation tends to occur near the 50% Fibonacci retracement level as smart money positions for continuation, particularly when broad market participation confirms sector strength. The rising MACD histogram slope during this retracement signals early momentum shift back to the upside as accumulation nears completion.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 456,
+        "lifetime_wr": 0.5634743875278396,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0728,
+        "drift_train_test": 0.1072,
+        "live_n": 6,
+        "live_wr": 0.6666666666666666,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 34.6,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_88ff60c91125",
+      "pattern_id": "88ff60c911252c4c",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 55.5,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "ema_alignment",
+          "level": "bull"
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Strong uptrend momentum (high EMA slope, bull alignment) combined with low volatility (range compression) suggests institutional accumulation phase where smart money builds positions without triggering breakouts. The bearish trigger on Day 6 likely represents a brief shakeout of weak hands before trend continuation, creating a buy-the-dip opportunity within an established uptrend.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 144,
+        "lifetime_wr": 0.625,
+        "baseline_wr": 0.5159924741298213,
+        "edge_pp": 0.109,
+        "drift_train_test": 0.099,
+        "live_n": 5,
+        "live_wr": 0.8,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 33.8,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_9cb02084502b",
+      "pattern_id": "9cb02084502b3f6c",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 55.1,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "ROC_10",
+          "level": "high"
+        },
+        {
+          "feature_id": "RSI_14",
+          "level": "medium"
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "level": "medium"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The upward triangle breakout combined with high momentum (ROC) and medium coiling suggests institutional accumulation completing before trend continuation, with the choppy D6 environment potentially trapping weak hands who exit prematurely. The modest edge reflects selective identification of legitimate breakouts where smart money positioning overcomes the challenging sideways regime.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 1034,
+        "lifetime_wr": 0.5417495029821073,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0511,
+        "drift_train_test": 0.0407,
+        "live_n": 2,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 47.5,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_3b56607cedf1",
+      "pattern_id": "3b56607cedf162a5",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 55.0,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "52w_low_distance_pct",
+          "level": "medium"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Inside bars following range compression in a bear market suggest weak hands capitulation is complete, with stocks near 52-week lows representing zones where institutional accumulation can occur without driving prices significantly higher. The triangle breakout after this compression period captures mean reversion as selling exhaustion meets patient accumulation.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 81,
+        "lifetime_wr": 0.675,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.1448,
+        "drift_train_test": 0.1014,
+        "live_n": 6,
+        "live_wr": 1.0,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 32.1,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_91a973b54c36",
+      "pattern_id": "91a973b54c361088",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 55.0,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "52w_low_distance_pct",
+          "level": "medium"
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The inside bar after a bearish downtrend signals weak-hands capitulation and compressed volatility, while the medium distance from 52-week lows indicates the stock has already fallen significantly but hasn't fully bottomed. The upside triangle breakout catches short-sellers and creates a mean-reversion bounce as trapped bears cover positions in an oversold name with subdued momentum.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 92,
+        "lifetime_wr": 0.6444444444444445,
+        "baseline_wr": 0.5159924741298213,
+        "edge_pp": 0.1285,
+        "drift_train_test": 0.0953,
+        "live_n": 7,
+        "live_wr": 1.0,
+        "phase_5_tier": "PRELIMINARY",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 32.1,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 70.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_12d10af9bf27",
+      "pattern_id": "12d10af9bf27f9e0",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 54.6,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "low"
+        }
+      ],
+      "feature_count": 1,
+      "mechanism": {
+        "text": "After an upward triangle breakout in choppy conditions, stocks trading near the 50% Fibonacci retracement level provide a mean reversion entry where early weak hands have been shaken out but the breakout structure remains intact. The D5 timing catches institutional repositioning after the initial volatility subsides and price stabilizes at a key technical level.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 959,
+        "lifetime_wr": 0.5499462943071965,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0561,
+        "drift_train_test": 0.0597,
+        "live_n": 2,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 45.6,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_7d2cfb38da28",
+      "pattern_id": "7d2cfb38da281897",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 54.4,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "NR4_flag",
+          "level": "True"
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The upward triangle pattern near the 200 EMA with narrow-range inside bars suggests a coiling base where weak hands have capitulated, allowing institutional accumulation at technical support before continuation. The compressed volatility (NR4 + inside bar) indicates decision point resolution typically favors the prevailing trend direction when occurring at mean reversion levels.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 71,
+        "lifetime_wr": 0.6811594202898551,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.151,
+        "drift_train_test": 0.0239,
+        "live_n": 1,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 44.9,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_e8ecc70df633",
+      "pattern_id": "e8ecc70df6331902",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 54.2,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "ROC_10",
+          "level": "medium"
+        },
+        {
+          "feature_id": "compression_duration",
+          "level": "low"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs with short consolidations in choppy markets attract institutional accumulation as smart money positions ahead of potential breakouts, while the brief compression filters out false setups that lack true buying pressure. The medium momentum confirms underlying strength without being overextended, creating an asymmetric entry point before trend continuation.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 313,
+        "lifetime_wr": 0.5704918032786885,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0767,
+        "drift_train_test": 0.0404,
+        "live_n": 1,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 44.4,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_0ea766513874",
+      "pattern_id": "0ea7665138745156",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 54.2,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "low"
+        }
+      ],
+      "feature_count": 1,
+      "mechanism": {
+        "text": "After a strong upward move into choppy conditions, stocks trading near the 50% Fibonacci retracement level with low ATR represent mean reversion setups where momentum has stalled but hasn't decisively broken, attracting dip-buyers anticipating continuation. The six-day holding period captures the resolution phase where bulls regain control or establish a consolidation floor before the next leg higher.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 959,
+        "lifetime_wr": 0.5433155080213904,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0526,
+        "drift_train_test": 0.0562,
+        "live_n": 1,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 44.4,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_ea2a85e82761",
+      "pattern_id": "ea2a85e82761824e",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 54.2,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "ROC_10",
+          "level": "high"
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "This pattern captures trend_continuation where stocks near 52-week highs with strong recent momentum and intact higher highs are being accumulated by informed buyers during brief consolidations. The choppy price action represents healthy profit-taking and rotation rather than distribution, allowing the uptrend to resolve higher as weak hands exit and institutional positioning continues.",
+        "concept": "trend_continuation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 133,
+        "lifetime_wr": 0.6031746031746031,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.1125,
+        "drift_train_test": 0.0507,
+        "live_n": 3,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 42.5,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_458bee260717",
+      "pattern_id": "458bee2607178bd2",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 53.8,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "NR4_flag",
+          "level": "True"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "After a prolonged decline to near 52-week lows, an inside bar within a narrow-range 4-bar pattern signals weak hands capitulation and declining volatility, creating a coiled spring setup where triangle breakouts can trigger mean reversion rallies as selling pressure exhausts. The extreme compression (NR4 + inside bar) at depressed price levels suggests institutional accumulation may be occurring while retail capitulation completes.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 119,
+        "lifetime_wr": 0.6666666666666666,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.1365,
+        "drift_train_test": 0.0824,
+        "live_n": 2,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 43.0,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_ebb0648d2455",
+      "pattern_id": "ebb0648d24550b3a",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 53.6,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "RSI_14",
+          "level": "medium"
+        },
+        {
+          "feature_id": "consolidation_quality",
+          "level": "none"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs in an uptrend that consolidate sideways (choppy action) often represent institutional accumulation, where smart money absorbs supply without triggering breakout momentum yet. The lack of clean consolidation structure and medium RSI suggests distribution hasn't occurred, positioning these for continuation moves when accumulation completes.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 296,
+        "lifetime_wr": 0.5821917808219178,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0884,
+        "drift_train_test": 0.0711,
+        "live_n": 3,
+        "live_wr": 0.6666666666666666,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 42.2,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_5070f777f1f8",
+      "pattern_id": "5070f777f1f8cb56",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 53.5,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "coiled_spring_score",
+          "level": "low"
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "low"
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Higher highs intact signal an established uptrend that continues to attract buyers, while choppy near-term price action and low coiled spring scores filter out volatile false breakouts, isolating cleaner trend continuation entries. This pattern captures institutional accumulation phases where strong hands steadily build positions during consolidation within a broader uptrend.",
+        "concept": "trend_continuation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 86,
+        "lifetime_wr": 0.6352941176470588,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.1446,
+        "drift_train_test": 0.0686,
+        "live_n": 1,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 40.1,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_af5204fcef7e",
+      "pattern_id": "af5204fcef7e8b59",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 53.3,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_signal",
+          "level": "bull"
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "medium"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Bullish MACD signal during choppy price action with strong market breadth suggests institutional accumulation, where smart money builds positions during consolidation before continuation. The ascending triangle pattern provides a defined reward-risk structure that attracts technically-oriented participants once breadth confirms broad market support.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 417,
+        "lifetime_wr": 0.5802469135802469,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0864,
+        "drift_train_test": 0.0957,
+        "live_n": 4,
+        "live_wr": 0.75,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 41.3,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_9b3fe03909ec",
+      "pattern_id": "9b3fe03909ecde35",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 53.3,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_histogram_sign",
+          "level": "positive"
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "medium"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The pattern captures early trend_continuation within a bullish market regime, where positive MACD momentum during high breadth conditions suggests institutional_accumulation is underway while choppy price action keeps weak_hands sidelined. The medium proximity to Fibonacci retracement levels provides technical support zones where smart_money_positioning occurs before the next leg higher.",
+        "concept": "trend_continuation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 417,
+        "lifetime_wr": 0.5802469135802469,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0864,
+        "drift_train_test": 0.0957,
+        "live_n": 4,
+        "live_wr": 0.75,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 41.3,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_275460aec955",
+      "pattern_id": "275460aec955d721",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 53.3,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_histogram_slope",
+          "level": "falling"
+        },
+        {
+          "feature_id": "ema_alignment",
+          "level": "mixed"
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The pattern captures institutional accumulation during controlled consolidation phases (choppy, mixed EMA) where price maintains higher highs despite weakening MACD momentum, suggesting smart money is absorbing supply without triggering breakout volatility. The falling histogram during an uptrend with intact structure indicates deliberate position-building before continuation rather than genuine momentum exhaustion.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 553,
+        "lifetime_wr": 0.559040590405904,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0684,
+        "drift_train_test": 0.0758,
+        "live_n": 1,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 41.4,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_34a39cca0305",
+      "pattern_id": "34a39cca0305e400",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 53.1,
+      "cohort": {
+        "signal_type": "DOWN_TRI",
+        "regime": "Choppy",
+        "horizon": "D1"
+      },
+      "features": [
+        {
+          "feature_id": "consolidation_quality",
+          "level": "loose"
+        },
+        {
+          "feature_id": "day_of_month_bucket",
+          "level": "wk3"
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "medium"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Loose consolidation after a downtrend in a choppy regime during week 3 (mid-month calendar flow period) creates conditions where mean reversion attempts form as weak hands capitulate and price stabilizes near support. The medium EMA20 distance suggests price has pulled back sufficiently from moving average resistance to allow tactical bounces without fighting strong directional pressure.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 124,
+        "lifetime_wr": 0.6551724137931034,
+        "baseline_wr": 0.542742205833054,
+        "edge_pp": 0.1124,
+        "drift_train_test": 0.0552,
+        "live_n": 2,
+        "live_wr": 0.5,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 40.7,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_5d01a53ae549",
+      "pattern_id": "5d01a53ae549bfc4",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 53.1,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_histogram_sign",
+          "level": "positive"
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "medium"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The positive MACD histogram signals emerging momentum within an established uptrend while high market breadth indicates broad participation, suggesting institutional accumulation rather than narrow speculation. The choppy recent action with medium retracement to the 50% Fibonacci level creates an entry point where weak hands shake out before trend continuation resumes.",
+        "concept": "trend_continuation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 417,
+        "lifetime_wr": 0.5601965601965602,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0695,
+        "drift_train_test": 0.072,
+        "live_n": 3,
+        "live_wr": 0.6666666666666666,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 38.8,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_9962bdc4dbda",
+      "pattern_id": "9962bdc4dbda97ab",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 52.8,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "RSI_14",
+          "level": "medium"
+        },
+        {
+          "feature_id": "day_of_week",
+          "level": "Tue"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs in an uptrend with choppy price action may reflect institutional accumulation during consolidation, where smart money quietly builds positions before the next leg higher. Tuesday timing could capture post-weekend repositioning flows when conviction buyers re-enter after brief pullbacks.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 169,
+        "lifetime_wr": 0.5950920245398773,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.1013,
+        "drift_train_test": 0.0657,
+        "live_n": 4,
+        "live_wr": 0.5,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 39.8,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_f1db5aa734a4",
+      "pattern_id": "f1db5aa734a48067",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 52.7,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "consolidation_quality",
+          "level": "loose"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "level": "medium"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The ascending triangle pattern in a bear market with an inside bar signals consolidation where weak hands capitulate during compression, allowing institutional accumulation at support before a mean-reversion bounce. The inside bar within loose consolidation indicates diminished selling pressure and potential absorption of supply by smart money before a reflexive move higher.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 80,
+        "lifetime_wr": 0.7088607594936709,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.1787,
+        "drift_train_test": 0.116,
+        "live_n": 1,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 39.3,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_15f6f595b557",
+      "pattern_id": "15f6f595b557145b",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 52.5,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_signal",
+          "level": "bull"
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "medium"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The upward triangle pattern in a choppy market with high breadth suggests institutional accumulation across multiple stocks during consolidation, where bullish MACD confirms underlying momentum despite price chop. Price near the 50% Fibonacci level provides a natural entry point where mean reversion and trend continuation forces converge, attracting both technical buyers and momentum traders.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 417,
+        "lifetime_wr": 0.5601965601965602,
+        "baseline_wr": 0.4906888720666162,
+        "edge_pp": 0.0695,
+        "drift_train_test": 0.072,
+        "live_n": 3,
+        "live_wr": 0.6666666666666666,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 38.8,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_6e5ef62231eb",
+      "pattern_id": "6e5ef62231eb9846",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 52.4,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "52w_low_distance_pct",
+          "level": "medium"
+        },
+        {
+          "feature_id": "NR4_flag",
+          "level": "True"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The combination of an inside bar with NR4 (narrow range) after a moderate pullback from 52-week highs suggests weak hands capitulation and volatility compression, creating a coiled spring setup where downside participation exhausts itself. The upward triangle breakout structure then captures mean reversion as price snaps back toward recent highs with reduced selling pressure.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 83,
+        "lifetime_wr": 0.6951219512195121,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.165,
+        "drift_train_test": 0.1055,
+        "live_n": 4,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 38.3,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_db0b118e8dac",
+      "pattern_id": "db0b118e8dac8be0",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 52.3,
+      "cohort": {
+        "signal_type": "BULL_PROXY",
+        "regime": "Choppy",
+        "horizon": "D3"
+      },
+      "features": [
+        {
+          "feature_id": "MACD_histogram_slope",
+          "level": "falling"
+        },
+        {
+          "feature_id": "ROC_10",
+          "level": "high"
+        },
+        {
+          "feature_id": "RSI_14",
+          "level": "medium"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The pattern captures institutional accumulation during choppy consolidation phases where momentum (ROC) remains elevated but short-term MACD slope is weakening, signaling a pause before continuation rather than reversal. Strong hands accumulate while weak momentum chasers exit on the declining histogram, setting up for the next leg higher in the bullish regime.",
+        "concept": "institutional_accumulation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 30,
+        "lifetime_wr": 0.7586206896551724,
+        "baseline_wr": 0.4954714970697922,
+        "edge_pp": 0.2631,
+        "drift_train_test": 0.0971,
+        "live_n": 2,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 36.0,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_f06021a2be18",
+      "pattern_id": "f06021a2be181c87",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 52.2,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "NR4_flag",
+          "level": "True"
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The combination of a narrow-range consolidation (NR4 + inside bar) following an uptrend triangle during a bear market suggests weak-hands capitulation exhaustion, where institutional buyers accumulate after a period of declining momentum (low EMA50 slope). The tight consolidation pattern in a bear regime indicates sellers are depleted while the prior uptrend structure remains intact, setting up for continuation once the inside bar resolves.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 145,
+        "lifetime_wr": 0.6433566433566433,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.1132,
+        "drift_train_test": 0.086,
+        "live_n": 3,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 37.7,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_7b77c0fbe2e0",
+      "pattern_id": "7b77c0fbe2e08161",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 52.0,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "ROC_10",
+          "level": "medium"
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "medium"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs with medium momentum in choppy conditions suggest a consolidation phase after strong trend moves, where weak hands exit during sideways action while institutional players hold positions. The Day 5 timeframe captures mean reversion opportunities as price stabilizes near highs before potential continuation.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 65
+      },
+      "evidence_summary": {
+        "lifetime_n": 269,
+        "lifetime_wr": 0.5846153846153846,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0908,
+        "drift_train_test": 0.0703,
+        "live_n": 1,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 41.8,
+        "convergence": 70.0,
+        "mechanism": 65.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_daf5614d77a9",
+      "pattern_id": "daf5614d77a93ebd",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 51.5,
+      "cohort": {
+        "signal_type": "BULL_PROXY",
+        "regime": "Choppy",
+        "horizon": "D3"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "low"
+        }
+      ],
+      "feature_count": 1,
+      "mechanism": {
+        "text": "Stocks near 52-week highs in choppy markets often indicate institutional accumulation during sideways consolidation, where smart money builds positions before the next leg up. The D3 cohort timing catches these bases at early breakout stages when weak hands have been shaken out during the chop.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 85,
+        "lifetime_wr": 0.6385542168674698,
+        "baseline_wr": 0.4954714970697922,
+        "edge_pp": 0.1431,
+        "drift_train_test": 0.0865,
+        "live_n": 1,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 35.4,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_6ec0fb54d8a4",
+      "pattern_id": "6ec0fb54d8a44ec6",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 51.5,
+      "cohort": {
+        "signal_type": "BULL_PROXY",
+        "regime": "Choppy",
+        "horizon": "D3"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "advance_decline_ratio_20d",
+          "level": "low"
+        }
+      ],
+      "feature_count": 2,
+      "mechanism": {
+        "text": "Stocks near 52-week highs during choppy markets with weak breadth (low advance/decline ratio) suggest institutional accumulation of strong names while retail capitulates on weakness, creating a bullish divergence. The BULL_PROXY signal in this weak breadth environment identifies isolated strength that typically precedes broader market leadership when conditions improve.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 85,
+        "lifetime_wr": 0.6385542168674698,
+        "baseline_wr": 0.4954714970697922,
+        "edge_pp": 0.1431,
+        "drift_train_test": 0.0865,
+        "live_n": 1,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 35.4,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_6caa0850ad17",
+      "pattern_id": "6caa0850ad175ffc",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 51.3,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "medium"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Choppy markets with high breadth signal indecision where weak hands capitulate, while an uptrending stock trading above its 20 EMA indicates institutional accumulation continues despite the noise. The medium Fibonacci retracement proximity suggests the pullback hasn't violated key support, allowing smart money to add positions before trend continuation.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 197,
+        "lifetime_wr": 0.5958549222797928,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.102,
+        "drift_train_test": 0.1037,
+        "live_n": 1,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 34.8,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_013b19a43f40",
+      "pattern_id": "013b19a43f402edb",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 50.9,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D6"
+      },
+      "features": [
+        {
+          "feature_id": "consolidation_quality",
+          "level": "none"
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "level": "high"
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Unclear mechanism. The combination of high distance from EMA200, high range compression, and lack of consolidation quality suggests an overextended, choppy market state where the upward triangle pattern lacks the structural integrity typically needed for reliable directional moves.",
+        "concept": null,
+        "clarity": 25
+      },
+      "evidence_summary": {
+        "lifetime_n": 225,
+        "lifetime_wr": 0.6133333333333333,
+        "baseline_wr": 0.5159924741298213,
+        "edge_pp": 0.0973,
+        "drift_train_test": 0.0948,
+        "live_n": 10,
+        "live_wr": 0.9,
+        "phase_5_tier": "VALIDATED",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 37.1,
+        "convergence": 70.0,
+        "mechanism": 25.0,
+        "live_evidence": 95.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_00f0f8c826b6",
+      "pattern_id": "00f0f8c826b6c83d",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 50.7,
+      "cohort": {
+        "signal_type": "DOWN_TRI",
+        "regime": "Choppy",
+        "horizon": "D2"
+      },
+      "features": [
+        {
+          "feature_id": "day_of_month_bucket",
+          "level": "wk3"
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "medium"
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "medium"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Mid-month choppy downtrends with medium EMA distance and 50% Fibonacci proximity suggest a pause in selling momentum near mean reversion zones, where weak hands capitulate while smart money begins accumulating at technical support. The D2 cohort captures this transitional phase where downside exhaustion meets institutional positioning ahead of a potential reversal.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 89,
+        "lifetime_wr": 0.6547619047619048,
+        "baseline_wr": 0.5242958326470104,
+        "edge_pp": 0.1305,
+        "drift_train_test": 0.0853,
+        "live_n": 1,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 32.8,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_e2fba1e5c526",
+      "pattern_id": "e2fba1e5c526cc1d",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 50.7,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "horizon": "D10"
+      },
+      "features": [
+        {
+          "feature_id": "NR4_flag",
+          "level": "True"
+        },
+        {
+          "feature_id": "ROC_10",
+          "level": "high"
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The pattern captures mean_reversion setups where price has pulled back sharply (high ROC_10, NR4 narrow range) within a downtrend, forming an inside bar that signals exhaustion of selling pressure. These compressed volatility conditions often precede short-term bounces as weak hands capitulate and short-term traders cover positions into the consolidation.",
+        "concept": "mean_reversion",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 126,
+        "lifetime_wr": 0.64,
+        "baseline_wr": 0.5301712603692802,
+        "edge_pp": 0.1098,
+        "drift_train_test": 0.0954,
+        "live_n": 4,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Bear"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 32.7,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_10175ede5733",
+      "pattern_id": "10175ede57332e39",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 50.4,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "coiled_spring_score",
+          "level": "medium"
+        },
+        {
+          "feature_id": "day_of_week",
+          "level": "Tue"
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "level": "low"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Medium coiled spring score after an uptrend followed by choppy consolidation suggests weak hands capitulation is complete, with Tuesday positioning allowing institutional players to accumulate before midweek momentum. The low proximity to fibonacci retracement levels indicates the consolidation is relatively shallow, preserving the underlying uptrend structure for continuation.",
+        "concept": "weak_hands_capitulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 100,
+        "lifetime_wr": 0.6185567010309279,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.1247,
+        "drift_train_test": 0.1044,
+        "live_n": 1,
+        "live_wr": 0.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 31.5,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_4f010cc4f89a",
+      "pattern_id": "4f010cc4f89a37d2",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 50.4,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "coiled_spring_score",
+          "level": "low"
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "level": "medium"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "The uptrend triangle pattern combined with high market breadth suggests institutional accumulation across multiple stocks, where choppy price action represents absorption of supply without breaking the technical structure. The medium proximity to the 50% Fibonacci level provides a defined risk/reward entry point where smart money positioning accumulates before continuation, while low coiled spring score filters out false breakouts.",
+        "concept": "institutional_accumulation",
+        "clarity": 72
+      },
+      "evidence_summary": {
+        "lifetime_n": 224,
+        "lifetime_wr": 0.5852534562211982,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0914,
+        "drift_train_test": 0.1082,
+        "live_n": 3,
+        "live_wr": 0.6666666666666666,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 31.7,
+        "convergence": 70.0,
+        "mechanism": 72.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    },
+    {
+      "barcode_id": "bc_ca94ae6236b9",
+      "pattern_id": "ca94ae6236b9b3ad",
+      "tier": "ACTIVE_WATCH",
+      "action": "WATCH",
+      "score": 50.2,
+      "cohort": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "horizon": "D5"
+      },
+      "features": [
+        {
+          "feature_id": "52w_high_distance_pct",
+          "level": "low"
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "level": "medium"
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True"
+        }
+      ],
+      "feature_count": 3,
+      "mechanism": {
+        "text": "Stocks near 52-week highs with higher highs intact in an uptrending triangle show trend_continuation dynamics where choppy price action allows institutional_accumulation without triggering stop-losses or attracting excessive retail momentum. The medium Fibonacci proximity suggests price has retraced enough to shake out weak_hands while maintaining structural strength, creating an entry point before continuation.",
+        "concept": "institutional_accumulation",
+        "clarity": 75
+      },
+      "evidence_summary": {
+        "lifetime_n": 198,
+        "lifetime_wr": 0.5873015873015873,
+        "baseline_wr": 0.4938080495356037,
+        "edge_pp": 0.0935,
+        "drift_train_test": 0.1162,
+        "live_n": 1,
+        "live_wr": 1.0,
+        "phase_5_tier": "WATCH",
+        "convergence_count": 3,
+        "regimes_with_edge": [
+          "Choppy"
+        ]
+      },
+      "scoring_breakdown": {
+        "statistical_strength": 29.1,
+        "convergence": 70.0,
+        "mechanism": 75.0,
+        "live_evidence": 40.0,
+        "regime_breadth": 30.0
+      },
+      "scoring_profile": "profile_1",
+      "lifecycle": {
+        "current_state": "ACTIVE_WATCH",
+        "history": [],
+        "last_transition": null
+      },
+      "relationships": {
+        "subsumes": [],
+        "conflicts_with": [],
+        "co_fires_with": []
+      }
+    }
+  ],
+  "tier_counts": {
+    "ACTIVE_TAKE_FULL": 0,
+    "ACTIVE_TAKE_SMALL": 1,
+    "ACTIVE_WATCH": 57,
+    "KILL": 0
+  }
+}
