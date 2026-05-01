@@ -1,0 +1,444 @@
+{
+  "n_winners": 55,
+  "n_rejected": 156,
+  "top_winner_features": [
+    {
+      "feature_id": "ema_alignment",
+      "level": "bull",
+      "winners_count": 26,
+      "winners_pct": 0.4727272727272727,
+      "rejected_count": 11,
+      "rejected_pct": 0.07051282051282051,
+      "differentiator_score": 0.4022144522144522
+    },
+    {
+      "feature_id": "coiled_spring_score",
+      "level": "medium",
+      "winners_count": 21,
+      "winners_pct": 0.38181818181818183,
+      "rejected_count": 3,
+      "rejected_pct": 0.019230769230769232,
+      "differentiator_score": 0.3625874125874126
+    },
+    {
+      "feature_id": "fib_382_proximity_atr",
+      "level": "high",
+      "winners_count": 5,
+      "winners_pct": 0.09090909090909091,
+      "rejected_count": 0,
+      "rejected_pct": 0.0,
+      "differentiator_score": 0.09090909090909091
+    },
+    {
+      "feature_id": "MACD_histogram_slope",
+      "level": "rising",
+      "winners_count": 6,
+      "winners_pct": 0.10909090909090909,
+      "rejected_count": 8,
+      "rejected_pct": 0.05128205128205128,
+      "differentiator_score": 0.057808857808857805
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "low",
+      "winners_count": 3,
+      "winners_pct": 0.05454545454545454,
+      "rejected_count": 0,
+      "rejected_pct": 0.0,
+      "differentiator_score": 0.05454545454545454
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "none",
+      "winners_count": 12,
+      "winners_pct": 0.21818181818181817,
+      "rejected_count": 27,
+      "rejected_pct": 0.17307692307692307,
+      "differentiator_score": 0.0451048951048951
+    },
+    {
+      "feature_id": "ema20_distance_pct",
+      "level": "high",
+      "winners_count": 12,
+      "winners_pct": 0.21818181818181817,
+      "rejected_count": 29,
+      "rejected_pct": 0.1858974358974359,
+      "differentiator_score": 0.03228438228438227
+    },
+    {
+      "feature_id": "fib_50_proximity_atr",
+      "level": "high",
+      "winners_count": 1,
+      "winners_pct": 0.01818181818181818,
+      "rejected_count": 0,
+      "rejected_pct": 0.0,
+      "differentiator_score": 0.01818181818181818
+    },
+    {
+      "feature_id": "MACD_histogram_sign",
+      "level": "positive",
+      "winners_count": 6,
+      "winners_pct": 0.10909090909090909,
+      "rejected_count": 17,
+      "rejected_pct": 0.10897435897435898,
+      "differentiator_score": 0.00011655011655010983
+    },
+    {
+      "feature_id": "MACD_signal",
+      "level": "bull",
+      "winners_count": 6,
+      "winners_pct": 0.10909090909090909,
+      "rejected_count": 17,
+      "rejected_pct": 0.10897435897435898,
+      "differentiator_score": 0.00011655011655010983
+    },
+    {
+      "feature_id": "RSI_14",
+      "level": "medium",
+      "winners_count": 14,
+      "winners_pct": 0.2545454545454545,
+      "rejected_count": 40,
+      "rejected_pct": 0.2564102564102564,
+      "differentiator_score": -0.0018648018648018683
+    },
+    {
+      "feature_id": "advance_decline_ratio_20d",
+      "level": "low",
+      "winners_count": 5,
+      "winners_pct": 0.09090909090909091,
+      "rejected_count": 18,
+      "rejected_pct": 0.11538461538461539,
+      "differentiator_score": -0.02447552447552448
+    },
+    {
+      "feature_id": "ema20_distance_pct",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 4,
+      "rejected_pct": 0.02564102564102564,
+      "differentiator_score": -0.02564102564102564
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "high",
+      "winners_count": 6,
+      "winners_pct": 0.10909090909090909,
+      "rejected_count": 22,
+      "rejected_pct": 0.14102564102564102,
+      "differentiator_score": -0.03193473193473194
+    },
+    {
+      "feature_id": "fib_382_proximity_atr",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 5,
+      "rejected_pct": 0.03205128205128205,
+      "differentiator_score": -0.03205128205128205
+    },
+    {
+      "feature_id": "coiled_spring_score",
+      "level": "low",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 7,
+      "rejected_pct": 0.04487179487179487,
+      "differentiator_score": -0.04487179487179487
+    },
+    {
+      "feature_id": "compression_duration",
+      "level": "low",
+      "winners_count": 5,
+      "winners_pct": 0.09090909090909091,
+      "rejected_count": 22,
+      "rejected_pct": 0.14102564102564102,
+      "differentiator_score": -0.05011655011655011
+    },
+    {
+      "feature_id": "market_breadth_pct",
+      "level": "high",
+      "winners_count": 29,
+      "winners_pct": 0.5272727272727272,
+      "rejected_count": 91,
+      "rejected_pct": 0.5833333333333334,
+      "differentiator_score": -0.056060606060606144
+    },
+    {
+      "feature_id": "higher_highs_intact_flag",
+      "level": "False",
+      "winners_count": 1,
+      "winners_pct": 0.01818181818181818,
+      "rejected_count": 12,
+      "rejected_pct": 0.07692307692307693,
+      "differentiator_score": -0.058741258741258746
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "mixed",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 10,
+      "rejected_pct": 0.0641025641025641,
+      "differentiator_score": -0.0641025641025641
+    }
+  ],
+  "top_rejected_features": [
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "High",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 30,
+      "rejected_pct": 0.19230769230769232,
+      "differentiator_score": -0.19230769230769232
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "medium",
+      "winners_count": 1,
+      "winners_pct": 0.01818181818181818,
+      "rejected_count": 23,
+      "rejected_pct": 0.14743589743589744,
+      "differentiator_score": -0.12925407925407925
+    },
+    {
+      "feature_id": "higher_highs_intact_flag",
+      "level": "True",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 20,
+      "rejected_pct": 0.1282051282051282,
+      "differentiator_score": -0.1282051282051282
+    },
+    {
+      "feature_id": "day_of_week",
+      "level": "Tue",
+      "winners_count": 1,
+      "winners_pct": 0.01818181818181818,
+      "rejected_count": 19,
+      "rejected_pct": 0.12179487179487179,
+      "differentiator_score": -0.10361305361305362
+    },
+    {
+      "feature_id": "MACD_histogram_slope",
+      "level": "falling",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 13,
+      "rejected_pct": 0.08333333333333333,
+      "differentiator_score": -0.08333333333333333
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "mixed",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 10,
+      "rejected_pct": 0.0641025641025641,
+      "differentiator_score": -0.0641025641025641
+    },
+    {
+      "feature_id": "higher_highs_intact_flag",
+      "level": "False",
+      "winners_count": 1,
+      "winners_pct": 0.01818181818181818,
+      "rejected_count": 12,
+      "rejected_pct": 0.07692307692307693,
+      "differentiator_score": -0.058741258741258746
+    },
+    {
+      "feature_id": "market_breadth_pct",
+      "level": "high",
+      "winners_count": 29,
+      "winners_pct": 0.5272727272727272,
+      "rejected_count": 91,
+      "rejected_pct": 0.5833333333333334,
+      "differentiator_score": -0.056060606060606144
+    },
+    {
+      "feature_id": "compression_duration",
+      "level": "low",
+      "winners_count": 5,
+      "winners_pct": 0.09090909090909091,
+      "rejected_count": 22,
+      "rejected_pct": 0.14102564102564102,
+      "differentiator_score": -0.05011655011655011
+    },
+    {
+      "feature_id": "coiled_spring_score",
+      "level": "low",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 7,
+      "rejected_pct": 0.04487179487179487,
+      "differentiator_score": -0.04487179487179487
+    },
+    {
+      "feature_id": "fib_382_proximity_atr",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 5,
+      "rejected_pct": 0.03205128205128205,
+      "differentiator_score": -0.03205128205128205
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "high",
+      "winners_count": 6,
+      "winners_pct": 0.10909090909090909,
+      "rejected_count": 22,
+      "rejected_pct": 0.14102564102564102,
+      "differentiator_score": -0.03193473193473194
+    },
+    {
+      "feature_id": "ema20_distance_pct",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "rejected_count": 4,
+      "rejected_pct": 0.02564102564102564,
+      "differentiator_score": -0.02564102564102564
+    },
+    {
+      "feature_id": "advance_decline_ratio_20d",
+      "level": "low",
+      "winners_count": 5,
+      "winners_pct": 0.09090909090909091,
+      "rejected_count": 18,
+      "rejected_pct": 0.11538461538461539,
+      "differentiator_score": -0.02447552447552448
+    },
+    {
+      "feature_id": "RSI_14",
+      "level": "medium",
+      "winners_count": 14,
+      "winners_pct": 0.2545454545454545,
+      "rejected_count": 40,
+      "rejected_pct": 0.2564102564102564,
+      "differentiator_score": -0.0018648018648018683
+    },
+    {
+      "feature_id": "MACD_signal",
+      "level": "bull",
+      "winners_count": 6,
+      "winners_pct": 0.10909090909090909,
+      "rejected_count": 17,
+      "rejected_pct": 0.10897435897435898,
+      "differentiator_score": 0.00011655011655010983
+    },
+    {
+      "feature_id": "MACD_histogram_sign",
+      "level": "positive",
+      "winners_count": 6,
+      "winners_pct": 0.10909090909090909,
+      "rejected_count": 17,
+      "rejected_pct": 0.10897435897435898,
+      "differentiator_score": 0.00011655011655010983
+    },
+    {
+      "feature_id": "fib_50_proximity_atr",
+      "level": "high",
+      "winners_count": 1,
+      "winners_pct": 0.01818181818181818,
+      "rejected_count": 0,
+      "rejected_pct": 0.0,
+      "differentiator_score": 0.01818181818181818
+    },
+    {
+      "feature_id": "ema20_distance_pct",
+      "level": "high",
+      "winners_count": 12,
+      "winners_pct": 0.21818181818181817,
+      "rejected_count": 29,
+      "rejected_pct": 0.1858974358974359,
+      "differentiator_score": 0.03228438228438227
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "none",
+      "winners_count": 12,
+      "winners_pct": 0.21818181818181817,
+      "rejected_count": 27,
+      "rejected_pct": 0.17307692307692307,
+      "differentiator_score": 0.0451048951048951
+    }
+  ],
+  "common_winner_pairs": [],
+  "common_rejected_pairs": [],
+  "winners_axis_distribution": {
+    "compression": {
+      "consolidation_quality=none": 12,
+      "coiled_spring_score=medium": 21,
+      "compression_duration=low": 5
+    },
+    "trend": {
+      "ema_alignment=bull": 26,
+      "MACD_signal=bull": 6,
+      "MACD_histogram_slope=rising": 6,
+      "MACD_histogram_sign=positive": 6,
+      "ema20_distance_pct=high": 12
+    },
+    "breadth": {
+      "market_breadth_pct=high": 29,
+      "advance_decline_ratio_20d=low": 5
+    },
+    "momentum": {
+      "ROC_10=high": 6,
+      "RSI_14=medium": 14
+    },
+    "position": {
+      "52w_high_distance_pct=low": 3,
+      "higher_highs_intact_flag=False": 1,
+      "52w_high_distance_pct=medium": 1
+    },
+    "calendar": {
+      "day_of_week=Tue": 1
+    },
+    "zones": {
+      "fib_382_proximity_atr=high": 5,
+      "fib_50_proximity_atr=high": 1
+    }
+  },
+  "rejected_axis_distribution": {
+    "trend": {
+      "MACD_histogram_slope=falling": 13,
+      "ema_alignment=bull": 11,
+      "ema20_distance_pct=high": 29,
+      "ema_alignment=mixed": 10,
+      "MACD_signal=bull": 17,
+      "MACD_histogram_sign=positive": 17,
+      "MACD_histogram_slope=rising": 8,
+      "ema20_distance_pct=medium": 4
+    },
+    "position": {
+      "higher_highs_intact_flag=False": 12,
+      "52w_high_distance_pct=medium": 23,
+      "higher_highs_intact_flag=True": 20
+    },
+    "zones": {
+      "fib_382_proximity_atr=medium": 5
+    },
+    "breadth": {
+      "market_breadth_pct=high": 91,
+      "advance_decline_ratio_20d=low": 18
+    },
+    "calendar": {
+      "day_of_week=Tue": 19
+    },
+    "compression": {
+      "consolidation_quality=none": 27,
+      "compression_duration=low": 22,
+      "coiled_spring_score=medium": 3,
+      "coiled_spring_score=low": 7
+    },
+    "momentum": {
+      "RSI_14=medium": 40,
+      "ROC_10=high": 22
+    },
+    "volatility": {
+      "nifty_vol_regime=High": 30
+    }
+  }
+}
