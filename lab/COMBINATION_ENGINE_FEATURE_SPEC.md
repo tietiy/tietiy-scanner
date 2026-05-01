@@ -287,14 +287,16 @@ Discrete chart-pattern flags + structural swing features + quality scores. Mostl
 
 **Computation Algorithm specifications (Family 6):**
 
-**triangle_quality_ascending / triangle_quality_descending:**
-- Algorithm: scan last 30 bars. Identify pivot highs (need ≥3) and pivot lows (need ≥3) using existing `detect_pivots` logic with `PIVOT_LOOKBACK`.
-- Fit linear regression to pivot highs → for ascending triangle expect flat slope (`|slope_norm| < 0.005`); for descending expect negative slope < -0.005.
-- Fit linear regression to pivot lows → for ascending expect positive slope > 0.005; for descending expect flat.
-- Compute R² of both fits (line-fit quality).
-- Composite score: `(touch_count × 10) + (R²_lows × 30) + (R²_highs × 30) + (compression_factor × 30)`. Cap at 100.
-- `compression_factor = 1 - (current_range / 30d_high_range)`.
-- If <3 pivots in either direction → score = 0.
+**triangle_quality_ascending / triangle_quality_descending:** *[SUPERSEDED v2.1.1 — see "v2.1.1 amendment" subsection below]*
+- ~~Algorithm: scan last 30 bars. Identify pivot highs (need ≥3) and pivot lows (need ≥3) using existing `detect_pivots` logic with `PIVOT_LOOKBACK`.~~
+- ~~Fit linear regression to pivot highs → for ascending triangle expect flat slope (`|slope_norm| < 0.005`); for descending expect negative slope < -0.005.~~
+- ~~Fit linear regression to pivot lows → for ascending expect positive slope > 0.005; for descending expect flat.~~
+- ~~Compute R² of both fits (line-fit quality).~~
+- ~~Composite score: `(touch_count × 10) + (R²_lows × 30) + (R²_highs × 30) + (compression_factor × 30)`. Cap at 100.~~
+- ~~`compression_factor = 1 - (current_range / 30d_high_range)`.~~
+- ~~If <3 pivots in either direction → score = 0.~~
+
+Original v2.1 algorithm preserved here for audit trail; **v2.1.1 amendment supersedes** with 60-bar window + ≥3 total pivots + trendline_respect_score + new composite formula. See A1 in v2.1.1 amendment subsection.
 
 **triangle_compression_pct:**
 - Computed as: `today's high-low / (highest pivot high in last 30 bars - lowest pivot low in last 30 bars)`. Lower = more compressed.
@@ -463,6 +465,68 @@ Final range: 0-100.
 **C1.** Reuse `scanner_core.detect_pivots` via sys.path import. Keep `PIVOT_LOOKBACK` semantics consistent with live scanner (existing pattern in lab/).
 
 **C2.** Pre-compute cross-stock features (sector_rank_within_universe, market_breadth_pct, advance_decline_ratio_20d) once per unique scan_date at extractor init. Cache by date. Reuse across all signals on same date.
+
+---
+
+## v2.1.1 amendment (Block 4 validation findings)
+
+Surfaced during Phase 1B BLOCK 4 validation: 1000-signal sample showed `triangle_quality_*` = 0 for **100%** of signals, and 5 of 13 universe sectors mapped to NaN for `sector_index_*d_return_pct`. Two amendments below.
+
+### A1. Triangle algorithm refinement (supersedes Family 6 algorithm spec lines 290-297)
+
+**Root cause:** With `PIVOT_LOOKBACK=10` (live scanner default), `detect_pivots` enforces ≥`2*lookback+1` = 21 bars between same-type pivots. The original 30-bar window with ≥3 pivot highs AND ≥3 pivot lows requirement is **structurally impossible** — 3 same-type pivots cannot fit in 30 bars without violating the 21-bar separation. Synthetic 3C-3 tests passed because they bypassed `detect_pivots` and injected pivots directly into the cache; real-pipeline extraction surfaced the mismatch.
+
+**Refined algorithm — `triangle_quality_ascending` / `triangle_quality_descending`:**
+
+- **Window:** extend to **last 60 bars** (was 30). Provides room for 3 same-type pivots at minimum 21-bar separation.
+- **Pivot requirement:** ≥**3 total pivots** in window (any high/low combination), not strictly 3+3. Sparse-pivot regimes still get scored.
+- **Trendline fitting:** linear regression on whichever pivot set has ≥2 points. If only one set has ≥2, the other trendline degenerates to flat through its single point (or NaN trendline → contributes 0 to respect score).
+- **`trendline_respect_score`:** for all 60 bars in window, compute `dist_to_upper = (bar.high - upper_trendline_y) / atr` and `dist_to_lower = (bar.low - lower_trendline_y) / atr`. Score = % of bars where `|dist_to_upper| < 1` AND `|dist_to_lower| < 1` (both within 1 ATR of their respective lines). Range 0-1; full-window respect (not just pivot touches) validates that the regression is actually capturing structure rather than overfitting sparse points.
+- **`touch_count`:** count of pivots within 1 ATR of their respective regression lines (unchanged semantics).
+- **`compression_factor`:** `max(0, 1 - current_range / max_range_in_window)` (unchanged; B2/B3 still apply).
+- **Direction validation thresholds (unchanged):**
+  - ascending: `|high_slope_norm| < 0.005 AND low_slope_norm > 0.005`
+  - descending: `high_slope_norm < -0.005 AND |low_slope_norm| < 0.005`
+- **`slope_alignment_score`:** 100 if direction validation passes for the queried direction, else 0.
+- **Composite formula:**
+
+```
+score = (trendline_respect_score × 50)
+      + (touch_count × 5)
+      + (compression_factor × 30)
+      + (slope_alignment_score × 15)
+score = clamp(score, 0, 100)
+```
+
+  Weight rebalanced to put majority on full-window trendline respect (the structural test) rather than R² of sparse pivot fits. Touch count remains a secondary signal; compression and slope alignment retain their meaning.
+
+- **Insufficient pivots fallback:** if total_pivots_in_window < 3 → return 0 quality (unchanged early-exit semantics).
+
+**Same refinement applies to `triangle_touches_count` and `triangle_age_bars`:** both now operate on the 60-bar window. Compression / touches / age semantics unchanged otherwise.
+
+### A2. Sector index map extension (Family 5)
+
+**Root cause:** original `_SECTOR_INDEX_MAP` covered 8 of 13 universe sectors. The 5 unmapped (Other / Chem / CapGoods / Health / Consumer = ~58 stocks ≈ 31% of universe) all returned NaN for `sector_index_20d_return_pct` and `sector_index_60d_return_pct`. Cheap features should not have ≥10% NaN rate from coverage gaps.
+
+**Extension policy** (primary index → fallback):
+
+| Sector key | Primary NSE index | Fallback |
+|---|---|---|
+| Bank | NSEBANK | — |
+| IT | CNXIT | — |
+| Pharma | CNXPHARMA | — |
+| Auto | CNXAUTO | — |
+| Metal | CNXMETAL | — |
+| Energy | CNXENERGY | — |
+| FMCG | CNXFMCG | — |
+| Infra | CNXINFRA | — |
+| **Health** | **NIFTY HEALTHCARE** (post-2017) | CNXPHARMA (cached) |
+| **Consumer** | **NIFTY CONSUMER DURABLES** (post-2017) | CNXFMCG (cached) |
+| **Chem** | **NIFTY CHEMICAL & PETROCHEMICAL** (post-2018) | NIFTY MIDCAP 100 → NSEI (cached) |
+| **CapGoods** | **NIFTY INDIA MANUFACTURING / NIFTY INDUSTRIALS** | NIFTY MIDCAP 100 → NSEI (cached) |
+| Other | — (catch-all sector) | leave NaN |
+
+**Implementation:** at `_load_universe` time, try primary index parquet first; if missing, try fallback. Log warning per missing primary. Document the active mapping in code docstring. `Other` sector deliberately not mapped (NaN is correct semantics — heterogeneous bucket).
 
 ---
 
