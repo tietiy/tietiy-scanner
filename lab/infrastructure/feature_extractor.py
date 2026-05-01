@@ -59,11 +59,14 @@ from feature_loader import FeatureRegistry  # noqa: E402
 _FEAT_PREFIX = "feat_"
 _EXPECTED_FEATURE_COUNT = 114
 _FAMILIES_3A = ("momentum", "volume", "regime")  # what 3A implements
-_DEFERRED_3A = (  # cross-stock features deferred to later sub-block
+_DEFERRED_3A = (  # historical: 3A deferred these to 3C-2; now implemented
     "sector_rank_within_universe",
     "market_breadth_pct",
     "advance_decline_ratio_20d",
 )
+# Cross-stock minimum universe coverage required to compute breadth/AD/rank;
+# below this we return NaN for these 3 features (graceful fallback).
+_CROSS_STOCK_MIN_COVERAGE = 100
 # Sector index ticker map (matches scanner/main.py SECTOR_INDICES)
 _SECTOR_INDEX_MAP = {
     "Bank":   "_index_NSEBANK.parquet",
@@ -164,6 +167,15 @@ class FeatureExtractor:
                 self._sector_indices[sector] = None  # Sector index unavailable
         # Pre-compute Nifty vol percentile thresholds from full history
         self._vol_thresholds = self._compute_nifty_vol_thresholds()
+        # Cross-stock universe (3C-2): pre-load 188 stock closes at __init__,
+        # lazy compute per-scan_date features in _get_cross_stock_at.
+        # _universe_close: DataFrame indexed by date, columns = symbol.
+        # _universe_sectors: dict {symbol: sector} (read from sector index map
+        # if available, else from signal_history/sectors mapping if present).
+        self._universe_close: Optional[pd.DataFrame] = None
+        self._universe_sectors: dict[str, str] = {}
+        self._cross_stock_cache: dict = {}  # {scan_date: {sector_rank,...}}
+        self._load_universe()
 
     # ── Initialization helpers ────────────────────────────────────────
 
@@ -174,6 +186,134 @@ class FeatureExtractor:
         df = pd.read_parquet(path)
         df.index = pd.to_datetime(df.index)
         return df["Close"].sort_index().dropna()
+
+    def _load_universe(self) -> None:
+        """Pre-load 188-stock close series into memory at __init__.
+        Reads symbol→sector map from data/fno_universe.csv. Stock closes
+        loaded from cache_dir; missing stocks logged + skipped.
+        """
+        import csv
+        universe_csv = _REPO_ROOT / "data" / "fno_universe.csv"
+        if not universe_csv.exists():
+            self._universe_close = None
+            return
+        try:
+            with open(universe_csv) as fh:
+                rdr = csv.DictReader(fh)
+                for row in rdr:
+                    sym = row.get("symbol", "").strip()
+                    sec = row.get("sector", "Other").strip() or "Other"
+                    if sym:
+                        self._universe_sectors[sym] = sec
+        except Exception:
+            self._universe_close = None
+            return
+        # Load each stock's close series; concat into wide DataFrame
+        closes_by_sym = {}
+        for sym in self._universe_sectors.keys():
+            path = self.cache_dir / _symbol_to_parquet(sym)
+            if not path.exists():
+                continue
+            try:
+                df = pd.read_parquet(path, columns=["Close"])
+                df.index = pd.to_datetime(df.index)
+                df = df.sort_index().dropna(subset=["Close"])
+                closes_by_sym[sym] = df["Close"]
+            except Exception:
+                continue
+        if len(closes_by_sym) >= _CROSS_STOCK_MIN_COVERAGE:
+            self._universe_close = pd.DataFrame(closes_by_sym).sort_index()
+        else:
+            self._universe_close = None
+
+    def _get_cross_stock_at(self, scan_date: pd.Timestamp,
+                              signal_sector: Optional[str]) -> dict:
+        """Lazy-compute cross-stock features for given scan_date; cache
+        per-date result.
+
+        Returns dict with sector_rank, market_breadth_pct, advance_decline_ratio_20d.
+        Falls back to NaN if universe not loaded or coverage at scan_date is
+        below _CROSS_STOCK_MIN_COVERAGE.
+        """
+        nan_result = {
+            "sector_rank": np.nan,
+            "market_breadth_pct": np.nan,
+            "advance_decline_ratio_20d": np.nan,
+        }
+        if self._universe_close is None:
+            return nan_result
+        # Use scan_date as cache key (per-date computation reusable across
+        # all signals on the same date).
+        key = pd.Timestamp(scan_date).normalize()
+        if key not in self._cross_stock_cache:
+            self._cross_stock_cache[key] = self._compute_cross_stock(key)
+        cached = self._cross_stock_cache[key]
+        # sector_rank depends on signal's sector
+        if signal_sector and cached["sector_returns"] is not None:
+            sec_returns = cached["sector_returns"]
+            if signal_sector in sec_returns.index:
+                # Rank highest return = 1
+                sorted_sectors = sec_returns.sort_values(ascending=False)
+                rank = int(sorted_sectors.index.get_loc(signal_sector)) + 1
+                sector_rank = float(rank)
+            else:
+                sector_rank = np.nan
+        else:
+            sector_rank = np.nan
+        return {
+            "sector_rank": sector_rank,
+            "market_breadth_pct": cached["market_breadth_pct"],
+            "advance_decline_ratio_20d": cached["advance_decline_ratio_20d"],
+        }
+
+    def _compute_cross_stock(self, scan_date: pd.Timestamp) -> dict:
+        """Compute breadth + AD ratio + sector returns at scan_date.
+        Returns dict (caller does sector lookup)."""
+        out = {
+            "market_breadth_pct": np.nan,
+            "advance_decline_ratio_20d": np.nan,
+            "sector_returns": None,
+        }
+        if self._universe_close is None:
+            return out
+        # Slice universe_close to dates ≤ scan_date (no future leakage)
+        u = self._universe_close.loc[self._universe_close.index <= scan_date]
+        if len(u) < 50:
+            return out
+        # At scan_date, count how many symbols have close > EMA50.
+        # Use last bar (most recent date ≤ scan_date).
+        last_bar = u.iloc[-1]
+        valid_mask = last_bar.notna()
+        n_valid = int(valid_mask.sum())
+        if n_valid < _CROSS_STOCK_MIN_COVERAGE:
+            return out
+        # EMA50 across each symbol's close
+        ema50 = u.ewm(span=EMA_MID, adjust=False).mean()
+        ema50_last = ema50.iloc[-1]
+        above = ((last_bar > ema50_last) & valid_mask).sum()
+        out["market_breadth_pct"] = float(above) / float(n_valid)
+        # Advance/decline ratio: sum (advances - declines) / total over 20d
+        if len(u) >= 21:
+            diff = u.diff()  # daily change
+            tail20 = diff.iloc[-20:]
+            adv = (tail20 > 0).sum().sum()
+            dec = (tail20 < 0).sum().sum()
+            total = adv + dec
+            if total > 0:
+                out["advance_decline_ratio_20d"] = float(adv - dec) / float(total)
+        # Sector returns over last 20 days
+        if len(u) >= 21:
+            ret_20d = (u.iloc[-1] / u.iloc[-21] - 1).dropna()
+            sector_returns = {}
+            for sec in set(self._universe_sectors.values()):
+                syms_in_sec = [s for s, x in self._universe_sectors.items()
+                                  if x == sec and s in ret_20d.index]
+                if syms_in_sec:
+                    sec_ret = float(ret_20d.loc[syms_in_sec].mean())
+                    sector_returns[sec] = sec_ret
+            if sector_returns:
+                out["sector_returns"] = pd.Series(sector_returns)
+        return out
 
     def _compute_nifty_vol_thresholds(self) -> dict:
         """20d rolling vol percentiles across full Nifty history (per INV-007)."""
@@ -527,8 +667,11 @@ class FeatureExtractor:
         feats["day_of_week"] = scan_date.strftime("%a")  # "Mon", "Tue", ...
         feats["days_to_monthly_expiry"] = self._days_to_monthly_expiry(scan_date)
 
-        # Cross-stock features (deferred to later sub-block) — leave as NaN
-        # sector_rank_within_universe, market_breadth_pct, advance_decline_ratio_20d
+        # Cross-stock features (3C-2) — lazy per-scan_date cache
+        cs = self._get_cross_stock_at(scan_date, signal.get("sector"))
+        feats["sector_rank_within_universe"] = cs["sector_rank"]
+        feats["market_breadth_pct"] = cs["market_breadth_pct"]
+        feats["advance_decline_ratio_20d"] = cs["advance_decline_ratio_20d"]
 
         return feats
 
@@ -682,6 +825,10 @@ class FeatureExtractor:
 
         # ── round_number_proximity_pct (B7) ──────────────────────────
         feats["round_number_proximity_pct"] = self._round_number_proximity(c)
+
+        # ── Fib features (6, 3C-2; B8 direction selection) ───────────
+        fib = self._fib_features(cache, ohlcv, signal, lookback=30)
+        feats.update(fib)
 
         return feats
 
@@ -1672,4 +1819,102 @@ class FeatureExtractor:
             out["gap_up_pct"] = float(max(0.0, ratio))
             out["gap_down_pct"] = float(max(0.0, -ratio))
 
+        return out
+
+    # ────────────────────────────────────────────────────────────────────
+    # 3C-2 helpers — Fib retracement / extension features
+    # ────────────────────────────────────────────────────────────────────
+
+    @staticmethod
+    def _find_uptrend_impulse(pivot_highs, pivot_lows):
+        """Highest pivot high → most recent pivot low AFTER it.
+        Returns dict {high, low, end_date, direction} or None."""
+        if not pivot_highs or not pivot_lows:
+            return None
+        highest = max(pivot_highs, key=lambda p: p[1])
+        high_date = highest[0]
+        lows_after = [p for p in pivot_lows if p[0] > high_date]
+        if not lows_after:
+            return None
+        most_recent_low = max(lows_after, key=lambda p: p[0])
+        return {"high": highest[1], "low": most_recent_low[1],
+                "end_date": most_recent_low[0], "direction": "up"}
+
+    @staticmethod
+    def _find_downtrend_impulse(pivot_highs, pivot_lows):
+        """Lowest pivot low → most recent pivot high AFTER it."""
+        if not pivot_highs or not pivot_lows:
+            return None
+        lowest = min(pivot_lows, key=lambda p: p[1])
+        low_date = lowest[0]
+        highs_after = [p for p in pivot_highs if p[0] > low_date]
+        if not highs_after:
+            return None
+        most_recent_high = max(highs_after, key=lambda p: p[0])
+        return {"high": most_recent_high[1], "low": lowest[1],
+                "end_date": most_recent_high[0], "direction": "down"}
+
+    def _fib_features(self, cache: CachedIndicators,
+                        ohlcv: pd.DataFrame, signal: pd.Series,
+                        lookback: int = 30) -> dict:
+        """6 Fib proximity features per spec v2.1 + B8 direction selection.
+
+        Feature IDs: retracements use fib_<lvl>_proximity_atr (382/50/618/786);
+        extensions use fib_<lvl>_extension_proximity_atr (1272/1618).
+        """
+        levels = {"382": 0.382, "50": 0.50, "618": 0.618,
+                   "786": 0.786, "1272": 1.272, "1618": 1.618}
+        # Map level → feature_id; extensions have "_extension_" infix
+        feat_id_for = {
+            "382": "fib_382_proximity_atr",
+            "50": "fib_50_proximity_atr",
+            "618": "fib_618_proximity_atr",
+            "786": "fib_786_proximity_atr",
+            "1272": "fib_1272_extension_proximity_atr",
+            "1618": "fib_1618_extension_proximity_atr",
+        }
+        out = {fid: np.nan for fid in feat_id_for.values()}
+        if (pd.isna(cache.atr_at_signal) or cache.atr_at_signal <= 0
+                or len(ohlcv) < lookback):
+            return out
+        # Pivots in last `lookback` bars (using window start date)
+        window_start = ohlcv.index[-lookback]
+        ph_in = [(d, p) for d, p in cache.pivot_highs if d >= window_start]
+        pl_in = [(d, p) for d, p in cache.pivot_lows if d >= window_start]
+        if not ph_in or not pl_in:
+            return out
+        # B8 direction selection
+        signal_dir = str(signal.get("direction", "")).upper()
+        if signal_dir == "LONG":
+            impulse = self._find_uptrend_impulse(ph_in, pl_in)
+        elif signal_dir == "SHORT":
+            impulse = self._find_downtrend_impulse(ph_in, pl_in)
+        else:
+            up = self._find_uptrend_impulse(ph_in, pl_in)
+            down = self._find_downtrend_impulse(ph_in, pl_in)
+            if up and down:
+                impulse = up if up["end_date"] > down["end_date"] else down
+            else:
+                impulse = up or down
+        if impulse is None:
+            return out
+        impulse_high = impulse["high"]
+        impulse_low = impulse["low"]
+        impulse_range = impulse_high - impulse_low
+        if impulse_range <= 0:
+            return out
+        c = cache.close_at_signal
+        atr = cache.atr_at_signal
+        for level_name, ratio in levels.items():
+            if impulse["direction"] == "up":
+                if ratio <= 1.0:
+                    fib_price = impulse_high - (ratio * impulse_range)
+                else:
+                    fib_price = impulse_high + ((ratio - 1.0) * impulse_range)
+            else:  # down
+                if ratio <= 1.0:
+                    fib_price = impulse_low + (ratio * impulse_range)
+                else:
+                    fib_price = impulse_low - ((ratio - 1.0) * impulse_range)
+            out[feat_id_for[level_name]] = abs(c - fib_price) / atr
         return out
