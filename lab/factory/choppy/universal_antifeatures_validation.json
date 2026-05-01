@@ -1,0 +1,190 @@
+{
+  "lifetime_universe": {
+    "n": 35290,
+    "n_w": 16098,
+    "n_l": 15455,
+    "baseline_wr": 0.5101892054638227
+  },
+  "anti_features": [
+    {
+      "feature_id": "higher_highs_intact_flag",
+      "level": "True",
+      "n_present": 9319,
+      "n_absent": 25971,
+      "wr_present": 0.5220208808352335,
+      "wr_absent": 0.5059431524547804,
+      "discrimination_pp": -0.01607772838045307,
+      "verdict": "REFUTED (no/positive effect)"
+    },
+    {
+      "feature_id": "ema20_distance_pct",
+      "level": "high",
+      "n_present": 11033,
+      "n_absent": 24257,
+      "wr_present": 0.5284602163583055,
+      "wr_absent": 0.5018465515649525,
+      "discrimination_pp": -0.02661366479335303,
+      "verdict": "REFUTED (no/positive effect)"
+    },
+    {
+      "feature_id": "MACD_histogram_slope",
+      "level": "falling",
+      "n_present": 16938,
+      "n_absent": 18352,
+      "wr_present": 0.49759599552130673,
+      "wr_absent": 0.5218692730604765,
+      "discrimination_pp": 0.024273277539169746,
+      "verdict": "WEAK (0-5pp negative effect)"
+    },
+    {
+      "feature_id": "market_breadth_pct",
+      "level": "high",
+      "n_present": 11280,
+      "n_absent": 24010,
+      "wr_present": 0.524428997020854,
+      "wr_absent": 0.5035144067402132,
+      "discrimination_pp": -0.0209145902806408,
+      "verdict": "REFUTED (no/positive effect)"
+    }
+  ],
+  "per_signal_type": {
+    "UP_TRI": {
+      "n": 27072,
+      "baseline_wr": 0.522688728024819,
+      "anti_features": [
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True",
+          "n_present": 7022,
+          "n_absent": 20050,
+          "wr_present": 0.536744779212498,
+          "wr_absent": 0.5177633783934756,
+          "discrimination_pp": -0.01898140081902233,
+          "verdict": "REFUTED (no/positive effect)"
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "high",
+          "n_present": 9618,
+          "n_absent": 17454,
+          "wr_present": 0.5398004177303318,
+          "wr_absent": 0.5132094876904287,
+          "discrimination_pp": -0.026590930039903093,
+          "verdict": "REFUTED (no/positive effect)"
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "level": "falling",
+          "n_present": 12279,
+          "n_absent": 14793,
+          "wr_present": 0.5106944570856466,
+          "wr_absent": 0.5326812253563846,
+          "discrimination_pp": 0.021986768270737977,
+          "verdict": "WEAK (0-5pp negative effect)"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high",
+          "n_present": 9145,
+          "n_absent": 17927,
+          "wr_present": 0.5388379204892967,
+          "wr_absent": 0.5144375,
+          "discrimination_pp": -0.024400420489296692,
+          "verdict": "REFUTED (no/positive effect)"
+        }
+      ]
+    },
+    "DOWN_TRI": {
+      "n": 6287,
+      "baseline_wr": 0.4607563325008919,
+      "anti_features": [
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True",
+          "n_present": 1668,
+          "n_absent": 4619,
+          "wr_present": 0.4519811954331766,
+          "wr_absent": 0.4639300461501093,
+          "discrimination_pp": 0.01194885071693269,
+          "verdict": "WEAK (0-5pp negative effect)"
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "high",
+          "n_present": 814,
+          "n_absent": 5473,
+          "wr_present": 0.42047026279391425,
+          "wr_absent": 0.46672127790292856,
+          "discrimination_pp": 0.046251015109014304,
+          "verdict": "WEAK (0-5pp negative effect)"
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "level": "falling",
+          "n_present": 3832,
+          "n_absent": 2455,
+          "wr_present": 0.4558695018933877,
+          "wr_absent": 0.4684767602393005,
+          "discrimination_pp": 0.012607258345912808,
+          "verdict": "WEAK (0-5pp negative effect)"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high",
+          "n_present": 1524,
+          "n_absent": 4763,
+          "wr_present": 0.42591213700670144,
+          "wr_absent": 0.47173352099460475,
+          "discrimination_pp": 0.04582138398790331,
+          "verdict": "WEAK (0-5pp negative effect)"
+        }
+      ]
+    },
+    "BULL_PROXY": {
+      "n": 1931,
+      "baseline_wr": 0.49604966139954854,
+      "anti_features": [
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "level": "True",
+          "n_present": 629,
+          "n_absent": 1302,
+          "wr_present": 0.542907180385289,
+          "wr_absent": 0.47377185678601164,
+          "discrimination_pp": -0.06913532359927732,
+          "verdict": "REFUTED (no/positive effect)"
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "level": "high",
+          "n_present": 601,
+          "n_absent": 1330,
+          "wr_present": 0.49272727272727274,
+          "wr_absent": 0.49754500818330605,
+          "discrimination_pp": 0.004817735456033312,
+          "verdict": "WEAK (0-5pp negative effect)"
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "level": "falling",
+          "n_present": 827,
+          "n_absent": 1104,
+          "wr_present": 0.4967234600262123,
+          "wr_absent": 0.49554013875123887,
+          "discrimination_pp": -0.0011833212749734479,
+          "verdict": "REFUTED (no/positive effect)"
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "level": "high",
+          "n_present": 611,
+          "n_absent": 1320,
+          "wr_present": 0.5507246376811594,
+          "wr_absent": 0.4713114754098361,
+          "discrimination_pp": -0.07941316227132333,
+          "verdict": "REFUTED (no/positive effect)"
+        }
+      ]
+    }
+  }
+}
