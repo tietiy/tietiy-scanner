@@ -1,0 +1,229 @@
+{
+  "baseline_universe": {
+    "n": 91,
+    "n_w": 29,
+    "n_l": 54,
+    "n_f": 8,
+    "baseline_wr": 0.3493975903614458
+  },
+  "candidate_filters": [
+    {
+      "name": "F1: STRICT \u2014 ema_alignment=bull AND coiled_spring=medium",
+      "required": [
+        "ema_alignment=bull",
+        "coiled_spring_score=medium"
+      ],
+      "forbidden": [],
+      "n_total": 91,
+      "n_matched": 20,
+      "n_matched_w": 11,
+      "n_matched_l": 8,
+      "matched_wr": 0.5789473684210527,
+      "match_rate": 0.21978021978021978,
+      "n_skipped": 71,
+      "n_skipped_w": 18,
+      "n_skipped_l": 46,
+      "skipped_wr": 0.28125,
+      "matched_signal_ids": [
+        "2026-04-17-ABB-UP_TRI",
+        "2026-04-17-BEL-UP_TRI",
+        "2026-04-17-BSE-UP_TRI",
+        "2026-04-17-PFC-UP_TRI",
+        "2026-04-21-APLAPOLLO-UP_TRI",
+        "2026-04-21-AXISBANK-UP_TRI",
+        "2026-04-21-BAJAJ-AUTO-UP_TRI",
+        "2026-04-21-BANDHANBNK-UP_TRI",
+        "2026-04-21-GLENMARK-UP_TRI",
+        "2026-04-21-JINDALSTEL-UP_TRI",
+        "2026-04-21-LUPIN-UP_TRI",
+        "2026-04-21-MOTHERSON-UP_TRI",
+        "2026-04-21-NAVINFLUOR-UP_TRI",
+        "2026-04-21-NTPC-UP_TRI",
+        "2026-04-21-POWERGRID-UP_TRI",
+        "2026-04-21-SHRIRAMFIN-UP_TRI",
+        "2026-04-21-SIEMENS-UP_TRI",
+        "2026-04-21-TATAPOWER-UP_TRI",
+        "2026-04-21-TORNTPOWER-UP_TRI",
+        "2026-04-21-TVSMOTOR-UP_TRI"
+      ]
+    },
+    {
+      "name": "F2: BULL_EMA only",
+      "required": [
+        "ema_alignment=bull"
+      ],
+      "forbidden": [],
+      "n_total": 91,
+      "n_matched": 20,
+      "n_matched_w": 11,
+      "n_matched_l": 8,
+      "matched_wr": 0.5789473684210527,
+      "match_rate": 0.21978021978021978,
+      "n_skipped": 71,
+      "n_skipped_w": 18,
+      "n_skipped_l": 46,
+      "skipped_wr": 0.28125,
+      "matched_signal_ids": [
+        "2026-04-17-ABB-UP_TRI",
+        "2026-04-17-BEL-UP_TRI",
+        "2026-04-17-BSE-UP_TRI",
+        "2026-04-17-PFC-UP_TRI",
+        "2026-04-21-APLAPOLLO-UP_TRI",
+        "2026-04-21-AXISBANK-UP_TRI",
+        "2026-04-21-BAJAJ-AUTO-UP_TRI",
+        "2026-04-21-BANDHANBNK-UP_TRI",
+        "2026-04-21-GLENMARK-UP_TRI",
+        "2026-04-21-JINDALSTEL-UP_TRI",
+        "2026-04-21-LUPIN-UP_TRI",
+        "2026-04-21-MOTHERSON-UP_TRI",
+        "2026-04-21-NAVINFLUOR-UP_TRI",
+        "2026-04-21-NTPC-UP_TRI",
+        "2026-04-21-POWERGRID-UP_TRI",
+        "2026-04-21-SHRIRAMFIN-UP_TRI",
+        "2026-04-21-SIEMENS-UP_TRI",
+        "2026-04-21-TATAPOWER-UP_TRI",
+        "2026-04-21-TORNTPOWER-UP_TRI",
+        "2026-04-21-TVSMOTOR-UP_TRI"
+      ]
+    },
+    {
+      "name": "F3: COILED_SPRING_MEDIUM only",
+      "required": [
+        "coiled_spring_score=medium"
+      ],
+      "forbidden": [],
+      "n_total": 91,
+      "n_matched": 23,
+      "n_matched_w": 11,
+      "n_matched_l": 10,
+      "matched_wr": 0.5238095238095238,
+      "match_rate": 0.25274725274725274,
+      "n_skipped": 68,
+      "n_skipped_w": 18,
+      "n_skipped_l": 44,
+      "skipped_wr": 0.2903225806451613,
+      "matched_signal_ids": [
+        "2026-04-17-ABB-UP_TRI",
+        "2026-04-17-BEL-UP_TRI",
+        "2026-04-17-BSE-UP_TRI",
+        "2026-04-17-ITC-UP_TRI",
+        "2026-04-17-PFC-UP_TRI",
+        "2026-04-17-VGUARD-UP_TRI",
+        "2026-04-21-APLAPOLLO-UP_TRI",
+        "2026-04-21-AXISBANK-UP_TRI",
+        "2026-04-21-BAJAJ-AUTO-UP_TRI",
+        "2026-04-21-BANDHANBNK-UP_TRI",
+        "2026-04-21-BHARTIARTL-UP_TRI",
+        "2026-04-21-GLENMARK-UP_TRI",
+        "2026-04-21-JINDALSTEL-UP_TRI",
+        "2026-04-21-LUPIN-UP_TRI",
+        "2026-04-21-MOTHERSON-UP_TRI",
+        "2026-04-21-NAVINFLUOR-UP_TRI",
+        "2026-04-21-NTPC-UP_TRI",
+        "2026-04-21-POWERGRID-UP_TRI",
+        "2026-04-21-SHRIRAMFIN-UP_TRI",
+        "2026-04-21-SIEMENS-UP_TRI",
+        "2026-04-21-TATAPOWER-UP_TRI",
+        "2026-04-21-TORNTPOWER-UP_TRI",
+        "2026-04-21-TVSMOTOR-UP_TRI"
+      ]
+    },
+    {
+      "name": "F4: STRICT + ANTI (no falling MACD, no HHs intact)",
+      "required": [
+        "ema_alignment=bull",
+        "coiled_spring_score=medium"
+      ],
+      "forbidden": [
+        "MACD_histogram_slope=falling",
+        "higher_highs_intact_flag=True"
+      ],
+      "n_total": 91,
+      "n_matched": 6,
+      "n_matched_w": 4,
+      "n_matched_l": 2,
+      "matched_wr": 0.6666666666666666,
+      "match_rate": 0.06593406593406594,
+      "n_skipped": 85,
+      "n_skipped_w": 25,
+      "n_skipped_l": 52,
+      "skipped_wr": 0.3246753246753247,
+      "matched_signal_ids": [
+        "2026-04-17-BSE-UP_TRI",
+        "2026-04-17-PFC-UP_TRI",
+        "2026-04-21-JINDALSTEL-UP_TRI",
+        "2026-04-21-NAVINFLUOR-UP_TRI",
+        "2026-04-21-POWERGRID-UP_TRI",
+        "2026-04-21-TATAPOWER-UP_TRI"
+      ]
+    },
+    {
+      "name": "F5: BULL_EMA + COILED OR (high market_breadth)",
+      "required": [
+        "ema_alignment=bull"
+      ],
+      "forbidden": [],
+      "n_total": 91,
+      "n_matched": 20,
+      "n_matched_w": 11,
+      "n_matched_l": 8,
+      "matched_wr": 0.5789473684210527,
+      "match_rate": 0.21978021978021978,
+      "n_skipped": 71,
+      "n_skipped_w": 18,
+      "n_skipped_l": 46,
+      "skipped_wr": 0.28125,
+      "matched_signal_ids": [
+        "2026-04-17-ABB-UP_TRI",
+        "2026-04-17-BEL-UP_TRI",
+        "2026-04-17-BSE-UP_TRI",
+        "2026-04-17-PFC-UP_TRI",
+        "2026-04-21-APLAPOLLO-UP_TRI",
+        "2026-04-21-AXISBANK-UP_TRI",
+        "2026-04-21-BAJAJ-AUTO-UP_TRI",
+        "2026-04-21-BANDHANBNK-UP_TRI",
+        "2026-04-21-GLENMARK-UP_TRI",
+        "2026-04-21-JINDALSTEL-UP_TRI",
+        "2026-04-21-LUPIN-UP_TRI",
+        "2026-04-21-MOTHERSON-UP_TRI",
+        "2026-04-21-NAVINFLUOR-UP_TRI",
+        "2026-04-21-NTPC-UP_TRI",
+        "2026-04-21-POWERGRID-UP_TRI",
+        "2026-04-21-SHRIRAMFIN-UP_TRI",
+        "2026-04-21-SIEMENS-UP_TRI",
+        "2026-04-21-TATAPOWER-UP_TRI",
+        "2026-04-21-TORNTPOWER-UP_TRI",
+        "2026-04-21-TVSMOTOR-UP_TRI"
+      ]
+    }
+  ],
+  "recommended_filter": {
+    "name": "F4: STRICT + ANTI (no falling MACD, no HHs intact)",
+    "required": [
+      "ema_alignment=bull",
+      "coiled_spring_score=medium"
+    ],
+    "forbidden": [
+      "MACD_histogram_slope=falling",
+      "higher_highs_intact_flag=True"
+    ],
+    "n_total": 91,
+    "n_matched": 6,
+    "n_matched_w": 4,
+    "n_matched_l": 2,
+    "matched_wr": 0.6666666666666666,
+    "match_rate": 0.06593406593406594,
+    "n_skipped": 85,
+    "n_skipped_w": 25,
+    "n_skipped_l": 52,
+    "skipped_wr": 0.3246753246753247,
+    "matched_signal_ids": [
+      "2026-04-17-BSE-UP_TRI",
+      "2026-04-17-PFC-UP_TRI",
+      "2026-04-21-JINDALSTEL-UP_TRI",
+      "2026-04-21-NAVINFLUOR-UP_TRI",
+      "2026-04-21-POWERGRID-UP_TRI",
+      "2026-04-21-TATAPOWER-UP_TRI"
+    ]
+  }
+}
