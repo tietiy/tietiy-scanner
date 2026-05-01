@@ -1,0 +1,106 @@
+{
+  "baseline_universe": {
+    "n": 8,
+    "n_w": 2,
+    "n_l": 6,
+    "n_f": 0,
+    "baseline_wr": 0.25
+  },
+  "candidate_filters": [
+    {
+      "name": "F1: WATCH-cluster signature (coiled=medium AND ema=bull)",
+      "required": [
+        "coiled_spring_score=medium",
+        "ema_alignment=bull"
+      ],
+      "forbidden": [],
+      "n_total": 8,
+      "n_matched": 0,
+      "n_matched_w": 0,
+      "n_matched_l": 0,
+      "matched_wr": null,
+      "match_rate": 0.0,
+      "n_skipped": 8,
+      "n_skipped_w": 2,
+      "n_skipped_l": 6,
+      "skipped_wr": 0.25,
+      "matched_signal_ids": []
+    },
+    {
+      "name": "F2: ema_alignment=bull (single feature, tested in UP_TRI cell)",
+      "required": [
+        "ema_alignment=bull"
+      ],
+      "forbidden": [],
+      "n_total": 8,
+      "n_matched": 0,
+      "n_matched_w": 0,
+      "n_matched_l": 0,
+      "matched_wr": null,
+      "match_rate": 0.0,
+      "n_skipped": 8,
+      "n_skipped_w": 2,
+      "n_skipped_l": 6,
+      "skipped_wr": 0.25,
+      "matched_signal_ids": []
+    },
+    {
+      "name": "F3: REJECT cluster KILL (forbid extended momentum)",
+      "required": [],
+      "forbidden": [
+        "ema20_distance_pct=high",
+        "market_breadth_pct=high"
+      ],
+      "n_total": 8,
+      "n_matched": 0,
+      "n_matched_w": 0,
+      "n_matched_l": 0,
+      "matched_wr": null,
+      "match_rate": 0.0,
+      "n_skipped": 8,
+      "n_skipped_w": 2,
+      "n_skipped_l": 6,
+      "skipped_wr": 0.25,
+      "matched_signal_ids": []
+    },
+    {
+      "name": "F4: WATCH signature + KILL anti-features",
+      "required": [
+        "coiled_spring_score=medium",
+        "ema_alignment=bull"
+      ],
+      "forbidden": [
+        "ema20_distance_pct=high"
+      ],
+      "n_total": 8,
+      "n_matched": 0,
+      "n_matched_w": 0,
+      "n_matched_l": 0,
+      "matched_wr": null,
+      "match_rate": 0.0,
+      "n_skipped": 8,
+      "n_skipped_w": 2,
+      "n_skipped_l": 6,
+      "skipped_wr": 0.25,
+      "matched_signal_ids": []
+    },
+    {
+      "name": "F5: Single anti \u2014 forbid market_breadth_pct=high",
+      "required": [],
+      "forbidden": [
+        "market_breadth_pct=high"
+      ],
+      "n_total": 8,
+      "n_matched": 0,
+      "n_matched_w": 0,
+      "n_matched_l": 0,
+      "matched_wr": null,
+      "match_rate": 0.0,
+      "n_skipped": 8,
+      "n_skipped_w": 2,
+      "n_skipped_l": 6,
+      "skipped_wr": 0.25,
+      "matched_signal_ids": []
+    }
+  ]
+}
