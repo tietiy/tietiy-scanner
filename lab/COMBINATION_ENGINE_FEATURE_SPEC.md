@@ -1,9 +1,15 @@
-# COMBINATION ENGINE — Phase 1 Feature Library Spec (DRAFT)
+# COMBINATION ENGINE — Phase 1 Feature Library Spec (v2.1)
 
-**Authored:** 2026-05-XX
-**Status:** DRAFT for user review. Iterate before implementation.
-**Scope:** Phase 1 of `lab/COMBINATION_ENGINE_PLAN.md` — defines ~110 features across 6 families.
+**Authored:** 2026-05-XX (v1) → refined v2 (post 7-question review) → refined v2.1 (post-section-verification Fib enhancement)
+**Status:** v2.1 — refinements applied; ready for Phase 1 implementation
+**Scope:** Phase 1 of `lab/COMBINATION_ENGINE_PLAN.md` — defines **114 features** across 6 families (was 110 in v1; 112 in v2).
 **Branch:** backtest-lab
+
+**v2 changes summary:** added `close_pos_in_range` (BTST primitive) to Family 4; replaced 2 wave-count features with 4 swing-structure features in Family 6; collapsed accumulation/distribution mirror; specified triangle/swing algorithms; corrected 2 source attributions.
+
+**v2.1 changes summary:** added 2 Fib extension features (`fib_1272_extension_proximity_atr`, `fib_1618_extension_proximity_atr`) to Family 2; added Fib algorithm specification subsection within Family 2.
+
+See "Resolved Decisions" section at bottom for per-Q rationale and v2.1 addendum.
 
 ---
 
@@ -57,9 +63,9 @@ Detect price consolidation states preceding breakouts. Compression is widely ass
 
 ---
 
-## Family 2 — Institutional zone features (20 features)
+## Family 2 — Institutional zone features (22 features)
 
-Distance/proximity to historically-significant price zones (FVGs, order blocks, swing highs/lows, fib levels). Mechanism: institutional positioning concentrates at these levels.
+Distance/proximity to historically-significant price zones (FVGs, order blocks, swing highs/lows, fib retracements + extensions). Mechanism: institutional positioning concentrates at these levels. v2.1 added 2 Fib extension features (`fib_1272_extension_proximity_atr`, `fib_1618_extension_proximity_atr`) for target-zone confluence testing in Phase 4.
 
 | feature_id | type | range | level_thresholds | direction | source | cost |
 |---|---|---|---|---|---|---|
@@ -79,6 +85,8 @@ Distance/proximity to historically-significant price zones (FVGs, order blocks, 
 | fib_50_proximity_atr | float | 0-10 | `<0.5 / 0.5-1.5 / >1.5` (50% retracement) | both | OHLCV | medium |
 | fib_618_proximity_atr | float | 0-10 | `<0.5 / 0.5-1.5 / >1.5` (61.8% — golden ratio bounce zone) | both | OHLCV | medium |
 | fib_786_proximity_atr | float | 0-10 | `<0.5 / 0.5-1.5 / >1.5` (78.6% — deep retrace) | both | OHLCV | medium |
+| fib_1272_extension_proximity_atr | float | 0-10 | `<0.5 / 0.5-1.5 / >1.5` (1.272× extension target zone) | both | OHLCV | medium |
+| fib_1618_extension_proximity_atr | float | 0-10 | `<0.5 / 0.5-1.5 / >1.5` (1.618× golden extension target) | both | OHLCV | medium |
 | pivot_distance_atr | float | 0-10 | `<0.5 / 0.5-2 / >2` (ATRs to scanner-detected pivot) | bullish (low) | signal-row | cheap |
 | breakout_strength_atr | float | 0-10 | `<0.5 / 0.5-2 / >2` (ATRs above nearest resistance, if bullish breakout) | bullish (high) | OHLCV | medium |
 | consolidation_zone_distance_atr | float | 0-10 | `<0.5 / 0.5-2 / >2` (ATRs from base of recent consolidation) | bullish (low — early breakout) | OHLCV | medium |
@@ -91,9 +99,28 @@ Distance/proximity to historically-significant price zones (FVGs, order blocks, 
 - Swing high/low distance: psychological levels; close to swing high = potential breakout setup.
 - 52w_high/low distance: classical screener filter; near-52w-high signals momentum strength.
 - Fibonacci retracement levels: 38.2/50/61.8/78.6 are widely used; bounce zones for trend continuation.
+- fib_1272_extension_proximity_atr: 1.272 extension of last impulse acts as first target zone; price reaching this level often pauses or reverses.
+- fib_1618_extension_proximity_atr: 1.618 (golden ratio) extension acts as classical target; institutional profit-taking zone often clusters here.
 - Pivot distance: scanner already computes pivot points; ATR-relative distance is the relevant feature.
 - Breakout strength: how far above resistance has price moved in ATRs — separates true breakouts from false ones.
 - Round number proximity: psychological levels like ₹100, ₹500, ₹1000 often act as magnets/barriers.
+
+**Computation Algorithm specifications (Family 2):**
+
+**Fibonacci proximity features algorithm:**
+
+"Last impulse" identification — within last 30 bars, find the most recent significant swing using existing scanner pivot detection (`PIVOT_LOOKBACK` from `scanner/config.py`).
+- For uptrend retracement context: identify highest pivot high in window → most recent pivot low after that high. Impulse range = high - low.
+- For downtrend retracement context: identify lowest pivot low in window → most recent pivot high after that low. Impulse range = high - low.
+- If no clean swing found in 30 bars (no pivot high+low pair), all `fib_*_proximity_atr` features = NaN.
+
+Fib levels computed at: 0.382, 0.50, 0.618, 0.786 (retracements within impulse) + 1.272, 1.618 (extensions beyond impulse).
+
+Proximity formula: `abs(current_price - fib_level_price) / current_atr`.
+
+Feature direction interpretation:
+- Retracements (0.382-0.786): bounce zones for trend continuation; bullish if price approaching upward retracement zone in established uptrend (low proximity = strong bounce candidate); symmetric for downtrend.
+- Extensions (1.272, 1.618): target zones beyond impulse; bullish/bearish depending on impulse direction; low proximity = price reaching projected target.
 
 ---
 
@@ -147,7 +174,7 @@ Rate-of-change and trend-state indicators across multiple timeframes. Captures s
 
 ## Family 4 — Volume features (15 features)
 
-Volume signature relative to recent history. Volume confirms or contradicts price moves.
+Volume signature relative to recent history + intraday close-position. Volume confirms or contradicts price moves; close-position-in-range captures end-of-day buying or selling pressure.
 
 | feature_id | type | range | level_thresholds | direction | source | cost |
 |---|---|---|---|---|---|---|
@@ -160,10 +187,10 @@ Volume signature relative to recent history. Volume confirms or contradicts pric
 | body_to_range_ratio | float | 0-1 | `<0.3 / 0.3-0.7 / >0.7` (body / total range today) | bullish (high) | OHLCV | cheap |
 | upper_wick_ratio | float | 0-1 | `<0.2 / 0.2-0.5 / >0.5` (upper wick / range) | bearish (high — selling pressure) | OHLCV | cheap |
 | lower_wick_ratio | float | 0-1 | `<0.2 / 0.2-0.5 / >0.5` (lower wick / range) | bullish (high — buying support) | OHLCV | cheap |
+| close_pos_in_range | float | 0-1 | `<0.3 weak / 0.3-0.7 mid / >0.7 strong` ((close - low) / (high - low)) | bullish (high) | OHLCV | cheap |
 | vol_climax_flag | bool | 0/1 | n/a (vol > 2.5× 20d avg) | both (regime-dep) | OHLCV | cheap |
 | vol_dryup_flag | bool | 0/1 | n/a (vol < 0.5× 20d avg) | bullish (post-pullback dryup) | OHLCV | cheap |
-| accumulation_score_20d | float | -1 to 1 | `<-0.3 / -0.3 to 0.3 / >0.3` (sum of price-vol product over 20d, normalized) | bullish (high) | OHLCV | medium |
-| distribution_score_20d | float | -1 to 1 | `<-0.3 / -0.3 to 0.3 / >0.3` (mirror of accumulation) | bearish (high) | OHLCV | medium |
+| accumulation_distribution_signed | float | -1 to 1 | `<-0.3 distribution / -0.3 to 0.3 neutral / >0.3 accumulation` (sum of price-vol product over 20d, normalized) | bullish (high — positive = accumulation) | OHLCV | medium |
 | volume_at_pivot_ratio | float | 0-10 | `<1.0 / 1.0-2.0 / >2.0` (vol on pivot day / 20d avg) | bullish (high) | signal-row + OHLCV | medium |
 | obv_slope_20d_pct | float | -1 to 1 | `<-0.05 / -0.05 to 0.05 / >0.05` (OBV regression slope normalized) | bullish (high+) | OHLCV | medium |
 
@@ -173,9 +200,10 @@ Volume signature relative to recent history. Volume confirms or contradicts pric
 - vol_trend_slope_20d: is vol rising or falling over 20d window — distributing or accumulating?
 - body_to_range_ratio: large body = decisive move; small body = indecision (doji-like).
 - upper/lower wick ratios: tell story of intraday rejection; high upper wick = sellers stepped in at highs.
+- close_pos_in_range: INV-012 BTST primitive — close in top 30% of range with volume signature predicts overnight gap-up follow-through above universe baseline; close in bottom 30% predicts overnight reversal pressure.
 - vol_climax: extreme volume often signals reversal (capitulation low or distribution high).
 - vol_dryup: volume contraction during pullback often precedes resumption of trend.
-- accumulation/distribution scores: sum of (close - open) × vol over window; positive = accumulation.
+- accumulation_distribution_signed: sum of (close - open) × vol over 20d window, normalized; positive value = net accumulation; negative = net distribution. Single signed feature replaces v1 mirrored pair (collapsed per Q3 resolution).
 - volume_at_pivot: volume on the pivot bar relative to background; high pivot vol = stronger pivot.
 - OBV slope: on-balance volume regression slope; rising OBV = accumulation.
 
@@ -200,13 +228,13 @@ Market and sector context surrounding the signal. Captures the "weather" the sig
 | regime_score | int | -1 to 2 | n/a | regime-dep | signal-row | cheap |
 | sector_momentum_state | categorical | Lagging / Neutral / Leading | n/a (existing) | bullish (Leading) | signal-row | cheap |
 | sector_rank_within_universe | int | 1-13 | `<5 / 5-9 / >9` (rank by 20d return) | bullish (low rank = top) | cross-stock | medium |
-| stock_rs_vs_nifty_60d | float | -1 to 1 | `<-0.10 / -0.10 to 0.10 / >0.10` (stock 60d − nifty 60d) | bullish (high+) | OHLCV | medium |
+| stock_rs_vs_nifty_60d | float | -1 to 1 | `<-0.10 / -0.10 to 0.10 / >0.10` (stock 60d − nifty 60d) | bullish (high+) | OHLCV + external | medium |
 | rs_q | categorical | Weak / Neutral / Strong | n/a (existing scanner field) | bullish (Strong) | signal-row | cheap |
 | market_breadth_pct | float | 0-1 | `<0.30 / 0.30-0.60 / >0.60` (% F&O stocks above 50d EMA) | bullish (high+) | cross-stock | expensive |
 | advance_decline_ratio_20d | float | 0-3 | `<0.5 / 0.5-1.5 / >1.5` (20d cumulative AD ratio) | bullish (high+) | cross-stock | expensive |
 | day_of_month_bucket | categorical | wk1 / wk2 / wk3 / wk4 | n/a (1-7, 8-14, 15-21, 22-31) | both (regime-dep) | signal-row | cheap |
 | day_of_week | categorical | Mon-Fri | n/a | both | signal-row | cheap |
-| days_to_monthly_expiry | int | 0-30 | `<5 / 5-15 / >15` | both | external | cheap |
+| days_to_monthly_expiry | int | 0-30 | `<5 / 5-15 / >15` | both | signal-row | cheap |
 
 **Mechanism notes:**
 - Nifty returns (20/60/200d): broad market context; signals fired in different macro regimes behave differently.
@@ -223,9 +251,9 @@ Market and sector context surrounding the signal. Captures the "weather" the sig
 
 ---
 
-## Family 6 — Pattern features (15 features)
+## Family 6 — Pattern features (17 features)
 
-Discrete chart-pattern flags and quality scores. Mostly bool/categorical for clean combination engine bucketing.
+Discrete chart-pattern flags + structural swing features + quality scores. Mostly bool/categorical for clean combination engine bucketing. v2 dropped wave-count features (per Q2; expensive + noisy) in favor of 4 swing-structure features that capture similar pattern-quality information at lower computation cost.
 
 | feature_id | type | range | level_thresholds | direction | source | cost |
 |---|---|---|---|---|---|---|
@@ -234,8 +262,10 @@ Discrete chart-pattern flags and quality scores. Mostly bool/categorical for cle
 | triangle_compression_pct | float | 0-1 | `<0.05 / 0.05-0.10 / >0.10` (current range / triangle base width) | bullish (low) | OHLCV | medium |
 | triangle_touches_count | int | 0-10 | `<3 / 3-5 / >5` (number of trendline touches) | bullish (high) | OHLCV | medium |
 | triangle_age_bars | int | 0-100 | `<10 / 10-30 / >30` | bullish (medium — not too old) | OHLCV | medium |
-| wave_count_estimate | categorical | 1 / 2 / 3 / 4 / 5 / unknown | n/a (Elliott wave count proxy) | bullish (3, post-2) | OHLCV | expensive |
-| wave_4_complete_flag | bool | 0/1 | n/a (post-corrective wave 4 flag) | bullish (1) | OHLCV | expensive |
+| swing_high_count_20d | int | 0-10 | `<2 / 2-3 / >3` (count of pivot highs in last 20 bars) | bullish (low — fewer recent highs = breakout potential) | OHLCV | medium |
+| swing_low_count_20d | int | 0-10 | `<2 / 2-3 / >3` (count of pivot lows in last 20 bars) | bullish (high — multiple support touches) | OHLCV | medium |
+| last_swing_high_distance_atr | float | 0-20 | `<1 / 1-3 / >3` (ATRs to most recent pivot high) | bullish (low — near breakout) | OHLCV | cheap |
+| higher_highs_intact_flag | bool | 0/1 | n/a (last 3 swing highs in monotonic-increasing sequence) | bullish (1 — sequence maintained) | OHLCV | medium |
 | gap_up_pct | float | -0.1 to 0.1 | `<0.005 / 0.005-0.02 / >0.02` (today_open / prev_close - 1) | bullish (high+) | OHLCV | cheap |
 | gap_down_pct | float | -0.1 to 0.1 | `<-0.02 / -0.02 to -0.005 / >-0.005` | bearish (high+ | abs) | OHLCV | cheap |
 | bullish_engulf_flag | bool | 0/1 | n/a (today engulfs prior red candle) | bullish (1) | OHLCV | cheap |
@@ -248,22 +278,51 @@ Discrete chart-pattern flags and quality scores. Mostly bool/categorical for cle
 **Mechanism notes:**
 - Triangle quality (asc/desc): composite of trendline fit + touches + symmetry; classical breakout pattern.
 - Triangle compression / touches / age: granular triangle features; interaction with quality score informs strength.
-- Wave count estimate / wave_4_complete: Elliott wave proxy; expensive to compute reliably; lower-priority candidates.
+- Swing high/low counts (20d): structural pattern-quality proxies. Few swing highs in 20d = price compressing toward breakout; many swing lows = repeated support tests = strengthening floor.
+- last_swing_high_distance_atr: how far below the most recent pivot high price currently sits (ATR-normalized); near = breakout pending.
+- higher_highs_intact_flag: simple monotonic check on last 3 pivot highs; intact uptrend structure.
 - Gap up/down pct: reuse from existing GAP_BREAKOUT detector logic; already validated as feature.
 - Engulfing / hammer / shooting star: classical reversal candle patterns; complement triangle continuation patterns.
 - Inside bar / outside bar: range relationship; inside = compression candidate; outside = volatility expansion.
+
+**Computation Algorithm specifications (Family 6):**
+
+**triangle_quality_ascending / triangle_quality_descending:**
+- Algorithm: scan last 30 bars. Identify pivot highs (need ≥3) and pivot lows (need ≥3) using existing `detect_pivots` logic with `PIVOT_LOOKBACK`.
+- Fit linear regression to pivot highs → for ascending triangle expect flat slope (`|slope_norm| < 0.005`); for descending expect negative slope < -0.005.
+- Fit linear regression to pivot lows → for ascending expect positive slope > 0.005; for descending expect flat.
+- Compute R² of both fits (line-fit quality).
+- Composite score: `(touch_count × 10) + (R²_lows × 30) + (R²_highs × 30) + (compression_factor × 30)`. Cap at 100.
+- `compression_factor = 1 - (current_range / 30d_high_range)`.
+- If <3 pivots in either direction → score = 0.
+
+**triangle_compression_pct:**
+- Computed as: `today's high-low / (highest pivot high in last 30 bars - lowest pivot low in last 30 bars)`. Lower = more compressed.
+
+**triangle_touches_count:**
+- Count of pivot highs + pivot lows in last 30 bars that fall within 1 ATR of the regression-fit trendlines. Higher = more confirmation.
+
+**swing_high_count_20d / swing_low_count_20d:**
+- Apply existing `detect_pivots` logic with `PIVOT_LOOKBACK` over last 20 bars. Count pivot highs / pivot lows respectively.
+
+**last_swing_high_distance_atr:**
+- `(most_recent_pivot_high_price - today_close) / today_atr14`. Returns 0 if no pivot high in last 20 bars.
+
+**higher_highs_intact_flag:**
+- Take last 3 pivot highs from last 60 bars (need ≥3). Return 1 if `pivot[i] > pivot[i-1] > pivot[i-2]`; else 0. Returns 0 if fewer than 3 pivot highs available.
 
 ---
 
 ## Cross-family notes
 
-- **Total features:** 15 + 20 + 25 + 15 + 20 + 15 = **110**.
-- **Reuse from signal-row:** ~20 features (vol_q, rs_q, sec_mom, regime, regime_score, atr, score, support/resistance distances, pivot info) — cheap, computed by existing scanner.
-- **OHLCV-derived:** ~75 features — computed in Phase 1 feature_extractor from cached parquets.
+- **Total features:** 15 + 22 + 25 + 15 + 20 + 17 = **114** (v1 had 110; v2 had 112; v2.1 net +2 from Fib extensions).
+- **Reuse from signal-row:** ~21 features (vol_q, rs_q, sec_mom, regime, regime_score, atr, score, support/resistance distances, pivot info, days_to_monthly_expiry per Q-correction #2) — cheap, computed by existing scanner.
+- **OHLCV-derived:** ~78 features — computed in Phase 1 feature_extractor from cached parquets (v2.1 added 2 Fib extension features).
 - **External (Nifty / Bank Nifty / sector indices):** ~10 features — computed from `_index_*.parquet` files.
+- **OHLCV + external composite:** 1 feature (`stock_rs_vs_nifty_60d` per Q-correction #1) — needs both stock data and Nifty index.
 - **Cross-stock:** ~5 features (sector rank, market breadth, AD ratio) — require iterating across full universe.
 
-**Computation cost summary:** 65 cheap / 32 medium / 13 expensive features. Phase 1 feature_extractor will need batch processing; expensive features may be deferred to follow-up if Phase 2 importance ranking deprioritizes them.
+**Computation cost summary:** 67 cheap / 36 medium / 11 expensive features. Phase 1 feature_extractor will need batch processing; expensive features may be deferred to follow-up if Phase 2 importance ranking deprioritizes them. Cost shifted vs v1 (was 65/32/13) due to v2 changes (wave-count expensive×2 dropped, swing-structure 1 cheap + 3 medium added, +1 cheap close_pos, -1 medium distribution collapsed) plus v2.1 (+2 medium Fib extensions). Net distribution: 65→67 cheap, 32→36 medium, 13→11 expensive.
 
 **Combination-engine readiness:** All features have `level_thresholds` defined for low/medium/high bucketing. Combination engine (Phase 4) will iterate over these levels rather than raw values.
 
@@ -272,25 +331,72 @@ Discrete chart-pattern flags and quality scores. Mostly bool/categorical for cle
 - **INV-002** (Bank Nifty 60d return Section 2b): `bank_nifty_60d_return_pct` directly encodes that filter.
 - **INV-006** (D6 vs D10 exits): outside Phase 1 scope; lives in hold_horizon dimension of combination engine (Phase 4).
 - **INV-010** (GAP_BREAKOUT): `gap_up_pct` + `range_compression_10d` jointly encode the detector; Phase 4 can re-discover the combination.
-- **INV-012** (BTST): Phase 1 doesn't cover intraday close-position-in-range explicitly; could add `close_pos_in_range` to Family 4 (volume) or as 16th compression feature. **Open question for user review.**
+- **INV-012** (BTST): `close_pos_in_range` (Family 4 v2 addition per Q1) directly encodes the LAST_30MIN_STRENGTH primitive — Phase 4 can re-discover the BTST signal as a feature combination.
 
-**Open questions for user iteration:**
-1. Add `close_pos_in_range` (BTST detector primitive) to spec? Currently absent. Would extend Family 4 to 16 features or Family 1 to 16.
-2. Wave-count features (Family 6) are expensive and noisy — keep or drop?
-3. `accumulation_score_20d` and `distribution_score_20d` are mirrors — collapse to single signed feature?
-4. Feature `value_range` for some categorical features (e.g., regime_state) is exhaustive enum — schema OK?
-5. Should `level_thresholds` for distance-pct features (e.g., ema50_distance_pct) be regime-specific (different thresholds in Bear vs Bull)? Currently universal.
-6. Should there be a Family 7 for "outcome-derived" features (e.g., signal's prior-trade outcome streak)? Currently absent; might leak future info if mishandled.
-7. Confirm 110-feature target — this draft is exactly 110; user may want to tune up/down.
+---
+
+## Resolved Decisions (v1 → v2)
+
+User reviewed the 7 open questions surfaced in v1. Decisions documented here for audit trail; corresponding spec edits applied above.
+
+### Q1 — close_pos_in_range (BTST primitive)
+- **Decision:** YES — added to Family 4 (Volume).
+- **Rationale:** Directly encodes INV-012 BTST_LAST_30MIN_STRENGTH primitive (the only BTST detector confirmed REAL_EDGE +10pp over universe baseline). Cheap to compute; high re-discovery value for Phase 4 combination engine.
+- **Implementation:** `(close - low) / (high - low)`; thresholds `<0.3 weak / 0.3-0.7 mid / >0.7 strong`; bullish (high); cheap.
+
+### Q2 — Wave-count features (Family 6)
+- **Decision:** DROP both `wave_count_estimate` + `wave_4_complete_flag`. REPLACE with 4 swing-structure features.
+- **Rationale:** Elliott wave counting is expensive + noisy + subjective. Swing-structure features (pivot counts, monotonic-sequence flag, distance-to-last-pivot) capture similar pattern-quality information at lower cost using existing `detect_pivots` infrastructure.
+- **Net change to Family 6:** -2 + 4 = +2 features (15 → 17).
+- **Added features:** `swing_high_count_20d`, `swing_low_count_20d`, `last_swing_high_distance_atr`, `higher_highs_intact_flag`.
+
+### Q3 — Accumulation/distribution mirror
+- **Decision:** COLLAPSE. Drop `distribution_score_20d`; rename `accumulation_score_20d` → `accumulation_distribution_signed`.
+- **Rationale:** Mirror features double the dimensionality without adding information. Single signed feature with explicit threshold semantics (`<-0.3 distribution / -0.3 to 0.3 neutral / >0.3 accumulation`) is cleaner for combination engine bucketing.
+- **Net change to Family 4:** -1 feature; offset by Q1 +1 → Family 4 stays at 15.
+
+### Q4 — Categorical exhaustive enums
+- **Decision:** APPROVE. Document enum values in feature_library JSON when implementing in Phase 1B build.
+- **Rationale:** No structural change needed; v1 schema already supports `value_range` as enum list for categorical features. Phase 1B will populate these explicitly in `lab/feature_library/<feature_id>.json` files.
+
+### Q5 — Regime-specific level_thresholds
+- **Decision:** REJECT for v1 (this spec). Universal thresholds throughout.
+- **Rationale:** Adding regime-specific thresholds doubles or triples the feature space (one threshold set per regime) without empirical evidence that thresholds should vary. Phase 2 importance analysis will surface whether regime-dependent calibration is needed; refine post-Phase-2 if so.
+
+### Q6 — Family 7 for outcome-derived features
+- **Decision:** REJECT.
+- **Rationale:** Outcome-derived features (e.g., signal's prior-trade-outcome streak) carry significant leakage risk if mishandled — features computed at signal time would inadvertently use post-signal-time information. Discipline-violating; not worth the implementation complexity to gate properly.
+
+### Q7 — 110-feature target
+- **Decision (v2):** NEW TARGET ~112. Acceptable drift from v1's 110 given net effect of Q1/Q2/Q3.
+- **Counts (v2):** Family 1 = 15 / Family 2 = 20 / Family 3 = 25 / Family 4 = 15 / Family 5 = 20 / Family 6 = 17. Total **112**.
+- **Update (v2.1):** Total moved to **114** after Fib extension addition. Family 2 = 22; all others unchanged. See v2.1 subsection below.
+
+### Additional corrections (not from numbered Q list)
+
+**Source attribution corrections:**
+- `stock_rs_vs_nifty_60d` (Family 5): source changed from `OHLCV` → `OHLCV + external` (needs both stock parquet AND Nifty index parquet).
+- `days_to_monthly_expiry` (Family 5): source changed from `external` → `signal-row` (computable from signal date + NSE expiry calendar; no external data fetch required).
+
+**Algorithm specifications added:**
+- Family 6: explicit algorithms for `triangle_quality_*`, `triangle_compression_pct`, `triangle_touches_count`, all 4 swing-structure features.
+- Other families: existing mechanism notes plus inline thresholds are sufficient; no separate algorithm subsection needed for Families 1-5 in v2.
+
+### v2.1 (post-section-verification): Fib enhancement
+- Added algorithm specification for all 6 Fib levels (4 retracement + 2 extension)
+- Added 2 Fib extension features: `fib_1272_extension_proximity_atr`, `fib_1618_extension_proximity_atr`
+- Total feature count: 112 → 114
+- Family 2 count: 20 → 22
+- Rationale: classical Fib targets (1.272, 1.618) complement retracement entry zones; without extensions, combination engine cannot test target-confluence patterns.
 
 ---
 
 ## Next step (post user review)
 
-Once user approves spec contents:
-1. Generate `lab/feature_library/<feature_id>.json` × 110 (one file per feature with full schema).
+Once user approves v2.1 spec contents:
+1. Generate `lab/feature_library/<feature_id>.json` × 114 (one file per feature with full schema; Q4 enum values populated explicitly).
 2. Build `lab/infrastructure/feature_loader.py` (registry pattern).
-3. Build `lab/infrastructure/feature_extractor.py` (computation engine).
+3. Build `lab/infrastructure/feature_extractor.py` (computation engine; uses algorithms specified in Family 2 for Fib features and Family 6 for triangle/swing features).
 4. Run Phase 1 validation gate per `lab/COMBINATION_ENGINE_PLAN.md` Phase 1.D.
 5. Commit `lab/output/enriched_signals.parquet` + `lab/analyses/PHASE-01_feature_extraction.md`.
 6. End Phase 1 session; move to Phase 2 separately.
