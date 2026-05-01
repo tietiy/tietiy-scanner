@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-04-30T22:01:16.870798+05:30",
+  "generated_at": "2026-05-01T22:01:04.924373+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -181,6 +181,66 @@
       "request_id": "msg_01BH8sxxXiCup2cTfV4zMyhf",
       "decision": "generate_warn",
       "rationale": "Portfolio is 100% Choppy regime (above 80% threshold) and the dominant Choppy cohorts for both UP_TRI and DOWN_TRI map only to Candidate tier — unvalidated edge. Additionally, the DOWN_TRI×Choppy×Auto cell at 18.18% is approaching the 20% cell threshold with only n=3 cohort support, making the Auto short cluster particularly fragile.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-01T22:00:52.665994+05:30",
+      "run_id": "brain_run_2026-05-01_2200",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=UP_TRI_2026-05-01",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Bear (Tier M, n=96). 6 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 3655,
+      "output_tokens": 361,
+      "cost_usd": 0.0273,
+      "request_id": "msg_01V7eRvzLgySnwcVsRW3fPkv",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification is robust (n=96, Wilson lower 0.8815, +30.5pp edge over UP_TRI baseline) with promotion correctly capped at Tier M/TAKE_SMALL given R-multiple 0.61. Cohort is regime-gated to Bear while current regime is Choppy with zero open exposure, so activation is deferred and concentration risk is not compounded. Consistent with prior approvals of this exact cohort on 2026-04-29 and 2026-04-30; no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-01T22:00:59.338118+05:30",
+      "run_id": "brain_run_2026-05-01_2200",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+sector_sector=Metal__signal_type=UP_TRI_2026-05-01",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Metal (Tier M, n=17). 6 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 3655,
+      "output_tokens": 376,
+      "cost_usd": 0.0277,
+      "request_id": "msg_01BNSH8yt5UT4A2MLvTgxAP7",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification is robust (n=17, Wilson lower 0.6566 above Tier M floor, +24.0pp edge over UP_TRI baseline) and promotion is correctly capped at Tier M/TAKE_SMALL given R-multiple 0.72. Portfolio is currently flat (0 open positions) so no concentration risk, and the sector=Metal filter narrows rather than broadens UP_TRI exposure. Consistent with multiple prior approvals of this exact cohort and no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-01T22:01:02.635054+05:30",
+      "run_id": "brain_run_2026-05-01_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy stable 7 days; 3 prior regime alerts in history.",
+      "input_tokens": 1758,
+      "output_tokens": 184,
+      "cost_usd": 0.0134,
+      "request_id": "msg_017VV7ZgK1tZCPAoFwxJhJDN",
+      "decision": "no_alert",
+      "rationale": "The Bear-to-Choppy regime alert was already generated on 2026-04-29 based on identical evidence (recent 7d unanimously Choppy vs prior majority Bear, slope 0.003614, source_date 2026-04-24). Current snapshot is unchanged, so re-firing would duplicate prior signal. Days_in_current_regime is 7 with full Choppy consistency, indicating regime is now stable rather than newly shifting.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-01T22:01:04.924373+05:30",
+      "run_id": "brain_run_2026-05-01_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=False (0.0% ?), 0 sector concentrations, signal types (). 3 prior exposure warnings.",
+      "input_tokens": 1888,
+      "output_tokens": 89,
+      "cost_usd": 0.0117,
+      "request_id": "msg_01T3WS53qtAjES8QKkFvB3Lo",
+      "decision": "no_warn",
+      "rationale": "Portfolio has zero open positions (total_open=0), so no concentration risk exists. All breakdowns are empty and regime_concentration.triggered is false.",
       "aborted_by_circuit_breaker": false
     }
   ]
