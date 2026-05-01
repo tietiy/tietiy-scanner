@@ -391,6 +391,81 @@ User reviewed the 7 open questions surfaced in v1. Decisions documented here for
 
 ---
 
+## Algorithm Specifications (Block 3 implementation)
+
+Locked specs for ambiguous algorithms surfaced during BLOCK 3 pre-flight audit. Each algorithm is reproduced as a docstring at the top of its implementation function in `lab/infrastructure/feature_extractor.py`, marked with "Per user algorithm spec 2026-05-XX" for audit trail.
+
+### Severity 1 — fundamental algorithm specs
+
+**A1. FVG definition (4 features: fvg_above_proximity, fvg_below_proximity, fvg_unfilled_above_count, fvg_unfilled_below_count)**
+
+- 3-candle pattern: `bar1.high < bar3.low` (bullish FVG); symmetric for bearish (`bar1.low > bar3.high`).
+- Minimum gap size: gap zone height (`bar3.low - bar1.high` for bullish) must be `> 0.25 × ATR_at_bar2`.
+- "Filled" criteria: any subsequent bar where `low ≤ bar1.high` (bullish FVG closes) or `high ≥ bar1.low` (bearish FVG closes).
+- Proximity: ATRs from current_close to NEAREST edge of unfilled zone (closer of `bar1.high` or `bar3.low` for bullish; symmetric for bearish).
+- `fvg_unfilled_count`: count of FVGs created in last 60 bars that are still unfilled at signal date.
+
+**A2. Order block definition (2 features: ob_bullish_proximity, ob_bearish_proximity)**
+
+- Bullish OB = last bearish (red) candle before a sequence of 3+ consecutive bullish bars whose cumulative close-to-close gain `> 2 × ATR` (measured at OB candle).
+- Bearish OB = last bullish (green) candle before 3+ consecutive bearish bars with cumulative loss `> 2 × ATR`.
+- OB persists until invalidated (price breaks the OB body in the opposite direction with close).
+- Proximity = ATRs from current_close to OB body midpoint = `(open + close) / 2`.
+- Search window: last 60 bars.
+
+**A3. coiled_spring_score formula (1 feature)**
+
+```
+coiled_spring_score = (compression_component * 0.5) + (trend_component * 0.5)
+
+compression_component = max(0, min(100, 100 - (range_compression_20d / 0.10) * 100))
+  # 0 compression → 100 score; 0.10 or higher → 0 score
+
+trend_component:
+  if ema_alignment == "bull" (price > EMA20 > EMA50 > EMA200): 100
+  elif ema_alignment == "mixed": 50
+  else (bear): 0
+```
+
+Final range: 0-100.
+
+**A4. consolidation_quality bucketing (1 feature, categorical)**
+
+- `tight` if `range_compression_20d < 0.05` AND `coiled_spring_score > 67`
+- `loose` if `range_compression_20d < 0.10` AND not `tight`
+- `none` otherwise
+
+### Severity 2 — defaults confirmed
+
+**B1.** `slope_norm = regression_slope_per_bar / mean(prices_in_window)`
+
+**B2.** `30d_high_range = max(high[-30:]) - min(low[-30:])`
+
+**B3.** `current_range = today.high - today.low` (used in triangle compression_factor)
+
+**B4.** Bollinger Bands: 20-period SMA, 2.0 std. Keltner Channels: 20-period EMA, 1.5 × ATR. Squeeze = `BB_width < KC_width`.
+
+**B5.** `breakout_strength_atr`: if `today_close > nearest_resistance`: `return (today_close - resistance) / ATR`. Else `return 0`.
+
+**B6.** `consolidation_zone_distance_atr`: identify last 30-day window where `range_compression_20d < 0.05` in any bar. "base" = lowest low in that window. `distance = (today_close - base) / ATR`. If no qualifying window: NaN.
+
+**B7.** Round number is price-scaled:
+- `close ≤ ₹100`: nearest multiple of ₹10
+- `close ₹100-1000`: nearest multiple of ₹100
+- `close ₹1000-10000`: nearest multiple of ₹500
+- `close > ₹10000`: nearest multiple of ₹1000
+- `proximity_pct = abs(close - nearest_round_number) / close`
+
+**B8.** Fib retracement direction selection: LONG signal → uptrend retracement context; SHORT signal → downtrend retracement context. If direction unavailable, use most-recent-impulse direction (whichever swing pair is more recent in last 30 bars).
+
+### Severity 3 — defaults confirmed
+
+**C1.** Reuse `scanner_core.detect_pivots` via sys.path import. Keep `PIVOT_LOOKBACK` semantics consistent with live scanner (existing pattern in lab/).
+
+**C2.** Pre-compute cross-stock features (sector_rank_within_universe, market_breadth_pct, advance_decline_ratio_20d) once per unique scan_date at extractor init. Cache by date. Reuse across all signals on same date.
+
+---
+
 ## Next step (post user review)
 
 Once user approves v2.1 spec contents:
