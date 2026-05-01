@@ -1,0 +1,5532 @@
+{
+  "schema_version": 1,
+  "generated_at": "2026-05-01T17:24:16.938572Z",
+  "rf_hyperparams": {
+    "n_estimators": 200,
+    "max_depth": 10
+  },
+  "logistic_hyperparams": {
+    "penalty": "l1",
+    "C": 0.1,
+    "solver": "liblinear"
+  },
+  "lifetime_sample_cap": 25000,
+  "cohorts": {
+    "lifetime-universal": {
+      "n": 24998,
+      "n_w": 11438,
+      "n_l": 10928,
+      "auc_rf": 0.6049167720623332,
+      "auc_logistic": 0.5578120906719011,
+      "rf": [
+        {
+          "feature_id": "day_of_week",
+          "importance": 0.04780350908383725,
+          "rank": 1
+        },
+        {
+          "feature_id": "ema_alignment",
+          "importance": 0.04717504910178168,
+          "rank": 2
+        },
+        {
+          "feature_id": "day_of_month_bucket",
+          "importance": 0.03871883704205897,
+          "rank": 3
+        },
+        {
+          "feature_id": "consolidation_quality",
+          "importance": 0.030899571000879103,
+          "rank": 4
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "importance": 0.03085325426708596,
+          "rank": 5
+        },
+        {
+          "feature_id": "MACD_signal",
+          "importance": 0.029898594568628027,
+          "rank": 6
+        },
+        {
+          "feature_id": "fib_1272_extension_proximity_atr",
+          "importance": 0.022201211175126554,
+          "rank": 7
+        },
+        {
+          "feature_id": "nifty_vol_regime",
+          "importance": 0.022148834901549112,
+          "rank": 8
+        },
+        {
+          "feature_id": "ROC_10",
+          "importance": 0.021400590231995434,
+          "rank": 9
+        },
+        {
+          "feature_id": "fib_1618_extension_proximity_atr",
+          "importance": 0.021207116241467046,
+          "rank": 10
+        },
+        {
+          "feature_id": "regime_score",
+          "importance": 0.020147425374210316,
+          "rank": 11
+        },
+        {
+          "feature_id": "RSI_14",
+          "importance": 0.019888355608841137,
+          "rank": 12
+        },
+        {
+          "feature_id": "NR4_flag",
+          "importance": 0.018812153375734712,
+          "rank": 13
+        },
+        {
+          "feature_id": "ema50_slope_5d_pct",
+          "importance": 0.01859643272930959,
+          "rank": 14
+        },
+        {
+          "feature_id": "last_swing_high_distance_atr",
+          "importance": 0.015897657203305483,
+          "rank": 15
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "importance": 0.014619126435296155,
+          "rank": 16
+        },
+        {
+          "feature_id": "fvg_above_proximity",
+          "importance": 0.014470599613884211,
+          "rank": 17
+        },
+        {
+          "feature_id": "fib_618_proximity_atr",
+          "importance": 0.014056922819856451,
+          "rank": 18
+        },
+        {
+          "feature_id": "52w_low_distance_pct",
+          "importance": 0.013976011886077992,
+          "rank": 19
+        },
+        {
+          "feature_id": "lower_wick_ratio",
+          "importance": 0.013645733434245372,
+          "rank": 20
+        },
+        {
+          "feature_id": "regime_state",
+          "importance": 0.013558477840530691,
+          "rank": 21
+        },
+        {
+          "feature_id": "inside_day_streak",
+          "importance": 0.013437851817014299,
+          "rank": 22
+        },
+        {
+          "feature_id": "range_compression_5d",
+          "importance": 0.013032819975435313,
+          "rank": 23
+        },
+        {
+          "feature_id": "NR7_flag",
+          "importance": 0.012846307094581233,
+          "rank": 24
+        },
+        {
+          "feature_id": "prior_swing_low_distance_pct",
+          "importance": 0.012697372144823449,
+          "rank": 25
+        },
+        {
+          "feature_id": "nifty_20d_return_pct",
+          "importance": 0.012661220322570565,
+          "rank": 26
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "importance": 0.012574320422322198,
+          "rank": 27
+        },
+        {
+          "feature_id": "consecutive_up_days",
+          "importance": 0.01241516127764974,
+          "rank": 28
+        },
+        {
+          "feature_id": "inside_day_flag",
+          "importance": 0.01241082117099437,
+          "rank": 29
+        },
+        {
+          "feature_id": "gap_up_pct",
+          "importance": 0.012321155874884372,
+          "rank": 30
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "importance": 0.012249609052086686,
+          "rank": 31
+        },
+        {
+          "feature_id": "range_compression_20d",
+          "importance": 0.012035666131021402,
+          "rank": 32
+        },
+        {
+          "feature_id": "range_position_in_window",
+          "importance": 0.011997078646544871,
+          "rank": 33
+        },
+        {
+          "feature_id": "fvg_unfilled_above_count",
+          "importance": 0.011900300276681028,
+          "rank": 34
+        },
+        {
+          "feature_id": "consecutive_down_days",
+          "importance": 0.011871044896618341,
+          "rank": 35
+        },
+        {
+          "feature_id": "52w_high_distance_pct",
+          "importance": 0.011818479615862295,
+          "rank": 36
+        },
+        {
+          "feature_id": "compression_duration",
+          "importance": 0.011718792213450988,
+          "rank": 37
+        },
+        {
+          "feature_id": "range_compression_10d",
+          "importance": 0.011684375700298422,
+          "rank": 38
+        },
+        {
+          "feature_id": "obv_slope_20d_pct",
+          "importance": 0.01166396528917213,
+          "rank": 39
+        },
+        {
+          "feature_id": "accumulation_distribution_signed",
+          "importance": 0.011593758725367937,
+          "rank": 40
+        },
+        {
+          "feature_id": "close_pos_in_range",
+          "importance": 0.011513225175092918,
+          "rank": 41
+        },
+        {
+          "feature_id": "hammer_flag",
+          "importance": 0.011453527776272664,
+          "rank": 42
+        },
+        {
+          "feature_id": "bearish_engulf_flag",
+          "importance": 0.011408153270329206,
+          "rank": 43
+        },
+        {
+          "feature_id": "nifty_200d_return_pct",
+          "importance": 0.011400563978519391,
+          "rank": 44
+        },
+        {
+          "feature_id": "consolidation_zone_distance_atr",
+          "importance": 0.011390061716704505,
+          "rank": 45
+        },
+        {
+          "feature_id": "fvg_unfilled_below_count",
+          "importance": 0.011336447044836237,
+          "rank": 46
+        },
+        {
+          "feature_id": "daily_5d_return_pct",
+          "importance": 0.011228648188500454,
+          "rank": 47
+        },
+        {
+          "feature_id": "daily_3d_return_pct",
+          "importance": 0.011200372892422122,
+          "rank": 48
+        },
+        {
+          "feature_id": "gap_down_pct",
+          "importance": 0.011194164349696507,
+          "rank": 49
+        },
+        {
+          "feature_id": "advance_decline_ratio_20d",
+          "importance": 0.010964054812148917,
+          "rank": 50
+        },
+        {
+          "feature_id": "daily_20d_return_pct",
+          "importance": 0.010468525847561737,
+          "rank": 51
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "importance": 0.01044030088250457,
+          "rank": 52
+        },
+        {
+          "feature_id": "daily_60d_return_pct",
+          "importance": 0.010314466066281251,
+          "rank": 53
+        },
+        {
+          "feature_id": "ema50_distance_pct",
+          "importance": 0.0101124882128821,
+          "rank": 54
+        },
+        {
+          "feature_id": "daily_volatility_pct",
+          "importance": 0.009644065631144555,
+          "rank": 55
+        },
+        {
+          "feature_id": "fvg_below_proximity",
+          "importance": 0.009023742810399067,
+          "rank": 56
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "importance": 0.0076808201479803126,
+          "rank": 57
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "importance": 0.007268907140654856,
+          "rank": 58
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "importance": 0.005828237397286751,
+          "rank": 59
+        },
+        {
+          "feature_id": "bank_nifty_20d_return_pct",
+          "importance": 0.005673848246260027,
+          "rank": 60
+        },
+        {
+          "feature_id": "nifty_vol_percentile_20d",
+          "importance": 0.005492780422128278,
+          "rank": 61
+        },
+        {
+          "feature_id": "outside_bar_flag",
+          "importance": 0.005152966137161617,
+          "rank": 62
+        },
+        {
+          "feature_id": "body_to_range_ratio",
+          "importance": 0.003990664124552065,
+          "rank": 63
+        },
+        {
+          "feature_id": "ob_bullish_proximity",
+          "importance": 0.0037713368802582085,
+          "rank": 64
+        },
+        {
+          "feature_id": "vol_q",
+          "importance": 0.0034333138225832427,
+          "rank": 65
+        },
+        {
+          "feature_id": "bollinger_squeeze_20d",
+          "importance": 0.0032363010767581493,
+          "rank": 66
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "importance": 0.003213959157166667,
+          "rank": 67
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "importance": 0.0029004954147051165,
+          "rank": 68
+        },
+        {
+          "feature_id": "breakout_strength_atr",
+          "importance": 0.002708348799644079,
+          "rank": 69
+        },
+        {
+          "feature_id": "stock_rs_vs_nifty_60d",
+          "importance": 0.002289501771942305,
+          "rank": 70
+        },
+        {
+          "feature_id": "sector_momentum_state",
+          "importance": 0.0019853976601631666,
+          "rank": 71
+        },
+        {
+          "feature_id": "MACD_histogram_sign",
+          "importance": 0.0019493148582978735,
+          "rank": 72
+        },
+        {
+          "feature_id": "support_zone_distance_atr",
+          "importance": 0.001704663391807778,
+          "rank": 73
+        },
+        {
+          "feature_id": "shooting_star_flag",
+          "importance": 0.001665724585763673,
+          "rank": 74
+        },
+        {
+          "feature_id": "vol_ratio_10d",
+          "importance": 0.0015958260509835065,
+          "rank": 75
+        },
+        {
+          "feature_id": "vol_ratio_50d",
+          "importance": 0.0014973089935836697,
+          "rank": 76
+        },
+        {
+          "feature_id": "bullish_engulf_flag",
+          "importance": 0.0014330945995078424,
+          "rank": 77
+        },
+        {
+          "feature_id": "triangle_quality_descending",
+          "importance": 0.0013939310196096194,
+          "rank": 78
+        },
+        {
+          "feature_id": "sector_rank_within_universe",
+          "importance": 0.001384517733381678,
+          "rank": 79
+        },
+        {
+          "feature_id": "vol_trend_slope_20d",
+          "importance": 0.0013837203213744765,
+          "rank": 80
+        },
+        {
+          "feature_id": "triangle_compression_pct",
+          "importance": 0.0013648109428217755,
+          "rank": 81
+        },
+        {
+          "feature_id": "weekly_4w_return_pct",
+          "importance": 0.0013285074510190282,
+          "rank": 82
+        },
+        {
+          "feature_id": "volume_at_pivot_ratio",
+          "importance": 0.0012826812881709384,
+          "rank": 83
+        },
+        {
+          "feature_id": "rs_q",
+          "importance": 0.001207124193654263,
+          "rank": 84
+        },
+        {
+          "feature_id": "swing_high_count_20d",
+          "importance": 0.0011997664263353983,
+          "rank": 85
+        },
+        {
+          "feature_id": "vol_dryup_flag",
+          "importance": 0.0011297089503311335,
+          "rank": 86
+        },
+        {
+          "feature_id": "ema20_slope_5d_pct",
+          "importance": 0.001112931975491973,
+          "rank": 87
+        },
+        {
+          "feature_id": "weekly_2w_return_pct",
+          "importance": 0.0010769601443988142,
+          "rank": 88
+        },
+        {
+          "feature_id": "atr_compression_pct",
+          "importance": 0.0010761025585323757,
+          "rank": 89
+        },
+        {
+          "feature_id": "triangle_quality_ascending",
+          "importance": 0.0010502910389087357,
+          "rank": 90
+        },
+        {
+          "feature_id": "downtrend_age_days",
+          "importance": 0.0010379896163863335,
+          "rank": 91
+        },
+        {
+          "feature_id": "vol_ratio_5d",
+          "importance": 0.0009958652881439988,
+          "rank": 92
+        },
+        {
+          "feature_id": "ob_bearish_proximity",
+          "importance": 0.0009598120039658594,
+          "rank": 93
+        },
+        {
+          "feature_id": "sector_index_20d_return_pct",
+          "importance": 0.0009493937787825022,
+          "rank": 94
+        },
+        {
+          "feature_id": "vol_climax_flag",
+          "importance": 0.00083210958664735,
+          "rank": 95
+        },
+        {
+          "feature_id": "fib_786_proximity_atr",
+          "importance": 0.0008298242049725402,
+          "rank": 96
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "importance": 0.0008141287466381678,
+          "rank": 97
+        },
+        {
+          "feature_id": "round_number_proximity_pct",
+          "importance": 0.0007450898911290944,
+          "rank": 98
+        },
+        {
+          "feature_id": "resistance_zone_distance_atr",
+          "importance": 0.0007438569881674742,
+          "rank": 99
+        },
+        {
+          "feature_id": "RSI_9",
+          "importance": 0.0006785599580827419,
+          "rank": 100
+        },
+        {
+          "feature_id": "upper_wick_ratio",
+          "importance": 0.0006523896616379857,
+          "rank": 101
+        },
+        {
+          "feature_id": "uptrend_age_days",
+          "importance": 0.0006495849486623215,
+          "rank": 102
+        },
+        {
+          "feature_id": "prior_swing_high_distance_pct",
+          "importance": 0.0006290462083894176,
+          "rank": 103
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "importance": 0.0005232986850184951,
+          "rank": 104
+        },
+        {
+          "feature_id": "triangle_touches_count",
+          "importance": 0.0005231396030291388,
+          "rank": 105
+        },
+        {
+          "feature_id": "bank_nifty_60d_return_pct",
+          "importance": 0.0004550566928407075,
+          "rank": 106
+        },
+        {
+          "feature_id": "multi_tf_alignment_score",
+          "importance": 0.0004415431952877604,
+          "rank": 107
+        },
+        {
+          "feature_id": "sector_index_60d_return_pct",
+          "importance": 0.00042552570307017,
+          "rank": 108
+        },
+        {
+          "feature_id": "pivot_distance_atr",
+          "importance": 0.00035882428943758105,
+          "rank": 109
+        },
+        {
+          "feature_id": "bollinger_band_width_pct",
+          "importance": 0.00016301504269468893,
+          "rank": 110
+        },
+        {
+          "feature_id": "days_to_monthly_expiry",
+          "importance": 0.00012427715779929533,
+          "rank": 111
+        },
+        {
+          "feature_id": "swing_low_count_20d",
+          "importance": 5.430787620040666e-06,
+          "rank": 112
+        },
+        {
+          "feature_id": "vol_ratio_20d",
+          "importance": 0.0,
+          "rank": 113
+        },
+        {
+          "feature_id": "triangle_age_bars",
+          "importance": 0.0,
+          "rank": 114
+        }
+      ],
+      "logistic": [
+        {
+          "feature_id": "ema_alignment",
+          "coef_magnitude": 0.1618404817118247,
+          "coef_signed": -0.11865376574683525,
+          "coef_sign": "-",
+          "rank": 1
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "coef_magnitude": 0.13494651779065286,
+          "coef_signed": 0.13494651779065286,
+          "coef_sign": "+",
+          "rank": 2
+        },
+        {
+          "feature_id": "prior_swing_low_distance_pct",
+          "coef_magnitude": 0.12641070613546093,
+          "coef_signed": -0.12641070613546093,
+          "coef_sign": "-",
+          "rank": 3
+        },
+        {
+          "feature_id": "range_compression_5d",
+          "coef_magnitude": 0.12180352894315398,
+          "coef_signed": 0.12180352894315398,
+          "coef_sign": "+",
+          "rank": 4
+        },
+        {
+          "feature_id": "vol_q",
+          "coef_magnitude": 0.11961745200041288,
+          "coef_signed": -0.021563047123352996,
+          "coef_sign": "-",
+          "rank": 5
+        },
+        {
+          "feature_id": "nifty_vol_regime",
+          "coef_magnitude": 0.11623958223235595,
+          "coef_signed": -0.11623958223235595,
+          "coef_sign": "-",
+          "rank": 6
+        },
+        {
+          "feature_id": "day_of_week",
+          "coef_magnitude": 0.09583035977590314,
+          "coef_signed": -0.09583035977590314,
+          "coef_sign": "-",
+          "rank": 7
+        },
+        {
+          "feature_id": "regime_score",
+          "coef_magnitude": 0.09536213392355083,
+          "coef_signed": 0.09536213392355083,
+          "coef_sign": "+",
+          "rank": 8
+        },
+        {
+          "feature_id": "consolidation_quality",
+          "coef_magnitude": 0.08579086867195404,
+          "coef_signed": 0.0324957955399464,
+          "coef_sign": "+",
+          "rank": 9
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "coef_magnitude": 0.08046254248229139,
+          "coef_signed": 0.014611196535745496,
+          "coef_sign": "+",
+          "rank": 10
+        },
+        {
+          "feature_id": "day_of_month_bucket",
+          "coef_magnitude": 0.06284142527786452,
+          "coef_signed": -0.06284142527786452,
+          "coef_sign": "-",
+          "rank": 11
+        },
+        {
+          "feature_id": "ob_bullish_proximity",
+          "coef_magnitude": 0.05664159992341567,
+          "coef_signed": 0.05664159992341567,
+          "coef_sign": "+",
+          "rank": 12
+        },
+        {
+          "feature_id": "nifty_vol_percentile_20d",
+          "coef_magnitude": 0.05301584840093422,
+          "coef_signed": 0.05301584840093422,
+          "coef_sign": "+",
+          "rank": 13
+        },
+        {
+          "feature_id": "support_zone_distance_atr",
+          "coef_magnitude": 0.04887134641904435,
+          "coef_signed": -0.04887134641904435,
+          "coef_sign": "-",
+          "rank": 14
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "coef_magnitude": 0.042848035965580386,
+          "coef_signed": -0.042848035965580386,
+          "coef_sign": "-",
+          "rank": 15
+        },
+        {
+          "feature_id": "obv_slope_20d_pct",
+          "coef_magnitude": 0.041068369520233294,
+          "coef_signed": -0.041068369520233294,
+          "coef_sign": "-",
+          "rank": 16
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "coef_magnitude": 0.0398827279984711,
+          "coef_signed": -0.0398827279984711,
+          "coef_sign": "-",
+          "rank": 17
+        },
+        {
+          "feature_id": "daily_20d_return_pct",
+          "coef_magnitude": 0.03634618592603743,
+          "coef_signed": -0.03634618592603743,
+          "coef_sign": "-",
+          "rank": 18
+        },
+        {
+          "feature_id": "regime_state",
+          "coef_magnitude": 0.035001907642957325,
+          "coef_signed": -0.035001907642957325,
+          "coef_sign": "-",
+          "rank": 19
+        },
+        {
+          "feature_id": "NR4_flag",
+          "coef_magnitude": 0.034919481386358045,
+          "coef_signed": 0.034919481386358045,
+          "coef_sign": "+",
+          "rank": 20
+        },
+        {
+          "feature_id": "close_pos_in_range",
+          "coef_magnitude": 0.03406509413804838,
+          "coef_signed": -0.03406509413804838,
+          "coef_sign": "-",
+          "rank": 21
+        },
+        {
+          "feature_id": "consecutive_down_days",
+          "coef_magnitude": 0.03382686376802236,
+          "coef_signed": 0.03382686376802236,
+          "coef_sign": "+",
+          "rank": 22
+        },
+        {
+          "feature_id": "stock_rs_vs_nifty_60d",
+          "coef_magnitude": 0.03083104165040867,
+          "coef_signed": 0.03083104165040867,
+          "coef_sign": "+",
+          "rank": 23
+        },
+        {
+          "feature_id": "inside_day_flag",
+          "coef_magnitude": 0.029965405132212665,
+          "coef_signed": -0.029965405132212665,
+          "coef_sign": "-",
+          "rank": 24
+        },
+        {
+          "feature_id": "MACD_signal",
+          "coef_magnitude": 0.02889258296931815,
+          "coef_signed": 0.02889258296931815,
+          "coef_sign": "+",
+          "rank": 25
+        },
+        {
+          "feature_id": "ROC_10",
+          "coef_magnitude": 0.02763254840671792,
+          "coef_signed": -0.02763254840671792,
+          "coef_sign": "-",
+          "rank": 26
+        },
+        {
+          "feature_id": "swing_low_count_20d",
+          "coef_magnitude": 0.027094962231238095,
+          "coef_signed": 0.027094962231238095,
+          "coef_sign": "+",
+          "rank": 27
+        },
+        {
+          "feature_id": "prior_swing_high_distance_pct",
+          "coef_magnitude": 0.02630369683973419,
+          "coef_signed": 0.02630369683973419,
+          "coef_sign": "+",
+          "rank": 28
+        },
+        {
+          "feature_id": "fvg_unfilled_below_count",
+          "coef_magnitude": 0.025369733088971547,
+          "coef_signed": -0.025369733088971547,
+          "coef_sign": "-",
+          "rank": 29
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "coef_magnitude": 0.02457963827729586,
+          "coef_signed": 0.02457963827729586,
+          "coef_sign": "+",
+          "rank": 30
+        },
+        {
+          "feature_id": "compression_duration",
+          "coef_magnitude": 0.024034279070764344,
+          "coef_signed": -0.024034279070764344,
+          "coef_sign": "-",
+          "rank": 31
+        },
+        {
+          "feature_id": "triangle_touches_count",
+          "coef_magnitude": 0.023404079821993246,
+          "coef_signed": -0.023404079821993246,
+          "coef_sign": "-",
+          "rank": 32
+        },
+        {
+          "feature_id": "nifty_20d_return_pct",
+          "coef_magnitude": 0.0232413088865315,
+          "coef_signed": -0.0232413088865315,
+          "coef_sign": "-",
+          "rank": 33
+        },
+        {
+          "feature_id": "inside_day_streak",
+          "coef_magnitude": 0.023236829777390045,
+          "coef_signed": -0.023236829777390045,
+          "coef_sign": "-",
+          "rank": 34
+        },
+        {
+          "feature_id": "weekly_4w_return_pct",
+          "coef_magnitude": 0.022841839877916163,
+          "coef_signed": -0.022841839877916163,
+          "coef_sign": "-",
+          "rank": 35
+        },
+        {
+          "feature_id": "bearish_engulf_flag",
+          "coef_magnitude": 0.02275875661413992,
+          "coef_signed": -0.02275875661413992,
+          "coef_sign": "-",
+          "rank": 36
+        },
+        {
+          "feature_id": "MACD_histogram_sign",
+          "coef_magnitude": 0.02157387549571569,
+          "coef_signed": -0.00479209069742338,
+          "coef_sign": "-",
+          "rank": 37
+        },
+        {
+          "feature_id": "fvg_above_proximity",
+          "coef_magnitude": 0.01994568911623757,
+          "coef_signed": 0.01994568911623757,
+          "coef_sign": "+",
+          "rank": 38
+        },
+        {
+          "feature_id": "fib_1272_extension_proximity_atr",
+          "coef_magnitude": 0.019943193000208345,
+          "coef_signed": 0.019943193000208345,
+          "coef_sign": "+",
+          "rank": 39
+        },
+        {
+          "feature_id": "shooting_star_flag",
+          "coef_magnitude": 0.01952802518639286,
+          "coef_signed": -0.01952802518639286,
+          "coef_sign": "-",
+          "rank": 40
+        },
+        {
+          "feature_id": "swing_high_count_20d",
+          "coef_magnitude": 0.019498745912831558,
+          "coef_signed": -0.019498745912831558,
+          "coef_sign": "-",
+          "rank": 41
+        },
+        {
+          "feature_id": "triangle_quality_descending",
+          "coef_magnitude": 0.019479464579082374,
+          "coef_signed": 0.019479464579082374,
+          "coef_sign": "+",
+          "rank": 42
+        },
+        {
+          "feature_id": "gap_up_pct",
+          "coef_magnitude": 0.01848120143221828,
+          "coef_signed": -0.01848120143221828,
+          "coef_sign": "-",
+          "rank": 43
+        },
+        {
+          "feature_id": "sector_momentum_state",
+          "coef_magnitude": 0.01816095469449325,
+          "coef_signed": 0.016006927730596702,
+          "coef_sign": "+",
+          "rank": 44
+        },
+        {
+          "feature_id": "fib_1618_extension_proximity_atr",
+          "coef_magnitude": 0.017782117192051666,
+          "coef_signed": -0.017782117192051666,
+          "coef_sign": "-",
+          "rank": 45
+        },
+        {
+          "feature_id": "upper_wick_ratio",
+          "coef_magnitude": 0.017332957640164515,
+          "coef_signed": 0.017332957640164515,
+          "coef_sign": "+",
+          "rank": 46
+        },
+        {
+          "feature_id": "triangle_age_bars",
+          "coef_magnitude": 0.015385252866425907,
+          "coef_signed": 0.015385252866425907,
+          "coef_sign": "+",
+          "rank": 47
+        },
+        {
+          "feature_id": "triangle_quality_ascending",
+          "coef_magnitude": 0.015112182580484431,
+          "coef_signed": 0.015112182580484431,
+          "coef_sign": "+",
+          "rank": 48
+        },
+        {
+          "feature_id": "fvg_below_proximity",
+          "coef_magnitude": 0.015097411053648169,
+          "coef_signed": 0.015097411053648169,
+          "coef_sign": "+",
+          "rank": 49
+        },
+        {
+          "feature_id": "RSI_14",
+          "coef_magnitude": 0.015020009903039316,
+          "coef_signed": -0.015020009903039316,
+          "coef_sign": "-",
+          "rank": 50
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "coef_magnitude": 0.014942018929712269,
+          "coef_signed": -0.014942018929712269,
+          "coef_sign": "-",
+          "rank": 51
+        },
+        {
+          "feature_id": "bollinger_band_width_pct",
+          "coef_magnitude": 0.014788402342493947,
+          "coef_signed": -0.014788402342493947,
+          "coef_sign": "-",
+          "rank": 52
+        },
+        {
+          "feature_id": "fib_618_proximity_atr",
+          "coef_magnitude": 0.014097633404079204,
+          "coef_signed": -0.014097633404079204,
+          "coef_sign": "-",
+          "rank": 53
+        },
+        {
+          "feature_id": "days_to_monthly_expiry",
+          "coef_magnitude": 0.013454805985422653,
+          "coef_signed": 0.013454805985422653,
+          "coef_sign": "+",
+          "rank": 54
+        },
+        {
+          "feature_id": "last_swing_high_distance_atr",
+          "coef_magnitude": 0.012635101435984245,
+          "coef_signed": 0.012635101435984245,
+          "coef_sign": "+",
+          "rank": 55
+        },
+        {
+          "feature_id": "vol_dryup_flag",
+          "coef_magnitude": 0.012608704170469606,
+          "coef_signed": 0.012608704170469606,
+          "coef_sign": "+",
+          "rank": 56
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "coef_magnitude": 0.012201616553765227,
+          "coef_signed": 0.012201616553765227,
+          "coef_sign": "+",
+          "rank": 57
+        },
+        {
+          "feature_id": "hammer_flag",
+          "coef_magnitude": 0.012160001003152404,
+          "coef_signed": 0.012160001003152404,
+          "coef_sign": "+",
+          "rank": 58
+        },
+        {
+          "feature_id": "range_compression_20d",
+          "coef_magnitude": 0.012077782504429492,
+          "coef_signed": -0.012077782504429492,
+          "coef_sign": "-",
+          "rank": 59
+        },
+        {
+          "feature_id": "multi_tf_alignment_score",
+          "coef_magnitude": 0.01179486798345491,
+          "coef_signed": -0.01179486798345491,
+          "coef_sign": "-",
+          "rank": 60
+        },
+        {
+          "feature_id": "bollinger_squeeze_20d",
+          "coef_magnitude": 0.011763885796811865,
+          "coef_signed": -0.011763885796811865,
+          "coef_sign": "-",
+          "rank": 61
+        },
+        {
+          "feature_id": "breakout_strength_atr",
+          "coef_magnitude": 0.010962636120460922,
+          "coef_signed": 0.010962636120460922,
+          "coef_sign": "+",
+          "rank": 62
+        },
+        {
+          "feature_id": "vol_ratio_50d",
+          "coef_magnitude": 0.010730205681485135,
+          "coef_signed": -0.010730205681485135,
+          "coef_sign": "-",
+          "rank": 63
+        },
+        {
+          "feature_id": "ob_bearish_proximity",
+          "coef_magnitude": 0.009943051425495083,
+          "coef_signed": 0.009943051425495083,
+          "coef_sign": "+",
+          "rank": 64
+        },
+        {
+          "feature_id": "lower_wick_ratio",
+          "coef_magnitude": 0.009745689267737482,
+          "coef_signed": -0.009745689267737482,
+          "coef_sign": "-",
+          "rank": 65
+        },
+        {
+          "feature_id": "bank_nifty_20d_return_pct",
+          "coef_magnitude": 0.0077493877477372505,
+          "coef_signed": -0.0077493877477372505,
+          "coef_sign": "-",
+          "rank": 66
+        },
+        {
+          "feature_id": "RSI_9",
+          "coef_magnitude": 0.007713088147797624,
+          "coef_signed": -0.007713088147797624,
+          "coef_sign": "-",
+          "rank": 67
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "coef_magnitude": 0.006180291262210479,
+          "coef_signed": -0.006180291262210479,
+          "coef_sign": "-",
+          "rank": 68
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "coef_magnitude": 0.005614399878036103,
+          "coef_signed": -0.005614399878036103,
+          "coef_sign": "-",
+          "rank": 69
+        },
+        {
+          "feature_id": "downtrend_age_days",
+          "coef_magnitude": 0.004561670117452391,
+          "coef_signed": -0.004561670117452391,
+          "coef_sign": "-",
+          "rank": 70
+        },
+        {
+          "feature_id": "fib_786_proximity_atr",
+          "coef_magnitude": 0.003965599199574442,
+          "coef_signed": -0.003965599199574442,
+          "coef_sign": "-",
+          "rank": 71
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "coef_magnitude": 0.0037677169207289136,
+          "coef_signed": -0.0037677169207289136,
+          "coef_sign": "-",
+          "rank": 72
+        },
+        {
+          "feature_id": "sector_index_60d_return_pct",
+          "coef_magnitude": 0.003691867137464618,
+          "coef_signed": 0.003691867137464618,
+          "coef_sign": "+",
+          "rank": 73
+        },
+        {
+          "feature_id": "NR7_flag",
+          "coef_magnitude": 0.003627201374852019,
+          "coef_signed": 0.003627201374852019,
+          "coef_sign": "+",
+          "rank": 74
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "coef_magnitude": 0.003134553230645876,
+          "coef_signed": 0.003134553230645876,
+          "coef_sign": "+",
+          "rank": 75
+        },
+        {
+          "feature_id": "52w_high_distance_pct",
+          "coef_magnitude": 0.002620263051617275,
+          "coef_signed": 0.002620263051617275,
+          "coef_sign": "+",
+          "rank": 76
+        },
+        {
+          "feature_id": "outside_bar_flag",
+          "coef_magnitude": 0.0025996475645112885,
+          "coef_signed": 0.0025996475645112885,
+          "coef_sign": "+",
+          "rank": 77
+        },
+        {
+          "feature_id": "pivot_distance_atr",
+          "coef_magnitude": 0.002370306506566659,
+          "coef_signed": -0.002370306506566659,
+          "coef_sign": "-",
+          "rank": 78
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "coef_magnitude": 0.002370095715074629,
+          "coef_signed": -0.002370095715074629,
+          "coef_sign": "-",
+          "rank": 79
+        },
+        {
+          "feature_id": "52w_low_distance_pct",
+          "coef_magnitude": 0.0021628494209351276,
+          "coef_signed": -0.0021628494209351276,
+          "coef_sign": "-",
+          "rank": 80
+        },
+        {
+          "feature_id": "daily_5d_return_pct",
+          "coef_magnitude": 0.0018656159036557869,
+          "coef_signed": 0.0018656159036557869,
+          "coef_sign": "+",
+          "rank": 81
+        },
+        {
+          "feature_id": "volume_at_pivot_ratio",
+          "coef_magnitude": 0.0013323985955129452,
+          "coef_signed": 0.0013323985955129452,
+          "coef_sign": "+",
+          "rank": 82
+        },
+        {
+          "feature_id": "bank_nifty_60d_return_pct",
+          "coef_magnitude": 0.001291663057131743,
+          "coef_signed": -0.001291663057131743,
+          "coef_sign": "-",
+          "rank": 83
+        },
+        {
+          "feature_id": "vol_ratio_5d",
+          "coef_magnitude": 0.0009546081477175797,
+          "coef_signed": 0.0009546081477175797,
+          "coef_sign": "+",
+          "rank": 84
+        },
+        {
+          "feature_id": "bullish_engulf_flag",
+          "coef_magnitude": 0.0003788714658324669,
+          "coef_signed": -0.0003788714658324669,
+          "coef_sign": "-",
+          "rank": 85
+        },
+        {
+          "feature_id": "sector_rank_within_universe",
+          "coef_magnitude": 0.00015811042637367602,
+          "coef_signed": -0.00015811042637367602,
+          "coef_sign": "-",
+          "rank": 86
+        },
+        {
+          "feature_id": "vol_ratio_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 87
+        },
+        {
+          "feature_id": "range_position_in_window",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 88
+        },
+        {
+          "feature_id": "daily_3d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 89
+        },
+        {
+          "feature_id": "consecutive_up_days",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 90
+        },
+        {
+          "feature_id": "rs_q",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 91
+        },
+        {
+          "feature_id": "atr_compression_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 92
+        },
+        {
+          "feature_id": "consolidation_zone_distance_atr",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 93
+        },
+        {
+          "feature_id": "uptrend_age_days",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 94
+        },
+        {
+          "feature_id": "sector_index_20d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 95
+        },
+        {
+          "feature_id": "range_compression_10d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 96
+        },
+        {
+          "feature_id": "daily_60d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 97
+        },
+        {
+          "feature_id": "vol_trend_slope_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 98
+        },
+        {
+          "feature_id": "round_number_proximity_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 99
+        },
+        {
+          "feature_id": "body_to_range_ratio",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 100
+        },
+        {
+          "feature_id": "fvg_unfilled_above_count",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 101
+        },
+        {
+          "feature_id": "gap_down_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 102
+        },
+        {
+          "feature_id": "weekly_2w_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 103
+        },
+        {
+          "feature_id": "triangle_compression_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 104
+        },
+        {
+          "feature_id": "resistance_zone_distance_atr",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 105
+        },
+        {
+          "feature_id": "vol_climax_flag",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 106
+        },
+        {
+          "feature_id": "ema50_distance_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 107
+        },
+        {
+          "feature_id": "daily_volatility_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 108
+        },
+        {
+          "feature_id": "accumulation_distribution_signed",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 109
+        },
+        {
+          "feature_id": "ema50_slope_5d_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 110
+        },
+        {
+          "feature_id": "ema20_slope_5d_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 111
+        },
+        {
+          "feature_id": "nifty_200d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 112
+        },
+        {
+          "feature_id": "advance_decline_ratio_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 113
+        },
+        {
+          "feature_id": "vol_ratio_10d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 114
+        }
+      ]
+    },
+    "lifetime-Bear": {
+      "n": 19682,
+      "n_w": 9542,
+      "n_l": 8286,
+      "auc_rf": 0.7468038116618197,
+      "auc_logistic": 0.6131374034819012,
+      "rf": [
+        {
+          "feature_id": "ema_alignment",
+          "importance": 0.07349894782632464,
+          "rank": 1
+        },
+        {
+          "feature_id": "consolidation_quality",
+          "importance": 0.049664933380618545,
+          "rank": 2
+        },
+        {
+          "feature_id": "RSI_14",
+          "importance": 0.04096601700744565,
+          "rank": 3
+        },
+        {
+          "feature_id": "fib_1618_extension_proximity_atr",
+          "importance": 0.03615789449230315,
+          "rank": 4
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "importance": 0.035748004199778166,
+          "rank": 5
+        },
+        {
+          "feature_id": "day_of_week",
+          "importance": 0.03405804822376739,
+          "rank": 6
+        },
+        {
+          "feature_id": "day_of_month_bucket",
+          "importance": 0.03339267142596777,
+          "rank": 7
+        },
+        {
+          "feature_id": "ROC_10",
+          "importance": 0.024863544705997154,
+          "rank": 8
+        },
+        {
+          "feature_id": "fib_1272_extension_proximity_atr",
+          "importance": 0.023952930601717742,
+          "rank": 9
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "importance": 0.02294025924254485,
+          "rank": 10
+        },
+        {
+          "feature_id": "nifty_vol_regime",
+          "importance": 0.022386553827325864,
+          "rank": 11
+        },
+        {
+          "feature_id": "NR4_flag",
+          "importance": 0.02235209702065371,
+          "rank": 12
+        },
+        {
+          "feature_id": "MACD_signal",
+          "importance": 0.02218352471152432,
+          "rank": 13
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "importance": 0.016530608979713365,
+          "rank": 14
+        },
+        {
+          "feature_id": "daily_5d_return_pct",
+          "importance": 0.013959025621615431,
+          "rank": 15
+        },
+        {
+          "feature_id": "lower_wick_ratio",
+          "importance": 0.013913069447449643,
+          "rank": 16
+        },
+        {
+          "feature_id": "regime_state",
+          "importance": 0.012917501529963831,
+          "rank": 17
+        },
+        {
+          "feature_id": "52w_high_distance_pct",
+          "importance": 0.012543859178249444,
+          "rank": 18
+        },
+        {
+          "feature_id": "hammer_flag",
+          "importance": 0.012462334966074025,
+          "rank": 19
+        },
+        {
+          "feature_id": "fib_786_proximity_atr",
+          "importance": 0.01239203136789155,
+          "rank": 20
+        },
+        {
+          "feature_id": "NR7_flag",
+          "importance": 0.01235893158256836,
+          "rank": 21
+        },
+        {
+          "feature_id": "consecutive_up_days",
+          "importance": 0.012164979404849716,
+          "rank": 22
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "importance": 0.01203796852893751,
+          "rank": 23
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "importance": 0.011897463860546742,
+          "rank": 24
+        },
+        {
+          "feature_id": "gap_up_pct",
+          "importance": 0.011466280695961093,
+          "rank": 25
+        },
+        {
+          "feature_id": "compression_duration",
+          "importance": 0.011245998175273601,
+          "rank": 26
+        },
+        {
+          "feature_id": "nifty_20d_return_pct",
+          "importance": 0.011208765256511486,
+          "rank": 27
+        },
+        {
+          "feature_id": "fvg_below_proximity",
+          "importance": 0.011039604375598781,
+          "rank": 28
+        },
+        {
+          "feature_id": "consecutive_down_days",
+          "importance": 0.010962195930506237,
+          "rank": 29
+        },
+        {
+          "feature_id": "52w_low_distance_pct",
+          "importance": 0.010816007936758305,
+          "rank": 30
+        },
+        {
+          "feature_id": "resistance_zone_distance_atr",
+          "importance": 0.010553870170273727,
+          "rank": 31
+        },
+        {
+          "feature_id": "advance_decline_ratio_20d",
+          "importance": 0.010418498910248734,
+          "rank": 32
+        },
+        {
+          "feature_id": "inside_day_streak",
+          "importance": 0.010388035967880344,
+          "rank": 33
+        },
+        {
+          "feature_id": "range_position_in_window",
+          "importance": 0.010369516221782473,
+          "rank": 34
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "importance": 0.010338008661040968,
+          "rank": 35
+        },
+        {
+          "feature_id": "close_pos_in_range",
+          "importance": 0.010313622095734483,
+          "rank": 36
+        },
+        {
+          "feature_id": "range_compression_10d",
+          "importance": 0.010299758188091923,
+          "rank": 37
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "importance": 0.010204101116744626,
+          "rank": 38
+        },
+        {
+          "feature_id": "range_compression_5d",
+          "importance": 0.010106177314218772,
+          "rank": 39
+        },
+        {
+          "feature_id": "daily_volatility_pct",
+          "importance": 0.00991035039830784,
+          "rank": 40
+        },
+        {
+          "feature_id": "fvg_unfilled_below_count",
+          "importance": 0.009873226153955568,
+          "rank": 41
+        },
+        {
+          "feature_id": "last_swing_high_distance_atr",
+          "importance": 0.009865223073248821,
+          "rank": 42
+        },
+        {
+          "feature_id": "daily_60d_return_pct",
+          "importance": 0.009789387065744145,
+          "rank": 43
+        },
+        {
+          "feature_id": "daily_20d_return_pct",
+          "importance": 0.009752834024853734,
+          "rank": 44
+        },
+        {
+          "feature_id": "regime_score",
+          "importance": 0.009732896726445167,
+          "rank": 45
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "importance": 0.009709546914951,
+          "rank": 46
+        },
+        {
+          "feature_id": "gap_down_pct",
+          "importance": 0.009695165189238941,
+          "rank": 47
+        },
+        {
+          "feature_id": "daily_3d_return_pct",
+          "importance": 0.00963035830871515,
+          "rank": 48
+        },
+        {
+          "feature_id": "range_compression_20d",
+          "importance": 0.00963029053148727,
+          "rank": 49
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "importance": 0.00934714598103034,
+          "rank": 50
+        },
+        {
+          "feature_id": "consolidation_zone_distance_atr",
+          "importance": 0.008976619188424356,
+          "rank": 51
+        },
+        {
+          "feature_id": "bearish_engulf_flag",
+          "importance": 0.008391477456936018,
+          "rank": 52
+        },
+        {
+          "feature_id": "accumulation_distribution_signed",
+          "importance": 0.008361897882886122,
+          "rank": 53
+        },
+        {
+          "feature_id": "multi_tf_alignment_score",
+          "importance": 0.00799587541468606,
+          "rank": 54
+        },
+        {
+          "feature_id": "outside_bar_flag",
+          "importance": 0.007440429085457592,
+          "rank": 55
+        },
+        {
+          "feature_id": "ema50_slope_5d_pct",
+          "importance": 0.0071823697739110655,
+          "rank": 56
+        },
+        {
+          "feature_id": "fvg_unfilled_above_count",
+          "importance": 0.006867517783530329,
+          "rank": 57
+        },
+        {
+          "feature_id": "vol_q",
+          "importance": 0.00642602266202787,
+          "rank": 58
+        },
+        {
+          "feature_id": "days_to_monthly_expiry",
+          "importance": 0.0061362901427525,
+          "rank": 59
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "importance": 0.005688039728928403,
+          "rank": 60
+        },
+        {
+          "feature_id": "nifty_vol_percentile_20d",
+          "importance": 0.005085243788420632,
+          "rank": 61
+        },
+        {
+          "feature_id": "swing_low_count_20d",
+          "importance": 0.004790669833337815,
+          "rank": 62
+        },
+        {
+          "feature_id": "fib_618_proximity_atr",
+          "importance": 0.004238313613647354,
+          "rank": 63
+        },
+        {
+          "feature_id": "support_zone_distance_atr",
+          "importance": 0.003670412065274531,
+          "rank": 64
+        },
+        {
+          "feature_id": "swing_high_count_20d",
+          "importance": 0.0035168245260973462,
+          "rank": 65
+        },
+        {
+          "feature_id": "bank_nifty_20d_return_pct",
+          "importance": 0.0033305264392349304,
+          "rank": 66
+        },
+        {
+          "feature_id": "obv_slope_20d_pct",
+          "importance": 0.0032507680838722752,
+          "rank": 67
+        },
+        {
+          "feature_id": "stock_rs_vs_nifty_60d",
+          "importance": 0.0031458160598928243,
+          "rank": 68
+        },
+        {
+          "feature_id": "pivot_distance_atr",
+          "importance": 0.003066007252050584,
+          "rank": 69
+        },
+        {
+          "feature_id": "body_to_range_ratio",
+          "importance": 0.002848005959997429,
+          "rank": 70
+        },
+        {
+          "feature_id": "inside_day_flag",
+          "importance": 0.0027490385117940348,
+          "rank": 71
+        },
+        {
+          "feature_id": "breakout_strength_atr",
+          "importance": 0.0024225263194523486,
+          "rank": 72
+        },
+        {
+          "feature_id": "bollinger_squeeze_20d",
+          "importance": 0.0022048474319539104,
+          "rank": 73
+        },
+        {
+          "feature_id": "sector_momentum_state",
+          "importance": 0.0021012638836304222,
+          "rank": 74
+        },
+        {
+          "feature_id": "triangle_quality_descending",
+          "importance": 0.0019640266422549053,
+          "rank": 75
+        },
+        {
+          "feature_id": "MACD_histogram_sign",
+          "importance": 0.001545172546816929,
+          "rank": 76
+        },
+        {
+          "feature_id": "weekly_2w_return_pct",
+          "importance": 0.0013366855901399172,
+          "rank": 77
+        },
+        {
+          "feature_id": "vol_ratio_50d",
+          "importance": 0.0012173182276863787,
+          "rank": 78
+        },
+        {
+          "feature_id": "rs_q",
+          "importance": 0.0011660352733753052,
+          "rank": 79
+        },
+        {
+          "feature_id": "volume_at_pivot_ratio",
+          "importance": 0.0011659728271728093,
+          "rank": 80
+        },
+        {
+          "feature_id": "upper_wick_ratio",
+          "importance": 0.0011508543355194382,
+          "rank": 81
+        },
+        {
+          "feature_id": "sector_index_60d_return_pct",
+          "importance": 0.00106436015573707,
+          "rank": 82
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "importance": 0.0010277959274083925,
+          "rank": 83
+        },
+        {
+          "feature_id": "atr_compression_pct",
+          "importance": 0.0009700372048116234,
+          "rank": 84
+        },
+        {
+          "feature_id": "sector_index_20d_return_pct",
+          "importance": 0.000966749027812734,
+          "rank": 85
+        },
+        {
+          "feature_id": "triangle_touches_count",
+          "importance": 0.0009608230967774199,
+          "rank": 86
+        },
+        {
+          "feature_id": "triangle_age_bars",
+          "importance": 0.0009607556606239707,
+          "rank": 87
+        },
+        {
+          "feature_id": "weekly_4w_return_pct",
+          "importance": 0.0009337787580998361,
+          "rank": 88
+        },
+        {
+          "feature_id": "vol_trend_slope_20d",
+          "importance": 0.0008541141274338249,
+          "rank": 89
+        },
+        {
+          "feature_id": "triangle_compression_pct",
+          "importance": 0.0008254989466742365,
+          "rank": 90
+        },
+        {
+          "feature_id": "ema50_distance_pct",
+          "importance": 0.0008072625182246661,
+          "rank": 91
+        },
+        {
+          "feature_id": "round_number_proximity_pct",
+          "importance": 0.0007870698040500901,
+          "rank": 92
+        },
+        {
+          "feature_id": "ob_bearish_proximity",
+          "importance": 0.0007744801671003505,
+          "rank": 93
+        },
+        {
+          "feature_id": "vol_ratio_5d",
+          "importance": 0.0007621014401967626,
+          "rank": 94
+        },
+        {
+          "feature_id": "ob_bullish_proximity",
+          "importance": 0.0006480385959258454,
+          "rank": 95
+        },
+        {
+          "feature_id": "bullish_engulf_flag",
+          "importance": 0.0006471128236975469,
+          "rank": 96
+        },
+        {
+          "feature_id": "vol_dryup_flag",
+          "importance": 0.0006320694918014727,
+          "rank": 97
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "importance": 0.0005855461681866757,
+          "rank": 98
+        },
+        {
+          "feature_id": "uptrend_age_days",
+          "importance": 0.0005436608423260786,
+          "rank": 99
+        },
+        {
+          "feature_id": "fvg_above_proximity",
+          "importance": 0.000494376216318989,
+          "rank": 100
+        },
+        {
+          "feature_id": "prior_swing_low_distance_pct",
+          "importance": 0.00047556357344573016,
+          "rank": 101
+        },
+        {
+          "feature_id": "ema20_slope_5d_pct",
+          "importance": 0.0004670763177414637,
+          "rank": 102
+        },
+        {
+          "feature_id": "sector_rank_within_universe",
+          "importance": 0.0004602625813786721,
+          "rank": 103
+        },
+        {
+          "feature_id": "bank_nifty_60d_return_pct",
+          "importance": 0.00041972625789327324,
+          "rank": 104
+        },
+        {
+          "feature_id": "RSI_9",
+          "importance": 0.00041911053627578695,
+          "rank": 105
+        },
+        {
+          "feature_id": "vol_climax_flag",
+          "importance": 0.0003252024383156481,
+          "rank": 106
+        },
+        {
+          "feature_id": "prior_swing_high_distance_pct",
+          "importance": 0.0003193317861751416,
+          "rank": 107
+        },
+        {
+          "feature_id": "downtrend_age_days",
+          "importance": 0.00017928770196710888,
+          "rank": 108
+        },
+        {
+          "feature_id": "nifty_200d_return_pct",
+          "importance": 0.0001680695683703477,
+          "rank": 109
+        },
+        {
+          "feature_id": "bollinger_band_width_pct",
+          "importance": 7.35370997555337e-05,
+          "rank": 110
+        },
+        {
+          "feature_id": "triangle_quality_ascending",
+          "importance": 4.266315879183681e-06,
+          "rank": 111
+        },
+        {
+          "feature_id": "vol_ratio_20d",
+          "importance": 0.0,
+          "rank": 112
+        },
+        {
+          "feature_id": "shooting_star_flag",
+          "importance": 0.0,
+          "rank": 113
+        },
+        {
+          "feature_id": "vol_ratio_10d",
+          "importance": 0.0,
+          "rank": 114
+        }
+      ],
+      "logistic": [
+        {
+          "feature_id": "vol_q",
+          "coef_magnitude": 0.3768498064848157,
+          "coef_signed": -0.1992512659861696,
+          "coef_sign": "-",
+          "rank": 1
+        },
+        {
+          "feature_id": "fib_1272_extension_proximity_atr",
+          "coef_magnitude": 0.3668308372380607,
+          "coef_signed": -0.3668308372380607,
+          "coef_sign": "-",
+          "rank": 2
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "coef_magnitude": 0.3204645363021929,
+          "coef_signed": 0.3204645363021929,
+          "coef_sign": "+",
+          "rank": 3
+        },
+        {
+          "feature_id": "ema_alignment",
+          "coef_magnitude": 0.29052730307813074,
+          "coef_signed": -0.29052730307813074,
+          "coef_sign": "-",
+          "rank": 4
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "coef_magnitude": 0.24334207982207098,
+          "coef_signed": -0.24334207982207098,
+          "coef_sign": "-",
+          "rank": 5
+        },
+        {
+          "feature_id": "NR4_flag",
+          "coef_magnitude": 0.2272562888106891,
+          "coef_signed": 0.2272562888106891,
+          "coef_sign": "+",
+          "rank": 6
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "coef_magnitude": 0.22325369359531522,
+          "coef_signed": -0.12090483863623386,
+          "coef_sign": "-",
+          "rank": 7
+        },
+        {
+          "feature_id": "ROC_10",
+          "coef_magnitude": 0.19579933930181653,
+          "coef_signed": 0.19579933930181653,
+          "coef_sign": "+",
+          "rank": 8
+        },
+        {
+          "feature_id": "day_of_month_bucket",
+          "coef_magnitude": 0.1734542822593724,
+          "coef_signed": 0.1734542822593724,
+          "coef_sign": "+",
+          "rank": 9
+        },
+        {
+          "feature_id": "range_compression_10d",
+          "coef_magnitude": 0.15898065476491588,
+          "coef_signed": -0.15898065476491588,
+          "coef_sign": "-",
+          "rank": 10
+        },
+        {
+          "feature_id": "consolidation_quality",
+          "coef_magnitude": 0.15606718917541923,
+          "coef_signed": 0.021541272615690582,
+          "coef_sign": "+",
+          "rank": 11
+        },
+        {
+          "feature_id": "hammer_flag",
+          "coef_magnitude": 0.1533990994046547,
+          "coef_signed": -0.1533990994046547,
+          "coef_sign": "-",
+          "rank": 12
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "coef_magnitude": 0.1528147962747376,
+          "coef_signed": 0.1528147962747376,
+          "coef_sign": "+",
+          "rank": 13
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "coef_magnitude": 0.1436190404864882,
+          "coef_signed": 0.1436190404864882,
+          "coef_sign": "+",
+          "rank": 14
+        },
+        {
+          "feature_id": "day_of_week",
+          "coef_magnitude": 0.13514102085690055,
+          "coef_signed": -0.035130622247878364,
+          "coef_sign": "-",
+          "rank": 15
+        },
+        {
+          "feature_id": "nifty_vol_regime",
+          "coef_magnitude": 0.13215405908802552,
+          "coef_signed": 0.027596590057539436,
+          "coef_sign": "+",
+          "rank": 16
+        },
+        {
+          "feature_id": "fvg_unfilled_below_count",
+          "coef_magnitude": 0.10811668319118693,
+          "coef_signed": -0.10811668319118693,
+          "coef_sign": "-",
+          "rank": 17
+        },
+        {
+          "feature_id": "advance_decline_ratio_20d",
+          "coef_magnitude": 0.10095064980434909,
+          "coef_signed": 0.10095064980434909,
+          "coef_sign": "+",
+          "rank": 18
+        },
+        {
+          "feature_id": "52w_high_distance_pct",
+          "coef_magnitude": 0.09853652611582159,
+          "coef_signed": 0.09853652611582159,
+          "coef_sign": "+",
+          "rank": 19
+        },
+        {
+          "feature_id": "nifty_vol_percentile_20d",
+          "coef_magnitude": 0.08980604727145887,
+          "coef_signed": -0.08980604727145887,
+          "coef_sign": "-",
+          "rank": 20
+        },
+        {
+          "feature_id": "support_zone_distance_atr",
+          "coef_magnitude": 0.08394291272579085,
+          "coef_signed": -0.08394291272579085,
+          "coef_sign": "-",
+          "rank": 21
+        },
+        {
+          "feature_id": "fvg_unfilled_above_count",
+          "coef_magnitude": 0.0815872268708863,
+          "coef_signed": 0.0815872268708863,
+          "coef_sign": "+",
+          "rank": 22
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "coef_magnitude": 0.07876240704741877,
+          "coef_signed": -0.07876240704741877,
+          "coef_sign": "-",
+          "rank": 23
+        },
+        {
+          "feature_id": "regime_state",
+          "coef_magnitude": 0.06819667966301456,
+          "coef_signed": 0.06819667966301456,
+          "coef_sign": "+",
+          "rank": 24
+        },
+        {
+          "feature_id": "inside_day_flag",
+          "coef_magnitude": 0.06234355174471292,
+          "coef_signed": -0.06234355174471292,
+          "coef_sign": "-",
+          "rank": 25
+        },
+        {
+          "feature_id": "ema50_distance_pct",
+          "coef_magnitude": 0.05758935392728091,
+          "coef_signed": 0.05758935392728091,
+          "coef_sign": "+",
+          "rank": 26
+        },
+        {
+          "feature_id": "bank_nifty_20d_return_pct",
+          "coef_magnitude": 0.055019709241806575,
+          "coef_signed": 0.055019709241806575,
+          "coef_sign": "+",
+          "rank": 27
+        },
+        {
+          "feature_id": "vol_ratio_50d",
+          "coef_magnitude": 0.05350145259329857,
+          "coef_signed": -0.05350145259329857,
+          "coef_sign": "-",
+          "rank": 28
+        },
+        {
+          "feature_id": "range_position_in_window",
+          "coef_magnitude": 0.051530223100106284,
+          "coef_signed": 0.051530223100106284,
+          "coef_sign": "+",
+          "rank": 29
+        },
+        {
+          "feature_id": "swing_high_count_20d",
+          "coef_magnitude": 0.04780158877169669,
+          "coef_signed": -0.04780158877169669,
+          "coef_sign": "-",
+          "rank": 30
+        },
+        {
+          "feature_id": "lower_wick_ratio",
+          "coef_magnitude": 0.04742200776319988,
+          "coef_signed": 0.04742200776319988,
+          "coef_sign": "+",
+          "rank": 31
+        },
+        {
+          "feature_id": "daily_5d_return_pct",
+          "coef_magnitude": 0.04671241196330376,
+          "coef_signed": 0.04671241196330376,
+          "coef_sign": "+",
+          "rank": 32
+        },
+        {
+          "feature_id": "multi_tf_alignment_score",
+          "coef_magnitude": 0.04605886890053195,
+          "coef_signed": -0.04605886890053195,
+          "coef_sign": "-",
+          "rank": 33
+        },
+        {
+          "feature_id": "ob_bearish_proximity",
+          "coef_magnitude": 0.04529694605201832,
+          "coef_signed": -0.04529694605201832,
+          "coef_sign": "-",
+          "rank": 34
+        },
+        {
+          "feature_id": "bollinger_squeeze_20d",
+          "coef_magnitude": 0.0388796212815966,
+          "coef_signed": -0.0388796212815966,
+          "coef_sign": "-",
+          "rank": 35
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "coef_magnitude": 0.031230345489406095,
+          "coef_signed": -0.031230345489406095,
+          "coef_sign": "-",
+          "rank": 36
+        },
+        {
+          "feature_id": "fib_1618_extension_proximity_atr",
+          "coef_magnitude": 0.030698862857901358,
+          "coef_signed": -0.030698862857901358,
+          "coef_sign": "-",
+          "rank": 37
+        },
+        {
+          "feature_id": "sector_momentum_state",
+          "coef_magnitude": 0.029544726470269927,
+          "coef_signed": -0.024385781084307473,
+          "coef_sign": "-",
+          "rank": 38
+        },
+        {
+          "feature_id": "bollinger_band_width_pct",
+          "coef_magnitude": 0.027673472863807613,
+          "coef_signed": -0.027673472863807613,
+          "coef_sign": "-",
+          "rank": 39
+        },
+        {
+          "feature_id": "prior_swing_low_distance_pct",
+          "coef_magnitude": 0.027539226385982586,
+          "coef_signed": 0.027539226385982586,
+          "coef_sign": "+",
+          "rank": 40
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "coef_magnitude": 0.02624492638068841,
+          "coef_signed": 0.02624492638068841,
+          "coef_sign": "+",
+          "rank": 41
+        },
+        {
+          "feature_id": "triangle_touches_count",
+          "coef_magnitude": 0.02557615522646835,
+          "coef_signed": 0.02557615522646835,
+          "coef_sign": "+",
+          "rank": 42
+        },
+        {
+          "feature_id": "MACD_histogram_sign",
+          "coef_magnitude": 0.025338417696067882,
+          "coef_signed": 0.00870612288290928,
+          "coef_sign": "+",
+          "rank": 43
+        },
+        {
+          "feature_id": "nifty_200d_return_pct",
+          "coef_magnitude": 0.02423982019859016,
+          "coef_signed": -0.02423982019859016,
+          "coef_sign": "-",
+          "rank": 44
+        },
+        {
+          "feature_id": "RSI_14",
+          "coef_magnitude": 0.023326996985249863,
+          "coef_signed": -0.023326996985249863,
+          "coef_sign": "-",
+          "rank": 45
+        },
+        {
+          "feature_id": "fvg_above_proximity",
+          "coef_magnitude": 0.023274489381598353,
+          "coef_signed": 0.023274489381598353,
+          "coef_sign": "+",
+          "rank": 46
+        },
+        {
+          "feature_id": "bearish_engulf_flag",
+          "coef_magnitude": 0.02137151338534503,
+          "coef_signed": 0.02137151338534503,
+          "coef_sign": "+",
+          "rank": 47
+        },
+        {
+          "feature_id": "fib_618_proximity_atr",
+          "coef_magnitude": 0.021257748734418186,
+          "coef_signed": -0.021257748734418186,
+          "coef_sign": "-",
+          "rank": 48
+        },
+        {
+          "feature_id": "fvg_below_proximity",
+          "coef_magnitude": 0.020948667857411386,
+          "coef_signed": 0.020948667857411386,
+          "coef_sign": "+",
+          "rank": 49
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "coef_magnitude": 0.020939655852631668,
+          "coef_signed": 0.020939655852631668,
+          "coef_sign": "+",
+          "rank": 50
+        },
+        {
+          "feature_id": "gap_down_pct",
+          "coef_magnitude": 0.020861845136084464,
+          "coef_signed": -0.020861845136084464,
+          "coef_sign": "-",
+          "rank": 51
+        },
+        {
+          "feature_id": "range_compression_5d",
+          "coef_magnitude": 0.02030426777348569,
+          "coef_signed": 0.02030426777348569,
+          "coef_sign": "+",
+          "rank": 52
+        },
+        {
+          "feature_id": "52w_low_distance_pct",
+          "coef_magnitude": 0.019841164024285648,
+          "coef_signed": -0.019841164024285648,
+          "coef_sign": "-",
+          "rank": 53
+        },
+        {
+          "feature_id": "ema50_slope_5d_pct",
+          "coef_magnitude": 0.018671441946223947,
+          "coef_signed": -0.018671441946223947,
+          "coef_sign": "-",
+          "rank": 54
+        },
+        {
+          "feature_id": "breakout_strength_atr",
+          "coef_magnitude": 0.018101114706147618,
+          "coef_signed": -0.018101114706147618,
+          "coef_sign": "-",
+          "rank": 55
+        },
+        {
+          "feature_id": "prior_swing_high_distance_pct",
+          "coef_magnitude": 0.015717159087381697,
+          "coef_signed": -0.015717159087381697,
+          "coef_sign": "-",
+          "rank": 56
+        },
+        {
+          "feature_id": "bullish_engulf_flag",
+          "coef_magnitude": 0.015685063724392382,
+          "coef_signed": -0.015685063724392382,
+          "coef_sign": "-",
+          "rank": 57
+        },
+        {
+          "feature_id": "vol_ratio_5d",
+          "coef_magnitude": 0.015464911112933423,
+          "coef_signed": 0.015464911112933423,
+          "coef_sign": "+",
+          "rank": 58
+        },
+        {
+          "feature_id": "compression_duration",
+          "coef_magnitude": 0.014966605079890201,
+          "coef_signed": -0.014966605079890201,
+          "coef_sign": "-",
+          "rank": 59
+        },
+        {
+          "feature_id": "swing_low_count_20d",
+          "coef_magnitude": 0.014684152645456755,
+          "coef_signed": 0.014684152645456755,
+          "coef_sign": "+",
+          "rank": 60
+        },
+        {
+          "feature_id": "volume_at_pivot_ratio",
+          "coef_magnitude": 0.014575000942452069,
+          "coef_signed": -0.014575000942452069,
+          "coef_sign": "-",
+          "rank": 61
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "coef_magnitude": 0.014203800202812682,
+          "coef_signed": -0.014203800202812682,
+          "coef_sign": "-",
+          "rank": 62
+        },
+        {
+          "feature_id": "consecutive_up_days",
+          "coef_magnitude": 0.013951541395080381,
+          "coef_signed": 0.013951541395080381,
+          "coef_sign": "+",
+          "rank": 63
+        },
+        {
+          "feature_id": "bank_nifty_60d_return_pct",
+          "coef_magnitude": 0.013885365927497886,
+          "coef_signed": -0.013885365927497886,
+          "coef_sign": "-",
+          "rank": 64
+        },
+        {
+          "feature_id": "days_to_monthly_expiry",
+          "coef_magnitude": 0.013768035507284615,
+          "coef_signed": -0.013768035507284615,
+          "coef_sign": "-",
+          "rank": 65
+        },
+        {
+          "feature_id": "MACD_signal",
+          "coef_magnitude": 0.013433364634211301,
+          "coef_signed": -0.013433364634211301,
+          "coef_sign": "-",
+          "rank": 66
+        },
+        {
+          "feature_id": "obv_slope_20d_pct",
+          "coef_magnitude": 0.013421877136712845,
+          "coef_signed": 0.013421877136712845,
+          "coef_sign": "+",
+          "rank": 67
+        },
+        {
+          "feature_id": "daily_20d_return_pct",
+          "coef_magnitude": 0.013278250261926753,
+          "coef_signed": -0.013278250261926753,
+          "coef_sign": "-",
+          "rank": 68
+        },
+        {
+          "feature_id": "last_swing_high_distance_atr",
+          "coef_magnitude": 0.013129430065918133,
+          "coef_signed": -0.013129430065918133,
+          "coef_sign": "-",
+          "rank": 69
+        },
+        {
+          "feature_id": "stock_rs_vs_nifty_60d",
+          "coef_magnitude": 0.011721606106215447,
+          "coef_signed": 0.011721606106215447,
+          "coef_sign": "+",
+          "rank": 70
+        },
+        {
+          "feature_id": "RSI_9",
+          "coef_magnitude": 0.01163329585427426,
+          "coef_signed": 0.01163329585427426,
+          "coef_sign": "+",
+          "rank": 71
+        },
+        {
+          "feature_id": "triangle_quality_ascending",
+          "coef_magnitude": 0.011593444394358233,
+          "coef_signed": 0.011593444394358233,
+          "coef_sign": "+",
+          "rank": 72
+        },
+        {
+          "feature_id": "consolidation_zone_distance_atr",
+          "coef_magnitude": 0.010607458776130023,
+          "coef_signed": -0.010607458776130023,
+          "coef_sign": "-",
+          "rank": 73
+        },
+        {
+          "feature_id": "vol_climax_flag",
+          "coef_magnitude": 0.010176580544784887,
+          "coef_signed": -0.010176580544784887,
+          "coef_sign": "-",
+          "rank": 74
+        },
+        {
+          "feature_id": "upper_wick_ratio",
+          "coef_magnitude": 0.010083898261791978,
+          "coef_signed": 0.010083898261791978,
+          "coef_sign": "+",
+          "rank": 75
+        },
+        {
+          "feature_id": "atr_compression_pct",
+          "coef_magnitude": 0.009042000151973567,
+          "coef_signed": 0.009042000151973567,
+          "coef_sign": "+",
+          "rank": 76
+        },
+        {
+          "feature_id": "vol_dryup_flag",
+          "coef_magnitude": 0.008389897068774027,
+          "coef_signed": 0.008389897068774027,
+          "coef_sign": "+",
+          "rank": 77
+        },
+        {
+          "feature_id": "fib_786_proximity_atr",
+          "coef_magnitude": 0.006550413111138148,
+          "coef_signed": -0.006550413111138148,
+          "coef_sign": "-",
+          "rank": 78
+        },
+        {
+          "feature_id": "close_pos_in_range",
+          "coef_magnitude": 0.006451375228218876,
+          "coef_signed": 0.006451375228218876,
+          "coef_sign": "+",
+          "rank": 79
+        },
+        {
+          "feature_id": "shooting_star_flag",
+          "coef_magnitude": 0.005658562904372277,
+          "coef_signed": 0.005658562904372277,
+          "coef_sign": "+",
+          "rank": 80
+        },
+        {
+          "feature_id": "outside_bar_flag",
+          "coef_magnitude": 0.0045527114680759964,
+          "coef_signed": -0.0045527114680759964,
+          "coef_sign": "-",
+          "rank": 81
+        },
+        {
+          "feature_id": "ob_bullish_proximity",
+          "coef_magnitude": 0.004462763432583258,
+          "coef_signed": -0.004462763432583258,
+          "coef_sign": "-",
+          "rank": 82
+        },
+        {
+          "feature_id": "pivot_distance_atr",
+          "coef_magnitude": 0.004232137869443155,
+          "coef_signed": -0.004232137869443155,
+          "coef_sign": "-",
+          "rank": 83
+        },
+        {
+          "feature_id": "rs_q",
+          "coef_magnitude": 0.0026724324638637076,
+          "coef_signed": -0.0026724324638637076,
+          "coef_sign": "-",
+          "rank": 84
+        },
+        {
+          "feature_id": "triangle_compression_pct",
+          "coef_magnitude": 0.002408450014912577,
+          "coef_signed": -0.002408450014912577,
+          "coef_sign": "-",
+          "rank": 85
+        },
+        {
+          "feature_id": "triangle_age_bars",
+          "coef_magnitude": 0.0022128435958704935,
+          "coef_signed": -0.0022128435958704935,
+          "coef_sign": "-",
+          "rank": 86
+        },
+        {
+          "feature_id": "round_number_proximity_pct",
+          "coef_magnitude": 0.0007612873369338862,
+          "coef_signed": 0.0007612873369338862,
+          "coef_sign": "+",
+          "rank": 87
+        },
+        {
+          "feature_id": "vol_ratio_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 88
+        },
+        {
+          "feature_id": "daily_3d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 89
+        },
+        {
+          "feature_id": "range_compression_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 90
+        },
+        {
+          "feature_id": "sector_index_60d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 91
+        },
+        {
+          "feature_id": "inside_day_streak",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 92
+        },
+        {
+          "feature_id": "downtrend_age_days",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 93
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 94
+        },
+        {
+          "feature_id": "uptrend_age_days",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 95
+        },
+        {
+          "feature_id": "sector_index_20d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 96
+        },
+        {
+          "feature_id": "gap_up_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 97
+        },
+        {
+          "feature_id": "daily_60d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 98
+        },
+        {
+          "feature_id": "vol_trend_slope_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 99
+        },
+        {
+          "feature_id": "body_to_range_ratio",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 100
+        },
+        {
+          "feature_id": "consecutive_down_days",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 101
+        },
+        {
+          "feature_id": "sector_rank_within_universe",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 102
+        },
+        {
+          "feature_id": "weekly_4w_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 103
+        },
+        {
+          "feature_id": "triangle_quality_descending",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 104
+        },
+        {
+          "feature_id": "weekly_2w_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 105
+        },
+        {
+          "feature_id": "regime_score",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 106
+        },
+        {
+          "feature_id": "resistance_zone_distance_atr",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 107
+        },
+        {
+          "feature_id": "NR7_flag",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 108
+        },
+        {
+          "feature_id": "daily_volatility_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 109
+        },
+        {
+          "feature_id": "accumulation_distribution_signed",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 110
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 111
+        },
+        {
+          "feature_id": "ema20_slope_5d_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 112
+        },
+        {
+          "feature_id": "vol_ratio_10d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 113
+        },
+        {
+          "feature_id": "nifty_20d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 114
+        }
+      ]
+    },
+    "lifetime-Bull": {
+      "n": 24998,
+      "n_w": 11198,
+      "n_l": 11071,
+      "auc_rf": 0.6380550548023975,
+      "auc_logistic": 0.5527880959964622,
+      "rf": [
+        {
+          "feature_id": "day_of_week",
+          "importance": 0.047168223500090305,
+          "rank": 1
+        },
+        {
+          "feature_id": "ema_alignment",
+          "importance": 0.04480575489385946,
+          "rank": 2
+        },
+        {
+          "feature_id": "day_of_month_bucket",
+          "importance": 0.03783093435618801,
+          "rank": 3
+        },
+        {
+          "feature_id": "MACD_signal",
+          "importance": 0.02951923393678036,
+          "rank": 4
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "importance": 0.029387968885845293,
+          "rank": 5
+        },
+        {
+          "feature_id": "ROC_10",
+          "importance": 0.02765236765200239,
+          "rank": 6
+        },
+        {
+          "feature_id": "consolidation_quality",
+          "importance": 0.027449044146502392,
+          "rank": 7
+        },
+        {
+          "feature_id": "ema50_slope_5d_pct",
+          "importance": 0.022432729557395253,
+          "rank": 8
+        },
+        {
+          "feature_id": "fib_1272_extension_proximity_atr",
+          "importance": 0.021628090835144345,
+          "rank": 9
+        },
+        {
+          "feature_id": "nifty_vol_regime",
+          "importance": 0.021465080429953428,
+          "rank": 10
+        },
+        {
+          "feature_id": "fib_1618_extension_proximity_atr",
+          "importance": 0.021122177109661952,
+          "rank": 11
+        },
+        {
+          "feature_id": "regime_score",
+          "importance": 0.017400348413517615,
+          "rank": 12
+        },
+        {
+          "feature_id": "RSI_14",
+          "importance": 0.017033296164106718,
+          "rank": 13
+        },
+        {
+          "feature_id": "NR4_flag",
+          "importance": 0.016356834007680943,
+          "rank": 14
+        },
+        {
+          "feature_id": "lower_wick_ratio",
+          "importance": 0.015981225884816062,
+          "rank": 15
+        },
+        {
+          "feature_id": "last_swing_high_distance_atr",
+          "importance": 0.015866631563183582,
+          "rank": 16
+        },
+        {
+          "feature_id": "fib_618_proximity_atr",
+          "importance": 0.014384508725193148,
+          "rank": 17
+        },
+        {
+          "feature_id": "52w_low_distance_pct",
+          "importance": 0.014313302874710599,
+          "rank": 18
+        },
+        {
+          "feature_id": "gap_up_pct",
+          "importance": 0.01376899589569228,
+          "rank": 19
+        },
+        {
+          "feature_id": "nifty_20d_return_pct",
+          "importance": 0.013640280200806227,
+          "rank": 20
+        },
+        {
+          "feature_id": "NR7_flag",
+          "importance": 0.013502861053549227,
+          "rank": 21
+        },
+        {
+          "feature_id": "consecutive_up_days",
+          "importance": 0.013497347382711815,
+          "rank": 22
+        },
+        {
+          "feature_id": "hammer_flag",
+          "importance": 0.01331822539644628,
+          "rank": 23
+        },
+        {
+          "feature_id": "fvg_above_proximity",
+          "importance": 0.013114420310048204,
+          "rank": 24
+        },
+        {
+          "feature_id": "advance_decline_ratio_20d",
+          "importance": 0.013073236391453054,
+          "rank": 25
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "importance": 0.012991623459241151,
+          "rank": 26
+        },
+        {
+          "feature_id": "daily_5d_return_pct",
+          "importance": 0.012956403233933848,
+          "rank": 27
+        },
+        {
+          "feature_id": "prior_swing_low_distance_pct",
+          "importance": 0.012951160468681173,
+          "rank": 28
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "importance": 0.01292674093248384,
+          "rank": 29
+        },
+        {
+          "feature_id": "inside_day_streak",
+          "importance": 0.012552563773825742,
+          "rank": 30
+        },
+        {
+          "feature_id": "52w_high_distance_pct",
+          "importance": 0.012532030920513899,
+          "rank": 31
+        },
+        {
+          "feature_id": "inside_day_flag",
+          "importance": 0.01247538619132625,
+          "rank": 32
+        },
+        {
+          "feature_id": "compression_duration",
+          "importance": 0.012452477583711583,
+          "rank": 33
+        },
+        {
+          "feature_id": "gap_down_pct",
+          "importance": 0.01243666451040753,
+          "rank": 34
+        },
+        {
+          "feature_id": "daily_60d_return_pct",
+          "importance": 0.012047035252569203,
+          "rank": 35
+        },
+        {
+          "feature_id": "nifty_200d_return_pct",
+          "importance": 0.012005571266922699,
+          "rank": 36
+        },
+        {
+          "feature_id": "range_compression_5d",
+          "importance": 0.011974234213797778,
+          "rank": 37
+        },
+        {
+          "feature_id": "fvg_unfilled_below_count",
+          "importance": 0.011953931494972515,
+          "rank": 38
+        },
+        {
+          "feature_id": "consecutive_down_days",
+          "importance": 0.011758850638858348,
+          "rank": 39
+        },
+        {
+          "feature_id": "fvg_unfilled_above_count",
+          "importance": 0.011745017959933041,
+          "rank": 40
+        },
+        {
+          "feature_id": "bearish_engulf_flag",
+          "importance": 0.011640080445971413,
+          "rank": 41
+        },
+        {
+          "feature_id": "daily_20d_return_pct",
+          "importance": 0.011273124596985228,
+          "rank": 42
+        },
+        {
+          "feature_id": "range_compression_20d",
+          "importance": 0.01126752383653536,
+          "rank": 43
+        },
+        {
+          "feature_id": "regime_state",
+          "importance": 0.011194387440189954,
+          "rank": 44
+        },
+        {
+          "feature_id": "close_pos_in_range",
+          "importance": 0.011156385032613816,
+          "rank": 45
+        },
+        {
+          "feature_id": "range_compression_10d",
+          "importance": 0.011078077031908589,
+          "rank": 46
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "importance": 0.01107725229317973,
+          "rank": 47
+        },
+        {
+          "feature_id": "accumulation_distribution_signed",
+          "importance": 0.010597693660389844,
+          "rank": 48
+        },
+        {
+          "feature_id": "range_position_in_window",
+          "importance": 0.010561655645964846,
+          "rank": 49
+        },
+        {
+          "feature_id": "ema50_distance_pct",
+          "importance": 0.010537982488646966,
+          "rank": 50
+        },
+        {
+          "feature_id": "consolidation_zone_distance_atr",
+          "importance": 0.010501230926003628,
+          "rank": 51
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "importance": 0.010357718547705244,
+          "rank": 52
+        },
+        {
+          "feature_id": "fvg_below_proximity",
+          "importance": 0.009971700276767826,
+          "rank": 53
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "importance": 0.009721673022676281,
+          "rank": 54
+        },
+        {
+          "feature_id": "obv_slope_20d_pct",
+          "importance": 0.009455995347801267,
+          "rank": 55
+        },
+        {
+          "feature_id": "daily_volatility_pct",
+          "importance": 0.009147701429971787,
+          "rank": 56
+        },
+        {
+          "feature_id": "daily_3d_return_pct",
+          "importance": 0.008723579934618628,
+          "rank": 57
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "importance": 0.008454130352237823,
+          "rank": 58
+        },
+        {
+          "feature_id": "outside_bar_flag",
+          "importance": 0.00767682044794362,
+          "rank": 59
+        },
+        {
+          "feature_id": "bank_nifty_20d_return_pct",
+          "importance": 0.007344228496124284,
+          "rank": 60
+        },
+        {
+          "feature_id": "nifty_vol_percentile_20d",
+          "importance": 0.005741338779760867,
+          "rank": 61
+        },
+        {
+          "feature_id": "body_to_range_ratio",
+          "importance": 0.005379730061686766,
+          "rank": 62
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "importance": 0.005087921311769745,
+          "rank": 63
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "importance": 0.004975466420561933,
+          "rank": 64
+        },
+        {
+          "feature_id": "ob_bullish_proximity",
+          "importance": 0.003941638301799124,
+          "rank": 65
+        },
+        {
+          "feature_id": "vol_q",
+          "importance": 0.0037123444955447643,
+          "rank": 66
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "importance": 0.0030817475957839614,
+          "rank": 67
+        },
+        {
+          "feature_id": "breakout_strength_atr",
+          "importance": 0.0028703334822257737,
+          "rank": 68
+        },
+        {
+          "feature_id": "bollinger_squeeze_20d",
+          "importance": 0.0027469316563925052,
+          "rank": 69
+        },
+        {
+          "feature_id": "sector_momentum_state",
+          "importance": 0.0024944943361299814,
+          "rank": 70
+        },
+        {
+          "feature_id": "weekly_4w_return_pct",
+          "importance": 0.0018302136657358475,
+          "rank": 71
+        },
+        {
+          "feature_id": "support_zone_distance_atr",
+          "importance": 0.0017696937037478713,
+          "rank": 72
+        },
+        {
+          "feature_id": "MACD_histogram_sign",
+          "importance": 0.0015924849782418338,
+          "rank": 73
+        },
+        {
+          "feature_id": "volume_at_pivot_ratio",
+          "importance": 0.0015636152101017578,
+          "rank": 74
+        },
+        {
+          "feature_id": "bullish_engulf_flag",
+          "importance": 0.0014809146956663171,
+          "rank": 75
+        },
+        {
+          "feature_id": "swing_high_count_20d",
+          "importance": 0.0014458531563913651,
+          "rank": 76
+        },
+        {
+          "feature_id": "vol_ratio_5d",
+          "importance": 0.0013904152346305698,
+          "rank": 77
+        },
+        {
+          "feature_id": "shooting_star_flag",
+          "importance": 0.0013633727320725769,
+          "rank": 78
+        },
+        {
+          "feature_id": "downtrend_age_days",
+          "importance": 0.0012898781450711209,
+          "rank": 79
+        },
+        {
+          "feature_id": "weekly_2w_return_pct",
+          "importance": 0.0012732784000378747,
+          "rank": 80
+        },
+        {
+          "feature_id": "stock_rs_vs_nifty_60d",
+          "importance": 0.0012218125111817938,
+          "rank": 81
+        },
+        {
+          "feature_id": "sector_index_20d_return_pct",
+          "importance": 0.0012210142732595115,
+          "rank": 82
+        },
+        {
+          "feature_id": "vol_trend_slope_20d",
+          "importance": 0.0011738752428903636,
+          "rank": 83
+        },
+        {
+          "feature_id": "triangle_age_bars",
+          "importance": 0.0011176580007273074,
+          "rank": 84
+        },
+        {
+          "feature_id": "vol_ratio_50d",
+          "importance": 0.001114476987721341,
+          "rank": 85
+        },
+        {
+          "feature_id": "swing_low_count_20d",
+          "importance": 0.0010857454846033626,
+          "rank": 86
+        },
+        {
+          "feature_id": "upper_wick_ratio",
+          "importance": 0.0010366951278286316,
+          "rank": 87
+        },
+        {
+          "feature_id": "rs_q",
+          "importance": 0.0008718719354305005,
+          "rank": 88
+        },
+        {
+          "feature_id": "triangle_touches_count",
+          "importance": 0.0008608156215192482,
+          "rank": 89
+        },
+        {
+          "feature_id": "vol_dryup_flag",
+          "importance": 0.0008591876626692011,
+          "rank": 90
+        },
+        {
+          "feature_id": "triangle_quality_descending",
+          "importance": 0.0008558014922541762,
+          "rank": 91
+        },
+        {
+          "feature_id": "atr_compression_pct",
+          "importance": 0.000821771517155009,
+          "rank": 92
+        },
+        {
+          "feature_id": "ema20_slope_5d_pct",
+          "importance": 0.0008137443317856233,
+          "rank": 93
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "importance": 0.0007823428433489971,
+          "rank": 94
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "importance": 0.0007570416996309409,
+          "rank": 95
+        },
+        {
+          "feature_id": "round_number_proximity_pct",
+          "importance": 0.0007026909785355912,
+          "rank": 96
+        },
+        {
+          "feature_id": "fib_786_proximity_atr",
+          "importance": 0.0006911208138034882,
+          "rank": 97
+        },
+        {
+          "feature_id": "prior_swing_high_distance_pct",
+          "importance": 0.0006698596326213035,
+          "rank": 98
+        },
+        {
+          "feature_id": "resistance_zone_distance_atr",
+          "importance": 0.0006424007366610203,
+          "rank": 99
+        },
+        {
+          "feature_id": "sector_index_60d_return_pct",
+          "importance": 0.0006085537090006053,
+          "rank": 100
+        },
+        {
+          "feature_id": "RSI_9",
+          "importance": 0.00060708062891634,
+          "rank": 101
+        },
+        {
+          "feature_id": "ob_bearish_proximity",
+          "importance": 0.0005957711137252161,
+          "rank": 102
+        },
+        {
+          "feature_id": "vol_climax_flag",
+          "importance": 0.0005609778664816183,
+          "rank": 103
+        },
+        {
+          "feature_id": "uptrend_age_days",
+          "importance": 0.0004579706590145049,
+          "rank": 104
+        },
+        {
+          "feature_id": "pivot_distance_atr",
+          "importance": 0.00036965003763647056,
+          "rank": 105
+        },
+        {
+          "feature_id": "bank_nifty_60d_return_pct",
+          "importance": 0.00033710548710299914,
+          "rank": 106
+        },
+        {
+          "feature_id": "bollinger_band_width_pct",
+          "importance": 0.0003023903977137905,
+          "rank": 107
+        },
+        {
+          "feature_id": "multi_tf_alignment_score",
+          "importance": 0.0002771346787022816,
+          "rank": 108
+        },
+        {
+          "feature_id": "days_to_monthly_expiry",
+          "importance": 0.00018825821805651285,
+          "rank": 109
+        },
+        {
+          "feature_id": "triangle_compression_pct",
+          "importance": 0.00012447182710188882,
+          "rank": 110
+        },
+        {
+          "feature_id": "triangle_quality_ascending",
+          "importance": 1.8032566778143925e-05,
+          "rank": 111
+        },
+        {
+          "feature_id": "sector_rank_within_universe",
+          "importance": 9.25683003593825e-06,
+          "rank": 112
+        },
+        {
+          "feature_id": "vol_ratio_20d",
+          "importance": 0.0,
+          "rank": 113
+        },
+        {
+          "feature_id": "vol_ratio_10d",
+          "importance": 0.0,
+          "rank": 114
+        }
+      ],
+      "logistic": [
+        {
+          "feature_id": "ema_alignment",
+          "coef_magnitude": 0.16976324745875454,
+          "coef_signed": 0.06630380384582978,
+          "coef_sign": "+",
+          "rank": 1
+        },
+        {
+          "feature_id": "day_of_week",
+          "coef_magnitude": 0.13296638344233835,
+          "coef_signed": -0.10956132724029571,
+          "coef_sign": "-",
+          "rank": 2
+        },
+        {
+          "feature_id": "fvg_unfilled_above_count",
+          "coef_magnitude": 0.11076187659258964,
+          "coef_signed": -0.11076187659258964,
+          "coef_sign": "-",
+          "rank": 3
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "coef_magnitude": 0.09816836636395732,
+          "coef_signed": 0.010192092394697969,
+          "coef_sign": "+",
+          "rank": 4
+        },
+        {
+          "feature_id": "nifty_vol_regime",
+          "coef_magnitude": 0.08858735982215599,
+          "coef_signed": -0.08066562198720212,
+          "coef_sign": "-",
+          "rank": 5
+        },
+        {
+          "feature_id": "ema50_slope_5d_pct",
+          "coef_magnitude": 0.08683092213213325,
+          "coef_signed": 0.08683092213213325,
+          "coef_sign": "+",
+          "rank": 6
+        },
+        {
+          "feature_id": "NR4_flag",
+          "coef_magnitude": 0.08187162124438312,
+          "coef_signed": -0.08187162124438312,
+          "coef_sign": "-",
+          "rank": 7
+        },
+        {
+          "feature_id": "consecutive_down_days",
+          "coef_magnitude": 0.07530677281002338,
+          "coef_signed": 0.07530677281002338,
+          "coef_sign": "+",
+          "rank": 8
+        },
+        {
+          "feature_id": "consolidation_quality",
+          "coef_magnitude": 0.07451469019923215,
+          "coef_signed": -0.057728169274743904,
+          "coef_sign": "-",
+          "rank": 9
+        },
+        {
+          "feature_id": "fvg_above_proximity",
+          "coef_magnitude": 0.07408382103304084,
+          "coef_signed": 0.07408382103304084,
+          "coef_sign": "+",
+          "rank": 10
+        },
+        {
+          "feature_id": "regime_score",
+          "coef_magnitude": 0.07060730436436771,
+          "coef_signed": 0.07060730436436771,
+          "coef_sign": "+",
+          "rank": 11
+        },
+        {
+          "feature_id": "ob_bullish_proximity",
+          "coef_magnitude": 0.06599679888481107,
+          "coef_signed": 0.06599679888481107,
+          "coef_sign": "+",
+          "rank": 12
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "coef_magnitude": 0.055591921261223545,
+          "coef_signed": -0.055591921261223545,
+          "coef_sign": "-",
+          "rank": 13
+        },
+        {
+          "feature_id": "outside_bar_flag",
+          "coef_magnitude": 0.05528582093918861,
+          "coef_signed": 0.05528582093918861,
+          "coef_sign": "+",
+          "rank": 14
+        },
+        {
+          "feature_id": "body_to_range_ratio",
+          "coef_magnitude": 0.05096183603887572,
+          "coef_signed": 0.05096183603887572,
+          "coef_sign": "+",
+          "rank": 15
+        },
+        {
+          "feature_id": "weekly_4w_return_pct",
+          "coef_magnitude": 0.0461876483448499,
+          "coef_signed": -0.0461876483448499,
+          "coef_sign": "-",
+          "rank": 16
+        },
+        {
+          "feature_id": "sector_momentum_state",
+          "coef_magnitude": 0.039996897584182414,
+          "coef_signed": 0.035523634623477254,
+          "coef_sign": "+",
+          "rank": 17
+        },
+        {
+          "feature_id": "fib_1618_extension_proximity_atr",
+          "coef_magnitude": 0.03958106954126151,
+          "coef_signed": -0.03958106954126151,
+          "coef_sign": "-",
+          "rank": 18
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "coef_magnitude": 0.03957635690580433,
+          "coef_signed": -0.03957635690580433,
+          "coef_sign": "-",
+          "rank": 19
+        },
+        {
+          "feature_id": "triangle_compression_pct",
+          "coef_magnitude": 0.03950514662273775,
+          "coef_signed": 0.03950514662273775,
+          "coef_sign": "+",
+          "rank": 20
+        },
+        {
+          "feature_id": "vol_q",
+          "coef_magnitude": 0.038422731171640453,
+          "coef_signed": 0.03523445641795969,
+          "coef_sign": "+",
+          "rank": 21
+        },
+        {
+          "feature_id": "nifty_vol_percentile_20d",
+          "coef_magnitude": 0.03834456074522881,
+          "coef_signed": 0.03834456074522881,
+          "coef_sign": "+",
+          "rank": 22
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "coef_magnitude": 0.03734290490359054,
+          "coef_signed": -0.03734290490359054,
+          "coef_sign": "-",
+          "rank": 23
+        },
+        {
+          "feature_id": "regime_state",
+          "coef_magnitude": 0.033900621348958423,
+          "coef_signed": -0.033900621348958423,
+          "coef_sign": "-",
+          "rank": 24
+        },
+        {
+          "feature_id": "lower_wick_ratio",
+          "coef_magnitude": 0.03162575069076715,
+          "coef_signed": -0.03162575069076715,
+          "coef_sign": "-",
+          "rank": 25
+        },
+        {
+          "feature_id": "consecutive_up_days",
+          "coef_magnitude": 0.03144734699893711,
+          "coef_signed": 0.03144734699893711,
+          "coef_sign": "+",
+          "rank": 26
+        },
+        {
+          "feature_id": "MACD_signal",
+          "coef_magnitude": 0.029089581672915015,
+          "coef_signed": 0.024248784759711168,
+          "coef_sign": "+",
+          "rank": 27
+        },
+        {
+          "feature_id": "52w_low_distance_pct",
+          "coef_magnitude": 0.028740923844617516,
+          "coef_signed": 0.028740923844617516,
+          "coef_sign": "+",
+          "rank": 28
+        },
+        {
+          "feature_id": "triangle_quality_ascending",
+          "coef_magnitude": 0.02700217034397632,
+          "coef_signed": 0.02700217034397632,
+          "coef_sign": "+",
+          "rank": 29
+        },
+        {
+          "feature_id": "range_position_in_window",
+          "coef_magnitude": 0.02699139508568244,
+          "coef_signed": -0.02699139508568244,
+          "coef_sign": "-",
+          "rank": 30
+        },
+        {
+          "feature_id": "volume_at_pivot_ratio",
+          "coef_magnitude": 0.02605180562340994,
+          "coef_signed": 0.02605180562340994,
+          "coef_sign": "+",
+          "rank": 31
+        },
+        {
+          "feature_id": "fib_1272_extension_proximity_atr",
+          "coef_magnitude": 0.024150529241189097,
+          "coef_signed": 0.024150529241189097,
+          "coef_sign": "+",
+          "rank": 32
+        },
+        {
+          "feature_id": "bank_nifty_20d_return_pct",
+          "coef_magnitude": 0.023478462398905695,
+          "coef_signed": -0.023478462398905695,
+          "coef_sign": "-",
+          "rank": 33
+        },
+        {
+          "feature_id": "upper_wick_ratio",
+          "coef_magnitude": 0.022764015507059282,
+          "coef_signed": 0.022764015507059282,
+          "coef_sign": "+",
+          "rank": 34
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "coef_magnitude": 0.022717388549476497,
+          "coef_signed": 0.022717388549476497,
+          "coef_sign": "+",
+          "rank": 35
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "coef_magnitude": 0.02239250246182305,
+          "coef_signed": -0.02239250246182305,
+          "coef_sign": "-",
+          "rank": 36
+        },
+        {
+          "feature_id": "prior_swing_high_distance_pct",
+          "coef_magnitude": 0.02209256156805993,
+          "coef_signed": 0.02209256156805993,
+          "coef_sign": "+",
+          "rank": 37
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "coef_magnitude": 0.021518787905257578,
+          "coef_signed": 0.021518787905257578,
+          "coef_sign": "+",
+          "rank": 38
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "coef_magnitude": 0.02151868372767184,
+          "coef_signed": 0.02151868372767184,
+          "coef_sign": "+",
+          "rank": 39
+        },
+        {
+          "feature_id": "inside_day_flag",
+          "coef_magnitude": 0.02125086605808277,
+          "coef_signed": -0.02125086605808277,
+          "coef_sign": "-",
+          "rank": 40
+        },
+        {
+          "feature_id": "RSI_14",
+          "coef_magnitude": 0.0209414167433061,
+          "coef_signed": -0.0209414167433061,
+          "coef_sign": "-",
+          "rank": 41
+        },
+        {
+          "feature_id": "triangle_touches_count",
+          "coef_magnitude": 0.020334321048457893,
+          "coef_signed": 0.020334321048457893,
+          "coef_sign": "+",
+          "rank": 42
+        },
+        {
+          "feature_id": "downtrend_age_days",
+          "coef_magnitude": 0.020255021553206257,
+          "coef_signed": -0.020255021553206257,
+          "coef_sign": "-",
+          "rank": 43
+        },
+        {
+          "feature_id": "bollinger_squeeze_20d",
+          "coef_magnitude": 0.02008441938760988,
+          "coef_signed": 0.02008441938760988,
+          "coef_sign": "+",
+          "rank": 44
+        },
+        {
+          "feature_id": "swing_high_count_20d",
+          "coef_magnitude": 0.0188212453938202,
+          "coef_signed": 0.0188212453938202,
+          "coef_sign": "+",
+          "rank": 45
+        },
+        {
+          "feature_id": "vol_ratio_50d",
+          "coef_magnitude": 0.01753412628825195,
+          "coef_signed": -0.01753412628825195,
+          "coef_sign": "-",
+          "rank": 46
+        },
+        {
+          "feature_id": "bullish_engulf_flag",
+          "coef_magnitude": 0.017440072752456265,
+          "coef_signed": 0.017440072752456265,
+          "coef_sign": "+",
+          "rank": 47
+        },
+        {
+          "feature_id": "ROC_10",
+          "coef_magnitude": 0.01723666698354524,
+          "coef_signed": -0.01723666698354524,
+          "coef_sign": "-",
+          "rank": 48
+        },
+        {
+          "feature_id": "compression_duration",
+          "coef_magnitude": 0.017171546946032346,
+          "coef_signed": -0.017171546946032346,
+          "coef_sign": "-",
+          "rank": 49
+        },
+        {
+          "feature_id": "day_of_month_bucket",
+          "coef_magnitude": 0.016140150574899464,
+          "coef_signed": -0.016140150574899464,
+          "coef_sign": "-",
+          "rank": 50
+        },
+        {
+          "feature_id": "nifty_20d_return_pct",
+          "coef_magnitude": 0.015218509819104662,
+          "coef_signed": -0.015218509819104662,
+          "coef_sign": "-",
+          "rank": 51
+        },
+        {
+          "feature_id": "hammer_flag",
+          "coef_magnitude": 0.015214905987309344,
+          "coef_signed": -0.015214905987309344,
+          "coef_sign": "-",
+          "rank": 52
+        },
+        {
+          "feature_id": "close_pos_in_range",
+          "coef_magnitude": 0.015145139381012291,
+          "coef_signed": -0.015145139381012291,
+          "coef_sign": "-",
+          "rank": 53
+        },
+        {
+          "feature_id": "triangle_age_bars",
+          "coef_magnitude": 0.014275950248488685,
+          "coef_signed": -0.014275950248488685,
+          "coef_sign": "-",
+          "rank": 54
+        },
+        {
+          "feature_id": "52w_high_distance_pct",
+          "coef_magnitude": 0.014123894121013386,
+          "coef_signed": 0.014123894121013386,
+          "coef_sign": "+",
+          "rank": 55
+        },
+        {
+          "feature_id": "gap_up_pct",
+          "coef_magnitude": 0.01386467188885044,
+          "coef_signed": 0.01386467188885044,
+          "coef_sign": "+",
+          "rank": 56
+        },
+        {
+          "feature_id": "pivot_distance_atr",
+          "coef_magnitude": 0.013735581309667523,
+          "coef_signed": 0.013735581309667523,
+          "coef_sign": "+",
+          "rank": 57
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "coef_magnitude": 0.012923925726962469,
+          "coef_signed": 0.012923925726962469,
+          "coef_sign": "+",
+          "rank": 58
+        },
+        {
+          "feature_id": "sector_index_60d_return_pct",
+          "coef_magnitude": 0.011972664358106776,
+          "coef_signed": 0.011972664358106776,
+          "coef_sign": "+",
+          "rank": 59
+        },
+        {
+          "feature_id": "prior_swing_low_distance_pct",
+          "coef_magnitude": 0.011755330018572933,
+          "coef_signed": -0.011755330018572933,
+          "coef_sign": "-",
+          "rank": 60
+        },
+        {
+          "feature_id": "ema50_distance_pct",
+          "coef_magnitude": 0.010362162680705337,
+          "coef_signed": 0.010362162680705337,
+          "coef_sign": "+",
+          "rank": 61
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "coef_magnitude": 0.009938831802799497,
+          "coef_signed": 0.009938831802799497,
+          "coef_sign": "+",
+          "rank": 62
+        },
+        {
+          "feature_id": "triangle_quality_descending",
+          "coef_magnitude": 0.009742825516956,
+          "coef_signed": -0.009742825516956,
+          "coef_sign": "-",
+          "rank": 63
+        },
+        {
+          "feature_id": "daily_5d_return_pct",
+          "coef_magnitude": 0.009549903068969095,
+          "coef_signed": -0.009549903068969095,
+          "coef_sign": "-",
+          "rank": 64
+        },
+        {
+          "feature_id": "MACD_histogram_sign",
+          "coef_magnitude": 0.008953711751336446,
+          "coef_signed": 0.0073380046292813045,
+          "coef_sign": "+",
+          "rank": 65
+        },
+        {
+          "feature_id": "breakout_strength_atr",
+          "coef_magnitude": 0.007943176751236066,
+          "coef_signed": -0.007943176751236066,
+          "coef_sign": "-",
+          "rank": 66
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "coef_magnitude": 0.006942011508017938,
+          "coef_signed": -0.006942011508017938,
+          "coef_sign": "-",
+          "rank": 67
+        },
+        {
+          "feature_id": "vol_ratio_5d",
+          "coef_magnitude": 0.006006378251769911,
+          "coef_signed": 0.006006378251769911,
+          "coef_sign": "+",
+          "rank": 68
+        },
+        {
+          "feature_id": "days_to_monthly_expiry",
+          "coef_magnitude": 0.005799305968312484,
+          "coef_signed": 0.005799305968312484,
+          "coef_sign": "+",
+          "rank": 69
+        },
+        {
+          "feature_id": "bollinger_band_width_pct",
+          "coef_magnitude": 0.0057489490224540045,
+          "coef_signed": -0.0057489490224540045,
+          "coef_sign": "-",
+          "rank": 70
+        },
+        {
+          "feature_id": "sector_index_20d_return_pct",
+          "coef_magnitude": 0.00551926642220637,
+          "coef_signed": -0.00551926642220637,
+          "coef_sign": "-",
+          "rank": 71
+        },
+        {
+          "feature_id": "vol_dryup_flag",
+          "coef_magnitude": 0.004981023944413371,
+          "coef_signed": -0.004981023944413371,
+          "coef_sign": "-",
+          "rank": 72
+        },
+        {
+          "feature_id": "fib_786_proximity_atr",
+          "coef_magnitude": 0.004315524912427814,
+          "coef_signed": 0.004315524912427814,
+          "coef_sign": "+",
+          "rank": 73
+        },
+        {
+          "feature_id": "multi_tf_alignment_score",
+          "coef_magnitude": 0.004118523356576887,
+          "coef_signed": 0.004118523356576887,
+          "coef_sign": "+",
+          "rank": 74
+        },
+        {
+          "feature_id": "sector_rank_within_universe",
+          "coef_magnitude": 0.004108737433442663,
+          "coef_signed": -0.004108737433442663,
+          "coef_sign": "-",
+          "rank": 75
+        },
+        {
+          "feature_id": "inside_day_streak",
+          "coef_magnitude": 0.003323106768693248,
+          "coef_signed": -0.003323106768693248,
+          "coef_sign": "-",
+          "rank": 76
+        },
+        {
+          "feature_id": "resistance_zone_distance_atr",
+          "coef_magnitude": 0.0030725368514434863,
+          "coef_signed": 0.0030725368514434863,
+          "coef_sign": "+",
+          "rank": 77
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "coef_magnitude": 0.0029287414313116135,
+          "coef_signed": 0.0029287414313116135,
+          "coef_sign": "+",
+          "rank": 78
+        },
+        {
+          "feature_id": "fib_618_proximity_atr",
+          "coef_magnitude": 0.0020963267640849853,
+          "coef_signed": -0.0020963267640849853,
+          "coef_sign": "-",
+          "rank": 79
+        },
+        {
+          "feature_id": "round_number_proximity_pct",
+          "coef_magnitude": 0.001913472098105166,
+          "coef_signed": -0.001913472098105166,
+          "coef_sign": "-",
+          "rank": 80
+        },
+        {
+          "feature_id": "stock_rs_vs_nifty_60d",
+          "coef_magnitude": 0.0018174982881323798,
+          "coef_signed": -0.0018174982881323798,
+          "coef_sign": "-",
+          "rank": 81
+        },
+        {
+          "feature_id": "daily_20d_return_pct",
+          "coef_magnitude": 0.0014695374677902739,
+          "coef_signed": 0.0014695374677902739,
+          "coef_sign": "+",
+          "rank": 82
+        },
+        {
+          "feature_id": "bank_nifty_60d_return_pct",
+          "coef_magnitude": 0.0012790652186006359,
+          "coef_signed": 0.0012790652186006359,
+          "coef_sign": "+",
+          "rank": 83
+        },
+        {
+          "feature_id": "accumulation_distribution_signed",
+          "coef_magnitude": 0.0012281120224433835,
+          "coef_signed": 0.0012281120224433835,
+          "coef_sign": "+",
+          "rank": 84
+        },
+        {
+          "feature_id": "fvg_below_proximity",
+          "coef_magnitude": 0.0009656548262261784,
+          "coef_signed": 0.0009656548262261784,
+          "coef_sign": "+",
+          "rank": 85
+        },
+        {
+          "feature_id": "range_compression_5d",
+          "coef_magnitude": 0.0007806040313949184,
+          "coef_signed": 0.0007806040313949184,
+          "coef_sign": "+",
+          "rank": 86
+        },
+        {
+          "feature_id": "last_swing_high_distance_atr",
+          "coef_magnitude": 0.0007680794729042905,
+          "coef_signed": 0.0007680794729042905,
+          "coef_sign": "+",
+          "rank": 87
+        },
+        {
+          "feature_id": "rs_q",
+          "coef_magnitude": 0.0002440320866561881,
+          "coef_signed": 0.0002440320866561881,
+          "coef_sign": "+",
+          "rank": 88
+        },
+        {
+          "feature_id": "vol_ratio_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 89
+        },
+        {
+          "feature_id": "fvg_unfilled_below_count",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 90
+        },
+        {
+          "feature_id": "daily_3d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 91
+        },
+        {
+          "feature_id": "obv_slope_20d_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 92
+        },
+        {
+          "feature_id": "support_zone_distance_atr",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 93
+        },
+        {
+          "feature_id": "range_compression_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 94
+        },
+        {
+          "feature_id": "ob_bearish_proximity",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 95
+        },
+        {
+          "feature_id": "atr_compression_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 96
+        },
+        {
+          "feature_id": "consolidation_zone_distance_atr",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 97
+        },
+        {
+          "feature_id": "RSI_9",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 98
+        },
+        {
+          "feature_id": "uptrend_age_days",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 99
+        },
+        {
+          "feature_id": "swing_low_count_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 100
+        },
+        {
+          "feature_id": "shooting_star_flag",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 101
+        },
+        {
+          "feature_id": "range_compression_10d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 102
+        },
+        {
+          "feature_id": "daily_60d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 103
+        },
+        {
+          "feature_id": "vol_trend_slope_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 104
+        },
+        {
+          "feature_id": "bearish_engulf_flag",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 105
+        },
+        {
+          "feature_id": "gap_down_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 106
+        },
+        {
+          "feature_id": "weekly_2w_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 107
+        },
+        {
+          "feature_id": "vol_climax_flag",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 108
+        },
+        {
+          "feature_id": "NR7_flag",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 109
+        },
+        {
+          "feature_id": "daily_volatility_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 110
+        },
+        {
+          "feature_id": "ema20_slope_5d_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 111
+        },
+        {
+          "feature_id": "nifty_200d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 112
+        },
+        {
+          "feature_id": "advance_decline_ratio_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 113
+        },
+        {
+          "feature_id": "vol_ratio_10d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 114
+        }
+      ]
+    },
+    "lifetime-Choppy": {
+      "n": 24999,
+      "n_w": 11404,
+      "n_l": 10948,
+      "auc_rf": 0.7025985148651923,
+      "auc_logistic": 0.5644188655675716,
+      "rf": [
+        {
+          "feature_id": "ema_alignment",
+          "importance": 0.04004812475770353,
+          "rank": 1
+        },
+        {
+          "feature_id": "day_of_month_bucket",
+          "importance": 0.03435039372243111,
+          "rank": 2
+        },
+        {
+          "feature_id": "RSI_14",
+          "importance": 0.03423153471029712,
+          "rank": 3
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "importance": 0.0328420026983365,
+          "rank": 4
+        },
+        {
+          "feature_id": "NR4_flag",
+          "importance": 0.03191632489687828,
+          "rank": 5
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "importance": 0.03075426497501131,
+          "rank": 6
+        },
+        {
+          "feature_id": "consolidation_quality",
+          "importance": 0.030606464200355756,
+          "rank": 7
+        },
+        {
+          "feature_id": "fib_1618_extension_proximity_atr",
+          "importance": 0.028221594200250874,
+          "rank": 8
+        },
+        {
+          "feature_id": "day_of_week",
+          "importance": 0.02790332097964459,
+          "rank": 9
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "importance": 0.027752660599719047,
+          "rank": 10
+        },
+        {
+          "feature_id": "ROC_10",
+          "importance": 0.027712198504385374,
+          "rank": 11
+        },
+        {
+          "feature_id": "fib_1272_extension_proximity_atr",
+          "importance": 0.027448779842862505,
+          "rank": 12
+        },
+        {
+          "feature_id": "MACD_signal",
+          "importance": 0.02576118272183153,
+          "rank": 13
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "importance": 0.017667401969268706,
+          "rank": 14
+        },
+        {
+          "feature_id": "multi_tf_alignment_score",
+          "importance": 0.017000049007820553,
+          "rank": 15
+        },
+        {
+          "feature_id": "resistance_zone_distance_atr",
+          "importance": 0.015574933198745842,
+          "rank": 16
+        },
+        {
+          "feature_id": "NR7_flag",
+          "importance": 0.013922790703353569,
+          "rank": 17
+        },
+        {
+          "feature_id": "nifty_vol_regime",
+          "importance": 0.013696076570115295,
+          "rank": 18
+        },
+        {
+          "feature_id": "52w_low_distance_pct",
+          "importance": 0.013075869499895882,
+          "rank": 19
+        },
+        {
+          "feature_id": "consolidation_zone_distance_atr",
+          "importance": 0.01287680063864941,
+          "rank": 20
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "importance": 0.012754219184364802,
+          "rank": 21
+        },
+        {
+          "feature_id": "fvg_above_proximity",
+          "importance": 0.012453830584382642,
+          "rank": 22
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "importance": 0.012211446713194178,
+          "rank": 23
+        },
+        {
+          "feature_id": "lower_wick_ratio",
+          "importance": 0.01215830963418052,
+          "rank": 24
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "importance": 0.011988475821769293,
+          "rank": 25
+        },
+        {
+          "feature_id": "consecutive_up_days",
+          "importance": 0.0118522886283792,
+          "rank": 26
+        },
+        {
+          "feature_id": "compression_duration",
+          "importance": 0.011771017422871295,
+          "rank": 27
+        },
+        {
+          "feature_id": "fvg_unfilled_above_count",
+          "importance": 0.011662586271078029,
+          "rank": 28
+        },
+        {
+          "feature_id": "daily_5d_return_pct",
+          "importance": 0.011641063990338795,
+          "rank": 29
+        },
+        {
+          "feature_id": "gap_up_pct",
+          "importance": 0.011616162133292854,
+          "rank": 30
+        },
+        {
+          "feature_id": "52w_high_distance_pct",
+          "importance": 0.01147277235854713,
+          "rank": 31
+        },
+        {
+          "feature_id": "round_number_proximity_pct",
+          "importance": 0.011251923512634836,
+          "rank": 32
+        },
+        {
+          "feature_id": "regime_score",
+          "importance": 0.011115256158026004,
+          "rank": 33
+        },
+        {
+          "feature_id": "hammer_flag",
+          "importance": 0.010823644954536533,
+          "rank": 34
+        },
+        {
+          "feature_id": "daily_3d_return_pct",
+          "importance": 0.01075646103174671,
+          "rank": 35
+        },
+        {
+          "feature_id": "consecutive_down_days",
+          "importance": 0.010691362867157841,
+          "rank": 36
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "importance": 0.010545224343199091,
+          "rank": 37
+        },
+        {
+          "feature_id": "daily_20d_return_pct",
+          "importance": 0.010434896214878274,
+          "rank": 38
+        },
+        {
+          "feature_id": "close_pos_in_range",
+          "importance": 0.010374144406724309,
+          "rank": 39
+        },
+        {
+          "feature_id": "last_swing_high_distance_atr",
+          "importance": 0.010146938762343212,
+          "rank": 40
+        },
+        {
+          "feature_id": "nifty_vol_percentile_20d",
+          "importance": 0.010121415895243568,
+          "rank": 41
+        },
+        {
+          "feature_id": "daily_60d_return_pct",
+          "importance": 0.010050966395155408,
+          "rank": 42
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "importance": 0.010041052139569871,
+          "rank": 43
+        },
+        {
+          "feature_id": "inside_day_flag",
+          "importance": 0.009951742847714723,
+          "rank": 44
+        },
+        {
+          "feature_id": "ob_bearish_proximity",
+          "importance": 0.009942279414032161,
+          "rank": 45
+        },
+        {
+          "feature_id": "gap_down_pct",
+          "importance": 0.00992838691268956,
+          "rank": 46
+        },
+        {
+          "feature_id": "ema50_slope_5d_pct",
+          "importance": 0.00985771698604299,
+          "rank": 47
+        },
+        {
+          "feature_id": "advance_decline_ratio_20d",
+          "importance": 0.009790209769982966,
+          "rank": 48
+        },
+        {
+          "feature_id": "bearish_engulf_flag",
+          "importance": 0.009679037634456225,
+          "rank": 49
+        },
+        {
+          "feature_id": "accumulation_distribution_signed",
+          "importance": 0.009462352341113962,
+          "rank": 50
+        },
+        {
+          "feature_id": "range_compression_20d",
+          "importance": 0.009266979744701082,
+          "rank": 51
+        },
+        {
+          "feature_id": "pivot_distance_atr",
+          "importance": 0.009127479506075875,
+          "rank": 52
+        },
+        {
+          "feature_id": "regime_state",
+          "importance": 0.008754142633957684,
+          "rank": 53
+        },
+        {
+          "feature_id": "daily_volatility_pct",
+          "importance": 0.00854446878628105,
+          "rank": 54
+        },
+        {
+          "feature_id": "range_position_in_window",
+          "importance": 0.008386461677456852,
+          "rank": 55
+        },
+        {
+          "feature_id": "range_compression_5d",
+          "importance": 0.008198913289589299,
+          "rank": 56
+        },
+        {
+          "feature_id": "fvg_unfilled_below_count",
+          "importance": 0.007184522756539434,
+          "rank": 57
+        },
+        {
+          "feature_id": "inside_day_streak",
+          "importance": 0.007021375854586217,
+          "rank": 58
+        },
+        {
+          "feature_id": "nifty_200d_return_pct",
+          "importance": 0.006755293119772156,
+          "rank": 59
+        },
+        {
+          "feature_id": "fib_618_proximity_atr",
+          "importance": 0.0067295246957365905,
+          "rank": 60
+        },
+        {
+          "feature_id": "downtrend_age_days",
+          "importance": 0.006649300794627925,
+          "rank": 61
+        },
+        {
+          "feature_id": "vol_q",
+          "importance": 0.006465645646436889,
+          "rank": 62
+        },
+        {
+          "feature_id": "fib_786_proximity_atr",
+          "importance": 0.00576220703571372,
+          "rank": 63
+        },
+        {
+          "feature_id": "days_to_monthly_expiry",
+          "importance": 0.005252488202047819,
+          "rank": 64
+        },
+        {
+          "feature_id": "body_to_range_ratio",
+          "importance": 0.004842195585544631,
+          "rank": 65
+        },
+        {
+          "feature_id": "prior_swing_high_distance_pct",
+          "importance": 0.004756929032353016,
+          "rank": 66
+        },
+        {
+          "feature_id": "swing_low_count_20d",
+          "importance": 0.00451873276738837,
+          "rank": 67
+        },
+        {
+          "feature_id": "bank_nifty_20d_return_pct",
+          "importance": 0.004456320971340907,
+          "rank": 68
+        },
+        {
+          "feature_id": "outside_bar_flag",
+          "importance": 0.0033759434702014097,
+          "rank": 69
+        },
+        {
+          "feature_id": "sector_momentum_state",
+          "importance": 0.0030696284531969405,
+          "rank": 70
+        },
+        {
+          "feature_id": "bollinger_squeeze_20d",
+          "importance": 0.0027270876437085205,
+          "rank": 71
+        },
+        {
+          "feature_id": "triangle_age_bars",
+          "importance": 0.002246177543903996,
+          "rank": 72
+        },
+        {
+          "feature_id": "swing_high_count_20d",
+          "importance": 0.0022176051312180135,
+          "rank": 73
+        },
+        {
+          "feature_id": "breakout_strength_atr",
+          "importance": 0.0021652281255594248,
+          "rank": 74
+        },
+        {
+          "feature_id": "MACD_histogram_sign",
+          "importance": 0.001448945146202799,
+          "rank": 75
+        },
+        {
+          "feature_id": "bullish_engulf_flag",
+          "importance": 0.001442043300022613,
+          "rank": 76
+        },
+        {
+          "feature_id": "vol_ratio_50d",
+          "importance": 0.0013940171690020938,
+          "rank": 77
+        },
+        {
+          "feature_id": "triangle_quality_descending",
+          "importance": 0.0013466407254949368,
+          "rank": 78
+        },
+        {
+          "feature_id": "support_zone_distance_atr",
+          "importance": 0.001312778348408044,
+          "rank": 79
+        },
+        {
+          "feature_id": "triangle_quality_ascending",
+          "importance": 0.0012638693780926888,
+          "rank": 80
+        },
+        {
+          "feature_id": "sector_index_60d_return_pct",
+          "importance": 0.001226672460584131,
+          "rank": 81
+        },
+        {
+          "feature_id": "volume_at_pivot_ratio",
+          "importance": 0.0012107076030331212,
+          "rank": 82
+        },
+        {
+          "feature_id": "triangle_compression_pct",
+          "importance": 0.0012096603846791488,
+          "rank": 83
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "importance": 0.0011434101857423552,
+          "rank": 84
+        },
+        {
+          "feature_id": "vol_trend_slope_20d",
+          "importance": 0.001132616851378888,
+          "rank": 85
+        },
+        {
+          "feature_id": "obv_slope_20d_pct",
+          "importance": 0.0011063629316123529,
+          "rank": 86
+        },
+        {
+          "feature_id": "triangle_touches_count",
+          "importance": 0.001078770660373795,
+          "rank": 87
+        },
+        {
+          "feature_id": "weekly_4w_return_pct",
+          "importance": 0.0010098372285411077,
+          "rank": 88
+        },
+        {
+          "feature_id": "upper_wick_ratio",
+          "importance": 0.0009984429223756789,
+          "rank": 89
+        },
+        {
+          "feature_id": "weekly_2w_return_pct",
+          "importance": 0.0009511072548757993,
+          "rank": 90
+        },
+        {
+          "feature_id": "rs_q",
+          "importance": 0.0009329260950916381,
+          "rank": 91
+        },
+        {
+          "feature_id": "sector_index_20d_return_pct",
+          "importance": 0.000921411116956208,
+          "rank": 92
+        },
+        {
+          "feature_id": "vol_ratio_5d",
+          "importance": 0.0008911470212800861,
+          "rank": 93
+        },
+        {
+          "feature_id": "vol_dryup_flag",
+          "importance": 0.0008210141691913998,
+          "rank": 94
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "importance": 0.0007986374967939826,
+          "rank": 95
+        },
+        {
+          "feature_id": "ob_bullish_proximity",
+          "importance": 0.0007964791986581522,
+          "rank": 96
+        },
+        {
+          "feature_id": "atr_compression_pct",
+          "importance": 0.0007785754494406087,
+          "rank": 97
+        },
+        {
+          "feature_id": "fvg_below_proximity",
+          "importance": 0.0006754913918514579,
+          "rank": 98
+        },
+        {
+          "feature_id": "ema50_distance_pct",
+          "importance": 0.000622621751643593,
+          "rank": 99
+        },
+        {
+          "feature_id": "shooting_star_flag",
+          "importance": 0.0006021948137130545,
+          "rank": 100
+        },
+        {
+          "feature_id": "ema20_slope_5d_pct",
+          "importance": 0.0005980908966816804,
+          "rank": 101
+        },
+        {
+          "feature_id": "RSI_9",
+          "importance": 0.0005511355165959581,
+          "rank": 102
+        },
+        {
+          "feature_id": "sector_rank_within_universe",
+          "importance": 0.0005359272931084663,
+          "rank": 103
+        },
+        {
+          "feature_id": "vol_climax_flag",
+          "importance": 0.0005077468823295656,
+          "rank": 104
+        },
+        {
+          "feature_id": "uptrend_age_days",
+          "importance": 0.0005015228400532704,
+          "rank": 105
+        },
+        {
+          "feature_id": "range_compression_10d",
+          "importance": 0.00043260824142184526,
+          "rank": 106
+        },
+        {
+          "feature_id": "bank_nifty_60d_return_pct",
+          "importance": 0.0004298157714559533,
+          "rank": 107
+        },
+        {
+          "feature_id": "prior_swing_low_distance_pct",
+          "importance": 0.0003265190399841093,
+          "rank": 108
+        },
+        {
+          "feature_id": "nifty_20d_return_pct",
+          "importance": 0.00027426927462219207,
+          "rank": 109
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "importance": 0.00016128726219520498,
+          "rank": 110
+        },
+        {
+          "feature_id": "bollinger_band_width_pct",
+          "importance": 0.00015976267805772496,
+          "rank": 111
+        },
+        {
+          "feature_id": "stock_rs_vs_nifty_60d",
+          "importance": 2.0327053312721866e-05,
+          "rank": 112
+        },
+        {
+          "feature_id": "vol_ratio_20d",
+          "importance": 0.0,
+          "rank": 113
+        },
+        {
+          "feature_id": "vol_ratio_10d",
+          "importance": 0.0,
+          "rank": 114
+        }
+      ],
+      "logistic": [
+        {
+          "feature_id": "consolidation_quality",
+          "coef_magnitude": 0.16840954015191364,
+          "coef_signed": 0.16246728706132083,
+          "coef_sign": "+",
+          "rank": 1
+        },
+        {
+          "feature_id": "inside_day_streak",
+          "coef_magnitude": 0.1239139743955014,
+          "coef_signed": 0.1239139743955014,
+          "coef_sign": "+",
+          "rank": 2
+        },
+        {
+          "feature_id": "ema_alignment",
+          "coef_magnitude": 0.10964502558464277,
+          "coef_signed": 0.10964502558464277,
+          "coef_sign": "+",
+          "rank": 3
+        },
+        {
+          "feature_id": "body_to_range_ratio",
+          "coef_magnitude": 0.10875942030029016,
+          "coef_signed": -0.10875942030029016,
+          "coef_sign": "-",
+          "rank": 4
+        },
+        {
+          "feature_id": "higher_highs_intact_flag",
+          "coef_magnitude": 0.1027964566234319,
+          "coef_signed": -0.1027964566234319,
+          "coef_sign": "-",
+          "rank": 5
+        },
+        {
+          "feature_id": "vol_q",
+          "coef_magnitude": 0.09992665985085088,
+          "coef_signed": 0.07594473345204604,
+          "coef_sign": "+",
+          "rank": 6
+        },
+        {
+          "feature_id": "day_of_month_bucket",
+          "coef_magnitude": 0.09689275371590558,
+          "coef_signed": -0.03870414152415183,
+          "coef_sign": "-",
+          "rank": 7
+        },
+        {
+          "feature_id": "MACD_signal",
+          "coef_magnitude": 0.09499716308246736,
+          "coef_signed": 0.09499716308246736,
+          "coef_sign": "+",
+          "rank": 8
+        },
+        {
+          "feature_id": "uptrend_age_days",
+          "coef_magnitude": 0.0731140365338914,
+          "coef_signed": -0.0731140365338914,
+          "coef_sign": "-",
+          "rank": 9
+        },
+        {
+          "feature_id": "round_number_proximity_pct",
+          "coef_magnitude": 0.07070936438471648,
+          "coef_signed": -0.07070936438471648,
+          "coef_sign": "-",
+          "rank": 10
+        },
+        {
+          "feature_id": "close_pos_in_range",
+          "coef_magnitude": 0.0656849580985878,
+          "coef_signed": -0.0656849580985878,
+          "coef_sign": "-",
+          "rank": 11
+        },
+        {
+          "feature_id": "nifty_200d_return_pct",
+          "coef_magnitude": 0.06200197890558594,
+          "coef_signed": -0.06200197890558594,
+          "coef_sign": "-",
+          "rank": 12
+        },
+        {
+          "feature_id": "resistance_zone_distance_atr",
+          "coef_magnitude": 0.05379167595371328,
+          "coef_signed": 0.05379167595371328,
+          "coef_sign": "+",
+          "rank": 13
+        },
+        {
+          "feature_id": "advance_decline_ratio_20d",
+          "coef_magnitude": 0.05050931710896177,
+          "coef_signed": -0.05050931710896177,
+          "coef_sign": "-",
+          "rank": 14
+        },
+        {
+          "feature_id": "fib_382_proximity_atr",
+          "coef_magnitude": 0.05030249748405205,
+          "coef_signed": 0.05030249748405205,
+          "coef_sign": "+",
+          "rank": 15
+        },
+        {
+          "feature_id": "day_of_week",
+          "coef_magnitude": 0.04806836961129847,
+          "coef_signed": 0.00040337695863776335,
+          "coef_sign": "+",
+          "rank": 16
+        },
+        {
+          "feature_id": "52w_high_distance_pct",
+          "coef_magnitude": 0.04716318429605967,
+          "coef_signed": 0.04716318429605967,
+          "coef_sign": "+",
+          "rank": 17
+        },
+        {
+          "feature_id": "fib_50_proximity_atr",
+          "coef_magnitude": 0.04660424166113071,
+          "coef_signed": -0.04660424166113071,
+          "coef_sign": "-",
+          "rank": 18
+        },
+        {
+          "feature_id": "RSI_14",
+          "coef_magnitude": 0.04527117095992116,
+          "coef_signed": -0.04527117095992116,
+          "coef_sign": "-",
+          "rank": 19
+        },
+        {
+          "feature_id": "vol_climax_flag",
+          "coef_magnitude": 0.04478972780925523,
+          "coef_signed": 0.04478972780925523,
+          "coef_sign": "+",
+          "rank": 20
+        },
+        {
+          "feature_id": "coiled_spring_score",
+          "coef_magnitude": 0.04401093500460231,
+          "coef_signed": -0.04401093500460231,
+          "coef_sign": "-",
+          "rank": 21
+        },
+        {
+          "feature_id": "52w_low_distance_pct",
+          "coef_magnitude": 0.042904500617083875,
+          "coef_signed": -0.042904500617083875,
+          "coef_sign": "-",
+          "rank": 22
+        },
+        {
+          "feature_id": "triangle_age_bars",
+          "coef_magnitude": 0.041608435898727425,
+          "coef_signed": 0.041608435898727425,
+          "coef_sign": "+",
+          "rank": 23
+        },
+        {
+          "feature_id": "daily_60d_return_pct",
+          "coef_magnitude": 0.03828303696466862,
+          "coef_signed": 0.03828303696466862,
+          "coef_sign": "+",
+          "rank": 24
+        },
+        {
+          "feature_id": "triangle_touches_count",
+          "coef_magnitude": 0.037960872893949636,
+          "coef_signed": 0.037960872893949636,
+          "coef_sign": "+",
+          "rank": 25
+        },
+        {
+          "feature_id": "hammer_flag",
+          "coef_magnitude": 0.03705729289877939,
+          "coef_signed": 0.03705729289877939,
+          "coef_sign": "+",
+          "rank": 26
+        },
+        {
+          "feature_id": "ema20_distance_pct",
+          "coef_magnitude": 0.036915096348951355,
+          "coef_signed": 0.036915096348951355,
+          "coef_sign": "+",
+          "rank": 27
+        },
+        {
+          "feature_id": "market_breadth_pct",
+          "coef_magnitude": 0.03687336248333498,
+          "coef_signed": -0.03687336248333498,
+          "coef_sign": "-",
+          "rank": 28
+        },
+        {
+          "feature_id": "NR7_flag",
+          "coef_magnitude": 0.03577450907809301,
+          "coef_signed": -0.03577450907809301,
+          "coef_sign": "-",
+          "rank": 29
+        },
+        {
+          "feature_id": "fib_1618_extension_proximity_atr",
+          "coef_magnitude": 0.03347431154945915,
+          "coef_signed": 0.03347431154945915,
+          "coef_sign": "+",
+          "rank": 30
+        },
+        {
+          "feature_id": "ema20_slope_5d_pct",
+          "coef_magnitude": 0.03243176422974139,
+          "coef_signed": 0.03243176422974139,
+          "coef_sign": "+",
+          "rank": 31
+        },
+        {
+          "feature_id": "lower_wick_ratio",
+          "coef_magnitude": 0.03184572145424569,
+          "coef_signed": -0.03184572145424569,
+          "coef_sign": "-",
+          "rank": 32
+        },
+        {
+          "feature_id": "consecutive_up_days",
+          "coef_magnitude": 0.03179138174614178,
+          "coef_signed": 0.03179138174614178,
+          "coef_sign": "+",
+          "rank": 33
+        },
+        {
+          "feature_id": "nifty_vol_regime",
+          "coef_magnitude": 0.031346081310849074,
+          "coef_signed": 0.010686432978749806,
+          "coef_sign": "+",
+          "rank": 34
+        },
+        {
+          "feature_id": "MACD_histogram_slope",
+          "coef_magnitude": 0.027510141062349766,
+          "coef_signed": 0.027510141062349766,
+          "coef_sign": "+",
+          "rank": 35
+        },
+        {
+          "feature_id": "bollinger_squeeze_20d",
+          "coef_magnitude": 0.027239200258599435,
+          "coef_signed": -0.027239200258599435,
+          "coef_sign": "-",
+          "rank": 36
+        },
+        {
+          "feature_id": "ema50_slope_20d_pct",
+          "coef_magnitude": 0.026193489525648723,
+          "coef_signed": -0.026193489525648723,
+          "coef_sign": "-",
+          "rank": 37
+        },
+        {
+          "feature_id": "outside_bar_flag",
+          "coef_magnitude": 0.02393486872495648,
+          "coef_signed": 0.02393486872495648,
+          "coef_sign": "+",
+          "rank": 38
+        },
+        {
+          "feature_id": "nifty_vol_percentile_20d",
+          "coef_magnitude": 0.023522242445749526,
+          "coef_signed": -0.023522242445749526,
+          "coef_sign": "-",
+          "rank": 39
+        },
+        {
+          "feature_id": "sector_rank_within_universe",
+          "coef_magnitude": 0.02300577424206204,
+          "coef_signed": 0.02300577424206204,
+          "coef_sign": "+",
+          "rank": 40
+        },
+        {
+          "feature_id": "fvg_above_proximity",
+          "coef_magnitude": 0.022658647769202563,
+          "coef_signed": 0.022658647769202563,
+          "coef_sign": "+",
+          "rank": 41
+        },
+        {
+          "feature_id": "fib_1272_extension_proximity_atr",
+          "coef_magnitude": 0.022370068025335393,
+          "coef_signed": -0.022370068025335393,
+          "coef_sign": "-",
+          "rank": 42
+        },
+        {
+          "feature_id": "compression_duration",
+          "coef_magnitude": 0.022365344492938533,
+          "coef_signed": -0.022365344492938533,
+          "coef_sign": "-",
+          "rank": 43
+        },
+        {
+          "feature_id": "bullish_engulf_flag",
+          "coef_magnitude": 0.022323831599585824,
+          "coef_signed": -0.022323831599585824,
+          "coef_sign": "-",
+          "rank": 44
+        },
+        {
+          "feature_id": "MACD_histogram_sign",
+          "coef_magnitude": 0.02223558971515533,
+          "coef_signed": -0.019347826459750805,
+          "coef_sign": "-",
+          "rank": 45
+        },
+        {
+          "feature_id": "accumulation_distribution_signed",
+          "coef_magnitude": 0.022024838340773147,
+          "coef_signed": 0.022024838340773147,
+          "coef_sign": "+",
+          "rank": 46
+        },
+        {
+          "feature_id": "triangle_compression_pct",
+          "coef_magnitude": 0.021635591346431858,
+          "coef_signed": -0.021635591346431858,
+          "coef_sign": "-",
+          "rank": 47
+        },
+        {
+          "feature_id": "swing_low_count_20d",
+          "coef_magnitude": 0.021557983192622983,
+          "coef_signed": -0.021557983192622983,
+          "coef_sign": "-",
+          "rank": 48
+        },
+        {
+          "feature_id": "range_compression_20d",
+          "coef_magnitude": 0.020643042618343363,
+          "coef_signed": -0.020643042618343363,
+          "coef_sign": "-",
+          "rank": 49
+        },
+        {
+          "feature_id": "bollinger_band_width_pct",
+          "coef_magnitude": 0.019211135033370838,
+          "coef_signed": -0.019211135033370838,
+          "coef_sign": "-",
+          "rank": 50
+        },
+        {
+          "feature_id": "NR4_flag",
+          "coef_magnitude": 0.019208304507558744,
+          "coef_signed": -0.019208304507558744,
+          "coef_sign": "-",
+          "rank": 51
+        },
+        {
+          "feature_id": "support_zone_distance_atr",
+          "coef_magnitude": 0.018437410130196466,
+          "coef_signed": 0.018437410130196466,
+          "coef_sign": "+",
+          "rank": 52
+        },
+        {
+          "feature_id": "inside_bar_flag",
+          "coef_magnitude": 0.01758220872902469,
+          "coef_signed": -0.01758220872902469,
+          "coef_sign": "-",
+          "rank": 53
+        },
+        {
+          "feature_id": "days_to_monthly_expiry",
+          "coef_magnitude": 0.017257250579212624,
+          "coef_signed": -0.017257250579212624,
+          "coef_sign": "-",
+          "rank": 54
+        },
+        {
+          "feature_id": "regime_score",
+          "coef_magnitude": 0.017076432993751472,
+          "coef_signed": 0.017076432993751472,
+          "coef_sign": "+",
+          "rank": 55
+        },
+        {
+          "feature_id": "ob_bearish_proximity",
+          "coef_magnitude": 0.015254073304725115,
+          "coef_signed": 0.015254073304725115,
+          "coef_sign": "+",
+          "rank": 56
+        },
+        {
+          "feature_id": "downtrend_age_days",
+          "coef_magnitude": 0.01469179582784878,
+          "coef_signed": 0.01469179582784878,
+          "coef_sign": "+",
+          "rank": 57
+        },
+        {
+          "feature_id": "obv_slope_20d_pct",
+          "coef_magnitude": 0.014436382974624018,
+          "coef_signed": 0.014436382974624018,
+          "coef_sign": "+",
+          "rank": 58
+        },
+        {
+          "feature_id": "fib_786_proximity_atr",
+          "coef_magnitude": 0.014424603806437666,
+          "coef_signed": 0.014424603806437666,
+          "coef_sign": "+",
+          "rank": 59
+        },
+        {
+          "feature_id": "volume_at_pivot_ratio",
+          "coef_magnitude": 0.013454477673516289,
+          "coef_signed": -0.013454477673516289,
+          "coef_sign": "-",
+          "rank": 60
+        },
+        {
+          "feature_id": "bank_nifty_20d_return_pct",
+          "coef_magnitude": 0.012972699209509038,
+          "coef_signed": -0.012972699209509038,
+          "coef_sign": "-",
+          "rank": 61
+        },
+        {
+          "feature_id": "fvg_unfilled_below_count",
+          "coef_magnitude": 0.011743347707902701,
+          "coef_signed": 0.011743347707902701,
+          "coef_sign": "+",
+          "rank": 62
+        },
+        {
+          "feature_id": "ob_bullish_proximity",
+          "coef_magnitude": 0.011674868011924668,
+          "coef_signed": -0.011674868011924668,
+          "coef_sign": "-",
+          "rank": 63
+        },
+        {
+          "feature_id": "ema200_distance_pct",
+          "coef_magnitude": 0.01107887924355586,
+          "coef_signed": 0.01107887924355586,
+          "coef_sign": "+",
+          "rank": 64
+        },
+        {
+          "feature_id": "bearish_engulf_flag",
+          "coef_magnitude": 0.010762223302152873,
+          "coef_signed": 0.010762223302152873,
+          "coef_sign": "+",
+          "rank": 65
+        },
+        {
+          "feature_id": "prior_swing_low_distance_pct",
+          "coef_magnitude": 0.009809723269544409,
+          "coef_signed": 0.009809723269544409,
+          "coef_sign": "+",
+          "rank": 66
+        },
+        {
+          "feature_id": "breakout_strength_atr",
+          "coef_magnitude": 0.009687027901556254,
+          "coef_signed": 0.009687027901556254,
+          "coef_sign": "+",
+          "rank": 67
+        },
+        {
+          "feature_id": "prior_swing_high_distance_pct",
+          "coef_magnitude": 0.009010211924836307,
+          "coef_signed": -0.009010211924836307,
+          "coef_sign": "-",
+          "rank": 68
+        },
+        {
+          "feature_id": "atr_compression_pct",
+          "coef_magnitude": 0.008900765094780506,
+          "coef_signed": -0.008900765094780506,
+          "coef_sign": "-",
+          "rank": 69
+        },
+        {
+          "feature_id": "gap_up_pct",
+          "coef_magnitude": 0.007985697072540208,
+          "coef_signed": 0.007985697072540208,
+          "coef_sign": "+",
+          "rank": 70
+        },
+        {
+          "feature_id": "fib_618_proximity_atr",
+          "coef_magnitude": 0.007887352842698965,
+          "coef_signed": -0.007887352842698965,
+          "coef_sign": "-",
+          "rank": 71
+        },
+        {
+          "feature_id": "ema50_slope_5d_pct",
+          "coef_magnitude": 0.007317920354332408,
+          "coef_signed": 0.007317920354332408,
+          "coef_sign": "+",
+          "rank": 72
+        },
+        {
+          "feature_id": "pivot_distance_atr",
+          "coef_magnitude": 0.006955616931605388,
+          "coef_signed": -0.006955616931605388,
+          "coef_sign": "-",
+          "rank": 73
+        },
+        {
+          "feature_id": "fvg_unfilled_above_count",
+          "coef_magnitude": 0.006930145149593925,
+          "coef_signed": 0.006930145149593925,
+          "coef_sign": "+",
+          "rank": 74
+        },
+        {
+          "feature_id": "bank_nifty_60d_return_pct",
+          "coef_magnitude": 0.006472446654773426,
+          "coef_signed": -0.006472446654773426,
+          "coef_sign": "-",
+          "rank": 75
+        },
+        {
+          "feature_id": "RSI_9",
+          "coef_magnitude": 0.006450471297432464,
+          "coef_signed": 0.006450471297432464,
+          "coef_sign": "+",
+          "rank": 76
+        },
+        {
+          "feature_id": "range_compression_10d",
+          "coef_magnitude": 0.005532234109508249,
+          "coef_signed": -0.005532234109508249,
+          "coef_sign": "-",
+          "rank": 77
+        },
+        {
+          "feature_id": "nifty_20d_return_pct",
+          "coef_magnitude": 0.005346004435459974,
+          "coef_signed": -0.005346004435459974,
+          "coef_sign": "-",
+          "rank": 78
+        },
+        {
+          "feature_id": "last_swing_high_distance_atr",
+          "coef_magnitude": 0.004401639490344739,
+          "coef_signed": 0.004401639490344739,
+          "coef_sign": "+",
+          "rank": 79
+        },
+        {
+          "feature_id": "vol_trend_slope_20d",
+          "coef_magnitude": 0.004201508797318594,
+          "coef_signed": 0.004201508797318594,
+          "coef_sign": "+",
+          "rank": 80
+        },
+        {
+          "feature_id": "range_position_in_window",
+          "coef_magnitude": 0.004181213888829404,
+          "coef_signed": -0.004181213888829404,
+          "coef_sign": "-",
+          "rank": 81
+        },
+        {
+          "feature_id": "triangle_quality_descending",
+          "coef_magnitude": 0.003274242285604633,
+          "coef_signed": 0.003274242285604633,
+          "coef_sign": "+",
+          "rank": 82
+        },
+        {
+          "feature_id": "daily_5d_return_pct",
+          "coef_magnitude": 0.0026098645165633593,
+          "coef_signed": 0.0026098645165633593,
+          "coef_sign": "+",
+          "rank": 83
+        },
+        {
+          "feature_id": "fvg_below_proximity",
+          "coef_magnitude": 0.0025968664598651475,
+          "coef_signed": 0.0025968664598651475,
+          "coef_sign": "+",
+          "rank": 84
+        },
+        {
+          "feature_id": "weekly_4w_return_pct",
+          "coef_magnitude": 0.002157100472290729,
+          "coef_signed": 0.002157100472290729,
+          "coef_sign": "+",
+          "rank": 85
+        },
+        {
+          "feature_id": "vol_ratio_50d",
+          "coef_magnitude": 0.0017826017363635886,
+          "coef_signed": -0.0017826017363635886,
+          "coef_sign": "-",
+          "rank": 86
+        },
+        {
+          "feature_id": "sector_index_60d_return_pct",
+          "coef_magnitude": 0.001348588718770572,
+          "coef_signed": -0.001348588718770572,
+          "coef_sign": "-",
+          "rank": 87
+        },
+        {
+          "feature_id": "sector_momentum_state",
+          "coef_magnitude": 0.0005656488722591933,
+          "coef_signed": 0.0005656488722591933,
+          "coef_sign": "+",
+          "rank": 88
+        },
+        {
+          "feature_id": "triangle_quality_ascending",
+          "coef_magnitude": 0.0003341701203790358,
+          "coef_signed": -0.0003341701203790358,
+          "coef_sign": "-",
+          "rank": 89
+        },
+        {
+          "feature_id": "sector_index_20d_return_pct",
+          "coef_magnitude": 7.048855358342002e-05,
+          "coef_signed": -7.048855358342002e-05,
+          "coef_sign": "-",
+          "rank": 90
+        },
+        {
+          "feature_id": "rs_q",
+          "coef_magnitude": 6.764279917789797e-05,
+          "coef_signed": 6.764279917789797e-05,
+          "coef_sign": "+",
+          "rank": 91
+        },
+        {
+          "feature_id": "vol_ratio_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 92
+        },
+        {
+          "feature_id": "daily_3d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 93
+        },
+        {
+          "feature_id": "daily_20d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 94
+        },
+        {
+          "feature_id": "swing_high_count_20d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 95
+        },
+        {
+          "feature_id": "regime_state",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 96
+        },
+        {
+          "feature_id": "consolidation_zone_distance_atr",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 97
+        },
+        {
+          "feature_id": "range_compression_5d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 98
+        },
+        {
+          "feature_id": "multi_tf_alignment_score",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 99
+        },
+        {
+          "feature_id": "nifty_60d_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 100
+        },
+        {
+          "feature_id": "vol_dryup_flag",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 101
+        },
+        {
+          "feature_id": "vol_ratio_5d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 102
+        },
+        {
+          "feature_id": "shooting_star_flag",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 103
+        },
+        {
+          "feature_id": "ROC_10",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 104
+        },
+        {
+          "feature_id": "inside_day_flag",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 105
+        },
+        {
+          "feature_id": "gap_down_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 106
+        },
+        {
+          "feature_id": "consecutive_down_days",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 107
+        },
+        {
+          "feature_id": "weekly_2w_return_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 108
+        },
+        {
+          "feature_id": "stock_rs_vs_nifty_60d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 109
+        },
+        {
+          "feature_id": "upper_wick_ratio",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 110
+        },
+        {
+          "feature_id": "ema50_distance_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 111
+        },
+        {
+          "feature_id": "daily_volatility_pct",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 112
+        },
+        {
+          "feature_id": "range_compression_60d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 113
+        },
+        {
+          "feature_id": "vol_ratio_10d",
+          "coef_magnitude": 0.0,
+          "coef_signed": 0.0,
+          "coef_sign": "0",
+          "rank": 114
+        }
+      ]
+    }
+  }
+}
