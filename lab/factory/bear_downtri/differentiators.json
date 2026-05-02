@@ -1,0 +1,417 @@
+{
+  "lifetime_universe": {
+    "n_total": 3640,
+    "baseline_wr": 0.4613511868533171
+  },
+  "top_winner_features_lifetime": [
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk2",
+      "presence_n_wl": 635,
+      "presence_pct": 0.17445054945054944,
+      "presence_wr": 0.5826771653543307,
+      "absence_wr": 0.43228970199924555,
+      "delta_pp": 15.038746335508513
+    },
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk3",
+      "presence_n_wl": 921,
+      "presence_pct": 0.253021978021978,
+      "presence_wr": 0.509229098805646,
+      "absence_wr": 0.4427061310782241,
+      "delta_pp": 6.652296772742194
+    },
+    {
+      "feature_id": "nifty_60d_return_pct",
+      "level": "medium",
+      "presence_n_wl": 2759,
+      "presence_pct": 0.7579670329670329,
+      "presence_wr": 0.46792316056542227,
+      "absence_wr": 0.4269449715370019,
+      "delta_pp": 4.097818902842038
+    },
+    {
+      "feature_id": "higher_highs_intact_flag",
+      "level": "True",
+      "presence_n_wl": 566,
+      "presence_pct": 0.1554945054945055,
+      "presence_wr": 0.49469964664310956,
+      "absence_wr": 0.45441176470588235,
+      "delta_pp": 4.028788193722721
+    },
+    {
+      "feature_id": "RSI_14",
+      "level": "medium",
+      "presence_n_wl": 2760,
+      "presence_pct": 0.7582417582417582,
+      "presence_wr": 0.46557971014492755,
+      "absence_wr": 0.4391634980988593,
+      "delta_pp": 2.6416212046068255
+    },
+    {
+      "feature_id": "day_of_week",
+      "level": "Tue",
+      "presence_n_wl": 618,
+      "presence_pct": 0.1697802197802198,
+      "presence_wr": 0.47896440129449835,
+      "absence_wr": 0.4572713643178411,
+      "delta_pp": 2.1693036976657254
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "High",
+      "presence_n_wl": 1745,
+      "presence_pct": 0.4793956043956044,
+      "presence_wr": 0.4710601719197708,
+      "absence_wr": 0.45035691109669046,
+      "delta_pp": 2.070326082308033
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "high",
+      "presence_n_wl": 1745,
+      "presence_pct": 0.4793956043956044,
+      "presence_wr": 0.4710601719197708,
+      "absence_wr": 0.45035691109669046,
+      "delta_pp": 2.070326082308033
+    },
+    {
+      "feature_id": "range_compression_60d",
+      "level": "medium",
+      "presence_n_wl": 1005,
+      "presence_pct": 0.2760989010989011,
+      "presence_wr": 0.47562189054726367,
+      "absence_wr": 0.45506356861025865,
+      "delta_pp": 2.055832193700502
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "mixed",
+      "presence_n_wl": 1814,
+      "presence_pct": 0.49835164835164836,
+      "presence_wr": 0.4685777287761852,
+      "absence_wr": 0.452445652173913,
+      "delta_pp": 1.6132076602272172
+    }
+  ],
+  "top_anti_features_lifetime": [
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk4",
+      "presence_n_wl": 1023,
+      "presence_pct": 0.28104395604395604,
+      "presence_wr": 0.3411534701857282,
+      "absence_wr": 0.515687140963323,
+      "delta_pp": -17.45336707775948
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "Low",
+      "presence_n_wl": 109,
+      "presence_pct": 0.029945054945054946,
+      "presence_wr": 0.3669724770642202,
+      "absence_wr": 0.46458923512747874,
+      "delta_pp": -9.761675806325854
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "low",
+      "presence_n_wl": 109,
+      "presence_pct": 0.029945054945054946,
+      "presence_wr": 0.3669724770642202,
+      "absence_wr": 0.46458923512747874,
+      "delta_pp": -9.761675806325854
+    },
+    {
+      "feature_id": "day_of_week",
+      "level": "Mon",
+      "presence_n_wl": 733,
+      "presence_pct": 0.20137362637362638,
+      "presence_wr": 0.42701227830832195,
+      "absence_wr": 0.4712103407755582,
+      "delta_pp": -4.419806246723623
+    },
+    {
+      "feature_id": "nifty_60d_return_pct",
+      "level": "low",
+      "presence_n_wl": 527,
+      "presence_pct": 0.1447802197802198,
+      "presence_wr": 0.4269449715370019,
+      "absence_wr": 0.46792316056542227,
+      "delta_pp": -4.097818902842038
+    },
+    {
+      "feature_id": "higher_highs_intact_flag",
+      "level": "False",
+      "presence_n_wl": 2720,
+      "presence_pct": 0.7472527472527473,
+      "presence_wr": 0.45441176470588235,
+      "absence_wr": 0.49469964664310956,
+      "delta_pp": -4.028788193722721
+    },
+    {
+      "feature_id": "RSI_14",
+      "level": "low",
+      "presence_n_wl": 490,
+      "presence_pct": 0.1346153846153846,
+      "presence_wr": 0.4346938775510204,
+      "absence_wr": 0.46602288984263235,
+      "delta_pp": -3.1329012291611944
+    },
+    {
+      "feature_id": "range_compression_60d",
+      "level": "high",
+      "presence_n_wl": 2277,
+      "presence_pct": 0.6255494505494505,
+      "presence_wr": 0.4554238032498902,
+      "absence_wr": 0.47472745292368684,
+      "delta_pp": -1.9303649673796663
+    },
+    {
+      "feature_id": "market_breadth_pct",
+      "level": "medium",
+      "presence_n_wl": 1218,
+      "presence_pct": 0.3346153846153846,
+      "presence_wr": 0.451559934318555,
+      "absence_wr": 0.4671179883945841,
+      "delta_pp": -1.5558054076029115
+    },
+    {
+      "feature_id": "52w_low_distance_pct",
+      "level": "low",
+      "presence_n_wl": 324,
+      "presence_pct": 0.08901098901098901,
+      "presence_wr": 0.44753086419753085,
+      "absence_wr": 0.462862930452397,
+      "delta_pp": -1.5332066254866161
+    }
+  ],
+  "kill_001_validation": {
+    "bank_lifetime_n": 653,
+    "bank_lifetime_wr": 0.4504201680672269,
+    "non_bank_lifetime_n": 2987,
+    "non_bank_lifetime_wr": 0.463768115942029,
+    "delta_pp": 1.334794787480209,
+    "verdict": "kill_001 partially supported \u2014 Bank lifetime is modestly worse than non-Bank, but not dramatically. Live data shows full kill_001 confirmation: 0/6 Bank wins."
+  },
+  "live_winners_features": [
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bear",
+      "feat_MACD_histogram_slope": "falling",
+      "feat_RSI_14": 30.418533149650116,
+      "feat_higher_highs_intact_flag": true,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.12762953833535928,
+      "feat_day_of_week": "Mon",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "IPCALAB.NS",
+      "sector": "Pharma",
+      "date": "2026-04-06 00:00:00"
+    },
+    {
+      "feat_ema_alignment": "bear",
+      "feat_MACD_signal": "bear",
+      "feat_MACD_histogram_slope": "falling",
+      "feat_RSI_14": 38.18810514412102,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.12762953833535928,
+      "feat_day_of_week": "Mon",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "VINATIORGA.NS",
+      "sector": "Chem",
+      "date": "2026-04-06 00:00:00"
+    }
+  ],
+  "live_losers_features": [
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bull",
+      "feat_MACD_histogram_slope": "rising",
+      "feat_RSI_14": 58.39618633837492,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.12762953833535928,
+      "feat_day_of_week": "Mon",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "ADANIGREEN.NS",
+      "sector": "Energy",
+      "date": "2026-04-06 00:00:00"
+    },
+    {
+      "feat_ema_alignment": "bull",
+      "feat_MACD_signal": "bull",
+      "feat_MACD_histogram_slope": "rising",
+      "feat_RSI_14": 55.28024470818549,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.12762953833535928,
+      "feat_day_of_week": "Mon",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "BSE.NS",
+      "sector": "Bank",
+      "date": "2026-04-06 00:00:00"
+    },
+    {
+      "feat_ema_alignment": "bear",
+      "feat_MACD_signal": "bull",
+      "feat_MACD_histogram_slope": "rising",
+      "feat_RSI_14": 45.918728333584305,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.12762953833535928,
+      "feat_day_of_week": "Mon",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "JIOFIN.NS",
+      "sector": "Bank",
+      "date": "2026-04-06 00:00:00"
+    },
+    {
+      "feat_ema_alignment": "bull",
+      "feat_MACD_signal": "bear",
+      "feat_MACD_histogram_slope": "rising",
+      "feat_RSI_14": 51.148324585639415,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.12762953833535928,
+      "feat_day_of_week": "Mon",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "MCX.NS",
+      "sector": "Bank",
+      "date": "2026-04-06 00:00:00"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bull",
+      "feat_MACD_histogram_slope": "rising",
+      "feat_RSI_14": 51.95026698084902,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.12762953833535928,
+      "feat_day_of_week": "Mon",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "MUTHOOTFIN.NS",
+      "sector": "Bank",
+      "date": "2026-04-06 00:00:00"
+    },
+    {
+      "feat_ema_alignment": "bull",
+      "feat_MACD_signal": "bear",
+      "feat_MACD_histogram_slope": "rising",
+      "feat_RSI_14": 46.12403100775194,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.12762953833535928,
+      "feat_day_of_week": "Mon",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "PFC.NS",
+      "sector": "Bank",
+      "date": "2026-04-06 00:00:00"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bull",
+      "feat_MACD_histogram_slope": "rising",
+      "feat_RSI_14": 54.84160151654244,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.12762953833535928,
+      "feat_day_of_week": "Mon",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "VGUARD.NS",
+      "sector": "Other",
+      "date": "2026-04-06 00:00:00"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bull",
+      "feat_MACD_histogram_slope": "rising",
+      "feat_RSI_14": 49.966897221426684,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19680851063829788,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.11910912627935666,
+      "feat_day_of_week": "Tue",
+      "feat_day_of_month_bucket": "wk1",
+      "symbol": "MANAPPURAM.NS",
+      "sector": "Bank",
+      "date": "2026-04-07 00:00:00"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bear",
+      "feat_MACD_histogram_slope": "rising",
+      "feat_RSI_14": 53.1161629828021,
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.4148936170212766,
+      "feat_nifty_vol_regime": "High",
+      "feat_nifty_60d_return_pct": -0.08332536277481084,
+      "feat_day_of_week": "Wed",
+      "feat_day_of_month_bucket": "wk2",
+      "symbol": "TATAPOWER.NS",
+      "sector": "Energy",
+      "date": "2026-04-08 00:00:00"
+    }
+  ],
+  "sector_lifetime": {
+    "Auto": {
+      "n": 276,
+      "wr": 0.404
+    },
+    "Bank": {
+      "n": 653,
+      "wr": 0.4504201680672269
+    },
+    "CapGoods": {
+      "n": 231,
+      "wr": 0.4423076923076923
+    },
+    "Chem": {
+      "n": 316,
+      "wr": 0.49110320284697506
+    },
+    "Energy": {
+      "n": 340,
+      "wr": 0.4065573770491803
+    },
+    "FMCG": {
+      "n": 356,
+      "wr": 0.475
+    },
+    "Health": {
+      "n": 75,
+      "wr": 0.5217391304347826
+    },
+    "IT": {
+      "n": 286,
+      "wr": 0.4749034749034749
+    },
+    "Infra": {
+      "n": 254,
+      "wr": 0.4690265486725664
+    },
+    "Metal": {
+      "n": 284,
+      "wr": 0.41379310344827586
+    },
+    "Other": {
+      "n": 214,
+      "wr": 0.5177664974619289
+    },
+    "Pharma": {
+      "n": 328,
+      "wr": 0.5224913494809689
+    }
+  }
+}
