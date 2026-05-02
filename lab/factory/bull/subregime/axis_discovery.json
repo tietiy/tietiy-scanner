@@ -1,0 +1,523 @@
+{
+  "axis_configs_tested": [
+    {
+      "name": "predicted_v1",
+      "description": "multi_tf_alignment (persistence) \u00d7 market_breadth (leadership)",
+      "primary_col": "feat_multi_tf_alignment_score",
+      "secondary_col": "feat_market_breadth_pct",
+      "thresholds": {
+        "primary": {
+          "low": 1.0,
+          "high": 3.0
+        },
+        "secondary": {
+          "low": 0.6,
+          "high": 0.8
+        }
+      },
+      "n_cells_n100plus": 6,
+      "wr_min": 0.44111192392099485,
+      "wr_max": 0.5676691729323309,
+      "wr_range_pp": 12.655724901133603,
+      "wr_std_pp": 3.7853136257119986,
+      "best_cell": {
+        "primary": "low",
+        "secondary": "high",
+        "n": 1195,
+        "wr": 0.5676691729323309,
+        "pct_of_total": 0.03136482939632546
+      },
+      "worst_cell": {
+        "primary": "low",
+        "secondary": "low",
+        "n": 1519,
+        "wr": 0.44111192392099485,
+        "pct_of_total": 0.03986876640419947
+      },
+      "grid": {
+        "low|low": {
+          "n": 1519,
+          "wr": 0.44111192392099485
+        },
+        "low|mid": {
+          "n": 4425,
+          "wr": 0.5088666152659984
+        },
+        "low|high": {
+          "n": 1195,
+          "wr": 0.5676691729323309
+        },
+        "mid|low": {
+          "n": 2986,
+          "wr": 0.5135839225902493
+        },
+        "mid|mid": {
+          "n": 16430,
+          "wr": 0.520174482006543
+        },
+        "mid|high": {
+          "n": 11545,
+          "wr": 0.5324245374878286
+        }
+      },
+      "cells": [
+        {
+          "primary": "low",
+          "secondary": "low",
+          "n": 1519,
+          "wr": 0.44111192392099485,
+          "pct_of_total": 0.03986876640419947
+        },
+        {
+          "primary": "low",
+          "secondary": "mid",
+          "n": 4425,
+          "wr": 0.5088666152659984,
+          "pct_of_total": 0.11614173228346457
+        },
+        {
+          "primary": "low",
+          "secondary": "high",
+          "n": 1195,
+          "wr": 0.5676691729323309,
+          "pct_of_total": 0.03136482939632546
+        },
+        {
+          "primary": "mid",
+          "secondary": "low",
+          "n": 2986,
+          "wr": 0.5135839225902493,
+          "pct_of_total": 0.07837270341207349
+        },
+        {
+          "primary": "mid",
+          "secondary": "mid",
+          "n": 16430,
+          "wr": 0.520174482006543,
+          "pct_of_total": 0.43123359580052495
+        },
+        {
+          "primary": "mid",
+          "secondary": "high",
+          "n": 11545,
+          "wr": 0.5324245374878286,
+          "pct_of_total": 0.3030183727034121
+        }
+      ]
+    },
+    {
+      "name": "predicted_v2",
+      "description": "nifty_200d_return (persistence) \u00d7 market_breadth (leadership)",
+      "primary_col": "feat_nifty_200d_return_pct",
+      "secondary_col": "feat_market_breadth_pct",
+      "thresholds": {
+        "primary": {
+          "low": 0.05,
+          "high": 0.2
+        },
+        "secondary": {
+          "low": 0.6,
+          "high": 0.8
+        }
+      },
+      "n_cells_n100plus": 9,
+      "wr_min": 0.45145228215767635,
+      "wr_max": 0.6020293122886133,
+      "wr_range_pp": 15.057703013093699,
+      "wr_std_pp": 4.437539394009586,
+      "best_cell": {
+        "primary": "low",
+        "secondary": "low",
+        "n": 972,
+        "wr": 0.6020293122886133,
+        "pct_of_total": 0.025511811023622048
+      },
+      "worst_cell": {
+        "primary": "mid",
+        "secondary": "low",
+        "n": 2699,
+        "wr": 0.45145228215767635,
+        "pct_of_total": 0.07083989501312336
+      },
+      "grid": {
+        "low|low": {
+          "n": 972,
+          "wr": 0.6020293122886133
+        },
+        "low|mid": {
+          "n": 5411,
+          "wr": 0.5104558762024257
+        },
+        "low|high": {
+          "n": 3038,
+          "wr": 0.5176860722181282
+        },
+        "mid|low": {
+          "n": 2699,
+          "wr": 0.45145228215767635
+        },
+        "mid|mid": {
+          "n": 8724,
+          "wr": 0.5225447006996631
+        },
+        "mid|high": {
+          "n": 4764,
+          "wr": 0.5835931878148237
+        },
+        "high|low": {
+          "n": 826,
+          "wr": 0.4779706275033378
+        },
+        "high|mid": {
+          "n": 6394,
+          "wr": 0.5156547310153953
+        },
+        "high|high": {
+          "n": 4717,
+          "wr": 0.5009416195856874
+        }
+      },
+      "cells": [
+        {
+          "primary": "low",
+          "secondary": "low",
+          "n": 972,
+          "wr": 0.6020293122886133,
+          "pct_of_total": 0.025511811023622048
+        },
+        {
+          "primary": "low",
+          "secondary": "mid",
+          "n": 5411,
+          "wr": 0.5104558762024257,
+          "pct_of_total": 0.14202099737532808
+        },
+        {
+          "primary": "low",
+          "secondary": "high",
+          "n": 3038,
+          "wr": 0.5176860722181282,
+          "pct_of_total": 0.07973753280839894
+        },
+        {
+          "primary": "mid",
+          "secondary": "low",
+          "n": 2699,
+          "wr": 0.45145228215767635,
+          "pct_of_total": 0.07083989501312336
+        },
+        {
+          "primary": "mid",
+          "secondary": "mid",
+          "n": 8724,
+          "wr": 0.5225447006996631,
+          "pct_of_total": 0.2289763779527559
+        },
+        {
+          "primary": "mid",
+          "secondary": "high",
+          "n": 4764,
+          "wr": 0.5835931878148237,
+          "pct_of_total": 0.12503937007874016
+        },
+        {
+          "primary": "high",
+          "secondary": "low",
+          "n": 826,
+          "wr": 0.4779706275033378,
+          "pct_of_total": 0.021679790026246717
+        },
+        {
+          "primary": "high",
+          "secondary": "mid",
+          "n": 6394,
+          "wr": 0.5156547310153953,
+          "pct_of_total": 0.16782152230971129
+        },
+        {
+          "primary": "high",
+          "secondary": "high",
+          "n": 4717,
+          "wr": 0.5009416195856874,
+          "pct_of_total": 0.12380577427821522
+        }
+      ]
+    },
+    {
+      "name": "alt_60d_breadth",
+      "description": "nifty_60d_return (recent trend) \u00d7 market_breadth",
+      "primary_col": "feat_nifty_60d_return_pct",
+      "secondary_col": "feat_market_breadth_pct",
+      "thresholds": {
+        "primary": {
+          "low": 0.04,
+          "high": 0.1
+        },
+        "secondary": {
+          "low": 0.6,
+          "high": 0.8
+        }
+      },
+      "n_cells_n100plus": 9,
+      "wr_min": 0.4233576642335766,
+      "wr_max": 0.556856483945361,
+      "wr_range_pp": 13.34988197117844,
+      "wr_std_pp": 3.5529197607421357,
+      "best_cell": {
+        "primary": "mid",
+        "secondary": "high",
+        "n": 6413,
+        "wr": 0.556856483945361,
+        "pct_of_total": 0.16832020997375327
+      },
+      "worst_cell": {
+        "primary": "high",
+        "secondary": "low",
+        "n": 151,
+        "wr": 0.4233576642335766,
+        "pct_of_total": 0.003963254593175853
+      },
+      "grid": {
+        "low|low": {
+          "n": 1752,
+          "wr": 0.500945179584121
+        },
+        "low|mid": {
+          "n": 4329,
+          "wr": 0.5
+        },
+        "low|high": {
+          "n": 1190,
+          "wr": 0.529245283018868
+        },
+        "mid|low": {
+          "n": 2602,
+          "wr": 0.48497854077253216
+        },
+        "mid|mid": {
+          "n": 11260,
+          "wr": 0.5174377935445188
+        },
+        "mid|high": {
+          "n": 6413,
+          "wr": 0.556856483945361
+        },
+        "high|low": {
+          "n": 151,
+          "wr": 0.4233576642335766
+        },
+        "high|mid": {
+          "n": 5266,
+          "wr": 0.5332197614991482
+        },
+        "high|high": {
+          "n": 5137,
+          "wr": 0.5115376320897131
+        }
+      },
+      "cells": [
+        {
+          "primary": "low",
+          "secondary": "low",
+          "n": 1752,
+          "wr": 0.500945179584121,
+          "pct_of_total": 0.045984251968503934
+        },
+        {
+          "primary": "low",
+          "secondary": "mid",
+          "n": 4329,
+          "wr": 0.5,
+          "pct_of_total": 0.11362204724409448
+        },
+        {
+          "primary": "low",
+          "secondary": "high",
+          "n": 1190,
+          "wr": 0.529245283018868,
+          "pct_of_total": 0.031233595800524934
+        },
+        {
+          "primary": "mid",
+          "secondary": "low",
+          "n": 2602,
+          "wr": 0.48497854077253216,
+          "pct_of_total": 0.06829396325459318
+        },
+        {
+          "primary": "mid",
+          "secondary": "mid",
+          "n": 11260,
+          "wr": 0.5174377935445188,
+          "pct_of_total": 0.29553805774278213
+        },
+        {
+          "primary": "mid",
+          "secondary": "high",
+          "n": 6413,
+          "wr": 0.556856483945361,
+          "pct_of_total": 0.16832020997375327
+        },
+        {
+          "primary": "high",
+          "secondary": "low",
+          "n": 151,
+          "wr": 0.4233576642335766,
+          "pct_of_total": 0.003963254593175853
+        },
+        {
+          "primary": "high",
+          "secondary": "mid",
+          "n": 5266,
+          "wr": 0.5332197614991482,
+          "pct_of_total": 0.13821522309711287
+        },
+        {
+          "primary": "high",
+          "secondary": "high",
+          "n": 5137,
+          "wr": 0.5115376320897131,
+          "pct_of_total": 0.13482939632545932
+        }
+      ]
+    },
+    {
+      "name": "alt_vol_breadth",
+      "description": "vol_percentile \u00d7 breadth (Choppy-style axes)",
+      "primary_col": "feat_nifty_vol_percentile_20d",
+      "secondary_col": "feat_market_breadth_pct",
+      "thresholds": {
+        "primary": {
+          "low": 0.3,
+          "high": 0.7
+        },
+        "secondary": {
+          "low": 0.6,
+          "high": 0.8
+        }
+      },
+      "n_cells_n100plus": 9,
+      "wr_min": 0.455012853470437,
+      "wr_max": 0.552258064516129,
+      "wr_range_pp": 9.7245211045692,
+      "wr_std_pp": 2.794489444062527,
+      "best_cell": {
+        "primary": "mid",
+        "secondary": "high",
+        "n": 5184,
+        "wr": 0.552258064516129,
+        "pct_of_total": 0.13606299212598424
+      },
+      "worst_cell": {
+        "primary": "high",
+        "secondary": "low",
+        "n": 429,
+        "wr": 0.455012853470437,
+        "pct_of_total": 0.011259842519685039
+      },
+      "grid": {
+        "low|low": {
+          "n": 2626,
+          "wr": 0.48258064516129034
+        },
+        "low|mid": {
+          "n": 9230,
+          "wr": 0.5109175662414132
+        },
+        "low|high": {
+          "n": 4292,
+          "wr": 0.5404107762069885
+        },
+        "mid|low": {
+          "n": 1450,
+          "wr": 0.5104477611940299
+        },
+        "mid|mid": {
+          "n": 7382,
+          "wr": 0.5322653770590903
+        },
+        "mid|high": {
+          "n": 5184,
+          "wr": 0.552258064516129
+        },
+        "high|low": {
+          "n": 429,
+          "wr": 0.455012853470437
+        },
+        "high|mid": {
+          "n": 4243,
+          "wr": 0.507380073800738
+        },
+        "high|high": {
+          "n": 3264,
+          "wr": 0.5035775127768314
+        }
+      },
+      "cells": [
+        {
+          "primary": "low",
+          "secondary": "low",
+          "n": 2626,
+          "wr": 0.48258064516129034,
+          "pct_of_total": 0.0689238845144357
+        },
+        {
+          "primary": "low",
+          "secondary": "mid",
+          "n": 9230,
+          "wr": 0.5109175662414132,
+          "pct_of_total": 0.24225721784776902
+        },
+        {
+          "primary": "low",
+          "secondary": "high",
+          "n": 4292,
+          "wr": 0.5404107762069885,
+          "pct_of_total": 0.1126509186351706
+        },
+        {
+          "primary": "mid",
+          "secondary": "low",
+          "n": 1450,
+          "wr": 0.5104477611940299,
+          "pct_of_total": 0.03805774278215223
+        },
+        {
+          "primary": "mid",
+          "secondary": "mid",
+          "n": 7382,
+          "wr": 0.5322653770590903,
+          "pct_of_total": 0.19375328083989501
+        },
+        {
+          "primary": "mid",
+          "secondary": "high",
+          "n": 5184,
+          "wr": 0.552258064516129,
+          "pct_of_total": 0.13606299212598424
+        },
+        {
+          "primary": "high",
+          "secondary": "low",
+          "n": 429,
+          "wr": 0.455012853470437,
+          "pct_of_total": 0.011259842519685039
+        },
+        {
+          "primary": "high",
+          "secondary": "mid",
+          "n": 4243,
+          "wr": 0.507380073800738,
+          "pct_of_total": 0.11136482939632546
+        },
+        {
+          "primary": "high",
+          "secondary": "high",
+          "n": 3264,
+          "wr": 0.5035775127768314,
+          "pct_of_total": 0.08566929133858267
+        }
+      ]
+    }
+  ]
+}
