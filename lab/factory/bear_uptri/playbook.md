@@ -350,39 +350,107 @@ sub-regime.** Authoritative source:
    lifetime test_wr 65.0% vs VALIDATED 72.1% (Δ +7.1pp). Phase 5
    discrimination is real even within the 100% validation cohort.
 
-### Revised production posture (v1.1)
+### Final production posture (v3)
 
-#### When in hot sub-regime (current April 2026 condition)
+#### Sub-regime detection (production gating, tri-modal)
 
-| Condition | Action | Sizing |
-|---|---|---|
-| Bear UP_TRI signal in hot sub-regime | **TAKE_FULL** | full position |
-| Repeat name within 6 days | TAKE_SMALL | half (S1 trader heuristic) |
-| 3+ same-day Bear UP_TRI signals | 80% sizing | day-correlation cap |
-
-#### When sub-regime exits hot (deployment-ready cascade)
-
-Sub-regime detection (production gating):
 ```python
-def is_hot_bear(nifty_vol_percentile_20d, nifty_60d_return_pct):
-    return (nifty_vol_percentile_20d > 0.70
-            and nifty_60d_return_pct < -0.10)
+def detect_bear_subregime(nifty_vol_percentile_20d, nifty_60d_return_pct):
+    """Tri-modal Bear sub-regime (added warm zone per S2 critique)."""
+    vp = nifty_vol_percentile_20d
+    n60 = nifty_60d_return_pct
+    if vp > 0.70:
+        if n60 < -0.10:
+            return "hot"     # late-stage capitulation
+        elif n60 < 0:
+            return "warm"    # volatile bottoming (NEW per S2)
+        else:
+            return "cold"    # high vol but recovering — false Bear?
+    return "cold"            # low vol → cold by default
 ```
 
-| Condition (NOT hot) | Action | Lifetime evidence |
+#### Per sub-regime production rules
+
+| Sub-regime | Action default | Sizing | Calibrated WR (lifetime hot ref) |
+|---|---|---|---|
+| **hot** | TAKE_FULL on signals | full | 65-75% (lifetime 68.3%) |
+| **warm** | TAKE_FULL on signals | full | 70-90% (live 95.2% on n=42, lifetime untested) |
+| **cold** | Apply Tier 1 cascade | varies | 49-55% unfiltered |
+
+#### Within-hot/warm refinement (S1 finding — bonus precision)
+
+When in hot or warm sub-regime AND signal also matches:
+- `multi_tf_alignment_score` non-default value (any of 0/2/3)
+- AND `range_compression_60d` in low-medium range (~0.25-0.40)
+
+Expected refinement: +9.5pp on top of hot baseline → ~78% WR.
+
+#### Cold sub-regime cascade (simplified per S1+S2 critique)
+
+| Condition | Action | Lifetime evidence |
 |---|---|---|
-| `wk4 AND swing_high_count_20d=low` matches | TAKE_FULL | 63.3% WR, n=3845 |
-| `breadth=low AND ema50_slope=low AND swing_high=low` matches | TAKE_SMALL | 61.8% WR, n=4555 |
-| `wk4` matches (no other match) | TAKE_SMALL | ~63% WR |
-| No filter match | **SKIP** | ~53% WR; edge collapses |
+| `wk4 AND swing_high_count_20d=low` matches | TAKE_FULL | 63.3% WR, n=3,374 (cold subset) |
+| Any signal in cold without Tier 1 match | **SKIP** | 49% WR — edge collapses |
+
+(v1.1's Tier 2 and Tier 3 removed — Sonnet critique: Tier 2 only +1.4pp
+edge, Tier 3 sample size n=9 useless.)
+
+#### Sector mismatch rules (S1)
+
+| Sector | In hot | In cold | Production rule |
+|---|---|---|---|
+| Chem | 80.1% | 55.8% | TAKE_FULL in hot/warm; OK in cold |
+| Other | 76.7% | 55.7% | TAKE_FULL in hot/warm |
+| FMCG | 76.0% | 53.8% | TAKE_FULL in hot/warm |
+| Pharma | 74.8% | 55.1% | TAKE_FULL in hot/warm |
+| Auto | 74.3% | 56.5% | TAKE_FULL in hot/warm |
+| Health | **32.4%** | 51.0% | **AVOID even in hot** (hostile cell) |
+| Energy | 55.0% | 49.4% | TAKE_SMALL only |
+
+#### Calendar mismatch rules (S1)
+
+| Month | Lift vs baseline | Production rule |
+|---|---|---|
+| Dec | **−25.0pp** | **SKIP regardless of sub-regime** (catastrophic) |
+| Apr | +13.7pp | Take normal sizing |
+| Oct | +11.5pp | Take normal sizing |
+| Jul | +9.8pp | Take normal sizing |
+| Nov | −4.9pp | TAKE_SMALL or SKIP |
+| Jun | −6.8pp | TAKE_SMALL or SKIP |
+
+#### Phase-5 hierarchy (S2 architectural critique)
+
+The sub-regime detector provides **unconditional base-rate predictions**
+(hot ~68%, warm 70-90%, cold ~53%). When a signal is **Phase-5
+validated**, the detector classification informs sizing/stops but does
+NOT gate go/no-go execution.
+
+```
+Phase-5 validated signal:
+  → Execute regardless of sub-regime
+  → Use sub-regime to set sizing (full in hot/warm, half in cold)
+  → Use sub-regime to set stops (tighter in cold)
+
+Non-Phase-5 signal:
+  → Apply sub-regime cascade strictly
+  → Cold sub-regime + no Tier 1 match → SKIP
+```
+
+#### Trader heuristics (Session 1, retained)
+
+| Condition | Action |
+|---|---|
+| Repeat name within 6 days | TAKE_SMALL |
+| 3+ same-day Bear UP_TRI signals | 80% sizing (day-correlation cap) |
 
 #### Expected behavior when sub-regime exits hot
 
-| Transition | Expected WR |
-|---|---|
-| Vol drops to Medium/Low, returns stay negative | 54-56% |
-| Returns recover to flat/positive, vol stays high | 50-53% (false Bear) |
-| Both degrade together | 50-52% (Bear regime ending) |
+| Transition | Expected WR | Action |
+|---|---|---|
+| Hot → warm (60d recovers to -0.05) | 70-90% (live evidence) | TAKE_FULL holds |
+| Warm → cold (60d turns positive) | 49-55% | apply cascade strictly |
+| Vol drops below 0.70 | cold by default | apply cascade |
+| December enters | **AVOID** regardless of sub-regime | SKIP |
 
 ### Confidence delta
 
@@ -419,3 +487,28 @@ def is_hot_bear(nifty_vol_percentile_20d, nifty_60d_return_pct):
   breadth=low × ema50=low × swing=low (61.8%) → wk4 alone (~63%) → SKIP.
   Sub-regime detection logic added (`is_hot_bear()`). Confidence delta
   table added. See `lifetime/synthesis.md`.
+
+- **v3 (2026-05-02 night, Session 3 — FINAL):** Cell complete.
+  Stratification (S1) + Bear detector (S2) + production posture (S3).
+  Major architectural updates from S2 critique:
+  1. Sub-regime is **TRI-modal** (hot / warm / cold), not bimodal.
+     Warm zone added based on borderline-cold live discovery (42 live
+     signals at -0.07 to -0.09 60d_return printed 95% WR).
+  2. **Cold cascade simplified to 2 tiers + SKIP** (Sonnet 4.5 critique:
+     Tier 2 was marginal +1.4pp; Tier 3 sample n=9 useless). Final:
+     Tier 1 (wk4 × swing_high=low) → TAKE_FULL; everything else → SKIP.
+  3. **Sector mismatch rules** added from S1: AVOID Bear UP_TRI in
+     Health (32.4% in hot — hostile cell). Prefer Chem / FMCG / Auto /
+     Pharma (74-80% in hot).
+  4. **Within-hot refinement** from S1: `multi_tf_alignment` and
+     `range_compression_60d` add +9.5pp on top of hot baseline.
+  5. **Phase-5 hierarchy override** (per S2 architectural critique):
+     when Phase-5 validates a signal, the detector's sub-regime
+     classification informs sizing/stops but does NOT gate go/no-go.
+  6. **Calendar mismatch rules** from S1: Skip December (−25pp); prefer
+     April / Oct / Jul / Mar months.
+  7. Updated WR calibration: HONEST expectation is 65-75% in hot Bear
+     production, not 94.6%. Live 94.6% includes Phase-5 selection bias
+     not reproducible at scale.
+  See `CELL_COMPLETE.md` for full cell narrative; see
+  `../bear/PRODUCTION_POSTURE.md` for Wave 5 brain handoff.
