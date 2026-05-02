@@ -1,0 +1,291 @@
+{
+  "lifetime_baseline_wr": 0.5203675885835469,
+  "subregime_distribution": {
+    "recovery_bull": {
+      "n": 972,
+      "pct": 0.025511811023622048,
+      "wr": 0.6020293122886133,
+      "lift_pp": 8.166172370506642
+    },
+    "healthy_bull": {
+      "n": 4764,
+      "pct": 0.12503937007874016,
+      "wr": 0.5835931878148237,
+      "lift_pp": 6.322559923127679
+    },
+    "normal_bull": {
+      "n": 29110,
+      "pct": 0.7640419947506562,
+      "wr": 0.5134656817482303,
+      "lift_pp": -0.6901906835316662
+    },
+    "late_bull": {
+      "n": 2699,
+      "pct": 0.07083989501312336,
+      "wr": 0.45145228215767635,
+      "lift_pp": -6.891530642587057
+    },
+    "unknown": {
+      "n": 555,
+      "pct": 0.014566929133858268,
+      "wr": 0.539553752535497,
+      "lift_pp": 1.9186163951950053
+    }
+  },
+  "cross_cell_predictions": {
+    "H1_high200d": {
+      "label": "H1_high200d",
+      "feature_id": "nifty_200d_return_pct",
+      "level": "high",
+      "presence_n": 19314,
+      "presence_wr": 0.5112353733043388,
+      "absence_wr": 0.5324178451868552,
+      "delta_pp": -2.118247188251643
+    },
+    "H1b_low200d": {
+      "label": "H1b_low200d",
+      "error": "presence n too small"
+    },
+    "H3_high_breadth": {
+      "label": "H3_high_breadth",
+      "feature_id": "market_breadth_pct",
+      "level": "high",
+      "presence_n": 29829,
+      "presence_wr": 0.5245231150893426,
+      "absence_wr": 0.49029597282872395,
+      "delta_pp": 3.4227142260618626
+    },
+    "H2_high200d_DOWN_TRI": {
+      "label": "H2_high200d_DOWN_TRI",
+      "feature_id": "nifty_200d_return_pct",
+      "level": "high",
+      "presence_n": 4996,
+      "presence_wr": 0.4401521216973579,
+      "absence_wr": 0.4256134969325153,
+      "delta_pp": 1.4538624764842578
+    }
+  },
+  "bullish_setup_architecture": {
+    "inside_bar_flag=True": {
+      "label": "inside_bar_flag=True",
+      "feature_id": "inside_bar_flag",
+      "level": "True",
+      "presence_n": 5365,
+      "presence_wr": 0.5194780987884436,
+      "absence_wr": 0.5205345273910306,
+      "delta_pp": -0.1056428602586923
+    },
+    "inside_bar_flag=False": {
+      "label": "inside_bar_flag=False",
+      "feature_id": "inside_bar_flag",
+      "level": "False",
+      "presence_n": 28586,
+      "presence_wr": 0.5205345273910306,
+      "absence_wr": 0.5194780987884436,
+      "delta_pp": 0.1056428602586923
+    },
+    "day_of_month_bucket=wk4": {
+      "label": "day_of_month_bucket=wk4",
+      "feature_id": "day_of_month_bucket",
+      "level": "wk4",
+      "presence_n": 9317,
+      "presence_wr": 0.546205860255447,
+      "absence_wr": 0.5105951124462126,
+      "delta_pp": 3.5610747809234455
+    },
+    "day_of_month_bucket=wk2": {
+      "label": "day_of_month_bucket=wk2",
+      "feature_id": "day_of_month_bucket",
+      "level": "wk2",
+      "presence_n": 9303,
+      "presence_wr": 0.5154251316779533,
+      "absence_wr": 0.5222330412203829,
+      "delta_pp": -0.6807909542429602
+    },
+    "higher_highs_intact_flag=True": {
+      "label": "higher_highs_intact_flag=True",
+      "feature_id": "higher_highs_intact_flag",
+      "level": "True",
+      "presence_n": 10874,
+      "presence_wr": 0.5119551223100974,
+      "absence_wr": 0.5243315855613815,
+      "delta_pp": -1.2376463251284053
+    },
+    "nifty_vol_regime=High": {
+      "label": "nifty_vol_regime=High",
+      "feature_id": "nifty_vol_regime",
+      "level": "High",
+      "presence_n": 7141,
+      "presence_wr": 0.5044111468981936,
+      "absence_wr": 0.5246176799701604,
+      "delta_pp": -2.020653307196685
+    },
+    "ema_alignment=bull": {
+      "label": "ema_alignment=bull",
+      "feature_id": "ema_alignment",
+      "level": "bull",
+      "presence_n": 14814,
+      "presence_wr": 0.5291616038882139,
+      "absence_wr": 0.5135601191409311,
+      "delta_pp": 1.5601484747282734
+    },
+    "multi_tf_alignment_score=high": {
+      "label": "multi_tf_alignment_score=high",
+      "feature_id": "multi_tf_alignment_score",
+      "level": "high",
+      "presence_n": 21829,
+      "presence_wr": 0.5283338677905538,
+      "absence_wr": 0.5060221085629434,
+      "delta_pp": 2.2311759227610417
+    }
+  },
+  "sector_distribution": {
+    "Auto": {
+      "n": 2878,
+      "wr": 0.5206547155105222,
+      "lift_pp": 0.028712692697530073
+    },
+    "Bank": {
+      "n": 6993,
+      "wr": 0.5150745794985718,
+      "lift_pp": -0.5293009084975098
+    },
+    "CapGoods": {
+      "n": 2476,
+      "wr": 0.5142598460842009,
+      "lift_pp": -0.6107742499345981
+    },
+    "Chem": {
+      "n": 2985,
+      "wr": 0.5278514588859416,
+      "lift_pp": 0.7483870302394724
+    },
+    "Consumer": {
+      "n": 302,
+      "wr": 0.5475285171102662,
+      "lift_pp": 2.7160928526719252
+    },
+    "Energy": {
+      "n": 3719,
+      "wr": 0.49185274592637296,
+      "lift_pp": -2.8514842657173967
+    },
+    "FMCG": {
+      "n": 3425,
+      "wr": 0.5351876675603218,
+      "lift_pp": 1.4820078976774842
+    },
+    "Health": {
+      "n": 853,
+      "wr": 0.5542483660130719,
+      "lift_pp": 3.3880777429525
+    },
+    "IT": {
+      "n": 3015,
+      "wr": 0.5678316422397595,
+      "lift_pp": 4.7464053656212535
+    },
+    "Infra": {
+      "n": 2712,
+      "wr": 0.513184584178499,
+      "lift_pp": -0.7183004405047932
+    },
+    "Metal": {
+      "n": 2989,
+      "wr": 0.5134537412458533,
+      "lift_pp": -0.6913847337693624
+    },
+    "Other": {
+      "n": 2364,
+      "wr": 0.5095238095238095,
+      "lift_pp": -1.0843779059737435
+    },
+    "Pharma": {
+      "n": 3389,
+      "wr": 0.5124579124579125,
+      "lift_pp": -0.7909676125634424
+    }
+  },
+  "calendar_effects": {
+    "wk1": {
+      "n": 9215,
+      "wr": 0.5254878048780488,
+      "lift_pp": 0.5120216294501878
+    },
+    "wk2": {
+      "n": 10548,
+      "wr": 0.5154251316779533,
+      "lift_pp": -0.4942456905593584
+    },
+    "wk3": {
+      "n": 7943,
+      "wr": 0.48716870004206986,
+      "lift_pp": -3.319888854147707
+    },
+    "wk4": {
+      "n": 10394,
+      "wr": 0.546205860255447,
+      "lift_pp": 2.5838271671900115
+    },
+    "month_1": {
+      "n": 2952,
+      "wr": 0.5316835395575553,
+      "lift_pp": 1.1315950974008393
+    },
+    "month_2": {
+      "n": 2282,
+      "wr": 0.5427184466019418,
+      "lift_pp": 2.235085801839487
+    },
+    "month_3": {
+      "n": 2036,
+      "wr": 0.5155144256940664,
+      "lift_pp": -0.4853162889480567
+    },
+    "month_4": {
+      "n": 2662,
+      "wr": 0.46436015006252607,
+      "lift_pp": -5.600743852102086
+    },
+    "month_5": {
+      "n": 3675,
+      "wr": 0.5001524855138761,
+      "lift_pp": -2.021510306967078
+    },
+    "month_6": {
+      "n": 3909,
+      "wr": 0.5569804721655494,
+      "lift_pp": 3.661288358200243
+    },
+    "month_7": {
+      "n": 4726,
+      "wr": 0.5327649208282582,
+      "lift_pp": 1.239733224471129
+    },
+    "month_8": {
+      "n": 3971,
+      "wr": 0.56656346749226,
+      "lift_pp": 4.619587890871313
+    },
+    "month_9": {
+      "n": 3070,
+      "wr": 0.4360086767895879,
+      "lift_pp": -8.435891179395904
+    },
+    "month_10": {
+      "n": 2735,
+      "wr": 0.5698529411764706,
+      "lift_pp": 4.948535259292363
+    },
+    "month_11": {
+      "n": 3510,
+      "wr": 0.48857142857142855,
+      "lift_pp": -3.179616001211838
+    },
+    "month_12": {
+      "n": 2572,
+      "wr": 0.5226063829787234,
+      "lift_pp": 0.2238794395176491
+    }
+  }
+}
