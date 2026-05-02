@@ -307,6 +307,98 @@ regime that created the edge is gone.
 
 ---
 
+## Lifetime Validation (Session 2 — added 2026-05-02 night)
+
+**Session 1's broad-band finding HOLDS in current sub-regime; lifetime
+data confirms sub-regime structure and surfaces filter cascade for cold
+sub-regime.** Authoritative source:
+[`lifetime/synthesis.md`](lifetime/synthesis.md).
+
+### Key lifetime findings
+
+1. **Lifetime baseline 55.7% confirmed** (predicted, exact). Live-vs-
+   lifetime gap +38.9pp confirmed as largest in Lab.
+
+2. **Bear is BIMODAL, not tri-modal** (different from Choppy):
+   - stress (43%) + balance (34%) dominate; quiet ~1%
+   - Hot sub-regime (vol_percentile > 0.70 AND nifty_60d_return < −0.10):
+     15% of lifetime, 68.3% WR (+14.9pp over cold's 53.4%)
+
+3. **Live's 94.6% mostly Phase-5 selection bias.** Even within the hot
+   sub-regime, lifetime is 68.3% — not 94.6%. The 26pp residual gap
+   reflects Phase 5 picking the best patterns within the favorable
+   sub-regime, plus an "extra hot within hot" April 2026 condition.
+
+4. **F1 (nifty_60d=low) CONFIRMED at lifetime** as a modest filter:
+   matched n=2,436 (16%), WR=67.4%, lift +11.8pp.
+
+5. **B2 anti-features REFUTED at lifetime** (same Choppy V2 lesson):
+   - `wk4`: predicted anti, lifetime is +10.5pp WINNER (Phase 4
+     selection artifact — analyzer's combinatorial search excluded wk4
+     entries from surviving combinations)
+   - `ema_alignment=bear`: similarly inverted (+3.9pp at lifetime)
+   - Production should NOT use any of B2's anti-features as SKIP rules.
+
+6. **Filter cascade for cold sub-regime** surfaced from L2 combinatorial
+   search:
+   - PRIMARY:   `wk4 AND swing_high_count_20d=low` — 63.3% WR, n=3,845, +7.6pp
+   - SECONDARY: `breadth=low AND ema50_slope=low AND swing_high=low` — 61.8%, n=4,555, +6.2pp
+   - TERTIARY:  `wk4` alone — ~63% WR
+   - Without filter, cold sub-regime collapses to 53% WR.
+
+7. **WATCH patterns are GENUINELY weaker** (refutes S1 prediction):
+   lifetime test_wr 65.0% vs VALIDATED 72.1% (Δ +7.1pp). Phase 5
+   discrimination is real even within the 100% validation cohort.
+
+### Revised production posture (v1.1)
+
+#### When in hot sub-regime (current April 2026 condition)
+
+| Condition | Action | Sizing |
+|---|---|---|
+| Bear UP_TRI signal in hot sub-regime | **TAKE_FULL** | full position |
+| Repeat name within 6 days | TAKE_SMALL | half (S1 trader heuristic) |
+| 3+ same-day Bear UP_TRI signals | 80% sizing | day-correlation cap |
+
+#### When sub-regime exits hot (deployment-ready cascade)
+
+Sub-regime detection (production gating):
+```python
+def is_hot_bear(nifty_vol_percentile_20d, nifty_60d_return_pct):
+    return (nifty_vol_percentile_20d > 0.70
+            and nifty_60d_return_pct < -0.10)
+```
+
+| Condition (NOT hot) | Action | Lifetime evidence |
+|---|---|---|
+| `wk4 AND swing_high_count_20d=low` matches | TAKE_FULL | 63.3% WR, n=3845 |
+| `breadth=low AND ema50_slope=low AND swing_high=low` matches | TAKE_SMALL | 61.8% WR, n=4555 |
+| `wk4` matches (no other match) | TAKE_SMALL | ~63% WR |
+| No filter match | **SKIP** | ~53% WR; edge collapses |
+
+#### Expected behavior when sub-regime exits hot
+
+| Transition | Expected WR |
+|---|---|
+| Vol drops to Medium/Low, returns stay negative | 54-56% |
+| Returns recover to flat/positive, vol stays high | 50-53% (false Bear) |
+| Both degrade together | 50-52% (Bear regime ending) |
+
+### Confidence delta
+
+| Finding | S1 (live) | S2 (lifetime-validated) |
+|---|---|---|
+| 94.6% WR in current sub-regime | HIGH | HIGH (sub-regime gated) |
+| 94.6% as universal Bear edge | LOW | **REFUTED** |
+| F1 as filter anchor | UNCLEAR | **CONFIRMED** (+11.8pp lifetime) |
+| `wk4` is anti-feature | flagged April-specific | **REFUTED — wk4 is winner anchor** |
+| `ema_alignment=bear` is anti | live n.s. | **REFUTED — winner anchor** |
+| Hot sub-regime exists | hypothesized | CONFIRMED (15% lifetime, +14.9pp) |
+| Bear is multi-modal | hypothesized | CONFIRMED bimodal |
+| Filter cascade required for cold | not surfaced | NEW — 3-tier cascade |
+
+---
+
 ## Update Log
 
 - **v1 (2026-05-02 night):** Initial cell investigation. 87 winners /
@@ -316,3 +408,14 @@ regime that created the edge is gone.
   (`nifty_60d_return_pct=low`) reserved as defensive sub-regime anchor.
   Major risk: regime-shift fragility flagged for Session 2 lifetime
   validation.
+
+- **v1.1 (2026-05-02 night, Session 2):** Lifetime validation confirms
+  Session 1 broad-band finding is sub-regime-specific. Bear is BIMODAL
+  (not tri-modal). Hot sub-regime: 15% of lifetime, 68.3% WR (+14.9pp);
+  current April 2026 is 100% hot. Live's 94.6% mostly Phase-5 selection
+  bias on top of hot sub-regime. F1 CONFIRMED at lifetime (+11.8pp).
+  B2 anti-features REFUTED (wk4 is actually a +10.5pp winner). Filter
+  cascade designed for cold sub-regime: wk4 × swing_high=low (63.3%) →
+  breadth=low × ema50=low × swing=low (61.8%) → wk4 alone (~63%) → SKIP.
+  Sub-regime detection logic added (`is_hot_bear()`). Confidence delta
+  table added. See `lifetime/synthesis.md`.
