@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-05-01T22:01:04.924373+05:30",
+  "generated_at": "2026-05-02T22:01:12.353748+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -241,6 +241,66 @@
       "request_id": "msg_01T3WS53qtAjES8QKkFvB3Lo",
       "decision": "no_warn",
       "rationale": "Portfolio has zero open positions (total_open=0), so no concentration risk exists. All breakdowns are empty and regime_concentration.triggered is false.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-02T22:00:57.428071+05:30",
+      "run_id": "brain_run_2026-05-02_2200",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=UP_TRI_2026-05-02",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Bear (Tier M, n=96). 8 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 4217,
+      "output_tokens": 553,
+      "cost_usd": 0.0349,
+      "request_id": "msg_01C8HAwPsGomSWeNsamdb4Wd",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification is robust (n=96, Wilson lower 0.8815, +30.5pp edge over UP_TRI baseline) with promotion correctly capped at Tier M/TAKE_SMALL given R-multiple 0.61. Cohort is regime-gated to Bear while current regime is Choppy (stable, 7 days), so activation is deferred and the existing UP_TRI/Choppy concentration is not immediately compounded. Consistent with multiple prior approvals of this exact cohort (2026-04-29 through 2026-05-01) with no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-02T22:01:06.619503+05:30",
+      "run_id": "brain_run_2026-05-02_2200",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+sector_sector=Metal__signal_type=UP_TRI_2026-05-02",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Metal (Tier M, n=17). 8 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 4217,
+      "output_tokens": 424,
+      "cost_usd": 0.0317,
+      "request_id": "msg_016KUbWV6bnitu9JYYcCpjPc",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification is robust (n=17, Wilson lower 0.6566 above Tier M floor, +24.0pp edge over UP_TRI baseline) and promotion is correctly capped at Tier M/TAKE_SMALL given R-multiple 0.72. The sector=Metal filter narrows rather than amplifies the existing UP_TRI overweight (37 of 53 open), and TAKE_SMALL sizing limits incremental concentration. Consistent with multiple prior approvals of this exact cohort and no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-02T22:01:09.032040+05:30",
+      "run_id": "brain_run_2026-05-02_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy stable 7 days; 4 prior regime alerts in history.",
+      "input_tokens": 2031,
+      "output_tokens": 164,
+      "cost_usd": 0.0143,
+      "request_id": "msg_019Vmv8mbY8vDNdTH2ZDP2rL",
+      "decision": "no_alert",
+      "rationale": "The Bear-to-Choppy regime alert was already issued on 2026-04-29 based on identical evidence (recent 7d unanimously Choppy vs prior majority Bear, slope 0.003614, source_date 2026-04-24). Current snapshot is unchanged with days_in_current_regime=7 and full Choppy consistency, so re-firing would duplicate prior signal.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-02T22:01:12.353748+05:30",
+      "run_id": "brain_run_2026-05-02_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=False (79.2% ?), 1 sector concentrations, signal types (UP_TRI 37, BULL_PROXY 2, DOWN_TRI 14). 4 prior exposure warnings.",
+      "input_tokens": 2500,
+      "output_tokens": 163,
+      "cost_usd": 0.0166,
+      "request_id": "msg_01CtdF1H98j4XNtVijccStfX",
+      "decision": "no_warn",
+      "rationale": "Regime concentration at 0.7925 is just below the 0.80 trigger; single-signal share (UP_TRI 37/53 = 0.698) is well below 0.85; the only flagged cell (DOWN_TRI×Choppy×Auto) is 0.1132, far below the 0.20 cell threshold. No criterion is breached despite Candidate-tier cohort support.",
       "aborted_by_circuit_breaker": false
     }
   ]
