@@ -1,0 +1,241 @@
+{
+  "detector_design": {
+    "primary_axis": "feat_nifty_vol_percentile_20d",
+    "secondary_axis": "feat_market_breadth_pct",
+    "thresholds": {
+      "quiet_max": 0.3,
+      "stress_min": 0.7,
+      "breadth_low_max": 0.3,
+      "breadth_high_min": 0.6
+    },
+    "subregimes": [
+      "quiet",
+      "balance",
+      "stress"
+    ],
+    "subtypes_per_subregime": [
+      "low_breadth",
+      "med_breadth",
+      "high_breadth"
+    ]
+  },
+  "lifetime_distribution": {
+    "balance": 17564,
+    "stress": 9772,
+    "quiet": 7954
+  },
+  "wr_by_subregime_x_signal": {
+    "UP_TRI|quiet": {
+      "n": 5791,
+      "n_w": 2778,
+      "n_l": 2266,
+      "wr": 0.5507533703409992
+    },
+    "UP_TRI|balance": {
+      "n": 13784,
+      "n_w": 6033,
+      "n_l": 6236,
+      "wr": 0.49172711712446004
+    },
+    "UP_TRI|stress": {
+      "n": 7497,
+      "n_w": 3825,
+      "n_l": 3037,
+      "wr": 0.5574176624890702
+    },
+    "DOWN_TRI|quiet": {
+      "n": 1693,
+      "n_w": 592,
+      "n_l": 883,
+      "wr": 0.40135593220338983
+    },
+    "DOWN_TRI|balance": {
+      "n": 2830,
+      "n_w": 1308,
+      "n_l": 1235,
+      "wr": 0.5143531262288635
+    },
+    "DOWN_TRI|stress": {
+      "n": 1764,
+      "n_w": 683,
+      "n_l": 905,
+      "wr": 0.4301007556675063
+    },
+    "BULL_PROXY|quiet": {
+      "n": 470,
+      "n_w": 221,
+      "n_l": 203,
+      "wr": 0.5212264150943396
+    },
+    "BULL_PROXY|balance": {
+      "n": 950,
+      "n_w": 421,
+      "n_l": 446,
+      "wr": 0.4855824682814302
+    },
+    "BULL_PROXY|stress": {
+      "n": 511,
+      "n_w": 237,
+      "n_l": 244,
+      "wr": 0.49272349272349275
+    }
+  },
+  "wr_by_subtype_x_signal": {
+    "UP_TRI|balance__high_breadth": {
+      "n": 4760,
+      "n_w": 2292,
+      "n_l": 1953,
+      "wr": 0.5399293286219081
+    },
+    "UP_TRI|balance__low_breadth": {
+      "n": 1262,
+      "n_w": 526,
+      "n_l": 622,
+      "wr": 0.45818815331010454
+    },
+    "UP_TRI|balance__med_breadth": {
+      "n": 7762,
+      "n_w": 3215,
+      "n_l": 3661,
+      "wr": 0.4675683536940081
+    },
+    "UP_TRI|quiet__high_breadth": {
+      "n": 2214,
+      "n_w": 1091,
+      "n_l": 864,
+      "wr": 0.5580562659846547
+    },
+    "UP_TRI|quiet__low_breadth": {
+      "n": 359,
+      "n_w": 205,
+      "n_l": 110,
+      "wr": 0.6507936507936508
+    },
+    "UP_TRI|quiet__med_breadth": {
+      "n": 3218,
+      "n_w": 1482,
+      "n_l": 1292,
+      "wr": 0.5342465753424658
+    },
+    "UP_TRI|stress__high_breadth": {
+      "n": 2171,
+      "n_w": 1022,
+      "n_l": 953,
+      "wr": 0.5174683544303798
+    },
+    "UP_TRI|stress__low_breadth": {
+      "n": 372,
+      "n_w": 69,
+      "n_l": 272,
+      "wr": 0.20234604105571846
+    },
+    "UP_TRI|stress__med_breadth": {
+      "n": 4954,
+      "n_w": 2734,
+      "n_l": 1812,
+      "wr": 0.6014078310602727
+    },
+    "DOWN_TRI|balance__high_breadth": {
+      "n": 566,
+      "n_w": 213,
+      "n_l": 283,
+      "wr": 0.42943548387096775
+    },
+    "DOWN_TRI|balance__low_breadth": {
+      "n": 361,
+      "n_w": 142,
+      "n_l": 178,
+      "wr": 0.44375
+    },
+    "DOWN_TRI|balance__med_breadth": {
+      "n": 1903,
+      "n_w": 953,
+      "n_l": 774,
+      "wr": 0.5518239722061378
+    },
+    "DOWN_TRI|quiet__high_breadth": {
+      "n": 488,
+      "n_w": 167,
+      "n_l": 256,
+      "wr": 0.3947990543735225
+    },
+    "DOWN_TRI|quiet__low_breadth": {
+      "n": 182,
+      "n_w": 62,
+      "n_l": 93,
+      "wr": 0.4
+    },
+    "DOWN_TRI|quiet__med_breadth": {
+      "n": 1023,
+      "n_w": 363,
+      "n_l": 534,
+      "wr": 0.40468227424749165
+    },
+    "DOWN_TRI|stress__high_breadth": {
+      "n": 470,
+      "n_w": 192,
+      "n_l": 232,
+      "wr": 0.4528301886792453
+    },
+    "DOWN_TRI|stress__low_breadth": {
+      "n": 151,
+      "n_w": 47,
+      "n_l": 86,
+      "wr": 0.3533834586466165
+    },
+    "DOWN_TRI|stress__med_breadth": {
+      "n": 1143,
+      "n_w": 444,
+      "n_l": 587,
+      "wr": 0.4306498545101843
+    },
+    "BULL_PROXY|balance__high_breadth": {
+      "n": 294,
+      "n_w": 148,
+      "n_l": 117,
+      "wr": 0.5584905660377358
+    },
+    "BULL_PROXY|balance__med_breadth": {
+      "n": 562,
+      "n_w": 236,
+      "n_l": 277,
+      "wr": 0.4600389863547758
+    },
+    "BULL_PROXY|quiet__high_breadth": {
+      "n": 178,
+      "n_w": 89,
+      "n_l": 67,
+      "wr": 0.5705128205128205
+    },
+    "BULL_PROXY|quiet__med_breadth": {
+      "n": 257,
+      "n_w": 114,
+      "n_l": 122,
+      "wr": 0.4830508474576271
+    },
+    "BULL_PROXY|stress__high_breadth": {
+      "n": 139,
+      "n_w": 67,
+      "n_l": 64,
+      "wr": 0.5114503816793893
+    },
+    "BULL_PROXY|stress__med_breadth": {
+      "n": 346,
+      "n_w": 159,
+      "n_l": 166,
+      "wr": 0.48923076923076925
+    }
+  },
+  "live_classification": {
+    "n_total": 366,
+    "subregime_distribution": {
+      "stress": 366
+    },
+    "subtype_distribution": {
+      "stress__high_breadth": 319,
+      "stress__med_breadth": 47
+    },
+    "dominant_subregime": "stress",
+    "verdict": "Live April-May 2026 is uniformly STRESS sub-regime \u2014 high-vol stress episode. F1 (regime-shift adaptive) is the right filter for this period; lifetime balance-sub-regime patterns expected to underperform here."
+  }
+}
