@@ -1,0 +1,316 @@
+{
+  "total_bear_downtri_combos": 19,
+  "horizon_breakdown": {
+    "D2": 19
+  },
+  "groups": {
+    "VALIDATED": {
+      "count": 0
+    },
+    "PRELIMINARY": {
+      "count": 0
+    },
+    "REJECTED": {
+      "count": 0
+    },
+    "WATCH": {
+      "count": 19,
+      "lifetime": {
+        "test_wr_mean": 0.6471137633723038,
+        "test_wr_median": 0.6363636363636364,
+        "baseline_wr_mean": 0.5041204887752201,
+        "edge_pp_mean": 0.14299327459708364,
+        "drift_train_test_mean": 0.10210192819406641,
+        "test_n_mean": 90.26315789473684,
+        "test_n_median": 90.0
+      },
+      "live": {
+        "live_n_mean": 0.0,
+        "live_n_total": 0,
+        "live_w_total": 0,
+        "live_l_total": 0,
+        "live_wr_mean": null
+      },
+      "horizon_distribution": {
+        "D2": 19
+      },
+      "phase_4_tier_distribution": {
+        "A": 13,
+        "S": 6
+      },
+      "feature_count_distribution": {
+        "2": 4,
+        "3": 14,
+        "4": 1
+      }
+    }
+  },
+  "live_signal_universe": {
+    "n_total": 11,
+    "n_w": 2,
+    "n_l": 9,
+    "n_f": 0,
+    "wr_excl_flat": 0.18181818181818182,
+    "signals": [
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "ADANIGREEN.NS",
+        "sector": "Energy",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "BSE.NS",
+        "sector": "Bank",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "feat_ema_alignment": "bull",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "IPCALAB.NS",
+        "sector": "Pharma",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "JIOFIN.NS",
+        "sector": "Bank",
+        "outcome": "DAY6_LOSS",
+        "wlf": "L",
+        "feat_ema_alignment": "bear",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "MCX.NS",
+        "sector": "Bank",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "feat_ema_alignment": "bull",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "MUTHOOTFIN.NS",
+        "sector": "Bank",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "PFC.NS",
+        "sector": "Bank",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "feat_ema_alignment": "bull",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "VGUARD.NS",
+        "sector": "Other",
+        "outcome": "DAY6_LOSS",
+        "wlf": "L",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "VINATIORGA.NS",
+        "sector": "Chem",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "feat_ema_alignment": "bear",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon"
+      },
+      {
+        "date": "2026-04-07 00:00:00",
+        "symbol": "MANAPPURAM.NS",
+        "sector": "Bank",
+        "outcome": "DAY6_LOSS",
+        "wlf": "L",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.19680851063829788,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.11910912627935666,
+        "feat_day_of_week": "Tue"
+      },
+      {
+        "date": "2026-04-08 00:00:00",
+        "symbol": "TATAPOWER.NS",
+        "sector": "Energy",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.4148936170212766,
+        "feat_nifty_vol_regime": "High",
+        "feat_nifty_60d_return_pct": -0.08332536277481084,
+        "feat_day_of_week": "Wed"
+      }
+    ],
+    "sector_distribution": {
+      "Bank": 6,
+      "Energy": 2,
+      "Pharma": 1,
+      "Other": 1,
+      "Chem": 1
+    },
+    "sector_wr": {
+      "Bank": {
+        "n": 6,
+        "w": 0,
+        "l": 6,
+        "wr": 0.0
+      },
+      "Chem": {
+        "n": 1,
+        "w": 1,
+        "l": 0,
+        "wr": 1.0
+      },
+      "Energy": {
+        "n": 2,
+        "w": 0,
+        "l": 2,
+        "wr": 0.0
+      },
+      "Other": {
+        "n": 1,
+        "w": 0,
+        "l": 1,
+        "wr": 0.0
+      },
+      "Pharma": {
+        "n": 1,
+        "w": 1,
+        "l": 0,
+        "wr": 1.0
+      }
+    },
+    "vol_regime_distribution": {
+      "High": 11
+    }
+  },
+  "lifetime_universe": {
+    "n_total": 3640,
+    "n_w": 1516,
+    "n_l": 1770,
+    "n_f": 354,
+    "baseline_wr": 0.4613511868533171,
+    "sector_wr": {
+      "Auto": {
+        "n": 276,
+        "wr": 0.404
+      },
+      "Bank": {
+        "n": 653,
+        "wr": 0.4504201680672269
+      },
+      "CapGoods": {
+        "n": 231,
+        "wr": 0.4423076923076923
+      },
+      "Chem": {
+        "n": 316,
+        "wr": 0.49110320284697506
+      },
+      "Energy": {
+        "n": 340,
+        "wr": 0.4065573770491803
+      },
+      "FMCG": {
+        "n": 356,
+        "wr": 0.475
+      },
+      "Health": {
+        "n": 75,
+        "wr": 0.5217391304347826
+      },
+      "IT": {
+        "n": 286,
+        "wr": 0.4749034749034749
+      },
+      "Infra": {
+        "n": 254,
+        "wr": 0.4690265486725664
+      },
+      "Metal": {
+        "n": 284,
+        "wr": 0.41379310344827586
+      },
+      "Other": {
+        "n": 214,
+        "wr": 0.5177664974619289
+      },
+      "Pharma": {
+        "n": 328,
+        "wr": 0.5224913494809689
+      }
+    }
+  },
+  "thin_data_assessment": {
+    "winners_VP_count": 0,
+    "rejected_count": 0,
+    "watch_count": 19,
+    "live_n": 11,
+    "lifetime_n": 3640,
+    "lifetime_wr": 0.4613511868533171,
+    "live_wr": 0.18181818181818182,
+    "live_lifetime_gap_pp": -27.95330050351353,
+    "concerns": [
+      "0 winners (V+P) in Phase 5 \u2014 standard winners-vs-rejected differentiator analysis NOT FEASIBLE. All 19 combos are WATCH.",
+      "Total evaluable (V+P+R) = 0 < 5. Insufficient for confident differentiator analysis.",
+      "Live n=11 < 15. Filter back-test will have very wide CIs. DEFERRED candidacy strong.",
+      "Live WR (18.2%) is far below lifetime (46.1%) \u2014 current sub-regime is hostile to Bear DOWN_TRI; possible KILL/extend kill_001."
+    ],
+    "recommended_path": "DEFERRED \u2014 but proceed with D2/D3 to investigate lifetime patterns + kill_001 extension hypotheses. Full filter cell deferred until quarterly Phase 5 re-run."
+  }
+}
