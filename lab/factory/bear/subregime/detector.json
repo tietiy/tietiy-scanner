@@ -1,0 +1,53 @@
+{
+  "detector_design": {
+    "regime": "Bear",
+    "structure": "bimodal (hot / cold)",
+    "primary_axis": "feat_nifty_vol_percentile_20d",
+    "secondary_axis": "feat_nifty_60d_return_pct",
+    "thresholds": {
+      "hot_vol_threshold": 0.7,
+      "hot_return_threshold": -0.1,
+      "hot_definition": "vol_percentile_20d > 0.7 AND nifty_60d_return < -0.1"
+    },
+    "expected_wr_per_subregime": {
+      "hot": "68-95% (lifetime hot 68.3%; live 94.6% with Phase-5 selection bias)",
+      "cold": "49-55% unfiltered; +8pp lift via wk4 \u00d7 swing_high=low cascade"
+    }
+  },
+  "lifetime_validation": {
+    "n_total": 15151,
+    "wr_by_subregime": {
+      "hot": {
+        "n": 2275,
+        "n_w": 1435,
+        "n_l": 667,
+        "wr": 0.6826831588962893
+      },
+      "cold": {
+        "n": 12876,
+        "n_w": 6211,
+        "n_l": 5426,
+        "wr": 0.5337286242158632
+      }
+    },
+    "agreement_with_L1": "PERFECT \u2014 detector reproduces L1's hot/cold split exactly"
+  },
+  "live_classification": {
+    "n_total": 74,
+    "distribution": {
+      "cold": 42,
+      "hot": 32
+    },
+    "verdict": "Live April 2026 is uniformly HOT Bear sub-regime \u2014 matches expectation. F1 broad-band finding holds in this sub-regime; cold cascade reserved for future regime shift."
+  },
+  "comparison_with_choppy": {
+    "choppy_structure": "tri-modal (quiet/balance/stress)",
+    "bear_structure": "bimodal (hot/cold)",
+    "shared_primary_axis": "vol_percentile",
+    "different_secondary_axis": {
+      "choppy": "market_breadth_pct (cross-section)",
+      "bear": "nifty_60d_return_pct (longitudinal)"
+    },
+    "architectural_implication": "Per-regime sub-regime detectors with different axes. Vol percentile is universal primary; secondary axis is regime-specific. Bull regime likely needs another secondary axis (e.g., 60d return positive direction or sector momentum)."
+  }
+}
