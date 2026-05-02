@@ -1,0 +1,55 @@
+{
+  "lifetime_baseline_wr": 0.5114440282979609,
+  "candidates": [
+    {
+      "name": "Verdict A \u2014 healthy_bull \u00d7 nifty_20d=high",
+      "n_match": 128,
+      "match_rate": 0.05325884543761639,
+      "matched_wr": 0.625,
+      "lift_pp": 11.355597170203913
+    },
+    {
+      "name": "Verdict B \u2014 healthy_bull alone (sub-regime gating)",
+      "n_match": 294,
+      "match_rate": 0.12402234636871508,
+      "matched_wr": 0.5340136054421769,
+      "lift_pp": 2.2569577144216035
+    },
+    {
+      "name": "Verdict C \u2014 wk4 alone (universal calendar)",
+      "n_match": 707,
+      "match_rate": 0.28975791433891995,
+      "matched_wr": 0.6082036775106082,
+      "lift_pp": 9.675964921264734
+    },
+    {
+      "name": "Verdict D \u2014 wk4 \u00d7 healthy_bull",
+      "n_match": 79,
+      "match_rate": 0.03389199255121043,
+      "matched_wr": 0.6075949367088608,
+      "lift_pp": 9.615090841089991
+    },
+    {
+      "name": "Verdict E \u2014 recovery_bull alone",
+      "n_match": 61,
+      "match_rate": 0.0260707635009311,
+      "matched_wr": 0.5737704918032787,
+      "lift_pp": 6.232646350531779
+    },
+    {
+      "name": "Verdict F \u2014 DEFERRED unfiltered baseline",
+      "n_match": 2403,
+      "match_rate": 1.0,
+      "matched_wr": 0.5114440282979609,
+      "lift_pp": 0.0
+    }
+  ],
+  "final_verdict": "DEFERRED with provisional Verdict A (healthy_bull \u00d7 20d=high)",
+  "rationale": [
+    "Verdict A: n=128, WR=62.5%, lift=+11.4pp",
+    "Verdict A combines sub-regime gating (healthy_bull) + universal Bull bullish anchor (20d_return=high). Robust evidence across Bull bullish cells.",
+    "DEFERRED because no live validation possible (0 Bull live signals). Production: SKIP default; manual enable."
+  ],
+  "production_action": "Default SKIP. Manual enable for healthy_bull \u00d7 nifty_20d=high filter (~62.5% lifetime WR, +11.4pp lift). Activation requires Bull regime active + \u226530 live Bull BULL_PROXY signals + matched-WR \u2265 50%.",
+  "session_2_recommendation": "DO NOT proceed. Lifetime-only methodology exhausted in BP2-BP3. Bull regime cell trio complete; synthesis is next natural step."
+}
