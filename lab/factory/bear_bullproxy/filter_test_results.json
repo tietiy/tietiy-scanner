@@ -1,0 +1,178 @@
+{
+  "lifetime_baseline_wr": 0.47322540473225405,
+  "live_baseline_wr": 0.8461538461538461,
+  "candidates": [
+    {
+      "name": "Verdict A \u2014 HOT-only filter (vol>0.70 AND 60d<-0.10)",
+      "lifetime": {
+        "name": "Verdict A \u2014 HOT-only filter (vol>0.70 AND 60d<-0.10)",
+        "cohort": "lifetime",
+        "n_input": 891,
+        "match_count": 86,
+        "match_rate": 0.09652076318742986,
+        "matched_wr": 0.6375,
+        "skipped_wr": 0.45504840940525587,
+        "baseline_wr": 0.47322540473225405,
+        "lift_over_baseline_pp": 16.42745952677459,
+        "match_W_L": [
+          51,
+          29
+        ],
+        "skip_W_L": [
+          329,
+          394
+        ]
+      },
+      "live": {
+        "name": "Verdict A \u2014 HOT-only filter (vol>0.70 AND 60d<-0.10)",
+        "cohort": "live",
+        "n_input": 13,
+        "match_count": 7,
+        "match_rate": 0.5384615384615384,
+        "matched_wr": 0.8571428571428571,
+        "skipped_wr": 0.8333333333333334,
+        "baseline_wr": 0.8461538461538461,
+        "lift_over_baseline_pp": 1.098901098901095,
+        "match_W_L": [
+          6,
+          1
+        ],
+        "skip_W_L": [
+          5,
+          1
+        ]
+      }
+    },
+    {
+      "name": "Verdict B \u2014 HOT + sector whitelist (IT/Energy/Chem/Bank/Auto)",
+      "lifetime": {
+        "name": "Verdict B \u2014 HOT + sector whitelist (IT/Energy/Chem/Bank/Auto)",
+        "cohort": "lifetime",
+        "n_input": 891,
+        "match_count": 44,
+        "match_rate": 0.04938271604938271,
+        "matched_wr": 0.5853658536585366,
+        "skipped_wr": 0.4671916010498688,
+        "baseline_wr": 0.47322540473225405,
+        "lift_over_baseline_pp": 11.21404489262825,
+        "match_W_L": [
+          24,
+          17
+        ],
+        "skip_W_L": [
+          356,
+          406
+        ]
+      },
+      "live": {
+        "name": "Verdict B \u2014 HOT + sector whitelist (IT/Energy/Chem/Bank/Auto)",
+        "cohort": "live",
+        "n_input": 13,
+        "match_count": 4,
+        "match_rate": 0.3076923076923077,
+        "matched_wr": 0.75,
+        "skipped_wr": 0.8888888888888888,
+        "baseline_wr": 0.8461538461538461,
+        "lift_over_baseline_pp": -9.615384615384615,
+        "match_W_L": [
+          3,
+          1
+        ],
+        "skip_W_L": [
+          8,
+          1
+        ]
+      }
+    },
+    {
+      "name": "Verdict C \u2014 KILL (reject all Bear BULL_PROXY)",
+      "lifetime": {
+        "name": "Verdict C \u2014 KILL (reject all Bear BULL_PROXY)",
+        "cohort": "lifetime",
+        "n_input": 891,
+        "match_count": 0,
+        "match_rate": 0.0,
+        "matched_wr": null,
+        "skipped_wr": 0.47322540473225405,
+        "baseline_wr": 0.47322540473225405,
+        "lift_over_baseline_pp": null,
+        "match_W_L": [
+          0,
+          0
+        ],
+        "skip_W_L": [
+          380,
+          423
+        ]
+      },
+      "live": {
+        "name": "Verdict C \u2014 KILL (reject all Bear BULL_PROXY)",
+        "cohort": "live",
+        "n_input": 13,
+        "match_count": 0,
+        "match_rate": 0.0,
+        "matched_wr": null,
+        "skipped_wr": 0.8461538461538461,
+        "baseline_wr": 0.8461538461538461,
+        "lift_over_baseline_pp": null,
+        "match_W_L": [
+          0,
+          0
+        ],
+        "skip_W_L": [
+          11,
+          2
+        ]
+      }
+    },
+    {
+      "name": "Verdict D \u2014 DEFERRED (no filter)",
+      "lifetime": {
+        "name": "Verdict D \u2014 DEFERRED (no filter)",
+        "cohort": "lifetime",
+        "n_input": 891,
+        "match_count": 891,
+        "match_rate": 1.0,
+        "matched_wr": 0.47322540473225405,
+        "skipped_wr": null,
+        "baseline_wr": 0.47322540473225405,
+        "lift_over_baseline_pp": 0.0,
+        "match_W_L": [
+          380,
+          423
+        ],
+        "skip_W_L": [
+          0,
+          0
+        ]
+      },
+      "live": {
+        "name": "Verdict D \u2014 DEFERRED (no filter)",
+        "cohort": "live",
+        "n_input": 13,
+        "match_count": 13,
+        "match_rate": 1.0,
+        "matched_wr": 0.8461538461538461,
+        "skipped_wr": null,
+        "baseline_wr": 0.8461538461538461,
+        "lift_over_baseline_pp": 0.0,
+        "match_W_L": [
+          11,
+          2
+        ],
+        "skip_W_L": [
+          0,
+          0
+        ]
+      }
+    }
+  ],
+  "final_verdict": "DEFERRED with provisional Verdict A (HOT-only filter)",
+  "rationale": [
+    "Verdict A lifetime: n=86, WR=63.7%, lift=+16.4pp",
+    "Live: n=7 matches at 85.7% \u2014 modest validation",
+    "Production: HOT-only filter is provisionally defensible. DEFERRED to allow Bear UP_TRI cell deployment first; revisit after Bear UP_TRI live success."
+  ],
+  "production_action": "Treat Bear BULL_PROXY as DEFERRED behind Bear UP_TRI deployment. If hot sub-regime detected (vol>0.70 AND 60d_return<-0.10), provisional TAKE_SMALL is defensible based on lifetime n=86 / 63.7% WR. Otherwise SKIP. Re-evaluate after Bear UP_TRI cell production lifetime.",
+  "session_2_recommendation": "DO NOT proceed to Session 2. The cell:\n  \u2022 Has 0 Phase 5 combinations to validate against\n  \u2022 Live data too thin for filter back-test (n=13)\n  \u2022 Lifetime data already exhausted in P2-P3\n  \u2022 Bear UP_TRI is strictly better \u2014 focus engineering there\nRe-evaluate: when Bear UP_TRI production succeeds AND \u226530 more Bear BULL_PROXY live signals accumulate."
+}
