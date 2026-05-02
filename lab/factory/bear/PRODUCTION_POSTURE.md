@@ -1,9 +1,13 @@
 # Bear Regime — Production Posture
 
-**Status:** PARTIAL (Bear UP_TRI ready; Bear DOWN_TRI + BULL_PROXY pending)
-**Date:** 2026-05-02 night
+**Status:** COMPLETE for all 3 cells; production deployment posture
+varies per cell (1 deployment-ready, 2 DEFERRED with provisional filters).
+**Date:** 2026-05-02 night (updated post-BULL_PROXY cell completion)
 **Branch:** `backtest-lab`
 **Scope:** Wave 5 brain integration handoff specification for Bear regime
+**Companion docs:** [`synthesis.md`](synthesis.md),
+[`decision_flow.md`](decision_flow.md),
+[`synthesis_llm_analysis.md`](synthesis_llm_analysis.md).
 
 This document specifies how the Bear regime cells should be consumed by
 the production scanner / Wave 5 brain layer. It is the contract between
@@ -11,17 +15,29 @@ the Lab's cell research and the production decision engine.
 
 ---
 
-## Bear regime cells — production readiness
+## Bear regime cells — production readiness (FINAL)
 
-| Cell | Status | Confidence | Production action |
-|---|---|---|---|
-| Bear UP_TRI | ✅ COMPLETE (3 sessions) | HIGH (lifetime-validated) | DEPLOY with sub-regime gating |
-| Bear DOWN_TRI | ⏳ PENDING (T3 plan: 3 sessions) | TBD | NOT READY |
-| Bear BULL_PROXY | ⏳ PENDING (T3 plan: 3 sessions) | TBD | NOT READY |
+| Cell | Status | Confidence | Sessions | Production action |
+|---|---|---|---|---|
+| **Bear UP_TRI** | ✅ COMPLETE | HIGH (lifetime-validated) | 3 | Sub-regime gated; **shadow-deployment-ready** |
+| **Bear DOWN_TRI** | DEFERRED | LOW | 1 | kill_001 + provisional wk2/wk3 filter (default OFF) |
+| **Bear BULL_PROXY** | DEFERRED | LOW | 1 | Provisional HOT-only filter (default OFF) |
 
-**Initial production deployment** can include only Bear UP_TRI. DOWN_TRI
-and BULL_PROXY remain at pre-cell defaults (kill_001 for DOWN_TRI×Bear×Bank;
-all-take for BULL_PROXY) until cells complete.
+### Initial production deployment scope
+
+**Primary:** Bear UP_TRI cell with sub-regime gating per [`decision_flow.md`](decision_flow.md).
+
+**Secondary (default OFF):**
+- Bear DOWN_TRI provisional filter (wk2/wk3 + non-Bank → TAKE_SMALL).
+  Manual enable only after ≥30 more live signals validate the filter.
+- Bear BULL_PROXY provisional filter (HOT sub-regime only → TAKE_SMALL).
+  Manual enable only after Bear UP_TRI deployment success.
+
+**Universal KILL rules** (apply regardless of cell deployment status):
+- kill_001 — Bank × Bear DOWN_TRI → REJECT (already in production)
+- vol_climax × Bear BULL_PROXY → REJECT (new from BULL_PROXY P2)
+- December × Bear UP_TRI → SKIP (lifetime −25pp catastrophic)
+- Health × Bear UP_TRI → SKIP (lifetime hot 32.4% — only sector where hot fails)
 
 ---
 
@@ -518,14 +534,159 @@ be addressed before live (non-shadow) deployment.
 
 ---
 
+## Bear vs Choppy regime comparison
+
+Both regimes have been comprehensively investigated. Architectural
+parallels and differences:
+
+| Property | Choppy | Bear |
+|---|---|---|
+| Sub-regime structure | tri-modal (quiet / balance / stress) | tri-modal (hot / warm / cold) |
+| Primary axis | `nifty_vol_percentile_20d` | `nifty_vol_percentile_20d` (shared) |
+| Secondary axis | `market_breadth_pct` (cross-section) | `nifty_60d_return_pct` (longitudinal) |
+| Cells investigated | 3 (UP_TRI / DOWN_TRI / BULL_PROXY) | 3 (UP_TRI / DOWN_TRI / BULL_PROXY) |
+| Cells reaching HIGH confidence | 1 (UP_TRI v2) | 1 (UP_TRI v3) |
+| Cells DEFERRED | 1 (DOWN_TRI) | 2 (DOWN_TRI + BULL_PROXY) |
+| Cells KILLED | 1 (BULL_PROXY) | 0 (BULL_PROXY DEFERRED, not KILL) |
+| Live-vs-lifetime gap (UP_TRI) | F1 +23pp → +1.7pp lifetime | +38.9pp |
+| Phase 5 yield | UP_TRI 22% match rate | UP_TRI 100% validation, 0 BULL_PROXY combos |
+
+### Architectural pattern (per Sonnet 4.5 BS1 critique)
+
+> **"Primary axis = regime definition, secondary axis = risk flavor"**
+
+- Choppy is defined by directionless oscillation → primary axis is vol
+  (high vol = violent chop, low vol = dull chop) and secondary is breadth
+  (cross-sectional sync vs rotation).
+- Bear is defined by sustained decline → primary axis is vol (panic vs
+  grind) and secondary is 60d_return (oversold vs capitulation).
+- Bull (predicted) will use trend_persistence × leadership_concentration.
+
+The tri-modal structure (extremes matter; tails behave differently) appears
+universal. **Per-regime sub-regime detectors with regime-specific axes is
+the correct architectural pattern.** Don't unify.
+
+---
+
+## Bull regime preparation notes
+
+Bull regime work is the natural next phase. Key differences from Bear
+work:
+
+### No live Bull data (currently)
+
+Apr-May 2026 has 0 Bull-classified live signals. All Bull cell
+investigation must be **lifetime-only** (similar to Bear DOWN_TRI's
+0-Phase-5-winners fallback):
+
+- Skip Phase 5 winners-vs-rejected differentiator step (no winners exist)
+- Use lifetime stratification + sub-regime detection from start
+- Provisional findings only; production deployment awaits Bull regime
+  return + ≥30 live signals
+- Expected ~3-5 sessions per cell (faster than Bear due to no Phase 5
+  step)
+
+### Predicted Bull architecture (from Bear UP_TRI S2 critique)
+
+Per Sonnet 4.5 architecture review of Bear detector:
+
+| Bull cell candidate | Primary axis hypothesis | Secondary axis hypothesis |
+|---|---|---|
+| Bull UP_TRI | trend_persistence_60d | leadership_concentration |
+| Bull DOWN_TRI | (likely contrarian short — defer until live) | — |
+| Bull BULL_PROXY | trend_persistence_60d | sector momentum dispersion |
+
+### Cross-cell predictions for Bull (from BS1 LLM analysis)
+
+Sonnet 4.5 predicted these patterns will **replicate in Bull regime**
+with different features:
+
+1. **Same-feature direction-flip across cells** will replicate. Predicted
+   feature: `pullback_depth` or `consolidation_duration` will show
+   opposite preferences across Bull breakout cells vs Bull retracement
+   cells.
+
+2. **Calendar inversion across direction** may flip in Bull regime.
+   Bullish cells in Bear preferred wk4 (month-end rebalancing flow);
+   Bull regime may shift this.
+
+3. **Hot Bull sub-regime** (predicted: very high trend_persistence +
+   broad leadership) should favor LONG positions universally — same as
+   Hot Bear pattern.
+
+4. **vol_climax** will likely remain anti for BULL_PROXY across regimes
+   (capitulation breaks support — mechanism-intrinsic).
+
+### Bull regime cell sequence plan (proposed, awaiting confirmation)
+
+| Cell | Priority | Estimated sessions | Rationale |
+|---|---|---|---|
+| Bull UP_TRI | First | 2-3 | Methodology proven in bullish-direction setups (parallel to Bear UP_TRI) |
+| Bull BULL_PROXY | Second | 2 | Likely strong cell (lifetime data should show clean structure); tests cross-cell direction-flip prediction |
+| Bull DOWN_TRI | Third | 1-2 | Likely DEFERRED (contrarian short in Bull) — apply Bear DOWN_TRI lessons |
+| Bull regime synthesis | Fourth | 1 | Cross-cell consolidation; comparison to Bear/Choppy |
+
+**Total estimated Bull regime work:** 6-9 sessions over 1-2 weeks.
+
+### Phase 4.5 cluster analysis recommendation (from BS1 LLM)
+
+Before Bull regime work, consider implementing **Phase 4.5: Cluster
+Analysis** in the Lab pipeline. After Phase 4 walk-forward, take all
+combinations with 4+ profitable trades (not 8+) and run hierarchical
+clustering on feature vectors. If a cluster of 3-4 similar combinations
+collectively achieves 12+ trades with consistent performance, promote
+the cluster centroid to Phase 5.
+
+This addresses the "rare-but-robust" cell problem (Bear BULL_PROXY's 0
+Phase 5 combos) by capturing fragmented evidence that the current 8-trade
+threshold misses.
+
+---
+
+## Open questions for production integration
+
+1. **Sub-regime detector deployment timing.** Per-day pre-market composer
+   (computes once, shared across signals) or per-signal (slower but
+   captures intraday regime shifts)? Recommendation: per-day for v1.
+
+2. **Phase-5 status field — where stored?** Currently in
+   `combinations_live_validated.parquet`; production scanner needs
+   query-ready access at signal time.
+
+3. **Provisional filter enablement UX.** How does trader toggle
+   `bear_downtri_provisional_enabled` and `bear_bullproxy_provisional_enabled`
+   flags? Telegram command? Settings file? Recommendation: settings file
+   read by composer at scan time.
+
+4. **Trader heuristics implementation location.** Repeat-name cap and
+   day-correlation cap require state lookup (recent signals same-name,
+   same-day). Scanner main loop or Wave 5 brain layer? Recommendation:
+   brain layer (already does signal aggregation).
+
+5. **Calibrated WR display in Telegram digest.** Show "expected 65-75%"
+   alongside each signal? Risk: anchoring trader to a range. Benefit:
+   manages emotional response to drawdowns.
+
+6. **Schema design for cell variety.** UP_TRI is filter+cascade;
+   DOWN_TRI is provisional+kill_extension; BULL_PROXY is provisional
+   HOT-only. How to express all 3 in unified scanner schema?
+
+7. **Default behavior config.** Skip-on-unmatched (conservative) or
+   take-small-on-unmatched (capture more)? Recommendation: skip-on-unmatched
+   as v1 default; allow override via settings.
+
+---
+
 ## Summary
 
-Bear UP_TRI cell is **shadow-deployment-ready** with sub-regime gating,
-Phase-5 hierarchy, sector/calendar mismatch rules, and calibrated WR
-expectations. **NOT live-ready** until Gap items 9-14 are addressed.
+**Bear regime cell investigation COMPLETE** — all 3 cells investigated;
+synthesis published; production posture documented.
 
-Bear DOWN_TRI and BULL_PROXY cells are pending; until they complete,
-retain pre-cell defaults.
+| Cell | Production Status |
+|---|---|
+| Bear UP_TRI | **Shadow-deployment-ready** with sub-regime gating |
+| Bear DOWN_TRI | DEFERRED with provisional filter (default OFF) |
+| Bear BULL_PROXY | DEFERRED with provisional filter (default OFF) |
 
 Production WR target: **65-75% for hot/warm Bear UP_TRI**, NOT 94.6%.
 Trader expectation calibration is critical — the live window included
@@ -534,4 +695,22 @@ significant Phase-5 selection bias not reproducible at scale.
 Sub-regime detector is deterministic, O(1), runs once per scan day.
 Failure mode is fail-closed (unknown sub-regime → SKIP cascade).
 
-Next session: Bear DOWN_TRI cell investigation (Session 1 of 3).
+Universal KILL rules (apply across all 3 cells regardless of deployment
+status):
+- kill_001 (Bank × DOWN_TRI), already in production
+- vol_climax × BULL_PROXY
+- December × UP_TRI
+- Health × UP_TRI
+
+**Next session:** Bull regime cell investigation begins. Per the
+architectural recommendations:
+- Apply Bear UP_TRI's 5-step methodology adapted for lifetime-only
+  (no live Bull data currently)
+- Build Bull sub-regime detector early (predicted axes: trend_persistence
+  × leadership_concentration)
+- Test cross-cell direction-flip prediction in Bull cells
+- Expect 6-9 sessions across all Bull cells + synthesis
+
+The Lab now has a **proven cross-regime methodology** and architectural
+pattern for sub-regime structure. Choppy and Bear regimes establish
+the template; Bull regime work tests its generality.
