@@ -1,0 +1,217 @@
+{
+  "schema_version": 3,
+  "generated_at": "2026-04-25T00:00:00Z",
+  "description": "Mini scanner rules config. Schema v3 (Apr 25 2026): boost_patterns populated with Tier-A and Tier-B validated winning cohorts from live-data deep-dive. kill_patterns + rules unchanged from v2.",
+
+  "shadow_mode": true,
+
+  "rules": {
+    "min_score": {
+      "active": false,
+      "threshold": 7,
+      "sa_threshold": 5,
+      "description": "Minimum score to pass. SA = second attempt threshold. DO NOT activate until 30 resolved signals show score correlates with WR."
+    },
+    "min_rr": {
+      "active": false,
+      "threshold": 2.0,
+      "description": "Minimum R:R ratio required."
+    },
+    "regime_alignment": {
+      "active": false,
+      "description": "PERMANENTLY DISABLED — backtest proves Bear regime UP_TRI is highest conviction trade (avg 4.85%). Activating this rule kills the best signals. Never enable without explicit backtest evidence per signal type."
+    },
+    "require_volume": {
+      "active": false,
+      "description": "vol_confirm must be true. Do not activate until Phase 1 shows volume correlates with WR."
+    },
+    "grade_gate": {
+      "active": false,
+      "allowed": ["A", "B", "C"],
+      "description": "Only listed grades pass. Phase 2 candidate after Grade A vs B WR comparison."
+    },
+    "clean_air": {
+      "active": false,
+      "description": "Clean air above target required. Phase 2 candidate."
+    },
+    "delivery_volume": {
+      "active": false,
+      "description": "Phase 3 only — delivery_pct filter. Requires NSE Bhavcopy scraping. Do not activate yet."
+    }
+  },
+
+  "kill_patterns": [
+    {
+      "id": "kill_001",
+      "active": true,
+      "signal": "DOWN_TRI",
+      "sector": "Bank",
+      "reason": "0/11 WR live (Phase B pattern miner). Avg P&L -11.12%, MFE 0% — every trade went against immediately.",
+      "added_date": "2026-04-19",
+      "source": "manual_session_3",
+      "evidence": {
+        "wr": 0.0,
+        "n": 11,
+        "avg_pnl": -11.12,
+        "avg_mae": 8.46,
+        "avg_mfe": 0.0,
+        "tier": "preliminary"
+      },
+      "contra_shadow_tracked": true
+    }
+  ],
+
+  "warn_patterns": [],
+
+  "watch_patterns": [
+    {
+      "id": "watch_001",
+      "active": true,
+      "signal": "UP_TRI",
+      "regime": "Choppy",
+      "sector": null,
+      "warning_text": "⚠️ WATCH: UP_TRI breakouts haven't followed through in Choppy regime in our data. Apr 17 cluster: 11 wins / 24 losses / 1 flat (n=36, WR 31%). Take with caution. If taken, note your reason.",
+      "evidence": {
+        "n": 36,
+        "wr": 0.314,
+        "source_clusters": ["2026-04-17"],
+        "report_ref": "output/eod_anomaly_2026-04-27.md"
+      },
+      "added_date": "2026-04-27",
+      "source": "user_per_anomaly_2026-04-27"
+    }
+  ],
+
+  "boost_patterns": [
+    {
+      "id": "win_001",
+      "active": true,
+      "signal": "UP_TRI",
+      "sector": "Auto",
+      "regime": "Bear",
+      "tier": "A",
+      "conviction_tag": "TAKE_FULL",
+      "reason": "21/21 WR live. Perfect record. Bear-regime UP_TRI is the strongest validated cohort in the system.",
+      "added_date": "2026-04-25",
+      "source": "live_data_analysis_2026_04_25",
+      "evidence": {
+        "wr": 1.0,
+        "n": 21,
+        "tier": "validated"
+      }
+    },
+    {
+      "id": "win_002",
+      "active": true,
+      "signal": "UP_TRI",
+      "sector": "FMCG",
+      "regime": "Bear",
+      "tier": "A",
+      "conviction_tag": "TAKE_FULL",
+      "reason": "19/19 WR live. Perfect record. Bear-regime defensive rotation into FMCG confirmed.",
+      "added_date": "2026-04-25",
+      "source": "live_data_analysis_2026_04_25",
+      "evidence": {
+        "wr": 1.0,
+        "n": 19,
+        "tier": "validated"
+      }
+    },
+    {
+      "id": "win_003",
+      "active": true,
+      "signal": "UP_TRI",
+      "sector": "IT",
+      "regime": "Bear",
+      "tier": "A",
+      "conviction_tag": "TAKE_FULL",
+      "reason": "18/18 WR live. Perfect record. IT rally participation in Bear regime confirmed edge.",
+      "added_date": "2026-04-25",
+      "source": "live_data_analysis_2026_04_25",
+      "evidence": {
+        "wr": 1.0,
+        "n": 18,
+        "tier": "validated"
+      }
+    },
+    {
+      "id": "win_004",
+      "active": true,
+      "signal": "UP_TRI",
+      "sector": "Metal",
+      "regime": "Bear",
+      "tier": "A",
+      "conviction_tag": "TAKE_FULL",
+      "reason": "15/15 WR live. Perfect record at n=15 floor. Bear-regime Metal breakouts validated.",
+      "added_date": "2026-04-25",
+      "source": "live_data_analysis_2026_04_25",
+      "evidence": {
+        "wr": 1.0,
+        "n": 15,
+        "tier": "validated"
+      }
+    },
+    {
+      "id": "win_005",
+      "active": true,
+      "signal": "UP_TRI",
+      "sector": "Pharma",
+      "regime": "Bear",
+      "tier": "A",
+      "conviction_tag": "TAKE_FULL",
+      "reason": "13/13 WR live. Perfect record but n<15 — below stated Tier A floor. Flagged for upgrade review when n reaches 15+.",
+      "added_date": "2026-04-25",
+      "source": "live_data_analysis_2026_04_25",
+      "evidence": {
+        "wr": 1.0,
+        "n": 13,
+        "tier": "validated_under_floor",
+        "review_trigger": "n>=15 or first loss"
+      }
+    },
+    {
+      "id": "win_006",
+      "active": true,
+      "signal": "UP_TRI",
+      "sector": "Infra",
+      "regime": "Bear",
+      "tier": "B",
+      "conviction_tag": "TAKE_FULL",
+      "reason": "~10.5/12 WR live (87.5%). Moderate sample, strong WR — promote to Tier A if n reaches 15+ with WR held.",
+      "added_date": "2026-04-25",
+      "source": "live_data_analysis_2026_04_25",
+      "evidence": {
+        "wr": 0.875,
+        "n": 12,
+        "tier": "preliminary"
+      }
+    },
+    {
+      "id": "win_007",
+      "active": true,
+      "signal": "BULL_PROXY",
+      "sector": null,
+      "regime": "Bear",
+      "tier": "B",
+      "conviction_tag": "TAKE_FULL",
+      "reason": "~14/16 WR live (87.5%) across all sectors in Bear regime. Sector-agnostic cohort — regime is the gate. Drift-check: memory snapshot shows n=17/82%; fix_table canonical.",
+      "added_date": "2026-04-25",
+      "source": "live_data_analysis_2026_04_25",
+      "evidence": {
+        "wr": 0.875,
+        "n": 16,
+        "tier": "preliminary"
+      },
+      "notes": "sector=null means any sector qualifies; regime=Bear is the filter. Exclude Bank sector if kill_001 widens to BULL_PROXY in future."
+    }
+  ],
+
+  "notes": {
+    "rules": "Existing 6-rule system from mini_scanner.py DEFAULT_RULES. Each rule has 'active' field. Set to true to activate. Zero Python changes needed. Rules block signals ONLY in active mode — shadow mode lets all pass but logs hits. See each rule's description for phase-based activation guardrails.",
+    "kill_patterns": "Session 3 (Apr 19 2026). Hard-blocks signals matching signal+sector combo REGARDLESS of shadow_mode. Different from 'rules' above — rules are conditional based on shadow_mode, kill_patterns are absolute. When matched, also triggers contra_tracker.record() to log inverted shadow trade. Each kill_pattern has independent 'active' field for disabling without removing.",
+    "warn_patterns": "Session 3 placeholder. Signals matching these pass but flagged with caution. Not yet implemented.",
+    "watch_patterns": "Phase 1 of WATCH framework (added 2026-04-27). Informational warnings surfaced in bridge L1 brief Caveats footer. NEVER mutates bucket assignment, filtering, or scoring — read-only metadata. Match logic: signal EQUALS + (sector null OR EQUALS) + (regime null OR EQUALS) — same wildcard convention as kill_patterns/boost_patterns. Multiple watch_patterns may match the same signal; all warnings render. First entry: UP_TRI × Choppy (n=36, WR 31%, source: eod_anomaly_2026-04-27.md). Phase 2 (override-with-reason capture) deferred.",
+    "boost_patterns": "Populated Apr 25 2026. Signals matching these receive conviction tag (TAKE_FULL) when Bridge ships (Wave 2). READ-ONLY FOR NOW — mini_scanner.py does not yet read boost_patterns. Bridge composer will read and elevate matching signals to TAKE_FULL sort bucket. Schema: {id, active, signal, sector (null=any), regime (null=any), tier (A/B), conviction_tag, reason, added_date, source, evidence}. Matching logic (when implemented): signal EQUALS + (sector null OR EQUALS) + (regime null OR EQUALS). If multiple boost_patterns match a signal, highest tier wins. Demotion: if wr drops below 70% in 10-signal rolling window, bump tier from A→B or B→watchlist. Demotion framework is prop_007 / LE-06 (Wave 4).",
+    "shadow_mode": "When true, rule system lets all signals pass to mini_log. Used during initial data collection. Kill_patterns bypass shadow_mode and block unconditionally. Boost_patterns are not gated by shadow_mode — they are metadata elevation, not filters."
+  }
+}

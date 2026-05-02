@@ -1,0 +1,34 @@
+## Input package contents
+
+- critiques/A1_rules_audit.md
+- critiques/B1_bear_warm_zone.md
+- critiques/B2_bear_hard_thresholds.md
+- critiques/B3_bear_phase5_override.md
+- critiques/bull_critiques_summary.md
+- critiques/C1_choppy_momentum.md
+- critiques/C2_choppy_breadth_thresholds.md
+- critiques/C3_choppy_transition_whipsaw.md
+- critiques/critiques_audit_summary.md
+- critiques/S1_state_persistence.md
+- critiques/S2_volume_filter.md
+- critiques/S3_sector_rotation.md
+- critiques/S4_classifier_jitter.md
+- critiques/S5_bullproxy_first_day.md
+- critiques/SUMMARY.md
+- INDEX.md
+- playbooks/bear_bullproxy.md
+- playbooks/bear_downtri.md
+- playbooks/bear_uptri.md
+- playbooks/bull_bullproxy.md
+- playbooks/bull_downtri.md
+- playbooks/bull_uptri.md
+- playbooks/choppy_bullproxy.md
+- playbooks/choppy_downtri.md
+- playbooks/choppy_uptri.md
+- posture/bear_posture.md
+- posture/bull_posture.md
+- production/bull_verification.md
+- production/current_rules.json
+- regime_synthesis/bear.md
+- regime_synthesis/bull.md
+- regime_synthesis/choppy.md

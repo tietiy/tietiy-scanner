@@ -1,0 +1,333 @@
+# Choppy Regime Playbook
+
+Unified guidance for trading any Choppy-regime signal across all 3 signal types.
+
+## Status
+
+- **Investigation date:** 2026-05-02
+- **Cells complete:** 3 of 3 (UP_TRI, DOWN_TRI, BULL_PROXY)
+- **Overall regime confidence:** **MEDIUM** — driven by Choppy UP_TRI cell (the only cell with sufficient live data for filter articulation). Both other cells contribute structural verdicts (DEFERRED for DOWN_TRI, KILL for BULL_PROXY) that simplify the decision flow.
+- **Live data window:** April 2026 (uniformly `nifty_vol_regime=High`)
+- **Aggregate live universe:** 91 + 3 + 8 = **102 Choppy signals**
+- **Aggregate live WR**: (29 + 0 + 2) / (54 + 3 + 6 + 29 + 0 + 2 excluding flats) = **31 wins / 102 = 30.4%** unfiltered
+
+---
+
+## Decision Flow at Signal Time
+
+For any Choppy stock signal, branch by signal_type:
+
+### UP_TRI signals → see [Choppy UP_TRI cell](../choppy_uptri/playbook.md)
+
+```
+IF ema_alignment == "bull" AND coiled_spring_score == "medium":
+    IF MACD_histogram_slope != "falling" AND higher_highs_intact_flag != True:
+        → TAKE_FULL (F1 + F4 match)  [conviction tier; n=6, 67% WR]
+    ELSE:
+        → TAKE_SMALL (F1 match only)  [n=20, 58% WR]
+ELSE:
+    → SKIP
+```
+
+Filter F1 lift: +23pp over 35% baseline. Skipped WR: 28%. **30pp matched-vs-skipped gap**.
+
+### DOWN_TRI signals → see [Choppy DOWN_TRI cell](../choppy_downtri/playbook.md)
+
+```
+→ TAKE_SMALL or SKIP (default)
+```
+
+Cell is **DEFERRED**. Live universe = 3 signals, all losses. Phase 4 produced 25 surviving patterns at lifetime test_wr 68% but none have enough live matches to validate. Trader judgment call until quarterly re-run.
+
+**Conservative production recommendation**: SKIP unless trader has a strong context-based reason to take. The 3 observed live signals went 0/3.
+
+### BULL_PROXY signals → see [Choppy BULL_PROXY cell](../choppy_bullproxy/playbook.md)
+
+```
+→ REJECT (always)
+```
+
+Cell verdict is **KILL**. 0/175 Phase-4 patterns validated; 8 live signals at 25% WR; 2 winners feature-indistinguishable from 6 losers. Production should suppress all Choppy BULL_PROXY signals at the bridge layer.
+
+**Narrow exception** (compression-coil BULL_PROXY) is documented but UNTESTED — scanner doesn't currently fire that variant. Re-evaluate cell verdict only when ≥5 such signals accumulate with WR ≥50%.
+
+---
+
+## What Choppy Regime Feels Like Mechanically
+
+Choppy regime punishes momentum-extended stocks and rewards compressed, bullish-aligned setups attempting their first break. The regime oscillates inside a high-volatility range — price swings feel large but reversals come fast, so trend-continuation patterns (higher highs intact, extended rallies) fail reliably because the market lacks follow-through conviction. You want stocks **coiling at support with EMA alignment confirming underlying bullish structure**, not stocks already stretched or in mixed alignment grinding sideways. Ascending triangle breakouts work when the spring is wound (medium coiled_spring_score) and the trend is intact (bull EMA alignment); descending triangles and support bounces on mixed-trend stocks are traps. Default posture is **SKIP** — only 20 of 91 triangle signals met the narrow filter, and that selectivity is the edge. When the compression-bull signature fires, size small but trust it; when it doesn't, the regime will chop you apart.
+
+*— Mechanism narrative synthesized via Claude Sonnet 4.5 from cell findings*
+
+---
+
+## No-Match Default Behavior
+
+When a Choppy signal does NOT match any cell's filter:
+
+- **Default action: SKIP**
+- Rationale: Choppy regime's edge is structurally narrow. Aggregate baseline WR is ~30%; without the filter, expected outcome is loss-skewed.
+- **Override conditions:** None routine. If trader sees compelling context outside our 114-feature library (e.g., earnings catalyst, sector rotation news, options flow), trader judgment applies — but at SMALLER position size always.
+
+This default is more conservative than Bear or (future) Bull regime defaults. Choppy = highest selectivity required.
+
+---
+
+## Aggregate Evidence
+
+| Metric | Value |
+|---|---|
+| Total Choppy signals (live, deduped) | 102 |
+| Aggregate live WR (unfiltered) | ~30% |
+| F1-matched UP_TRI subset | 20 signals, 58% WR (+23pp lift) |
+| TOTAL "TAKE" signals across all 3 cells | **20** (only UP_TRI F1 matches) |
+| Match rate (signals that get a TAKE verdict) | 20 / 102 = **19.6%** |
+| Cells producing tradeable filter | 1 of 3 (UP_TRI only) |
+| Cells DEFERRED | 1 (DOWN_TRI) |
+| Cells KILLED | 1 (BULL_PROXY) |
+
+**80% of Choppy signals get a SKIP or REJECT verdict.** This is the regime's character — filter narrow, skip default.
+
+---
+
+## Cross-Cell Insights
+
+### The compression-bull signature dominates winning patterns
+
+`ema_alignment=bull AND coiled_spring_score=medium` is the **single most important feature combo** in Choppy regime:
+- Choppy UP_TRI cell: F1 winning filter
+- Choppy BULL_PROXY cell: WATCH-cluster signature (untested narrow exception)
+- Both point to same trade archetype: bullish-trend stock with moderate compression breaks out in Choppy
+
+If a Choppy stock has this signature and any UP_TRI / BULL_PROXY-style signal fires, trader should pay attention. Across cells, this is the unified "compression-coil break" pattern.
+
+### Universal anti-features (across cells)
+
+Features that appear as kill conditions or losing-cluster markers across Choppy cells:
+
+- **`higher_highs_intact_flag = True`** (Choppy UP_TRI anti-feature, Choppy BULL_PROXY rejected-cluster) — counter-intuitive: trend-continuation flag KILLS in Choppy because Choppy means continuation breaks.
+- **`ema20_distance_pct = high`** (Choppy BULL_PROXY rejected-cluster) — already-extended momentum dies in Choppy.
+- **`market_breadth_pct = high`** in lifetime backtest = anti-feature in Choppy live (high-breadth signals attracted Choppy market reversion).
+- **`MACD_histogram_slope = falling`** (Choppy UP_TRI anti-feature) — momentum already deteriorating doesn't recover in Choppy.
+
+Production rule of thumb: **if the chart looks like a clean uptrend with momentum extension, Choppy regime will probably kill it.**
+
+### Default horizon by signal type
+
+| Signal | Recommended hold | Rationale |
+|---|---|---|
+| UP_TRI | **D5** | All 18 Phase 5 VALIDATED were D5; D6 had zero VALIDATED |
+| DOWN_TRI | **D2** (provisional) | INV-013 confirmed D2 > D6 across regimes; 16 of 25 Phase-4 survivors were D2 |
+| BULL_PROXY | N/A (REJECT) | — |
+
+---
+
+## Production Integration Notes
+
+### Scanner consumption pseudocode
+
+```python
+def choppy_signal_action(signal):
+    if signal.regime != "Choppy":
+        return None  # not this playbook's domain
+
+    if signal.signal_type == "BULL_PROXY":
+        return "REJECT"
+
+    if signal.signal_type == "DOWN_TRI":
+        # Cell DEFERRED; conservative default
+        return "TAKE_SMALL" if trader_override_present else "SKIP"
+
+    if signal.signal_type == "UP_TRI":
+        ema_bull = signal.feat_ema_alignment == "bull"
+        coiled_med = (33 <= signal.feat_coiled_spring_score <= 67)
+        if not (ema_bull and coiled_med):
+            return "SKIP"
+        # F4 confirmation
+        macd_falling = signal.feat_MACD_histogram_slope == "falling"
+        hhs_intact = signal.feat_higher_highs_intact_flag is True
+        if macd_falling or hhs_intact:
+            return "TAKE_SMALL"
+        return "TAKE_FULL"
+
+    return "SKIP"
+```
+
+### Telegram message format (suggested)
+
+For TAKE_FULL:
+```
+🟢 [Choppy F1+F4] BULLISH SETUP
+Symbol: <SYMBOL> | Date: <DATE>
+Filter: ema_bull + coiled_medium + (no falling MACD/HHs)
+Evidence: Choppy UP_TRI F4 — 67% WR (n=6 live)
+Size: FULL | Hold: D5 default
+```
+
+For TAKE_SMALL:
+```
+🟡 [Choppy F1] CAUTION SIZING
+Symbol: <SYMBOL> | Date: <DATE>
+Filter: ema_bull + coiled_medium (F1 only — anti-feature triggered)
+Evidence: Choppy UP_TRI F1 — 58% WR (n=20 live)
+Size: HALF | Hold: D5 default
+```
+
+For REJECT (BULL_PROXY):
+```
+⛔ [Choppy KILL] BULL_PROXY SUPPRESSED
+Symbol: <SYMBOL> | Date: <DATE>
+Reason: Choppy BULL_PROXY 0/175 Phase 5 validated; 25% live WR
+Action: NO TRADE
+```
+
+For SKIP (any cell, no match):
+- Suppress Telegram alert entirely OR
+- Daily digest format only (not realtime push)
+
+### Risk management notes
+
+- **Choppy = smaller size always** — even on TAKE_FULL, target half of normal Bear or Bull position size. Choppy's 30% baseline WR is structurally worse than Bear/Bull baselines.
+- **Stop discipline tighter** — Choppy reversals are fast; a stop intended for Bear regime should be tightened for Choppy.
+- **D5 hold is hard cap** — Choppy UP_TRI evidence specifically said D6 doesn't validate; trader should not extend hold past D5 hoping for recovery.
+
+---
+
+## Limitations + Future Work
+
+### Where confidence is weak
+
+1. **DOWN_TRI cell DEFERRED** — 3 live signals is too sparse to articulate a filter. Quarterly re-runs needed.
+2. **BULL_PROXY exception untested** — compression-coil variant could exist but scanner doesn't fire it; can't validate without scanner config change.
+3. **Single-window data** — all live signals are April 2026 within a uniform high-vol Choppy. Filters may behave differently in Choppy with different vol sub-character (low-vol Choppy, post-Bear Choppy, post-Bull Choppy).
+4. **F1's 58% WR has wide CI** (Wilson 95% on 11W/19WL ≈ [37%, 76%]). Point estimate is real but bands are loose.
+
+### What more data would resolve
+
+| Data need | Resolves |
+|---|---|
+| 30+ more Choppy DOWN_TRI signals | DOWN_TRI cell filter articulation |
+| 50+ more Choppy UP_TRI signals | F1 WR confidence interval narrowing |
+| Scanner produces compression-coil BULL_PROXY signals | BULL_PROXY narrow exception test |
+| Choppy data spanning multiple vol sub-characters | Filter generalization across vol regimes |
+| Sector-level analysis (8 sectors × 3 signal_types) | Sector-conditional refinements |
+
+### Pending cells
+
+- **BEAR_PROXY** (when scanner detects it; signal type not currently in production)
+- **Compression-coil BULL_PROXY variant** (if scanner config adjusted)
+- **Choppy×D6 patterns** (currently SKIP; investigate if D6 has standalone edge for any sub-case)
+
+### Quarterly re-validation triggers
+
+- Live Choppy signal count grows by ≥30 → re-run all 3 cells
+- F1 matched WR drops below 50% on next 20 signals → relegate F1 to PRELIMINARY, investigate
+- DOWN_TRI live WR exceeds 40% on next 15 signals → upgrade DEFERRED → CANDIDATE filter
+- BULL_PROXY 5+ compression-coil variants accumulate → test narrow-exception hypothesis
+
+---
+
+## Lifetime Validation Summary (added 2026-05-02 evening)
+
+Cross-checked all live findings against 35,496 lifetime Choppy signals from `enriched_signals.parquet`:
+
+| Live finding | Lifetime verdict | Confidence change |
+|---|---|---|
+| F1 filter +23pp lift (UP_TRI) | **WEAKENED to +1.7pp** at 15-yr scale | MEDIUM → LOW |
+| Universal anti-features (4 features) | **3 of 4 REFUTED** — direction inverted | MEDIUM → REFUTED |
+| BULL_PROXY KILL verdict | **CONFIRMED** (no filter beats +10pp) | HIGH → HIGH |
+| DOWN_TRI DEFERRED | unchanged | unchanged |
+
+**Headline interpretation**: Live April 2026 findings captured a hostile-Choppy sub-regime exploit, not Choppy regime structural truth. F1 is **regime-shift adaptive** — works in hostile sub-regimes (35% baseline) but produces near-zero edge in friendly sub-regimes (52% baseline). Universal anti-features were sub-regime artifacts.
+
+**Production posture revised**: more conservative across all 3 cells. See `lab/factory/choppy/lifetime_validation_summary.md` for detailed analysis.
+
+### Revised production recommendations
+
+| Signal | Action |
+|---|---|
+| UP_TRI Choppy + F1 match | **TAKE_SMALL only** (not TAKE_FULL); deploy with regime-shift caveat |
+| UP_TRI Choppy without F1 match | **SKIP** (default unchanged) |
+| DOWN_TRI Choppy | TAKE_SMALL or SKIP (default; cell DEFERRED) |
+| BULL_PROXY Choppy (any) | **REJECT** (KILL verdict confirmed at lifetime) |
+
+The TAKE_FULL tier is suspended for UP_TRI×Choppy until F1 lift recurs in another live sub-regime.
+
+### Universal anti-features — DO NOT use as kill conditions
+
+The synthesis playbook v1 listed `higher_highs_intact_flag=True`, `ema20_distance_pct=high`, `MACD_histogram_slope=falling`, `market_breadth_pct=high` as universal Choppy kill conditions. **3 of 4 are REFUTED at lifetime scale**. Production should NOT reject signals based on these features — they were April 2026 artifacts.
+
+Only `MACD_histogram_slope=falling` shows weak negative effect at lifetime (-2.4pp).
+
+---
+
+## Comprehensive Lifetime Exploration v2 (added 2026-05-02 night)
+
+A deeper L1-L5 multi-axis investigation across the full 35,290-signal
+lifetime universe replaces the earlier "Choppy is uniformly hostile" framing
+with a **tri-modal** interpretation. Authoritative source:
+[`lifetime/synthesis.md`](lifetime/synthesis.md).
+
+### Headline shifts
+
+1. **Choppy is not uniform.** Three distinct sub-regimes drive different
+   filter behavior:
+   - High-vol stress (~28%, baseline 55.7% UP_TRI)
+   - Medium-vol equilibrium (~51%, baseline 49.2% UP_TRI — the *hostile* sub-regime)
+   - Low-vol quiet (~21%, baseline 55.1%)
+
+2. **L3 surfaced novel dominant patterns the cell investigations missed.**
+   All three signal types' lifetime-best 2-feat combos anchor on
+   `market_breadth_pct × nifty_vol_regime`, not `ema_alignment × coiled_spring`:
+   | Signal | Combo | n | WR | Lift |
+   |---|---|---|---|---|
+   | UP_TRI | `breadth=medium AND vol=High` | 4546 | 60.1% | +7.9pp |
+   | DOWN_TRI | `breadth=medium AND vol=Medium` | 1727 | 55.2% | +9.1pp |
+   | BULL_PROXY | `breadth=high AND multi_tf=high` | 507 | 56.4% | +6.8pp (sub-threshold) |
+
+3. **Vol-gating is essential.** UP_TRI breadth=medium **inverts**:
+   −5.5pp lift in Medium-vol cohort, +7.9pp in High-vol cohort. Apply
+   `nifty_vol_regime` as a first-class filter, not a confounder.
+
+4. **F1 (ema_bull + coiled=medium) does NOT surface** as a top-20 combo for
+   any signal type at lifetime (failed n≥100, lift≥+5pp, p<0.01 bar). F1 is
+   a regime-shift adaptive filter, not a structural Choppy edge.
+
+5. **Strong calendar/sector edges:**
+   - February UP_TRI catastrophic (−16.2pp); DOWN_TRI exceptional (+16.2pp)
+   - wk3 DOWN_TRI +9.5pp / UP_TRI −3.9pp (mid-month inversion)
+   - DOWN_TRI Friday −6.2pp (avoid)
+   - AVOID: UP_TRI×Metal, DOWN_TRI×Pharma
+
+### Revised decision flow (v2)
+
+Branch on signal_type, then sub-screen by vol/calendar/sector before
+applying any pattern filter. Reference pseudocode in
+[`synthesis.md` § Choppy regime decision flow](lifetime/synthesis.md).
+
+### Cell-level posture changes
+
+| Cell | v1.1 status | v2 status |
+|---|---|---|
+| UP_TRI | F1 TAKE_SMALL only | Add lifetime-confirmed `breadth=medium × vol=High` pattern as TAKE_FULL candidate; F1 retained as regime-shift adaptive TAKE_SMALL |
+| DOWN_TRI | DEFERRED | **UPGRADABLE** — `breadth=medium × vol=Medium × wk3` (+11.7pp, n=1295) is a viable lifetime-validated TAKE_FULL candidate when filtered by Pharma-exclusion + non-Friday |
+| BULL_PROXY | KILL | KILL reconfirmed (best lifetime combo only +6.8pp, below +10pp threshold) |
+
+### Confidence on revised production
+
+Confidence is **MEDIUM-HIGH** for the L3 dominant combos because they
+qualified at large n with conservative p-thresholds and vol-gating
+confirmed in L4. They have NOT been live-validated in Apr 2026 data —
+quarterly Phase-5 re-runs need to track these patterns explicitly.
+
+---
+
+## Update Log
+
+- **v1 (2026-05-02):** Initial Choppy regime synthesis from 3 cell investigations:
+  - UP_TRI cell: MEDIUM confidence, F1 filter (58% WR on 20/91 matched, +23pp lift)
+  - DOWN_TRI cell: DEFERRED (live n=3, all losses)
+  - BULL_PROXY cell: KILL (0/175 Phase-4 patterns validated, 25% live WR)
+  - Aggregate match rate 19.6%; default action SKIP for unmatched
+- **v1.1 (2026-05-02 evening):** Lifetime validation across V1/V2/V3 surfaced significant disagreement between live April 2026 findings and 15-yr lifetime data. F1 lift collapses from +23pp to +1.7pp. Universal anti-features 3 of 4 REFUTED. BULL_PROXY KILL confirmed. Production recommendations revised to more conservative postures.
+- **v2 (2026-05-02 night):** Comprehensive L1-L5 lifetime exploration replaces "uniformly hostile" framing with **tri-modal** sub-regime structure. Novel `market_breadth × nifty_vol` patterns promoted; F1 demoted; vol/calendar/sector first-class filters added. See `lifetime/synthesis.md`.
