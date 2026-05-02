@@ -1,0 +1,386 @@
+{
+  "total_bear_bullproxy_combos": 0,
+  "halt_warning": "0 Phase 5 combinations exist for Bear BULL_PROXY \u2014 standard cell methodology NOT FEASIBLE. Falling back to lifetime-only analysis (parallel to Bear DOWN_TRI path). DEFERRED is most likely outcome.",
+  "groups": {
+    "VALIDATED": {
+      "count": 0
+    },
+    "PRELIMINARY": {
+      "count": 0
+    },
+    "REJECTED": {
+      "count": 0
+    },
+    "WATCH": {
+      "count": 0
+    }
+  },
+  "live_signal_universe": {
+    "n_total": 13,
+    "n_w": 11,
+    "n_l": 2,
+    "n_f": 0,
+    "wr_excl_flat": 0.8461538461538461,
+    "subregime_distribution": {
+      "hot": 7,
+      "cold": 6
+    },
+    "wr_by_subregime": {
+      "hot": {
+        "n": 7,
+        "n_w": 6,
+        "n_l": 1,
+        "wr": 0.8571428571428571
+      },
+      "cold": {
+        "n": 6,
+        "n_w": 5,
+        "n_l": 1,
+        "wr": 0.8333333333333334
+      }
+    },
+    "signals": [
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "GLENMARK.NS",
+        "sector": "Pharma",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "subregime": "hot",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_percentile_20d": 0.9561027837259101,
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon",
+        "feat_day_of_month_bucket": "wk1"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "OIL.NS",
+        "sector": "Energy",
+        "outcome": "DAY6_LOSS",
+        "wlf": "L",
+        "subregime": "hot",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_percentile_20d": 0.9561027837259101,
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon",
+        "feat_day_of_month_bucket": "wk1"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "PFC.NS",
+        "sector": "Bank",
+        "outcome": "TARGET_HIT",
+        "wlf": "W",
+        "subregime": "hot",
+        "feat_ema_alignment": "bull",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_percentile_20d": 0.9561027837259101,
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon",
+        "feat_day_of_month_bucket": "wk1"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "TATAPOWER.NS",
+        "sector": "Energy",
+        "outcome": "TARGET_HIT",
+        "wlf": "W",
+        "subregime": "hot",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_percentile_20d": 0.9561027837259101,
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon",
+        "feat_day_of_month_bucket": "wk1"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "TATASTEEL.NS",
+        "sector": "Metal",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "subregime": "hot",
+        "feat_ema_alignment": "bull",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_percentile_20d": 0.9561027837259101,
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon",
+        "feat_day_of_month_bucket": "wk1"
+      },
+      {
+        "date": "2026-04-06 00:00:00",
+        "symbol": "VEDL.NS",
+        "sector": "Metal",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "subregime": "hot",
+        "feat_ema_alignment": "bull",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19148936170212766,
+        "feat_nifty_vol_percentile_20d": 0.9561027837259101,
+        "feat_nifty_60d_return_pct": -0.12762953833535928,
+        "feat_day_of_week": "Mon",
+        "feat_day_of_month_bucket": "wk1"
+      },
+      {
+        "date": "2026-04-07 00:00:00",
+        "symbol": "POWERGRID.NS",
+        "sector": "Energy",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "subregime": "hot",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.19680851063829788,
+        "feat_nifty_vol_percentile_20d": 0.9528907922912205,
+        "feat_nifty_60d_return_pct": -0.11910912627935666,
+        "feat_day_of_week": "Tue",
+        "feat_day_of_month_bucket": "wk1"
+      },
+      {
+        "date": "2026-04-08 00:00:00",
+        "symbol": "AARTIIND.NS",
+        "sector": "Chem",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "subregime": "cold",
+        "feat_ema_alignment": "bull",
+        "feat_MACD_signal": "bear",
+        "feat_market_breadth_pct": 0.4148936170212766,
+        "feat_nifty_vol_percentile_20d": 0.974304068522484,
+        "feat_nifty_60d_return_pct": -0.08332536277481084,
+        "feat_day_of_week": "Wed",
+        "feat_day_of_month_bucket": "wk2"
+      },
+      {
+        "date": "2026-04-08 00:00:00",
+        "symbol": "BAJAJ-AUTO.NS",
+        "sector": "Auto",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "subregime": "cold",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.4148936170212766,
+        "feat_nifty_vol_percentile_20d": 0.974304068522484,
+        "feat_nifty_60d_return_pct": -0.08332536277481084,
+        "feat_day_of_week": "Wed",
+        "feat_day_of_month_bucket": "wk2"
+      },
+      {
+        "date": "2026-04-08 00:00:00",
+        "symbol": "TVSMOTOR.NS",
+        "sector": "Auto",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "subregime": "cold",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.4148936170212766,
+        "feat_nifty_vol_percentile_20d": 0.974304068522484,
+        "feat_nifty_60d_return_pct": -0.08332536277481084,
+        "feat_day_of_week": "Wed",
+        "feat_day_of_month_bucket": "wk2"
+      },
+      {
+        "date": "2026-04-10 00:00:00",
+        "symbol": "APOLLOHOSP.NS",
+        "sector": "Health",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "subregime": "cold",
+        "feat_ema_alignment": "bull",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.5106382978723404,
+        "feat_nifty_vol_percentile_20d": 0.9724304068522484,
+        "feat_nifty_60d_return_pct": -0.07057466529226808,
+        "feat_day_of_week": "Fri",
+        "feat_day_of_month_bucket": "wk2"
+      },
+      {
+        "date": "2026-04-10 00:00:00",
+        "symbol": "LT.NS",
+        "sector": "Infra",
+        "outcome": "STOP_HIT",
+        "wlf": "L",
+        "subregime": "cold",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.5106382978723404,
+        "feat_nifty_vol_percentile_20d": 0.9724304068522484,
+        "feat_nifty_60d_return_pct": -0.07057466529226808,
+        "feat_day_of_week": "Fri",
+        "feat_day_of_month_bucket": "wk2"
+      },
+      {
+        "date": "2026-04-15 00:00:00",
+        "symbol": "AUBANK.NS",
+        "sector": "Bank",
+        "outcome": "DAY6_WIN",
+        "wlf": "W",
+        "subregime": "cold",
+        "feat_ema_alignment": "mixed",
+        "feat_MACD_signal": "bull",
+        "feat_market_breadth_pct": 0.5904255319148937,
+        "feat_nifty_vol_percentile_20d": 0.9705567451820128,
+        "feat_nifty_60d_return_pct": -0.060447231754248265,
+        "feat_day_of_week": "Wed",
+        "feat_day_of_month_bucket": "wk3"
+      }
+    ],
+    "sector_distribution": {
+      "Energy": 3,
+      "Bank": 2,
+      "Metal": 2,
+      "Auto": 2,
+      "Pharma": 1,
+      "Chem": 1,
+      "Health": 1,
+      "Infra": 1
+    },
+    "sector_wr": {
+      "Auto": {
+        "n": 2,
+        "w": 2,
+        "l": 0,
+        "wr": 1.0
+      },
+      "Bank": {
+        "n": 2,
+        "w": 2,
+        "l": 0,
+        "wr": 1.0
+      },
+      "Chem": {
+        "n": 1,
+        "w": 1,
+        "l": 0,
+        "wr": 1.0
+      },
+      "Energy": {
+        "n": 3,
+        "w": 2,
+        "l": 1,
+        "wr": 0.6666666666666666
+      },
+      "Health": {
+        "n": 1,
+        "w": 1,
+        "l": 0,
+        "wr": 1.0
+      },
+      "Infra": {
+        "n": 1,
+        "w": 0,
+        "l": 1,
+        "wr": 0.0
+      },
+      "Metal": {
+        "n": 2,
+        "w": 2,
+        "l": 0,
+        "wr": 1.0
+      },
+      "Pharma": {
+        "n": 1,
+        "w": 1,
+        "l": 0,
+        "wr": 1.0
+      }
+    }
+  },
+  "lifetime_universe": {
+    "n_total": 891,
+    "n_w": 380,
+    "n_l": 423,
+    "n_f": 88,
+    "baseline_wr": 0.47322540473225405,
+    "wr_by_subregime": {
+      "hot": {
+        "n": 86,
+        "n_w": 51,
+        "n_l": 29,
+        "wr": 0.6375,
+        "pct_of_lifetime": 0.09652076318742986
+      },
+      "cold": {
+        "n": 805,
+        "n_w": 329,
+        "n_l": 394,
+        "wr": 0.45504840940525587,
+        "pct_of_lifetime": 0.9034792368125701
+      }
+    },
+    "sector_wr": {
+      "Auto": {
+        "n": 55,
+        "wr": 0.5
+      },
+      "Bank": {
+        "n": 153,
+        "wr": 0.5107913669064749
+      },
+      "CapGoods": {
+        "n": 60,
+        "wr": 0.39285714285714285
+      },
+      "Chem": {
+        "n": 88,
+        "wr": 0.5125
+      },
+      "Energy": {
+        "n": 58,
+        "wr": 0.5283018867924528
+      },
+      "FMCG": {
+        "n": 99,
+        "wr": 0.4117647058823529
+      },
+      "Health": {
+        "n": 39,
+        "wr": 0.45454545454545453
+      },
+      "IT": {
+        "n": 64,
+        "wr": 0.5689655172413793
+      },
+      "Infra": {
+        "n": 60,
+        "wr": 0.4339622641509434
+      },
+      "Metal": {
+        "n": 38,
+        "wr": 0.48484848484848486
+      },
+      "Other": {
+        "n": 56,
+        "wr": 0.37735849056603776
+      },
+      "Pharma": {
+        "n": 113,
+        "wr": 0.48514851485148514
+      }
+    }
+  },
+  "thin_data_assessment": {
+    "winners_VP_count": 0,
+    "rejected_count": 0,
+    "watch_count": 0,
+    "phase5_total": 0,
+    "live_n": 13,
+    "lifetime_n": 891,
+    "lifetime_wr": 0.47322540473225405,
+    "live_wr": 0.8461538461538461,
+    "live_lifetime_gap_pp": 37.29284414215921,
+    "halt_condition_met": true,
+    "recommended_path": "DEFERRED \u2014 Phase 5 has 0 combinations. Same fallback path as Bear DOWN_TRI: lifetime-only differentiator analysis + sub-regime cascade test \u2192 DEFERRED verdict with provisional filter (if lifetime supports). NO Sessions 2-3."
+  }
+}
