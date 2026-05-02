@@ -1,0 +1,128 @@
+{
+  "live_baseline_wr": 0.946,
+  "lifetime_baseline_wr": 0.5565179416260281,
+  "lifetime_n": 15151,
+  "lifetime_n_wl": 13739,
+  "live_vs_lifetime_gap_pp": 38.94820583739719,
+  "F1_filter": {
+    "definition": "nifty_60d_return_pct=low",
+    "lifetime_match_n": 2242,
+    "lifetime_match_rate": 0.16078146656986336,
+    "lifetime_matched_wr": 0.6743978590544157,
+    "lifetime_skipped_wr": 0.533530486213795,
+    "lifetime_lift_pp": 11.787991742838766,
+    "live_match_rate": 0.43,
+    "live_matched_wr": 0.938,
+    "verdict": "CONFIRMED at lifetime"
+  },
+  "winner_features": [
+    {
+      "feature_id": "nifty_60d_return_pct",
+      "level": "low",
+      "presence_n": 2242,
+      "presence_wr": 0.6743978590544157,
+      "absence_wr": 0.533530486213795,
+      "delta_pp": 14.086737284062078,
+      "verdict": "CONFIRMED (+14.1pp)"
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "none",
+      "presence_n": 11617,
+      "presence_wr": 0.5581475423947663,
+      "absence_wr": 0.5475966069745523,
+      "delta_pp": 1.0550935420214014,
+      "verdict": "NEUTRAL (+1.1pp)"
+    },
+    {
+      "feature_id": "multi_tf_alignment_score",
+      "level": "low",
+      "presence_n": 7601,
+      "presence_wr": 0.574134982239179,
+      "absence_wr": 0.5347018572825024,
+      "delta_pp": 3.9433124956676613,
+      "verdict": "WEAK (+3.9pp)"
+    },
+    {
+      "feature_id": "inside_bar_flag",
+      "level": "True",
+      "presence_n": 1977,
+      "presence_wr": 0.5983813859382904,
+      "absence_wr": 0.549481380717565,
+      "delta_pp": 4.890000522072535,
+      "verdict": "WEAK (+4.9pp)"
+    },
+    {
+      "feature_id": "swing_high_count_20d",
+      "level": "low",
+      "presence_n": 13702,
+      "presence_wr": 0.5571449423441833,
+      "absence_wr": 0.32432432432432434,
+      "delta_pp": 23.282061801985897,
+      "verdict": "CONFIRMED (+23.3pp)"
+    }
+  ],
+  "anti_features": [
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk4",
+      "presence_n": 3856,
+      "presence_wr": 0.6320020746887967,
+      "absence_wr": 0.5270666801578469,
+      "delta_pp": 10.49353945309498,
+      "verdict": "REFUTED \u2014 INVERTED (+10.5pp)"
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "Medium",
+      "presence_n": 4704,
+      "presence_wr": 0.5425170068027211,
+      "absence_wr": 0.5638074156059768,
+      "delta_pp": -2.1290408803255723,
+      "verdict": "WEAK (-2.1pp)"
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "bear",
+      "presence_n": 3795,
+      "presence_wr": 0.5844532279314888,
+      "absence_wr": 0.5458567980691874,
+      "delta_pp": 3.8596429862301385,
+      "verdict": "REFUTED \u2014 INVERTED (+3.9pp)"
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "medium",
+      "presence_n": 5443,
+      "presence_wr": 0.563476024251332,
+      "absence_wr": 0.5519527483124397,
+      "delta_pp": 1.1523275938892352,
+      "verdict": "NEUTRAL (+1.2pp)"
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "loose",
+      "presence_n": 2116,
+      "presence_wr": 0.5477315689981096,
+      "absence_wr": 0.5581175255958014,
+      "delta_pp": -1.0385956597691814,
+      "verdict": "NEUTRAL (-1.0pp)"
+    }
+  ],
+  "hot_subregime": {
+    "definition": "nifty_60d_return=low AND nifty_vol_regime=High",
+    "hot_n": 2275,
+    "hot_wr": 0.6826831588962893,
+    "cold_wr": 0.5337286242158632,
+    "hot_pct_of_lifetime": 15.01551052735793,
+    "live_within_hot_gap_pp": 26.331684110371068,
+    "interpretation": "Hot sub-regime confirms structural sub-regime (lifts +14.9pp over cold) but live's 94.6% is still much higher than lifetime hot \u2014 April 2026 may be extra-hot even within hot sub-regime, or live captures only Phase-5-validated patterns"
+  },
+  "watch_patterns_status": {
+    "validated_test_wr": 0.7211166022723932,
+    "preliminary_test_wr": 0.6635311385996869,
+    "watch_test_wr": 0.650357212782874,
+    "delta_validated_vs_watch_pp": 7.07593894895192,
+    "verdict": "GENUINELY WEAKER \u2014 WATCH patterns have lower lifetime test_wr; truly inferior patterns"
+  }
+}
