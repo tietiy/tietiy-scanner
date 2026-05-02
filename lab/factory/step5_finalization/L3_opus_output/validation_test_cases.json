@@ -1,0 +1,386 @@
+{
+  "test_cases": [
+    {
+      "_label": "TC1: Bear UP_TRI hot, sector leading — TAKE_FULL with boost",
+      "input": {
+        "signal": {
+          "id": "2026-04-29-UBL-UP_TRI",
+          "symbol": "UBL.NS",
+          "signal": "UP_TRI",
+          "direction": "LONG",
+          "date": "2026-04-29",
+          "sector": "Consumer",
+          "entry": 1477.2,
+          "stop": 1375.27,
+          "target_price": 1681.06,
+          "atr": 49.73
+        },
+        "regime_state": {
+          "regime": "Bear",
+          "sub_regime": "hot",
+          "regime_score": -2,
+          "vol_q": "Average",
+          "breadth_q": "low",
+          "week_of_month": 5
+        },
+        "features": {
+          "vol_confirm": true,
+          "rs_strong": true,
+          "sec_leading": true
+        },
+        "caps_result": {
+          "name_cap_status": "OK",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OK"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": ["BU_HOT_BASE", "BU_SEC_LEAD_BOOST"],
+        "dominant_rule_id": "BU_HOT_BASE",
+        "verdict": "TAKE_FULL",
+        "tier": "confident_hot",
+        "caps_passed": true,
+        "position_size_mult": 1.0
+      }
+    },
+    {
+      "_label": "TC2: Bear UP_TRI cold, cascade rule",
+      "input": {
+        "signal": {
+          "id": "2026-04-22-INFY-UP_TRI",
+          "symbol": "INFY.NS",
+          "signal": "UP_TRI",
+          "direction": "LONG",
+          "date": "2026-04-22",
+          "sector": "IT"
+        },
+        "regime_state": {
+          "regime": "Bear",
+          "sub_regime": "cold",
+          "regime_score": -4,
+          "vol_q": "High",
+          "breadth_q": "low",
+          "week_of_month": 4
+        },
+        "features": {
+          "vol_confirm": true,
+          "rs_strong": true,
+          "sec_leading": true
+        },
+        "caps_result": {
+          "name_cap_status": "OK",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OK"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": ["BU_COLD_CASCADE"],
+        "dominant_rule_id": "BU_COLD_CASCADE",
+        "verdict": "TAKE_FULL",
+        "tier": "confident_cold",
+        "caps_passed": true,
+        "position_size_mult": 1.0
+      }
+    },
+    {
+      "_label": "TC3: Bull UP_TRI recovery_bull, filter pass",
+      "input": {
+        "signal": {
+          "id": "2026-05-12-RELIANCE-UP_TRI",
+          "symbol": "RELIANCE.NS",
+          "signal": "UP_TRI",
+          "direction": "LONG",
+          "date": "2026-05-12",
+          "sector": "Energy"
+        },
+        "regime_state": {
+          "regime": "Bull",
+          "sub_regime": "recovery_bull",
+          "regime_score": 3,
+          "vol_q": "Average",
+          "breadth_q": "medium",
+          "week_of_month": 2
+        },
+        "features": {
+          "vol_confirm": true,
+          "rs_strong": true
+        },
+        "caps_result": {
+          "name_cap_status": "OK",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OK"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": ["BLU_RECOVERY_FILTER"],
+        "dominant_rule_id": "BLU_RECOVERY_FILTER",
+        "verdict": "TAKE_FULL",
+        "tier": "boundary_hot",
+        "caps_passed": true,
+        "position_size_mult": 1.0,
+        "cell_status": "PROVISIONAL_OFF"
+      }
+    },
+    {
+      "_label": "TC4: Bull DOWN_TRI late × wk3 — TAKE_SMALL",
+      "input": {
+        "signal": {
+          "id": "2026-06-17-HDFCBANK-DOWN_TRI",
+          "symbol": "HDFCBANK.NS",
+          "signal": "DOWN_TRI",
+          "direction": "SHORT",
+          "date": "2026-06-17",
+          "sector": "Financials"
+        },
+        "regime_state": {
+          "regime": "Bull",
+          "sub_regime": "late_bull",
+          "regime_score": 5,
+          "vol_q": "Average",
+          "breadth_q": "high",
+          "week_of_month": 3
+        },
+        "features": {
+          "vol_confirm": false,
+          "rs_strong": false
+        },
+        "caps_result": {
+          "name_cap_status": "OK",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OK"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": ["BLD_LATE_WK3"],
+        "dominant_rule_id": "BLD_LATE_WK3",
+        "verdict": "TAKE_SMALL",
+        "tier": "boundary_cold",
+        "caps_passed": true,
+        "position_size_mult": 0.5
+      }
+    },
+    {
+      "_label": "TC5: Choppy BULL_PROXY — REJECT (cell killed)",
+      "input": {
+        "signal": {
+          "id": "2026-03-19-ITC-BULL_PROXY",
+          "symbol": "ITC.NS",
+          "signal": "BULL_PROXY",
+          "direction": "LONG",
+          "date": "2026-03-19",
+          "sector": "Consumer"
+        },
+        "regime_state": {
+          "regime": "Choppy",
+          "sub_regime": "breadth_low",
+          "regime_score": 1,
+          "vol_q": "Average",
+          "breadth_q": "low",
+          "week_of_month": 3
+        },
+        "features": {},
+        "caps_result": {
+          "name_cap_status": "OK",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OK"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": ["CBP_KILL_ALL"],
+        "dominant_rule_id": "CBP_KILL_ALL",
+        "verdict": "REJECT",
+        "tier": "n/a",
+        "caps_passed": true,
+        "cell_status": "KILL"
+      }
+    },
+    {
+      "_label": "TC6: Choppy DOWN_TRI Friday wk2 — SKIP",
+      "input": {
+        "signal": {
+          "id": "2026-05-08-AXISBANK-DOWN_TRI",
+          "symbol": "AXISBANK.NS",
+          "signal": "DOWN_TRI",
+          "direction": "SHORT",
+          "date": "2026-05-08",
+          "sector": "Financials"
+        },
+        "regime_state": {
+          "regime": "Choppy",
+          "sub_regime": "breadth_medium",
+          "regime_score": 2,
+          "vol_q": "Average",
+          "breadth_q": "medium",
+          "week_of_month": 2
+        },
+        "features": {
+          "day_of_week": "Friday"
+        },
+        "caps_result": {
+          "name_cap_status": "OK",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OK"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": ["CD_FRIDAY_SKIP"],
+        "dominant_rule_id": "CD_FRIDAY_SKIP",
+        "verdict": "SKIP",
+        "tier": "n/a",
+        "caps_passed": true
+      }
+    },
+    {
+      "_label": "TC7: Sector cap exceeded — downgrade TAKE_FULL → WATCH",
+      "input": {
+        "signal": {
+          "id": "2026-04-30-DABUR-UP_TRI",
+          "symbol": "DABUR.NS",
+          "signal": "UP_TRI",
+          "direction": "LONG",
+          "date": "2026-04-30",
+          "sector": "Consumer"
+        },
+        "regime_state": {
+          "regime": "Bear",
+          "sub_regime": "hot",
+          "regime_score": -2,
+          "vol_q": "Average",
+          "breadth_q": "low",
+          "week_of_month": 5
+        },
+        "features": {
+          "vol_confirm": true,
+          "rs_strong": true
+        },
+        "caps_result": {
+          "name_cap_status": "OK",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OVER"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": ["BU_HOT_BASE"],
+        "dominant_rule_id": "BU_HOT_BASE",
+        "verdict": "WATCH",
+        "tier": "confident_hot",
+        "caps_passed": false
+      }
+    },
+    {
+      "_label": "TC8: Name repeat — SKIP regardless of rule match",
+      "input": {
+        "signal": {
+          "id": "2026-04-30-UBL-UP_TRI",
+          "symbol": "UBL.NS",
+          "signal": "UP_TRI",
+          "direction": "LONG",
+          "date": "2026-04-30",
+          "sector": "Consumer"
+        },
+        "regime_state": {
+          "regime": "Bear",
+          "sub_regime": "hot",
+          "regime_score": -2,
+          "vol_q": "Average",
+          "breadth_q": "low",
+          "week_of_month": 5
+        },
+        "features": {
+          "vol_confirm": true,
+          "rs_strong": true
+        },
+        "caps_result": {
+          "name_cap_status": "REPEAT",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OK"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": ["BU_HOT_BASE"],
+        "dominant_rule_id": "BU_HOT_BASE",
+        "verdict": "SKIP",
+        "tier": "confident_hot",
+        "caps_passed": false
+      }
+    },
+    {
+      "_label": "TC9: No rule matched — default WATCH",
+      "input": {
+        "signal": {
+          "id": "2026-08-04-COALINDIA-UP_TRI",
+          "symbol": "COALINDIA.NS",
+          "signal": "UP_TRI",
+          "direction": "LONG",
+          "date": "2026-08-04",
+          "sector": "Energy"
+        },
+        "regime_state": {
+          "regime": "Bear",
+          "sub_regime": "warm",
+          "regime_score": -1,
+          "vol_q": "Low",
+          "breadth_q": "medium",
+          "week_of_month": 1
+        },
+        "features": {
+          "vol_confirm": false,
+          "rs_strong": false,
+          "sec_leading": false
+        },
+        "caps_result": {
+          "name_cap_status": "OK",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OK"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": [],
+        "dominant_rule_id": null,
+        "verdict": "WATCH",
+        "tier": "n/a",
+        "caps_passed": true
+      }
+    },
+    {
+      "_label": "TC10: Multiple rules matched — dominant by priority",
+      "input": {
+        "signal": {
+          "id": "2026-07-08-TCS-BULL_PROXY",
+          "symbol": "TCS.NS",
+          "signal": "BULL_PROXY",
+          "direction": "LONG",
+          "date": "2026-07-08",
+          "sector": "IT"
+        },
+        "regime_state": {
+          "regime": "Bull",
+          "sub_regime": "healthy_bull",
+          "regime_score": 4,
+          "vol_q": "Average",
+          "breadth_q": "high",
+          "week_of_month": 2
+        },
+        "features": {
+          "vol_confirm": true,
+          "rs_strong": true,
+          "sec_leading": true,
+          "breadth_20d": "high"
+        },
+        "caps_result": {
+          "name_cap_status": "OK",
+          "date_cap_status": "OK",
+          "sector_concentration_status": "OK"
+        }
+      },
+      "expected": {
+        "matched_rule_ids": ["BLP_HEALTHY_20DHIGH", "BLP_SEC_LEAD_BOOST"],
+        "dominant_rule_id": "BLP_HEALTHY_20DHIGH",
+        "verdict": "TAKE_FULL",
+        "tier": "confident_hot",
+        "caps_passed": true,
+        "position_size_mult": 1.0
+      }
+    }
+  ]
+}
