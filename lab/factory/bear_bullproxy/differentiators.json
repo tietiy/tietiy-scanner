@@ -1,0 +1,521 @@
+{
+  "lifetime_universe": {
+    "n_total": 891,
+    "baseline_wr": 0.47322540473225405
+  },
+  "top_winner_features_lifetime": [
+    {
+      "feature_id": "nifty_60d_return_pct",
+      "level": "low",
+      "presence_n_wl": 82,
+      "presence_pct": 0.0920314253647587,
+      "presence_wr": 0.6341463414634146,
+      "absence_wr": 0.4549237170596394,
+      "delta_pp": 17.922262440377523
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "high",
+      "presence_n_wl": 36,
+      "presence_pct": 0.04040404040404041,
+      "presence_wr": 0.6111111111111112,
+      "absence_wr": 0.4667535853976532,
+      "delta_pp": 14.435752571345795
+    },
+    {
+      "feature_id": "vol_climax_flag",
+      "level": "False",
+      "presence_n_wl": 757,
+      "presence_pct": 0.8496071829405163,
+      "presence_wr": 0.4795244385733157,
+      "absence_wr": 0.3695652173913043,
+      "delta_pp": 10.99592211820114
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "low",
+      "presence_n_wl": 91,
+      "presence_pct": 0.10213243546576879,
+      "presence_wr": 0.5604395604395604,
+      "absence_wr": 0.46207865168539325,
+      "delta_pp": 9.83609087541672
+    },
+    {
+      "feature_id": "inside_bar_flag",
+      "level": "False",
+      "presence_n_wl": 681,
+      "presence_pct": 0.7643097643097643,
+      "presence_wr": 0.48751835535976507,
+      "absence_wr": 0.39344262295081966,
+      "delta_pp": 9.40757324089454
+    },
+    {
+      "feature_id": "range_compression_60d",
+      "level": "high",
+      "presence_n_wl": 427,
+      "presence_pct": 0.4792368125701459,
+      "presence_wr": 0.5128805620608899,
+      "absence_wr": 0.42819148936170215,
+      "delta_pp": 8.46890726991878
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "Low",
+      "presence_n_wl": 53,
+      "presence_pct": 0.05948372615039282,
+      "presence_wr": 0.5471698113207547,
+      "absence_wr": 0.468,
+      "delta_pp": 7.916981132075468
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "low",
+      "presence_n_wl": 52,
+      "presence_pct": 0.058361391694725026,
+      "presence_wr": 0.5384615384615384,
+      "absence_wr": 0.46870838881491345,
+      "delta_pp": 6.975314964662499
+    },
+    {
+      "feature_id": "multi_tf_alignment_score",
+      "level": "medium",
+      "presence_n_wl": 135,
+      "presence_pct": 0.15151515151515152,
+      "presence_wr": 0.5259259259259259,
+      "absence_wr": 0.4625748502994012,
+      "delta_pp": 6.33510756265247
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "High",
+      "presence_n_wl": 418,
+      "presence_pct": 0.4691358024691358,
+      "presence_wr": 0.49760765550239233,
+      "absence_wr": 0.44675324675324674,
+      "delta_pp": 5.08544087491456
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "high",
+      "presence_n_wl": 418,
+      "presence_pct": 0.4691358024691358,
+      "presence_wr": 0.49760765550239233,
+      "absence_wr": 0.44675324675324674,
+      "delta_pp": 5.08544087491456
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "none",
+      "presence_n_wl": 581,
+      "presence_pct": 0.6520763187429854,
+      "presence_wr": 0.4853700516351119,
+      "absence_wr": 0.44144144144144143,
+      "delta_pp": 4.392861019367045
+    }
+  ],
+  "top_anti_features_lifetime": [
+    {
+      "feature_id": "nifty_60d_return_pct",
+      "level": "medium",
+      "presence_n_wl": 721,
+      "presence_pct": 0.8092031425364759,
+      "presence_wr": 0.4549237170596394,
+      "absence_wr": 0.6341463414634146,
+      "delta_pp": -17.922262440377523
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "low",
+      "presence_n_wl": 70,
+      "presence_pct": 0.07856341189674523,
+      "presence_wr": 0.37142857142857144,
+      "absence_wr": 0.4829467939972715,
+      "delta_pp": -11.151822256870004
+    },
+    {
+      "feature_id": "vol_climax_flag",
+      "level": "True",
+      "presence_n_wl": 46,
+      "presence_pct": 0.051627384960718295,
+      "presence_wr": 0.3695652173913043,
+      "absence_wr": 0.4795244385733157,
+      "delta_pp": -10.99592211820114
+    },
+    {
+      "feature_id": "inside_bar_flag",
+      "level": "True",
+      "presence_n_wl": 122,
+      "presence_pct": 0.13692480359147025,
+      "presence_wr": 0.39344262295081966,
+      "absence_wr": 0.48751835535976507,
+      "delta_pp": -9.40757324089454
+    },
+    {
+      "feature_id": "range_compression_60d",
+      "level": "medium",
+      "presence_n_wl": 374,
+      "presence_pct": 0.41975308641975306,
+      "presence_wr": 0.4304812834224599,
+      "absence_wr": 0.5104895104895105,
+      "delta_pp": -8.000822706705064
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "Medium",
+      "presence_n_wl": 332,
+      "presence_pct": 0.372615039281706,
+      "presence_wr": 0.4307228915662651,
+      "absence_wr": 0.5031847133757962,
+      "delta_pp": -7.2461821809531095
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "medium",
+      "presence_n_wl": 333,
+      "presence_pct": 0.37373737373737376,
+      "presence_wr": 0.43243243243243246,
+      "absence_wr": 0.502127659574468,
+      "delta_pp": -6.969522714203558
+    },
+    {
+      "feature_id": "RSI_14",
+      "level": "high",
+      "presence_n_wl": 64,
+      "presence_pct": 0.0718294051627385,
+      "presence_wr": 0.421875,
+      "absence_wr": 0.4776725304465494,
+      "delta_pp": -5.5797530446549395
+    },
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk2",
+      "presence_n_wl": 206,
+      "presence_pct": 0.23120089786756454,
+      "presence_wr": 0.4320388349514563,
+      "absence_wr": 0.48743718592964824,
+      "delta_pp": -5.5398350978191955
+    },
+    {
+      "feature_id": "vol_dryup_flag",
+      "level": "False",
+      "presence_n_wl": 641,
+      "presence_pct": 0.7194163860830527,
+      "presence_wr": 0.46489859594383776,
+      "absence_wr": 0.5061728395061729,
+      "delta_pp": -4.127424356233512
+    }
+  ],
+  "subregime_wr": {
+    "hot": {
+      "n": 86,
+      "wr": 0.6375
+    },
+    "cold": {
+      "n": 805,
+      "wr": 0.45504840940525587
+    }
+  },
+  "sector_subregime": {
+    "Auto": {
+      "hot_n": 1,
+      "hot_wr": null,
+      "cold_n": 54,
+      "cold_wr": 0.49019607843137253
+    },
+    "Bank": {
+      "hot_n": 12,
+      "hot_wr": 0.5454545454545454,
+      "cold_n": 141,
+      "cold_wr": 0.5078125
+    },
+    "CapGoods": {
+      "hot_n": 4,
+      "hot_wr": null,
+      "cold_n": 56,
+      "cold_wr": 0.36538461538461536
+    },
+    "Chem": {
+      "hot_n": 16,
+      "hot_wr": 0.4666666666666667,
+      "cold_n": 72,
+      "cold_wr": 0.5230769230769231
+    },
+    "Energy": {
+      "hot_n": 12,
+      "hot_wr": 0.6363636363636364,
+      "cold_n": 46,
+      "cold_wr": 0.5
+    },
+    "FMCG": {
+      "hot_n": 8,
+      "hot_wr": null,
+      "cold_n": 91,
+      "cold_wr": 0.4025974025974026
+    },
+    "Health": {
+      "hot_n": 0,
+      "hot_wr": null,
+      "cold_n": 39,
+      "cold_wr": 0.45454545454545453
+    },
+    "IT": {
+      "hot_n": 3,
+      "hot_wr": null,
+      "cold_n": 61,
+      "cold_wr": 0.5454545454545454
+    },
+    "Infra": {
+      "hot_n": 8,
+      "hot_wr": null,
+      "cold_n": 52,
+      "cold_wr": 0.41304347826086957
+    },
+    "Other": {
+      "hot_n": 4,
+      "hot_wr": null,
+      "cold_n": 52,
+      "cold_wr": 0.32653061224489793
+    },
+    "Pharma": {
+      "hot_n": 13,
+      "hot_wr": 0.6666666666666666,
+      "cold_n": 100,
+      "cold_wr": 0.4606741573033708
+    }
+  },
+  "cross_cell_features": {
+    "nifty_60d_return_pct=low": {
+      "presence_n": 82,
+      "presence_wr": 0.6341463414634146,
+      "absence_wr": 0.4549237170596394,
+      "delta_pp": 17.922262440377523
+    },
+    "day_of_month_bucket=wk2": {
+      "presence_n": 206,
+      "presence_wr": 0.4320388349514563,
+      "absence_wr": 0.48743718592964824,
+      "delta_pp": -5.5398350978191955
+    },
+    "day_of_month_bucket=wk4": {
+      "presence_n": 208,
+      "presence_wr": 0.49038461538461536,
+      "absence_wr": 0.4672268907563025,
+      "delta_pp": 2.3157724628312835
+    },
+    "swing_high_count_20d=low": {
+      "presence_n": 803,
+      "presence_wr": 0.47322540473225405,
+      "absence_wr": null,
+      "delta_pp": null
+    },
+    "higher_highs_intact_flag=True": {
+      "presence_n": 254,
+      "presence_wr": 0.4763779527559055,
+      "absence_wr": 0.47176684881602915,
+      "delta_pp": 0.46111039398763487
+    },
+    "nifty_vol_regime=High": {
+      "presence_n": 418,
+      "presence_wr": 0.49760765550239233,
+      "absence_wr": 0.44675324675324674,
+      "delta_pp": 5.08544087491456
+    }
+  },
+  "sector_lifetime": {
+    "Auto": {
+      "n": 55,
+      "wr": 0.5
+    },
+    "Bank": {
+      "n": 153,
+      "wr": 0.5107913669064749
+    },
+    "CapGoods": {
+      "n": 60,
+      "wr": 0.39285714285714285
+    },
+    "Chem": {
+      "n": 88,
+      "wr": 0.5125
+    },
+    "Energy": {
+      "n": 58,
+      "wr": 0.5283018867924528
+    },
+    "FMCG": {
+      "n": 99,
+      "wr": 0.4117647058823529
+    },
+    "Health": {
+      "n": 39,
+      "wr": 0.45454545454545453
+    },
+    "IT": {
+      "n": 64,
+      "wr": 0.5689655172413793
+    },
+    "Infra": {
+      "n": 60,
+      "wr": 0.4339622641509434
+    },
+    "Metal": {
+      "n": 38,
+      "wr": 0.48484848484848486
+    },
+    "Other": {
+      "n": 56,
+      "wr": 0.37735849056603776
+    },
+    "Pharma": {
+      "n": 113,
+      "wr": 0.48514851485148514
+    }
+  },
+  "live_winners_features": [
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bear",
+      "feat_higher_highs_intact_flag": true,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_RSI_14": 37.2818966933296,
+      "symbol": "GLENMARK.NS",
+      "sector": "Pharma",
+      "date": "2026-04-06 00:00:00",
+      "outcome": "DAY6_WIN"
+    },
+    {
+      "feat_ema_alignment": "bull",
+      "feat_MACD_signal": "bear",
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_RSI_14": 46.12403100775194,
+      "symbol": "PFC.NS",
+      "sector": "Bank",
+      "date": "2026-04-06 00:00:00",
+      "outcome": "TARGET_HIT"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bear",
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_RSI_14": 37.13081690063464,
+      "symbol": "TATAPOWER.NS",
+      "sector": "Energy",
+      "date": "2026-04-06 00:00:00",
+      "outcome": "TARGET_HIT"
+    },
+    {
+      "feat_ema_alignment": "bull",
+      "feat_MACD_signal": "bull",
+      "feat_higher_highs_intact_flag": true,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_RSI_14": 52.11789639657794,
+      "symbol": "TATASTEEL.NS",
+      "sector": "Metal",
+      "date": "2026-04-06 00:00:00",
+      "outcome": "DAY6_WIN"
+    },
+    {
+      "feat_ema_alignment": "bull",
+      "feat_MACD_signal": "bear",
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_RSI_14": 42.59260051247524,
+      "symbol": "VEDL.NS",
+      "sector": "Metal",
+      "date": "2026-04-06 00:00:00",
+      "outcome": "DAY6_WIN"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bear",
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19680851063829788,
+      "feat_RSI_14": 41.52668170648865,
+      "symbol": "POWERGRID.NS",
+      "sector": "Energy",
+      "date": "2026-04-07 00:00:00",
+      "outcome": "DAY6_WIN"
+    },
+    {
+      "feat_ema_alignment": "bull",
+      "feat_MACD_signal": "bear",
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.4148936170212766,
+      "feat_RSI_14": 48.959281350027936,
+      "symbol": "AARTIIND.NS",
+      "sector": "Chem",
+      "date": "2026-04-08 00:00:00",
+      "outcome": "DAY6_WIN"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bull",
+      "feat_higher_highs_intact_flag": true,
+      "feat_market_breadth_pct": 0.4148936170212766,
+      "feat_RSI_14": 55.96498371335505,
+      "symbol": "BAJAJ-AUTO.NS",
+      "sector": "Auto",
+      "date": "2026-04-08 00:00:00",
+      "outcome": "DAY6_WIN"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bull",
+      "feat_higher_highs_intact_flag": true,
+      "feat_market_breadth_pct": 0.4148936170212766,
+      "feat_RSI_14": 64.51296959155914,
+      "symbol": "TVSMOTOR.NS",
+      "sector": "Auto",
+      "date": "2026-04-08 00:00:00",
+      "outcome": "DAY6_WIN"
+    },
+    {
+      "feat_ema_alignment": "bull",
+      "feat_MACD_signal": "bull",
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.5106382978723404,
+      "feat_RSI_14": 51.29766100608779,
+      "symbol": "APOLLOHOSP.NS",
+      "sector": "Health",
+      "date": "2026-04-10 00:00:00",
+      "outcome": "DAY6_WIN"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bull",
+      "feat_higher_highs_intact_flag": true,
+      "feat_market_breadth_pct": 0.5904255319148937,
+      "feat_RSI_14": 61.459827871393514,
+      "symbol": "AUBANK.NS",
+      "sector": "Bank",
+      "date": "2026-04-15 00:00:00",
+      "outcome": "DAY6_WIN"
+    }
+  ],
+  "live_losers_features": [
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bear",
+      "feat_higher_highs_intact_flag": false,
+      "feat_market_breadth_pct": 0.19148936170212766,
+      "feat_RSI_14": 46.48167583605794,
+      "symbol": "OIL.NS",
+      "sector": "Energy",
+      "date": "2026-04-06 00:00:00",
+      "outcome": "DAY6_LOSS"
+    },
+    {
+      "feat_ema_alignment": "mixed",
+      "feat_MACD_signal": "bull",
+      "feat_higher_highs_intact_flag": true,
+      "feat_market_breadth_pct": 0.5106382978723404,
+      "feat_RSI_14": 62.55170708690481,
+      "symbol": "LT.NS",
+      "sector": "Infra",
+      "date": "2026-04-10 00:00:00",
+      "outcome": "STOP_HIT"
+    }
+  ]
+}
