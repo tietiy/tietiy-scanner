@@ -1,0 +1,673 @@
+{
+  "lifetime_universe": {
+    "n": 38100,
+    "baseline_wr": 0.5203675885835469
+  },
+  "n_qualifying_2feat_full": 40,
+  "n_qualifying_3feat_full": 866,
+  "top20_combinations_full": [
+    {
+      "features": [
+        [
+          "RSI_14",
+          "medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "market_breadth_pct",
+          "high"
+        ]
+      ],
+      "n_match": 5362,
+      "n_match_wl": 4794,
+      "n_w": 2842,
+      "n_l": 1952,
+      "wr": 0.5928243637880685,
+      "lift_pp": 0.07245677520452154,
+      "p_value": 6.96359338687295e-24
+    },
+    {
+      "features": [
+        [
+          "RSI_14",
+          "medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "swing_high_count_20d",
+          "low"
+        ]
+      ],
+      "n_match": 5676,
+      "n_match_wl": 5082,
+      "n_w": 2989,
+      "n_l": 2093,
+      "wr": 0.5881542699724518,
+      "lift_pp": 0.06778668138890487,
+      "p_value": 2.975298882021683e-22
+    },
+    {
+      "features": [
+        [
+          "RSI_14",
+          "medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ]
+      ],
+      "n_match": 5691,
+      "n_match_wl": 5096,
+      "n_w": 2994,
+      "n_l": 2102,
+      "wr": 0.5875196232339089,
+      "lift_pp": 0.06715203465036201,
+      "p_value": 6.714791011791966e-22
+    },
+    {
+      "features": [
+        [
+          "RSI_14",
+          "medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "advance_decline_ratio_20d",
+          "low"
+        ]
+      ],
+      "n_match": 5691,
+      "n_match_wl": 5096,
+      "n_w": 2994,
+      "n_l": 2102,
+      "wr": 0.5875196232339089,
+      "lift_pp": 0.06715203465036201,
+      "p_value": 6.714791011791966e-22
+    },
+    {
+      "features": [
+        [
+          "RSI_14",
+          "medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "fvg_unfilled_above_count",
+          "low"
+        ]
+      ],
+      "n_match": 4819,
+      "n_match_wl": 4317,
+      "n_w": 2553,
+      "n_l": 1764,
+      "wr": 0.5913829047949966,
+      "lift_pp": 0.07101531621144963,
+      "p_value": 7.396956475579845e-21
+    },
+    {
+      "features": [
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "higher_highs_intact_flag",
+          "False"
+        ],
+        [
+          "market_breadth_pct",
+          "high"
+        ]
+      ],
+      "n_match": 5859,
+      "n_match_wl": 5267,
+      "n_w": 3029,
+      "n_l": 2238,
+      "wr": 0.5750901841655591,
+      "lift_pp": 0.0547225955820122,
+      "p_value": 1.6578277789588152e-15
+    },
+    {
+      "features": [
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "higher_highs_intact_flag",
+          "False"
+        ]
+      ],
+      "n_match": 6156,
+      "n_match_wl": 5540,
+      "n_w": 3165,
+      "n_l": 2375,
+      "wr": 0.5712996389891697,
+      "lift_pp": 0.050932050405622764,
+      "p_value": 2.8904995949480576e-14
+    },
+    {
+      "features": [
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "higher_highs_intact_flag",
+          "False"
+        ],
+        [
+          "advance_decline_ratio_20d",
+          "low"
+        ]
+      ],
+      "n_match": 6156,
+      "n_match_wl": 5540,
+      "n_w": 3165,
+      "n_l": 2375,
+      "wr": 0.5712996389891697,
+      "lift_pp": 0.050932050405622764,
+      "p_value": 2.8904995949480576e-14
+    },
+    {
+      "features": [
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "higher_highs_intact_flag",
+          "False"
+        ],
+        [
+          "swing_high_count_20d",
+          "low"
+        ]
+      ],
+      "n_match": 6135,
+      "n_match_wl": 5521,
+      "n_w": 3155,
+      "n_l": 2366,
+      "wr": 0.5714544466582141,
+      "lift_pp": 0.051086858074667174,
+      "p_value": 2.886240906412613e-14
+    },
+    {
+      "features": [
+        [
+          "nifty_vol_regime",
+          "Medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "market_breadth_pct",
+          "high"
+        ]
+      ],
+      "n_match": 3734,
+      "n_match_wl": 3365,
+      "n_w": 2014,
+      "n_l": 1351,
+      "wr": 0.5985141158989599,
+      "lift_pp": 0.07814652731541294,
+      "p_value": 8.26445629567906e-20
+    },
+    {
+      "features": [
+        [
+          "nifty_vol_regime",
+          "Medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "swing_high_count_20d",
+          "low"
+        ]
+      ],
+      "n_match": 3792,
+      "n_match_wl": 3414,
+      "n_w": 2036,
+      "n_l": 1378,
+      "wr": 0.5963678968951377,
+      "lift_pp": 0.07600030831159077,
+      "p_value": 5.244093498891277e-19
+    },
+    {
+      "features": [
+        [
+          "nifty_vol_regime",
+          "Medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ]
+      ],
+      "n_match": 3803,
+      "n_match_wl": 3424,
+      "n_w": 2041,
+      "n_l": 1383,
+      "wr": 0.5960864485981309,
+      "lift_pp": 0.07571886001458394,
+      "p_value": 5.915561803518088e-19
+    },
+    {
+      "features": [
+        [
+          "nifty_vol_regime",
+          "Medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "advance_decline_ratio_20d",
+          "low"
+        ]
+      ],
+      "n_match": 3803,
+      "n_match_wl": 3424,
+      "n_w": 2041,
+      "n_l": 1383,
+      "wr": 0.5960864485981309,
+      "lift_pp": 0.07571886001458394,
+      "p_value": 5.915561803518088e-19
+    },
+    {
+      "features": [
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "higher_highs_intact_flag",
+          "False"
+        ],
+        [
+          "fvg_unfilled_above_count",
+          "low"
+        ]
+      ],
+      "n_match": 5220,
+      "n_match_wl": 4707,
+      "n_w": 2707,
+      "n_l": 2000,
+      "wr": 0.5751009135330359,
+      "lift_pp": 0.054733324949489015,
+      "p_value": 5.473014372240212e-14
+    },
+    {
+      "features": [
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "daily_5d_return_pct",
+          "medium"
+        ],
+        [
+          "swing_high_count_20d",
+          "low"
+        ]
+      ],
+      "n_match": 4495,
+      "n_match_wl": 4008,
+      "n_w": 2342,
+      "n_l": 1666,
+      "wr": 0.5843313373253493,
+      "lift_pp": 0.06396374874180233,
+      "p_value": 4.634935004094109e-16
+    },
+    {
+      "features": [
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "daily_5d_return_pct",
+          "medium"
+        ]
+      ],
+      "n_match": 4505,
+      "n_match_wl": 4017,
+      "n_w": 2346,
+      "n_l": 1671,
+      "wr": 0.5840179238237491,
+      "lift_pp": 0.06365033524020214,
+      "p_value": 5.714950123315839e-16
+    },
+    {
+      "features": [
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "daily_5d_return_pct",
+          "medium"
+        ],
+        [
+          "advance_decline_ratio_20d",
+          "low"
+        ]
+      ],
+      "n_match": 4505,
+      "n_match_wl": 4017,
+      "n_w": 2346,
+      "n_l": 1671,
+      "wr": 0.5840179238237491,
+      "lift_pp": 0.06365033524020214,
+      "p_value": 5.714950123315839e-16
+    },
+    {
+      "features": [
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "daily_5d_return_pct",
+          "medium"
+        ],
+        [
+          "market_breadth_pct",
+          "high"
+        ]
+      ],
+      "n_match": 4248,
+      "n_match_wl": 3780,
+      "n_w": 2221,
+      "n_l": 1559,
+      "wr": 0.5875661375661375,
+      "lift_pp": 0.06719854898259059,
+      "p_value": 1.212692722037163e-16
+    },
+    {
+      "features": [
+        [
+          "RSI_14",
+          "medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "NR4_flag",
+          "False"
+        ]
+      ],
+      "n_match": 4147,
+      "n_match_wl": 3718,
+      "n_w": 2184,
+      "n_l": 1534,
+      "wr": 0.5874125874125874,
+      "lift_pp": 0.06704499882904047,
+      "p_value": 2.3587335273850244e-16
+    },
+    {
+      "features": [
+        [
+          "RSI_14",
+          "medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "high"
+        ],
+        [
+          "higher_highs_intact_flag",
+          "False"
+        ]
+      ],
+      "n_match": 4039,
+      "n_match_wl": 3626,
+      "n_w": 2134,
+      "n_l": 1492,
+      "wr": 0.5885273028130171,
+      "lift_pp": 0.0681597142294702,
+      "p_value": 1.734652180686364e-16
+    }
+  ],
+  "recovery_bull_top5": [
+    {
+      "features": [
+        [
+          "nifty_vol_regime",
+          "Medium"
+        ],
+        [
+          "nifty_20d_return_pct",
+          "medium"
+        ]
+      ],
+      "n_match": 464,
+      "n_match_wl": 438,
+      "n_w": 319,
+      "n_l": 119,
+      "wr": 0.728310502283105,
+      "lift_pp": 0.12628118999449167,
+      "p_value": 3.8676943946112047e-08
+    },
+    {
+      "features": [
+        [
+          "fvg_unfilled_above_count",
+          "low"
+        ],
+        [
+          "nifty_vol_regime",
+          "Medium"
+        ]
+      ],
+      "n_match": 423,
+      "n_match_wl": 390,
+      "n_w": 289,
+      "n_l": 101,
+      "wr": 0.7410256410256411,
+      "lift_pp": 0.13899632873702772,
+      "p_value": 1.0143219735329095e-08
+    },
+    {
+      "features": [
+        [
+          "market_breadth_pct",
+          "medium"
+        ],
+        [
+          "nifty_vol_regime",
+          "Medium"
+        ]
+      ],
+      "n_match": 530,
+      "n_match_wl": 494,
+      "n_w": 344,
+      "n_l": 150,
+      "wr": 0.6963562753036437,
+      "lift_pp": 0.09432696301503041,
+      "p_value": 1.4823683756215025e-05
+    },
+    {
+      "features": [
+        [
+          "nifty_vol_regime",
+          "Medium"
+        ],
+        [
+          "swing_high_count_20d",
+          "low"
+        ]
+      ],
+      "n_match": 530,
+      "n_match_wl": 494,
+      "n_w": 344,
+      "n_l": 150,
+      "wr": 0.6963562753036437,
+      "lift_pp": 0.09432696301503041,
+      "p_value": 1.4823683756215025e-05
+    },
+    {
+      "features": [
+        [
+          "nifty_vol_regime",
+          "Medium"
+        ],
+        [
+          "advance_decline_ratio_20d",
+          "low"
+        ]
+      ],
+      "n_match": 530,
+      "n_match_wl": 494,
+      "n_w": 344,
+      "n_l": 150,
+      "wr": 0.6963562753036437,
+      "lift_pp": 0.09432696301503041,
+      "p_value": 1.4823683756215025e-05
+    }
+  ],
+  "healthy_bull_top5": [
+    {
+      "features": [
+        [
+          "day_of_month_bucket",
+          "wk4"
+        ],
+        [
+          "swing_high_count_20d",
+          "low"
+        ]
+      ],
+      "n_match": 996,
+      "n_match_wl": 893,
+      "n_w": 582,
+      "n_l": 311,
+      "wr": 0.6517357222844344,
+      "lift_pp": 0.06814253446961072,
+      "p_value": 3.373015852971018e-05
+    },
+    {
+      "features": [
+        [
+          "market_breadth_pct",
+          "high"
+        ],
+        [
+          "day_of_month_bucket",
+          "wk4"
+        ]
+      ],
+      "n_match": 1003,
+      "n_match_wl": 900,
+      "n_w": 585,
+      "n_l": 315,
+      "wr": 0.65,
+      "lift_pp": 0.0664068121851763,
+      "p_value": 4.867033427108331e-05
+    },
+    {
+      "features": [
+        [
+          "day_of_month_bucket",
+          "wk4"
+        ],
+        [
+          "advance_decline_ratio_20d",
+          "low"
+        ]
+      ],
+      "n_match": 1003,
+      "n_match_wl": 900,
+      "n_w": 585,
+      "n_l": 315,
+      "wr": 0.65,
+      "lift_pp": 0.0664068121851763,
+      "p_value": 4.867033427108331e-05
+    },
+    {
+      "features": [
+        [
+          "RSI_14",
+          "medium"
+        ],
+        [
+          "day_of_month_bucket",
+          "wk4"
+        ]
+      ],
+      "n_match": 647,
+      "n_match_wl": 574,
+      "n_w": 391,
+      "n_l": 183,
+      "wr": 0.681184668989547,
+      "lift_pp": 0.09759148117472327,
+      "p_value": 1.614050644796167e-06
+    },
+    {
+      "features": [
+        [
+          "fvg_unfilled_above_count",
+          "low"
+        ],
+        [
+          "day_of_month_bucket",
+          "wk4"
+        ]
+      ],
+      "n_match": 909,
+      "n_match_wl": 813,
+      "n_w": 524,
+      "n_l": 289,
+      "wr": 0.6445264452644527,
+      "lift_pp": 0.060933257449628964,
+      "p_value": 0.0004225835435718909
+    }
+  ],
+  "recovery_bull_baseline_wr": 0.6020293122886133,
+  "healthy_bull_baseline_wr": 0.5835931878148237,
+  "cross_regime_pattern_check": [
+    {
+      "pattern": "nifty_60d_return_pct=low & swing_high_count_20d=low",
+      "n": 0,
+      "wr": null,
+      "lift_pp": null,
+      "qualifies_in_bull": false
+    },
+    {
+      "pattern": "day_of_month_bucket=wk4 & swing_high_count_20d=low",
+      "n": 9284,
+      "wr": 0.5465316673847479,
+      "lift_pp": 2.6164078801200974,
+      "qualifies_in_bull": false
+    },
+    {
+      "pattern": "market_breadth_pct=low & ema50_slope_20d_pct=low",
+      "n": 0,
+      "wr": null,
+      "lift_pp": null,
+      "qualifies_in_bull": false
+    }
+  ]
+}
