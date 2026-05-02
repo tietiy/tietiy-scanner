@@ -1,0 +1,54 @@
+{
+  "lifetime_baseline_wr": 0.4337674000898069,
+  "candidates": [
+    {
+      "name": "Verdict A \u2014 late_bull sub-regime only",
+      "n_match": 945,
+      "n_input": 10024,
+      "match_rate": 0.10764166001596169,
+      "matched_wr": 0.5301587301587302,
+      "lift_pp": 9.639133006892326
+    },
+    {
+      "name": "Verdict B \u2014 late_bull \u00d7 wk3 (highest precision)",
+      "n_match": 253,
+      "n_input": 10024,
+      "match_rate": 0.029429369513168397,
+      "matched_wr": 0.6521739130434783,
+      "lift_pp": 21.840651295367135
+    },
+    {
+      "name": "Verdict C \u2014 wk3 alone (universal, no sub-regime)",
+      "n_match": 2404,
+      "n_input": 10024,
+      "match_rate": 0.27204708699122104,
+      "matched_wr": 0.5174708818635607,
+      "lift_pp": 8.37034817737538
+    },
+    {
+      "name": "Verdict D \u2014 KILL (reject all Bull DOWN_TRI)",
+      "n_match": 0,
+      "n_input": 10024,
+      "match_rate": 0.0,
+      "matched_wr": null,
+      "lift_pp": null
+    },
+    {
+      "name": "Verdict E \u2014 DEFERRED unfiltered baseline",
+      "n_match": 8908,
+      "n_input": 10024,
+      "match_rate": 1.0,
+      "matched_wr": 0.4337674000898069,
+      "lift_pp": 0.0
+    }
+  ],
+  "final_verdict": "DEFERRED with provisional Verdict B (late_bull \u00d7 wk3)",
+  "rationale": [
+    "Verdict B lifetime: n=253, WR=65.2%, lift=+21.8pp",
+    "Strongest Bull DOWN_TRI configuration in lifetime data.",
+    "DEFERRED because no live validation possible (0 Bull live signals).",
+    "Production: SKIP default; manual enable for late_bull \u00d7 wk3."
+  ],
+  "production_action": "Default SKIP. Manual enable for late_bull sub-regime + wk3 calendar match (provisional ~70% WR per lifetime). Activation requires Bull regime present + \u226530 live Bull DOWN_TRI signals + matched-WR \u2265 50%.",
+  "session_2_recommendation": "DO NOT proceed to Session 2. Cell is lifetime-only methodology; no Phase 5 to validate; lifetime data exhausted in BD2-BD3. Re-evaluate when Bull regime returns + live signals accumulate."
+}
