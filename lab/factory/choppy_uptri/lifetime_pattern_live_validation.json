@@ -1,0 +1,130 @@
+{
+  "test_date": "2026-05-02",
+  "live_universe": {
+    "n_total": 91,
+    "n": 91,
+    "n_w": 29,
+    "n_l": 54,
+    "n_f": 8,
+    "wr_excl_flat": 0.3493975903614458
+  },
+  "subregime_distribution": {
+    "stress": 91
+  },
+  "subtype_distribution": {
+    "stress__high_breadth": 91
+  },
+  "filter_L3_strict": {
+    "definition": "market_breadth=medium AND nifty_vol_regime=High AND MACD_signal=bull",
+    "lifetime_evidence": {
+      "n": 3318,
+      "wr": 0.625,
+      "lift_pp": 0.102
+    },
+    "live_match_count": 0,
+    "live_match_rate": 0.0,
+    "n": 0,
+    "n_w": 0,
+    "n_l": 0,
+    "n_f": 0,
+    "wr_excl_flat": null,
+    "live_skip": {
+      "n": 91,
+      "n_w": 29,
+      "n_l": 54,
+      "n_f": 8,
+      "wr_excl_flat": 0.3493975903614458
+    }
+  },
+  "filter_L3_relaxed": {
+    "definition": "market_breadth=medium AND nifty_vol_regime=High",
+    "lifetime_evidence": {
+      "n": 4546,
+      "wr": 0.601,
+      "lift_pp": 0.079
+    },
+    "live_match_count": 0,
+    "live_match_rate": 0.0,
+    "n": 0,
+    "n_w": 0,
+    "n_l": 0,
+    "n_f": 0,
+    "wr_excl_flat": null
+  },
+  "filter_F1_cell": {
+    "definition": "ema_alignment=bull AND coiled_spring=medium",
+    "lifetime_evidence": {
+      "n": 7593,
+      "wr": 0.54,
+      "lift_pp": 0.017
+    },
+    "live_match_count": 20,
+    "live_match_rate": 0.21978021978021978,
+    "n": 20,
+    "n_w": 11,
+    "n_l": 8,
+    "n_f": 1,
+    "wr_excl_flat": 0.5789473684210527,
+    "live_skip": {
+      "n": 71,
+      "n_w": 18,
+      "n_l": 46,
+      "n_f": 7,
+      "wr_excl_flat": 0.28125
+    }
+  },
+  "overlap": {
+    "both_L3_and_F1": {
+      "n": 0,
+      "n_w": 0,
+      "n_l": 0,
+      "n_f": 0,
+      "wr_excl_flat": null
+    },
+    "L3_only": {
+      "n": 0,
+      "n_w": 0,
+      "n_l": 0,
+      "n_f": 0,
+      "wr_excl_flat": null
+    },
+    "F1_only": {
+      "n": 20,
+      "n_w": 11,
+      "n_l": 8,
+      "n_f": 1,
+      "wr_excl_flat": 0.5789473684210527
+    },
+    "either": {
+      "n": 20,
+      "n_w": 11,
+      "n_l": 8,
+      "n_f": 1,
+      "wr_excl_flat": 0.5789473684210527
+    },
+    "neither": {
+      "n": 71,
+      "n_w": 18,
+      "n_l": 46,
+      "n_f": 7,
+      "wr_excl_flat": 0.28125
+    }
+  },
+  "subregime_specific": {
+    "stress__med_breadth": {
+      "n": 0,
+      "n_w": 0,
+      "n_l": 0,
+      "n_f": 0,
+      "wr_excl_flat": null
+    },
+    "stress__high_breadth": {
+      "n": 91,
+      "n_w": 29,
+      "n_l": 54,
+      "n_f": 8,
+      "wr_excl_flat": 0.3493975903614458
+    }
+  },
+  "verdict": "L3_INSUFFICIENT_MATCHES \u2014 current live regime (stress__high_breadth dominant) doesn't produce L3 matches; pattern is balance-sub-regime activator awaiting regime shift"
+}
