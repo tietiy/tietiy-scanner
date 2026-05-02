@@ -1,0 +1,356 @@
+{
+  "lifetime_baseline_wr": 0.5114440282979609,
+  "top_winner_features": [
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk4",
+      "presence_n_wl": 707,
+      "presence_pct": 0.2633147113594041,
+      "presence_wr": 0.6082036775106082,
+      "absence_wr": 0.47110849056603776,
+      "delta_pp": 13.709518694457046
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "High",
+      "presence_n_wl": 383,
+      "presence_pct": 0.14264432029795157,
+      "presence_wr": 0.6214099216710183,
+      "absence_wr": 0.4905940594059406,
+      "delta_pp": 13.081586226507769
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "high",
+      "presence_n_wl": 383,
+      "presence_pct": 0.14264432029795157,
+      "presence_wr": 0.6214099216710183,
+      "absence_wr": 0.4905940594059406,
+      "delta_pp": 13.081586226507769
+    },
+    {
+      "feature_id": "RSI_14",
+      "level": "low",
+      "presence_n_wl": 35,
+      "presence_pct": 0.01303538175046555,
+      "presence_wr": 0.6,
+      "absence_wr": 0.5101351351351351,
+      "delta_pp": 8.98648648648649
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "low",
+      "presence_n_wl": 261,
+      "presence_pct": 0.09720670391061452,
+      "presence_wr": 0.5823754789272031,
+      "absence_wr": 0.5028011204481793,
+      "delta_pp": 7.957435847902383
+    },
+    {
+      "feature_id": "multi_tf_alignment_score",
+      "level": "high",
+      "presence_n_wl": 2116,
+      "presence_pct": 0.7880819366852886,
+      "presence_wr": 0.5198487712665406,
+      "absence_wr": 0.44947735191637633,
+      "delta_pp": 7.037141935016428
+    },
+    {
+      "feature_id": "nifty_200d_return_pct",
+      "level": "medium",
+      "presence_n_wl": 810,
+      "presence_pct": 0.3016759776536313,
+      "presence_wr": 0.5530864197530864,
+      "absence_wr": 0.49026993094789706,
+      "delta_pp": 6.281648880518931
+    },
+    {
+      "feature_id": "nifty_20d_return_pct",
+      "level": "high",
+      "presence_n_wl": 593,
+      "presence_pct": 0.22085661080074487,
+      "presence_wr": 0.554806070826307,
+      "absence_wr": 0.4972375690607735,
+      "delta_pp": 5.756850176553346
+    },
+    {
+      "feature_id": "52w_low_distance_pct",
+      "level": "high",
+      "presence_n_wl": 2274,
+      "presence_pct": 0.846927374301676,
+      "presence_wr": 0.5145118733509235,
+      "absence_wr": 0.4573643410852713,
+      "delta_pp": 5.7147532265652226
+    },
+    {
+      "feature_id": "vol_climax_flag",
+      "level": "False",
+      "presence_n_wl": 2269,
+      "presence_pct": 0.8450651769087524,
+      "presence_wr": 0.5138827677390921,
+      "absence_wr": 0.4701492537313433,
+      "delta_pp": 4.373351400774883
+    },
+    {
+      "feature_id": "higher_highs_intact_flag",
+      "level": "False",
+      "presence_n_wl": 1607,
+      "presence_pct": 0.5985102420856611,
+      "presence_wr": 0.5239576851275669,
+      "absence_wr": 0.4861809045226131,
+      "delta_pp": 3.777678060495382
+    },
+    {
+      "feature_id": "market_breadth_pct",
+      "level": "high",
+      "presence_n_wl": 2004,
+      "presence_pct": 0.7463687150837989,
+      "presence_wr": 0.5169660678642715,
+      "absence_wr": 0.48370927318295737,
+      "delta_pp": 3.3256794681314092
+    }
+  ],
+  "top_anti_features": [
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk3",
+      "presence_n_wl": 537,
+      "presence_pct": 0.2,
+      "presence_wr": 0.42830540037243947,
+      "absence_wr": 0.5353697749196141,
+      "delta_pp": -10.706437454717467
+    },
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk1",
+      "presence_n_wl": 584,
+      "presence_pct": 0.2175046554934823,
+      "presence_wr": 0.4520547945205479,
+      "absence_wr": 0.5305112699285321,
+      "delta_pp": -7.8456475407984225
+    },
+    {
+      "feature_id": "nifty_200d_return_pct",
+      "level": "high",
+      "presence_n_wl": 1581,
+      "presence_pct": 0.5888268156424581,
+      "presence_wr": 0.4882985452245414,
+      "absence_wr": 0.5559610705596107,
+      "delta_pp": -6.7662525335069335
+    },
+    {
+      "feature_id": "multi_tf_alignment_score",
+      "level": "medium",
+      "presence_n_wl": 260,
+      "presence_pct": 0.09683426443202979,
+      "presence_wr": 0.45384615384615384,
+      "absence_wr": 0.5184321045263649,
+      "delta_pp": -6.458595068021106
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "medium",
+      "presence_n_wl": 2033,
+      "presence_pct": 0.7571694599627561,
+      "presence_wr": 0.5022134776192818,
+      "absence_wr": 0.5621621621621622,
+      "delta_pp": -5.994868454288039
+    },
+    {
+      "feature_id": "nifty_20d_return_pct",
+      "level": "medium",
+      "presence_n_wl": 1808,
+      "presence_pct": 0.6733705772811918,
+      "presence_wr": 0.49723451327433627,
+      "absence_wr": 0.5546218487394958,
+      "delta_pp": -5.738733546515956
+    },
+    {
+      "feature_id": "52w_low_distance_pct",
+      "level": "medium",
+      "presence_n_wl": 129,
+      "presence_pct": 0.048044692737430165,
+      "presence_wr": 0.4573643410852713,
+      "absence_wr": 0.5145118733509235,
+      "delta_pp": -5.7147532265652226
+    },
+    {
+      "feature_id": "day_of_week",
+      "level": "Thu",
+      "presence_n_wl": 476,
+      "presence_pct": 0.17728119180633148,
+      "presence_wr": 0.47058823529411764,
+      "absence_wr": 0.521536066424494,
+      "delta_pp": -5.0947831130376375
+    },
+    {
+      "feature_id": "vol_climax_flag",
+      "level": "True",
+      "presence_n_wl": 134,
+      "presence_pct": 0.04990689013035382,
+      "presence_wr": 0.4701492537313433,
+      "absence_wr": 0.5138827677390921,
+      "delta_pp": -4.373351400774883
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "Low",
+      "presence_n_wl": 1096,
+      "presence_pct": 0.4081936685288641,
+      "presence_wr": 0.48996350364963503,
+      "absence_wr": 0.5294567712318287,
+      "delta_pp": -3.9493267582193625
+    }
+  ],
+  "cross_cell_predictions": {
+    "vol_climax_flag=True": {
+      "feature_id": "vol_climax_flag",
+      "level": "True",
+      "presence_n_wl": 134,
+      "presence_pct": 0.04990689013035382,
+      "presence_wr": 0.4701492537313433,
+      "absence_wr": 0.5138827677390921,
+      "delta_pp": -4.373351400774883,
+      "expected_direction": "anti",
+      "verdict": "\u2713 CONFIRMED"
+    },
+    "nifty_20d_return_pct=high": {
+      "feature_id": "nifty_20d_return_pct",
+      "level": "high",
+      "presence_n_wl": 593,
+      "presence_pct": 0.22085661080074487,
+      "presence_wr": 0.554806070826307,
+      "absence_wr": 0.4972375690607735,
+      "delta_pp": 5.756850176553346,
+      "expected_direction": "winner",
+      "verdict": "\u2713 CONFIRMED"
+    },
+    "inside_bar_flag=True": {
+      "feature_id": "inside_bar_flag",
+      "level": "True",
+      "presence_n_wl": 336,
+      "presence_pct": 0.12513966480446928,
+      "presence_wr": 0.5238095238095238,
+      "absence_wr": 0.5094339622641509,
+      "delta_pp": 1.4375561545372895,
+      "expected_direction": "anti",
+      "verdict": "neutral"
+    },
+    "market_breadth_pct=high": {
+      "feature_id": "market_breadth_pct",
+      "level": "high",
+      "presence_n_wl": 2004,
+      "presence_pct": 0.7463687150837989,
+      "presence_wr": 0.5169660678642715,
+      "absence_wr": 0.48370927318295737,
+      "delta_pp": 3.3256794681314092,
+      "expected_direction": "winner",
+      "verdict": "\u2713 CONFIRMED"
+    },
+    "52w_high_distance_pct=high": {
+      "feature_id": "52w_high_distance_pct",
+      "level": "high",
+      "presence_n_wl": 109,
+      "presence_pct": 0.04059590316573557,
+      "presence_wr": 0.5137614678899083,
+      "absence_wr": 0.511333914559721,
+      "delta_pp": 0.2427553330187293,
+      "expected_direction": "winner",
+      "verdict": "neutral"
+    }
+  },
+  "recovery_bull_top_filters": [
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk4",
+      "presence_n_wl": 24,
+      "presence_pct": 0.34285714285714286,
+      "presence_wr": 0.75,
+      "absence_wr": 0.4594594594594595,
+      "delta_pp": 29.054054054054053
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "Medium",
+      "presence_n_wl": 39,
+      "presence_pct": 0.5571428571428572,
+      "presence_wr": 0.6666666666666666,
+      "absence_wr": 0.4090909090909091,
+      "delta_pp": 25.75757575757575
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "medium",
+      "presence_n_wl": 39,
+      "presence_pct": 0.5571428571428572,
+      "presence_wr": 0.6666666666666666,
+      "absence_wr": 0.4090909090909091,
+      "delta_pp": 25.75757575757575
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "medium",
+      "presence_n_wl": 38,
+      "presence_pct": 0.5428571428571428,
+      "presence_wr": 0.6578947368421053,
+      "absence_wr": 0.43478260869565216,
+      "delta_pp": 22.311212814645316
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "loose",
+      "presence_n_wl": 30,
+      "presence_pct": 0.42857142857142855,
+      "presence_wr": 0.6666666666666666,
+      "absence_wr": 0.4838709677419355,
+      "delta_pp": 18.279569892473113
+    }
+  ],
+  "healthy_bull_top_filters": [
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "High",
+      "presence_n_wl": 41,
+      "presence_pct": 0.12312312312312312,
+      "presence_wr": 0.7804878048780488,
+      "absence_wr": 0.49407114624505927,
+      "delta_pp": 28.641665863298954
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "high",
+      "presence_n_wl": 41,
+      "presence_pct": 0.12312312312312312,
+      "presence_wr": 0.7804878048780488,
+      "absence_wr": 0.49407114624505927,
+      "delta_pp": 28.641665863298954
+    },
+    {
+      "feature_id": "day_of_week",
+      "level": "Tue",
+      "presence_n_wl": 71,
+      "presence_pct": 0.2132132132132132,
+      "presence_wr": 0.704225352112676,
+      "absence_wr": 0.4798206278026906,
+      "delta_pp": 22.440472430998543
+    },
+    {
+      "feature_id": "nifty_60d_return_pct",
+      "level": "high",
+      "presence_n_wl": 93,
+      "presence_pct": 0.27927927927927926,
+      "presence_wr": 0.6451612903225806,
+      "absence_wr": 0.48258706467661694,
+      "delta_pp": 16.257422564596368
+    },
+    {
+      "feature_id": "nifty_20d_return_pct",
+      "level": "high",
+      "presence_n_wl": 128,
+      "presence_pct": 0.3843843843843844,
+      "presence_wr": 0.625,
+      "absence_wr": 0.463855421686747,
+      "delta_pp": 16.114457831325304
+    }
+  ]
+}
