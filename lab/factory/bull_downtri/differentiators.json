@@ -1,0 +1,287 @@
+{
+  "lifetime_baseline_wr": 0.4337674000898069,
+  "top_winner_features": [
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk3",
+      "presence_n_wl": 2404,
+      "presence_pct": 0.2398244213886672,
+      "presence_wr": 0.5174708818635607,
+      "absence_wr": 0.4028290282902829,
+      "delta_pp": 11.464185357327782
+    },
+    {
+      "feature_id": "52w_low_distance_pct",
+      "level": "low",
+      "presence_n_wl": 218,
+      "presence_pct": 0.02174780526735834,
+      "presence_wr": 0.5045871559633027,
+      "absence_wr": 0.43199079401611046,
+      "delta_pp": 7.259636194719227
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "Low",
+      "presence_n_wl": 4098,
+      "presence_pct": 0.40881883479648845,
+      "presence_wr": 0.465592972181552,
+      "absence_wr": 0.4066528066528067,
+      "delta_pp": 5.894016552874532
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "low",
+      "presence_n_wl": 4098,
+      "presence_pct": 0.40881883479648845,
+      "presence_wr": 0.465592972181552,
+      "absence_wr": 0.4066528066528067,
+      "delta_pp": 5.894016552874532
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "bear",
+      "presence_n_wl": 880,
+      "presence_pct": 0.08778930566640064,
+      "presence_wr": 0.4693181818181818,
+      "absence_wr": 0.4298704534130543,
+      "delta_pp": 3.9447728405127505
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "high",
+      "presence_n_wl": 2445,
+      "presence_pct": 0.2439146049481245,
+      "presence_wr": 0.46134969325153374,
+      "absence_wr": 0.42333281757697666,
+      "delta_pp": 3.8016875674557085
+    },
+    {
+      "feature_id": "multi_tf_alignment_score",
+      "level": "low",
+      "presence_n_wl": 1970,
+      "presence_pct": 0.19652833200319234,
+      "presence_wr": 0.45989847715736043,
+      "absence_wr": 0.42634765061977514,
+      "delta_pp": 3.3550826537585285
+    },
+    {
+      "feature_id": "vol_climax_flag",
+      "level": "False",
+      "presence_n_wl": 8654,
+      "presence_pct": 0.8633280127693536,
+      "presence_wr": 0.4345967182805639,
+      "absence_wr": 0.40551181102362205,
+      "delta_pp": 2.908490725694185
+    },
+    {
+      "feature_id": "MACD_histogram_slope",
+      "level": "rising",
+      "presence_n_wl": 3183,
+      "presence_pct": 0.31753790901835593,
+      "presence_wr": 0.44957587181903863,
+      "absence_wr": 0.4249781659388646,
+      "delta_pp": 2.4597705880174017
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "loose",
+      "presence_n_wl": 2645,
+      "presence_pct": 0.2638667198723065,
+      "presence_wr": 0.4510396975425331,
+      "absence_wr": 0.4264729362925116,
+      "delta_pp": 2.45667612500215
+    }
+  ],
+  "top_anti_features": [
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk4",
+      "presence_n_wl": 2821,
+      "presence_pct": 0.2814245810055866,
+      "presence_wr": 0.3778801843317972,
+      "absence_wr": 0.4596681452275341,
+      "delta_pp": -8.178796089573687
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "medium",
+      "presence_n_wl": 3230,
+      "presence_pct": 0.3222266560255387,
+      "presence_wr": 0.4055727554179567,
+      "absence_wr": 0.44980626981331456,
+      "delta_pp": -4.4233514395357885
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "Medium",
+      "presence_n_wl": 3228,
+      "presence_pct": 0.32202713487629686,
+      "presence_wr": 0.40582403965303593,
+      "absence_wr": 0.4496478873239437,
+      "delta_pp": -4.382384767090775
+    },
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk1",
+      "presence_n_wl": 1864,
+      "presence_pct": 0.18595371109337588,
+      "presence_wr": 0.40396995708154504,
+      "absence_wr": 0.4416524701873935,
+      "delta_pp": -3.768251310584847
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "High",
+      "presence_n_wl": 1582,
+      "presence_pct": 0.15782122905027932,
+      "presence_wr": 0.4083438685208597,
+      "absence_wr": 0.43925743925743926,
+      "delta_pp": -3.0913570736579574
+    },
+    {
+      "feature_id": "RSI_14",
+      "level": "high",
+      "presence_n_wl": 287,
+      "presence_pct": 0.02863128491620112,
+      "presence_wr": 0.40418118466898956,
+      "absence_wr": 0.43475234891543907,
+      "delta_pp": -3.057116424644951
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "high",
+      "presence_n_wl": 1580,
+      "presence_pct": 0.15762170790103752,
+      "presence_wr": 0.4088607594936709,
+      "absence_wr": 0.43913755458515286,
+      "delta_pp": -3.0276795091481956
+    },
+    {
+      "feature_id": "vol_climax_flag",
+      "level": "True",
+      "presence_n_wl": 254,
+      "presence_pct": 0.025339185953711093,
+      "presence_wr": 0.40551181102362205,
+      "absence_wr": 0.4345967182805639,
+      "delta_pp": -2.908490725694185
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "medium",
+      "presence_n_wl": 5147,
+      "presence_pct": 0.5134676775738228,
+      "presence_wr": 0.4221876821449388,
+      "absence_wr": 0.44961446423823453,
+      "delta_pp": -2.7426782093295743
+    },
+    {
+      "feature_id": "multi_tf_alignment_score",
+      "level": "high",
+      "presence_n_wl": 5175,
+      "presence_pct": 0.5162609736632083,
+      "presence_wr": 0.42280193236714975,
+      "absence_wr": 0.44896865791588536,
+      "delta_pp": -2.6166725548735617
+    }
+  ],
+  "direction_flip_tests": {
+    "nifty_20d_return_pct=high": {
+      "feature_id": "nifty_20d_return_pct",
+      "level": "high",
+      "presence_n_wl": 2424,
+      "presence_pct": 0.2418196328810854,
+      "presence_wr": 0.42244224422442245,
+      "absence_wr": 0.4380012338062924,
+      "delta_pp": -1.5558989581869964
+    },
+    "nifty_200d_return_pct=high": {
+      "feature_id": "nifty_200d_return_pct",
+      "level": "high",
+      "presence_n_wl": 4996,
+      "presence_pct": 0.49840383080606543,
+      "presence_wr": 0.4401521216973579,
+      "absence_wr": 0.4256134969325153,
+      "delta_pp": 1.4538624764842578
+    },
+    "RSI_14=high": {
+      "feature_id": "RSI_14",
+      "level": "high",
+      "presence_n_wl": 287,
+      "presence_pct": 0.02863128491620112,
+      "presence_wr": 0.40418118466898956,
+      "absence_wr": 0.43475234891543907,
+      "delta_pp": -3.057116424644951
+    }
+  },
+  "calendar_inversion": {
+    "wk1": {
+      "n": 1864,
+      "wr": 0.40396995708154504,
+      "lift_pp": -2.9797443008261872
+    },
+    "wk2": {
+      "n": 1819,
+      "wr": 0.4403518416712479,
+      "lift_pp": 0.6584441581441003
+    },
+    "wk3": {
+      "n": 2404,
+      "wr": 0.5174708818635607,
+      "lift_pp": 8.37034817737538
+    },
+    "wk4": {
+      "n": 2821,
+      "wr": 0.3778801843317972,
+      "lift_pp": -5.58872157580097
+    }
+  },
+  "subregime_within_filters": {
+    "late_bull": [
+      {
+        "feature_id": "day_of_week",
+        "level": "Mon",
+        "presence_n_wl": 165,
+        "presence_pct": 0.15291936978683968,
+        "presence_wr": 0.6787878787878788,
+        "absence_wr": 0.4987179487179487,
+        "delta_pp": 18.00699300699301
+      },
+      {
+        "feature_id": "day_of_month_bucket",
+        "level": "wk3",
+        "presence_n_wl": 253,
+        "presence_pct": 0.2344763670064875,
+        "presence_wr": 0.6521739130434783,
+        "absence_wr": 0.48554913294797686,
+        "delta_pp": 16.662478009550142
+      },
+      {
+        "feature_id": "inside_bar_flag",
+        "level": "False",
+        "presence_n_wl": 792,
+        "presence_pct": 0.7340129749768304,
+        "presence_wr": 0.5441919191919192,
+        "absence_wr": 0.45751633986928103,
+        "delta_pp": 8.66755793226382
+      },
+      {
+        "feature_id": "nifty_vol_regime",
+        "level": "Low",
+        "presence_n_wl": 721,
+        "presence_pct": 0.6682113067655236,
+        "presence_wr": 0.550624133148405,
+        "absence_wr": 0.4642857142857143,
+        "delta_pp": 8.633841886269067
+      },
+      {
+        "feature_id": "nifty_vol_percentile_20d",
+        "level": "low",
+        "presence_n_wl": 721,
+        "presence_pct": 0.6682113067655236,
+        "presence_wr": 0.550624133148405,
+        "absence_wr": 0.4642857142857143,
+        "delta_pp": 8.633841886269067
+      }
+    ]
+  }
+}
