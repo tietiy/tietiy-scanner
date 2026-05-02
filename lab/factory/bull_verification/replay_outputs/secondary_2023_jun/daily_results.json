@@ -1,0 +1,112 @@
+[
+  {
+    "date": "2023-06-12",
+    "regime": "Bull",
+    "regime_score": 0,
+    "sector_momentum": {
+      "Bank": "Neutral",
+      "IT": "Leading",
+      "Pharma": "Leading",
+      "Auto": "Leading",
+      "Metal": "Leading",
+      "Energy": "Neutral",
+      "FMCG": "Leading",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 19,
+    "n_signals_by_type": {
+      "UP_TRI": 16,
+      "DOWN_TRI": 3
+    },
+    "n_scoring_errors": 0
+  },
+  {
+    "date": "2023-06-15",
+    "regime": "Bull",
+    "regime_score": 1,
+    "sector_momentum": {
+      "Bank": "Neutral",
+      "IT": "Leading",
+      "Pharma": "Leading",
+      "Auto": "Leading",
+      "Metal": "Leading",
+      "Energy": "Leading",
+      "FMCG": "Leading",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 6,
+    "n_signals_by_type": {
+      "DOWN_TRI": 1,
+      "UP_TRI": 5
+    },
+    "n_scoring_errors": 0
+  },
+  {
+    "date": "2023-06-19",
+    "regime": "Bull",
+    "regime_score": 1,
+    "sector_momentum": {
+      "Bank": "Neutral",
+      "IT": "Neutral",
+      "Pharma": "Leading",
+      "Auto": "Leading",
+      "Metal": "Leading",
+      "Energy": "Leading",
+      "FMCG": "Leading",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 6,
+    "n_signals_by_type": {
+      "UP_TRI": 4,
+      "DOWN_TRI": 2
+    },
+    "n_scoring_errors": 0
+  },
+  {
+    "date": "2023-06-21",
+    "regime": "Bull",
+    "regime_score": 1,
+    "sector_momentum": {
+      "Bank": "Neutral",
+      "IT": "Neutral",
+      "Pharma": "Leading",
+      "Auto": "Leading",
+      "Metal": "Leading",
+      "Energy": "Leading",
+      "FMCG": "Leading",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 7,
+    "n_signals_by_type": {
+      "DOWN_TRI": 5,
+      "UP_TRI": 2
+    },
+    "n_scoring_errors": 0
+  },
+  {
+    "date": "2023-06-23",
+    "regime": "Bull",
+    "regime_score": 0,
+    "sector_momentum": {
+      "Bank": "Neutral",
+      "IT": "Lagging",
+      "Pharma": "Leading",
+      "Auto": "Leading",
+      "Metal": "Neutral",
+      "Energy": "Neutral",
+      "FMCG": "Neutral",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 4,
+    "n_signals_by_type": {
+      "DOWN_TRI": 1,
+      "UP_TRI": 3
+    },
+    "n_scoring_errors": 0
+  }
+]

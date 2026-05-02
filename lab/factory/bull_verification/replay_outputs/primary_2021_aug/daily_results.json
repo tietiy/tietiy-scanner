@@ -1,0 +1,115 @@
+[
+  {
+    "date": "2021-08-02",
+    "regime": "Bull",
+    "regime_score": 0,
+    "sector_momentum": {
+      "Bank": "Neutral",
+      "IT": "Leading",
+      "Pharma": "Neutral",
+      "Auto": "Lagging",
+      "Metal": "Leading",
+      "Energy": "Lagging",
+      "FMCG": "Neutral",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 4,
+    "n_signals_by_type": {
+      "UP_TRI": 2,
+      "DOWN_TRI": 2
+    },
+    "n_scoring_errors": 0
+  },
+  {
+    "date": "2021-08-05",
+    "regime": "Bull",
+    "regime_score": 1,
+    "sector_momentum": {
+      "Bank": "Neutral",
+      "IT": "Leading",
+      "Pharma": "Neutral",
+      "Auto": "Lagging",
+      "Metal": "Leading",
+      "Energy": "Neutral",
+      "FMCG": "Neutral",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 17,
+    "n_signals_by_type": {
+      "UP_TRI": 13,
+      "BULL_PROXY": 2,
+      "DOWN_TRI": 2
+    },
+    "n_scoring_errors": 0
+  },
+  {
+    "date": "2021-08-09",
+    "regime": "Bull",
+    "regime_score": 1,
+    "sector_momentum": {
+      "Bank": "Leading",
+      "IT": "Leading",
+      "Pharma": "Neutral",
+      "Auto": "Neutral",
+      "Metal": "Leading",
+      "Energy": "Neutral",
+      "FMCG": "Neutral",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 15,
+    "n_signals_by_type": {
+      "DOWN_TRI": 2,
+      "UP_TRI": 12,
+      "BULL_PROXY": 1
+    },
+    "n_scoring_errors": 0
+  },
+  {
+    "date": "2021-08-11",
+    "regime": "Bull",
+    "regime_score": 1,
+    "sector_momentum": {
+      "Bank": "Neutral",
+      "IT": "Leading",
+      "Pharma": "Neutral",
+      "Auto": "Lagging",
+      "Metal": "Leading",
+      "Energy": "Neutral",
+      "FMCG": "Neutral",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 13,
+    "n_signals_by_type": {
+      "UP_TRI": 11,
+      "DOWN_TRI": 2
+    },
+    "n_scoring_errors": 0
+  },
+  {
+    "date": "2021-08-13",
+    "regime": "Bull",
+    "regime_score": 1,
+    "sector_momentum": {
+      "Bank": "Neutral",
+      "IT": "Leading",
+      "Pharma": "Lagging",
+      "Auto": "Lagging",
+      "Metal": "Leading",
+      "Energy": "Neutral",
+      "FMCG": "Neutral",
+      "Infra": "Leading"
+    },
+    "n_stocks_scanned": 60,
+    "n_signals_total": 21,
+    "n_signals_by_type": {
+      "UP_TRI": 14,
+      "DOWN_TRI": 6,
+      "BULL_PROXY": 1
+    },
+    "n_scoring_errors": 0
+  }
+]
