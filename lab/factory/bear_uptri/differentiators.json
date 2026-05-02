@@ -1,0 +1,477 @@
+{
+  "n_winners": 87,
+  "n_validated": 64,
+  "n_preliminary": 23,
+  "n_rejected": 0,
+  "n_watch": 405,
+  "comparator_basis": "WATCH (0 REJECTED in Phase 5)",
+  "top_winner_features_vs_watch": [
+    {
+      "feature_id": "nifty_60d_return_pct",
+      "level": "low",
+      "winners_count": 46,
+      "winners_pct": 0.5287356321839081,
+      "comparator_count": 2,
+      "comparator_pct": 0.0049382716049382715,
+      "differentiator_score": 0.5237973605789698
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "none",
+      "winners_count": 16,
+      "winners_pct": 0.1839080459770115,
+      "comparator_count": 22,
+      "comparator_pct": 0.05432098765432099,
+      "differentiator_score": 0.12958705832269052
+    },
+    {
+      "feature_id": "multi_tf_alignment_score",
+      "level": "low",
+      "winners_count": 16,
+      "winners_pct": 0.1839080459770115,
+      "comparator_count": 27,
+      "comparator_pct": 0.06666666666666667,
+      "differentiator_score": 0.11724137931034483
+    },
+    {
+      "feature_id": "inside_bar_flag",
+      "level": "True",
+      "winners_count": 25,
+      "winners_pct": 0.28735632183908044,
+      "comparator_count": 84,
+      "comparator_pct": 0.2074074074074074,
+      "differentiator_score": 0.07994891443167304
+    },
+    {
+      "feature_id": "swing_high_count_20d",
+      "level": "low",
+      "winners_count": 20,
+      "winners_pct": 0.22988505747126436,
+      "comparator_count": 61,
+      "comparator_pct": 0.1506172839506173,
+      "differentiator_score": 0.07926777352064707
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "high",
+      "winners_count": 11,
+      "winners_pct": 0.12643678160919541,
+      "comparator_count": 20,
+      "comparator_pct": 0.04938271604938271,
+      "differentiator_score": 0.0770540655598127
+    },
+    {
+      "feature_id": "ema50_slope_20d_pct",
+      "level": "low",
+      "winners_count": 17,
+      "winners_pct": 0.19540229885057472,
+      "comparator_count": 48,
+      "comparator_pct": 0.11851851851851852,
+      "differentiator_score": 0.0768837803320562
+    },
+    {
+      "feature_id": "day_of_week",
+      "level": "Thu",
+      "winners_count": 6,
+      "winners_pct": 0.06896551724137931,
+      "comparator_count": 0,
+      "comparator_pct": 0.0,
+      "differentiator_score": 0.06896551724137931
+    },
+    {
+      "feature_id": "ema200_distance_pct",
+      "level": "high",
+      "winners_count": 7,
+      "winners_pct": 0.08045977011494253,
+      "comparator_count": 6,
+      "comparator_pct": 0.014814814814814815,
+      "differentiator_score": 0.0656449553001277
+    },
+    {
+      "feature_id": "range_compression_60d",
+      "level": "high",
+      "winners_count": 12,
+      "winners_pct": 0.13793103448275862,
+      "comparator_count": 30,
+      "comparator_pct": 0.07407407407407407,
+      "differentiator_score": 0.06385696040868455
+    },
+    {
+      "feature_id": "52w_low_distance_pct",
+      "level": "medium",
+      "winners_count": 8,
+      "winners_pct": 0.09195402298850575,
+      "comparator_count": 13,
+      "comparator_pct": 0.03209876543209877,
+      "differentiator_score": 0.05985525755640698
+    },
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk1",
+      "winners_count": 4,
+      "winners_pct": 0.04597701149425287,
+      "comparator_count": 0,
+      "comparator_pct": 0.0,
+      "differentiator_score": 0.04597701149425287
+    },
+    {
+      "feature_id": "inside_bar_flag",
+      "level": "False",
+      "winners_count": 9,
+      "winners_pct": 0.10344827586206896,
+      "comparator_count": 24,
+      "comparator_pct": 0.05925925925925926,
+      "differentiator_score": 0.0441890166028097
+    },
+    {
+      "feature_id": "market_breadth_pct",
+      "level": "low",
+      "winners_count": 15,
+      "winners_pct": 0.1724137931034483,
+      "comparator_count": 55,
+      "comparator_pct": 0.13580246913580246,
+      "differentiator_score": 0.036611323967645826
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "bull",
+      "winners_count": 2,
+      "winners_pct": 0.022988505747126436,
+      "comparator_count": 1,
+      "comparator_pct": 0.0024691358024691358,
+      "differentiator_score": 0.0205193699446573
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "low",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 1,
+      "comparator_pct": 0.0024691358024691358,
+      "differentiator_score": -0.0024691358024691358
+    },
+    {
+      "feature_id": "NR4_flag",
+      "level": "False",
+      "winners_count": 5,
+      "winners_pct": 0.05747126436781609,
+      "comparator_count": 26,
+      "comparator_pct": 0.06419753086419754,
+      "differentiator_score": -0.0067262664963814445
+    },
+    {
+      "feature_id": "ema50_slope_20d_pct",
+      "level": "high",
+      "winners_count": 1,
+      "winners_pct": 0.011494252873563218,
+      "comparator_count": 8,
+      "comparator_pct": 0.019753086419753086,
+      "differentiator_score": -0.008258833546189868
+    },
+    {
+      "feature_id": "multi_tf_alignment_score",
+      "level": "high",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 4,
+      "comparator_pct": 0.009876543209876543,
+      "differentiator_score": -0.009876543209876543
+    },
+    {
+      "feature_id": "nifty_60d_return_pct",
+      "level": "medium",
+      "winners_count": 6,
+      "winners_pct": 0.06896551724137931,
+      "comparator_count": 35,
+      "comparator_pct": 0.08641975308641975,
+      "differentiator_score": -0.01745423584504044
+    }
+  ],
+  "top_anti_features_vs_watch": [
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk4",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 278,
+      "comparator_pct": 0.6864197530864198,
+      "differentiator_score": -0.6864197530864198
+    },
+    {
+      "feature_id": "nifty_vol_regime",
+      "level": "Medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 49,
+      "comparator_pct": 0.12098765432098765,
+      "differentiator_score": -0.12098765432098765
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "bear",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 44,
+      "comparator_pct": 0.10864197530864197,
+      "differentiator_score": -0.10864197530864197
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "medium",
+      "winners_count": 1,
+      "winners_pct": 0.011494252873563218,
+      "comparator_count": 41,
+      "comparator_pct": 0.10123456790123457,
+      "differentiator_score": -0.08974031502767135
+    },
+    {
+      "feature_id": "consolidation_quality",
+      "level": "loose",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 33,
+      "comparator_pct": 0.08148148148148149,
+      "differentiator_score": -0.08148148148148149
+    },
+    {
+      "feature_id": "nifty_vol_percentile_20d",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 30,
+      "comparator_pct": 0.07407407407407407,
+      "differentiator_score": -0.07407407407407407
+    },
+    {
+      "feature_id": "range_compression_60d",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 30,
+      "comparator_pct": 0.07407407407407407,
+      "differentiator_score": -0.07407407407407407
+    },
+    {
+      "feature_id": "ema200_distance_pct",
+      "level": "low",
+      "winners_count": 3,
+      "winners_pct": 0.034482758620689655,
+      "comparator_count": 41,
+      "comparator_pct": 0.10123456790123457,
+      "differentiator_score": -0.06675180928054492
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "high",
+      "winners_count": 3,
+      "winners_pct": 0.034482758620689655,
+      "comparator_count": 38,
+      "comparator_pct": 0.09382716049382717,
+      "differentiator_score": -0.05934440187313751
+    },
+    {
+      "feature_id": "day_of_week",
+      "level": "Tue",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 23,
+      "comparator_pct": 0.056790123456790124,
+      "differentiator_score": -0.056790123456790124
+    },
+    {
+      "feature_id": "52w_high_distance_pct",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 22,
+      "comparator_pct": 0.05432098765432099,
+      "differentiator_score": -0.05432098765432099
+    },
+    {
+      "feature_id": "NR4_flag",
+      "level": "True",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 19,
+      "comparator_pct": 0.04691358024691358,
+      "differentiator_score": -0.04691358024691358
+    },
+    {
+      "feature_id": "day_of_month_bucket",
+      "level": "wk2",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 17,
+      "comparator_pct": 0.04197530864197531,
+      "differentiator_score": -0.04197530864197531
+    },
+    {
+      "feature_id": "ema_alignment",
+      "level": "mixed",
+      "winners_count": 1,
+      "winners_pct": 0.011494252873563218,
+      "comparator_count": 20,
+      "comparator_pct": 0.04938271604938271,
+      "differentiator_score": -0.037888463175819495
+    },
+    {
+      "feature_id": "52w_low_distance_pct",
+      "level": "low",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 13,
+      "comparator_pct": 0.03209876543209877,
+      "differentiator_score": -0.03209876543209877
+    },
+    {
+      "feature_id": "fib_1272_extension_proximity_atr",
+      "level": "high",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 11,
+      "comparator_pct": 0.027160493827160494,
+      "differentiator_score": -0.027160493827160494
+    },
+    {
+      "feature_id": "ema200_distance_pct",
+      "level": "medium",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 10,
+      "comparator_pct": 0.024691358024691357,
+      "differentiator_score": -0.024691358024691357
+    },
+    {
+      "feature_id": "fib_1618_extension_proximity_atr",
+      "level": "high",
+      "winners_count": 1,
+      "winners_pct": 0.011494252873563218,
+      "comparator_count": 14,
+      "comparator_pct": 0.0345679012345679,
+      "differentiator_score": -0.02307364836100468
+    },
+    {
+      "feature_id": "52w_low_distance_pct",
+      "level": "high",
+      "winners_count": 1,
+      "winners_pct": 0.011494252873563218,
+      "comparator_count": 13,
+      "comparator_pct": 0.03209876543209877,
+      "differentiator_score": -0.02060451255853555
+    },
+    {
+      "feature_id": "ROC_10",
+      "level": "low",
+      "winners_count": 0,
+      "winners_pct": 0.0,
+      "comparator_count": 8,
+      "comparator_pct": 0.019753086419753086,
+      "differentiator_score": -0.019753086419753086
+    }
+  ],
+  "common_winner_pairs": [],
+  "winners_axis_distribution": {
+    "pattern": {
+      "inside_bar_flag=True": 25,
+      "swing_high_count_20d=low": 20,
+      "inside_bar_flag=False": 9
+    },
+    "momentum": {
+      "ROC_10=high": 11,
+      "ROC_10=medium": 1
+    },
+    "position": {
+      "52w_low_distance_pct=medium": 8,
+      "52w_low_distance_pct=high": 1,
+      "52w_high_distance_pct=high": 3
+    },
+    "calendar": {
+      "day_of_week=Thu": 6,
+      "day_of_month_bucket=wk1": 4
+    },
+    "trend": {
+      "ema200_distance_pct=high": 7,
+      "ema50_slope_20d_pct=low": 17,
+      "multi_tf_alignment_score=low": 16,
+      "ema_alignment=mixed": 1,
+      "ema200_distance_pct=low": 3,
+      "ema50_slope_20d_pct=high": 1,
+      "ema_alignment=bull": 2
+    },
+    "macro": {
+      "nifty_60d_return_pct=medium": 6,
+      "nifty_60d_return_pct=low": 46
+    },
+    "compression": {
+      "consolidation_quality=none": 16,
+      "range_compression_60d=high": 12,
+      "NR4_flag=False": 5
+    },
+    "breadth": {
+      "market_breadth_pct=low": 15
+    },
+    "zones": {
+      "fib_1618_extension_proximity_atr=high": 1
+    }
+  },
+  "watch_axis_distribution": {
+    "calendar": {
+      "day_of_month_bucket=wk4": 278,
+      "day_of_week=Tue": 23,
+      "day_of_month_bucket=wk2": 17
+    },
+    "breadth": {
+      "market_breadth_pct=low": 55
+    },
+    "trend": {
+      "ema_alignment=mixed": 20,
+      "ema_alignment=bear": 44,
+      "ema50_slope_20d_pct=low": 48,
+      "multi_tf_alignment_score=low": 27,
+      "ema200_distance_pct=low": 41,
+      "ema200_distance_pct=medium": 10,
+      "multi_tf_alignment_score=high": 4,
+      "ema_alignment=bull": 1,
+      "ema50_slope_20d_pct=high": 8,
+      "ema200_distance_pct=high": 6
+    },
+    "volatility": {
+      "nifty_vol_regime=Medium": 49,
+      "nifty_vol_percentile_20d=medium": 30
+    },
+    "position": {
+      "52w_high_distance_pct=medium": 22,
+      "52w_high_distance_pct=high": 38,
+      "52w_low_distance_pct=low": 13,
+      "52w_low_distance_pct=high": 13,
+      "52w_low_distance_pct=medium": 13,
+      "52w_high_distance_pct=low": 1
+    },
+    "momentum": {
+      "ROC_10=low": 8,
+      "ROC_10=medium": 41,
+      "ROC_10=high": 20
+    },
+    "compression": {
+      "range_compression_60d=medium": 30,
+      "range_compression_60d=high": 30,
+      "NR4_flag=False": 26,
+      "consolidation_quality=none": 22,
+      "consolidation_quality=loose": 33,
+      "NR4_flag=True": 19
+    },
+    "pattern": {
+      "swing_high_count_20d=low": 61,
+      "inside_bar_flag=False": 24,
+      "inside_bar_flag=True": 84
+    },
+    "zones": {
+      "fib_1272_extension_proximity_atr=high": 11,
+      "fib_1618_extension_proximity_atr=high": 14
+    },
+    "macro": {
+      "nifty_60d_return_pct=medium": 35,
+      "nifty_60d_return_pct=low": 2
+    }
+  }
+}
