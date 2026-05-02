@@ -1,0 +1,758 @@
+{
+  "schema_version": 4,
+  "generated_at": "2026-05-03T00:00:00Z",
+  "description": "Step 3 Opus synthesis: 14 new rules + 9 existing rules harmonized into 2-tier schema (match_fields + conditions array). Sub-regime gated; pessimistic merge composition; Phase-5 override upgrade-only.",
+  "rules": [
+    {
+      "id": "kill_001",
+      "active": true,
+      "type": "kill",
+      "match_fields": {
+        "signal": "DOWN_TRI",
+        "sector": "Bank",
+        "regime": "Bear"
+      },
+      "conditions": [],
+      "verdict": "REJECT",
+      "expected_wr": 0.0,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "trend_fade",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": null,
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bear_downtri",
+      "source_finding": "Bank x DOWN_TRI live 0/11 WR; lifetime confirms; existing production rule",
+      "evidence": {
+        "n": 11,
+        "wr": 0.0,
+        "lift_pp": -11.12,
+        "tier": "preliminary"
+      }
+    },
+    {
+      "id": "watch_001",
+      "active": true,
+      "type": "watch",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": null,
+        "regime": "Choppy"
+      },
+      "conditions": [],
+      "verdict": "WATCH",
+      "expected_wr": 0.314,
+      "confidence_tier": "MEDIUM",
+      "trade_mechanism": "regime_transition",
+      "regime_constraint": "Choppy",
+      "sub_regime_constraint": null,
+      "production_ready": true,
+      "priority": "MEDIUM",
+      "source_playbook": "choppy_uptri",
+      "source_finding": "Apr 17 cluster 11W/24L/1F (n=36, WR 31%) - informational warning",
+      "evidence": {
+        "n": 36,
+        "wr": 0.314,
+        "lift_pp": -3.6,
+        "tier": "preliminary"
+      }
+    },
+    {
+      "id": "win_001",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": "Auto",
+        "regime": "Bear"
+      },
+      "conditions": [],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.72,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "mean_reversion",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": "hot",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bear_uptri",
+      "source_finding": "Auto UP_TRI Bear 21/21 live; Auto in hot sub-regime 74.3% lifetime",
+      "evidence": {
+        "n": 21,
+        "wr": 1.0,
+        "lift_pp": 18.3,
+        "tier": "validated"
+      }
+    },
+    {
+      "id": "win_002",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": "FMCG",
+        "regime": "Bear"
+      },
+      "conditions": [],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.74,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "mean_reversion",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": "hot",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bear_uptri",
+      "source_finding": "FMCG UP_TRI Bear 19/19 live; FMCG in hot 76.0% lifetime",
+      "evidence": {
+        "n": 19,
+        "wr": 1.0,
+        "lift_pp": 20.3,
+        "tier": "validated"
+      }
+    },
+    {
+      "id": "win_003",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": "IT",
+        "regime": "Bear"
+      },
+      "conditions": [],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.7,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "mean_reversion",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": "hot",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bear_uptri",
+      "source_finding": "IT UP_TRI Bear 18/18 live; defensive growth in Bear stress",
+      "evidence": {
+        "n": 18,
+        "wr": 1.0,
+        "lift_pp": 14.3,
+        "tier": "validated"
+      }
+    },
+    {
+      "id": "win_004",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": "Metal",
+        "regime": "Bear"
+      },
+      "conditions": [],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.68,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "mean_reversion",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": "hot",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bear_uptri",
+      "source_finding": "Metal UP_TRI Bear 15/15 live; cyclical bounce in stress",
+      "evidence": {
+        "n": 15,
+        "wr": 1.0,
+        "lift_pp": 12.3,
+        "tier": "validated"
+      }
+    },
+    {
+      "id": "win_005",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": "Pharma",
+        "regime": "Bear"
+      },
+      "conditions": [],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.72,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "mean_reversion",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": "hot",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bear_uptri",
+      "source_finding": "Pharma UP_TRI Bear 13/13 live; Pharma in hot 74.8% lifetime",
+      "evidence": {
+        "n": 13,
+        "wr": 1.0,
+        "lift_pp": 19.1,
+        "tier": "validated"
+      }
+    },
+    {
+      "id": "win_006",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": "Infra",
+        "regime": "Bear"
+      },
+      "conditions": [],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.65,
+      "confidence_tier": "MEDIUM",
+      "trade_mechanism": "mean_reversion",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": "hot",
+      "production_ready": true,
+      "priority": "MEDIUM",
+      "source_playbook": "bear_uptri",
+      "source_finding": "Infra UP_TRI Bear ~10.5/12 live (87.5%)",
+      "evidence": {
+        "n": 12,
+        "wr": 0.875,
+        "lift_pp": 9.3,
+        "tier": "preliminary"
+      }
+    },
+    {
+      "id": "win_007",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "BULL_PROXY",
+        "sector": null,
+        "regime": "Bear"
+      },
+      "conditions": [],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.65,
+      "confidence_tier": "MEDIUM",
+      "trade_mechanism": "support_bounce_reversal",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": "hot",
+      "production_ready": true,
+      "priority": "MEDIUM",
+      "source_playbook": "bear_bullproxy",
+      "source_finding": "BULL_PROXY Bear hot ~14/16 live (87.5%); lifetime hot 63.7% n=86",
+      "evidence": {
+        "n": 16,
+        "wr": 0.875,
+        "lift_pp": 16.4,
+        "tier": "preliminary"
+      }
+    },
+    {
+      "id": "rule_001",
+      "active": true,
+      "type": "kill",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": null,
+        "regime": "Bull"
+      },
+      "conditions": [
+        {"feature": "sub_regime", "value": "late_bull", "operator": "eq"}
+      ],
+      "verdict": "SKIP",
+      "expected_wr": 0.45,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "breakout_continuation",
+      "regime_constraint": "Bull",
+      "sub_regime_constraint": "late_bull",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bull_uptri",
+      "source_finding": "late_bull Bull UP_TRI 45.1% WR vs recovery_bull 60.2% (30pp swing); largest Bull edge driver",
+      "evidence": {
+        "n": 2699,
+        "wr": 0.451,
+        "lift_pp": -6.9,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_002",
+      "active": true,
+      "type": "kill",
+      "match_fields": {
+        "signal": "BULL_PROXY",
+        "sector": null,
+        "regime": "Bull"
+      },
+      "conditions": [
+        {"feature": "sub_regime", "value": "late_bull", "operator": "eq"}
+      ],
+      "verdict": "SKIP",
+      "expected_wr": 0.436,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "support_bounce_reversal",
+      "regime_constraint": "Bull",
+      "sub_regime_constraint": "late_bull",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bull_bullproxy",
+      "source_finding": "late_bull Bull BULL_PROXY 43.6% WR; -7.5pp anti; late-cycle exhaustion",
+      "evidence": {
+        "n": 268,
+        "wr": 0.436,
+        "lift_pp": -7.5,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_003",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": null,
+        "regime": "Bull"
+      },
+      "conditions": [
+        {"feature": "sub_regime", "value": "recovery_bull", "operator": "eq"},
+        {"feature": "feat_nifty_vol_regime", "value": "Medium", "operator": "eq"},
+        {"feature": "feat_fvg_unfilled_above_count", "value": "low", "operator": "eq"}
+      ],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.72,
+      "confidence_tier": "MEDIUM",
+      "trade_mechanism": "breakout_continuation",
+      "regime_constraint": "Bull",
+      "sub_regime_constraint": "recovery_bull",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bull_uptri",
+      "source_finding": "recovery_bull x vol=Medium x fvg_low: 74.1% lifetime WR, n=390, +22pp lift over 52% baseline",
+      "evidence": {
+        "n": 390,
+        "wr": 0.741,
+        "lift_pp": 22.1,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_004",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "BULL_PROXY",
+        "sector": null,
+        "regime": "Bull"
+      },
+      "conditions": [
+        {"feature": "sub_regime", "value": "healthy_bull", "operator": "eq"},
+        {"feature": "feat_nifty_20d_return_pct", "value": "high", "operator": "eq"}
+      ],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.62,
+      "confidence_tier": "MEDIUM",
+      "trade_mechanism": "support_bounce_reversal",
+      "regime_constraint": "Bull",
+      "sub_regime_constraint": "healthy_bull",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bull_bullproxy",
+      "source_finding": "healthy_bull x nifty_20d=high: 62.5% lifetime WR, n=128, +11.4pp lift",
+      "evidence": {
+        "n": 128,
+        "wr": 0.625,
+        "lift_pp": 11.4,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_005",
+      "active": true,
+      "type": "kill",
+      "match_fields": {
+        "signal": "BULL_PROXY",
+        "sector": null,
+        "regime": "Bear"
+      },
+      "conditions": [
+        {"feature": "feat_vol_climax_flag", "value": true, "operator": "eq"}
+      ],
+      "verdict": "REJECT",
+      "expected_wr": 0.36,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "support_bounce_reversal",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": null,
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bear_bullproxy",
+      "source_finding": "vol_climax x BULL_PROXY in Bear: -11.0pp anti; capitulation breaks support reversal mechanism",
+      "evidence": {
+        "n": 139,
+        "wr": 0.363,
+        "lift_pp": -11.0,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_006",
+      "active": true,
+      "type": "kill",
+      "match_fields": {
+        "signal": "BULL_PROXY",
+        "sector": null,
+        "regime": "Bull"
+      },
+      "conditions": [
+        {"feature": "feat_vol_climax_flag", "value": true, "operator": "eq"},
+        {"feature": "sub_regime", "value": "late_bull", "operator": "eq"}
+      ],
+      "verdict": "REJECT",
+      "expected_wr": 0.4,
+      "confidence_tier": "MEDIUM",
+      "trade_mechanism": "support_bounce_reversal",
+      "regime_constraint": "Bull",
+      "sub_regime_constraint": "late_bull",
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bull_bullproxy",
+      "source_finding": "vol_climax x BULL_PROXY in Bull-late_bull: -7.5pp anti; universal pattern (Bear -11pp; Bull weaker)",
+      "evidence": {
+        "n": 80,
+        "wr": 0.395,
+        "lift_pp": -7.5,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_007",
+      "active": true,
+      "type": "kill",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": "Health",
+        "regime": "Bear"
+      },
+      "conditions": [],
+      "verdict": "SKIP",
+      "expected_wr": 0.32,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "mean_reversion",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": null,
+      "production_ready": true,
+      "priority": "HIGH",
+      "source_playbook": "bear_uptri",
+      "source_finding": "Health Bear UP_TRI 32.4% in hot sub-regime; only sector where hot fails; structurally hostile",
+      "evidence": {
+        "n": 158,
+        "wr": 0.324,
+        "lift_pp": -23.3,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_008",
+      "active": true,
+      "type": "kill",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": null,
+        "regime": "Bear"
+      },
+      "conditions": [
+        {"feature": "feat_month", "value": 12, "operator": "eq"}
+      ],
+      "verdict": "SKIP",
+      "expected_wr": 0.31,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "mean_reversion",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": null,
+      "production_ready": true,
+      "priority": "MEDIUM",
+      "source_playbook": "bear_uptri",
+      "source_finding": "December Bear UP_TRI: -25pp catastrophic month; year-end illiquidity",
+      "evidence": {
+        "n": 850,
+        "wr": 0.307,
+        "lift_pp": -25.0,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_009",
+      "active": true,
+      "type": "kill",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": null,
+        "regime": "Choppy"
+      },
+      "conditions": [
+        {"feature": "feat_month", "value": 2, "operator": "eq"}
+      ],
+      "verdict": "SKIP",
+      "expected_wr": 0.36,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "regime_transition",
+      "regime_constraint": "Choppy",
+      "sub_regime_constraint": null,
+      "production_ready": true,
+      "priority": "MEDIUM",
+      "source_playbook": "choppy_uptri",
+      "source_finding": "February Choppy UP_TRI: -16.2pp catastrophic on n=3,338; likely Indian Budget volatility",
+      "evidence": {
+        "n": 3338,
+        "wr": 0.361,
+        "lift_pp": -16.2,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_010",
+      "active": true,
+      "type": "kill",
+      "match_fields": {
+        "signal": "BULL_PROXY",
+        "sector": null,
+        "regime": "Choppy"
+      },
+      "conditions": [],
+      "verdict": "REJECT",
+      "expected_wr": 0.5,
+      "confidence_tier": "HIGH",
+      "trade_mechanism": "support_bounce_reversal",
+      "regime_constraint": "Choppy",
+      "sub_regime_constraint": null,
+      "production_ready": true,
+      "priority": "MEDIUM",
+      "source_playbook": "choppy_bullproxy",
+      "source_finding": "Entire cell KILL verdict: 0/175 Phase-4 patterns validated; live 25% WR; lifetime peak combo +9.2pp sub-threshold",
+      "evidence": {
+        "n": 1931,
+        "wr": 0.5,
+        "lift_pp": 0.0,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_011",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "DOWN_TRI",
+        "sector": null,
+        "regime": "Bear"
+      },
+      "conditions": [
+        {"feature": "feat_day_of_month_bucket", "value": ["wk2", "wk3"], "operator": "in"}
+      ],
+      "verdict": "TAKE_SMALL",
+      "expected_wr": 0.536,
+      "confidence_tier": "MEDIUM",
+      "trade_mechanism": "trend_fade",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": null,
+      "production_ready": true,
+      "priority": "MEDIUM",
+      "source_playbook": "bear_downtri",
+      "source_finding": "Bear DOWN_TRI wk2/wk3 timing filter: 53.6% WR n=1,446 (+7.5pp lift over 46.1% baseline)",
+      "evidence": {
+        "n": 1446,
+        "wr": 0.536,
+        "lift_pp": 7.5,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_012",
+      "active": true,
+      "type": "boost",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": null,
+        "regime": "Bear"
+      },
+      "conditions": [
+        {"feature": "sub_regime", "value": "cold", "operator": "eq"},
+        {"feature": "feat_day_of_month_bucket", "value": "wk4", "operator": "eq"},
+        {"feature": "feat_swing_high_count_20d", "value": "low", "operator": "eq"}
+      ],
+      "verdict": "TAKE_FULL",
+      "expected_wr": 0.62,
+      "confidence_tier": "MEDIUM",
+      "trade_mechanism": "mean_reversion",
+      "regime_constraint": "Bear",
+      "sub_regime_constraint": "cold",
+      "production_ready": true,
+      "priority": "MEDIUM",
+      "source_playbook": "bear_uptri",
+      "source_finding": "Cold Bear UP_TRI cascade Tier 1: wk4 x swing_high=low: 63.3% WR n=3,374 (+13pp lift over cold baseline)",
+      "evidence": {
+        "n": 3374,
+        "wr": 0.633,
+        "lift_pp": 13.0,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_013",
+      "active": false,
+      "type": "kill",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": "Energy",
+        "regime": "Bull"
+      },
+      "conditions": [],
+      "verdict": "SKIP",
+      "expected_wr": 0.49,
+      "confidence_tier": "LOW",
+      "trade_mechanism": "breakout_continuation",
+      "regime_constraint": "Bull",
+      "sub_regime_constraint": null,
+      "production_ready": false,
+      "priority": "LOW",
+      "source_playbook": "bull_uptri",
+      "source_finding": "Energy Bull UP_TRI: -2.9pp lifetime; worst Bull UP_TRI sector",
+      "evidence": {
+        "n": 2400,
+        "wr": 0.491,
+        "lift_pp": -2.9,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_014",
+      "active": false,
+      "type": "kill",
+      "match_fields": {
+        "signal": null,
+        "sector": null,
+        "regime": "Bull"
+      },
+      "conditions": [
+        {"feature": "feat_month", "value": 9, "operator": "eq"},
+        {"feature": "signal", "value": ["UP_TRI", "BULL_PROXY"], "operator": "in"}
+      ],
+      "verdict": "SKIP",
+      "expected_wr": 0.436,
+      "confidence_tier": "LOW",
+      "trade_mechanism": "breakout_continuation",
+      "regime_constraint": "Bull",
+      "sub_regime_constraint": null,
+      "production_ready": false,
+      "priority": "LOW",
+      "source_playbook": "bull_uptri",
+      "source_finding": "September Bull UP_TRI/BULL_PROXY: -8.4pp catastrophic month",
+      "evidence": {
+        "n": 1850,
+        "wr": 0.436,
+        "lift_pp": -8.4,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_015",
+      "active": false,
+      "type": "kill",
+      "match_fields": {
+        "signal": "DOWN_TRI",
+        "sector": "Pharma",
+        "regime": "Choppy"
+      },
+      "conditions": [],
+      "verdict": "SKIP",
+      "expected_wr": 0.413,
+      "confidence_tier": "LOW",
+      "trade_mechanism": "regime_transition",
+      "regime_constraint": "Choppy",
+      "sub_regime_constraint": null,
+      "production_ready": false,
+      "priority": "LOW",
+      "source_playbook": "choppy_downtri",
+      "source_finding": "Pharma Choppy DOWN_TRI: -4.7pp lifetime catastrophic sector mismatch",
+      "evidence": {
+        "n": 600,
+        "wr": 0.413,
+        "lift_pp": -4.7,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_016",
+      "active": false,
+      "type": "kill",
+      "match_fields": {
+        "signal": "DOWN_TRI",
+        "sector": null,
+        "regime": "Choppy"
+      },
+      "conditions": [
+        {"feature": "feat_day_of_week", "value": "Fri", "operator": "eq"}
+      ],
+      "verdict": "SKIP",
+      "expected_wr": 0.398,
+      "confidence_tier": "LOW",
+      "trade_mechanism": "regime_transition",
+      "regime_constraint": "Choppy",
+      "sub_regime_constraint": null,
+      "production_ready": false,
+      "priority": "LOW",
+      "source_playbook": "choppy_downtri",
+      "source_finding": "Friday Choppy DOWN_TRI: -6.2pp lifetime; weekend risk-off avoidance",
+      "evidence": {
+        "n": 1200,
+        "wr": 0.398,
+        "lift_pp": -6.2,
+        "tier": "lifetime"
+      }
+    },
+    {
+      "id": "rule_017",
+      "active": false,
+      "type": "kill",
+      "match_fields": {
+        "signal": "UP_TRI",
+        "sector": "Metal",
+        "regime": "Choppy"
+      },
+      "conditions": [],
+      "verdict": "SKIP",
+      "expected_wr": 0.482,
+      "confidence_tier": "LOW",
+      "trade_mechanism": "regime_transition",
+      "regime_constraint": "Choppy",
+      "sub_regime_constraint": null,
+      "production_ready": false,
+      "priority": "LOW",
+      "source_playbook": "choppy_uptri",
+      "source_finding": "Metal Choppy UP_TRI: -2.2pp lifetime on n=2,092",
+      "evidence": {
+        "n": 2092,
+        "wr": 0.482,
+        "lift_pp": -2.2,
+        "tier": "lifetime"
+      }
+    }
+  ],
+  "notes": {
+    "schema_version": "v4 — 2-tier (match_fields + conditions array). Migration from v3 BREAKING; 2-week parallel evaluation window required.",
+    "rule_count": "17 active rules (5 HIGH new + 5 MEDIUM new + 7 existing) + 5 LOW production_ready=false (deferred to Phase D).",
+    "composition": "Pessimistic merge: SKIP > TAKE_SMALL > TAKE_FULL. KILL/REJECT terminates. See precedence_logic.md.",
+    "mechanism_per_cell": {
+      "Bear_UP_TRI": "mean_reversion",
+      "Bull_UP_TRI": "breakout_continuation",
+      "Choppy_UP_TRI": "regime_transition",
+      "Bear_DOWN_TRI": "trend_fade",
+      "Bull_DOWN_TRI": "counter_trend",
+      "Choppy_DOWN_TRI": "regime_transition",
+      "Bear_BULL_PROXY": "support_bounce_reversal",
+      "Bull_BULL_PROXY": "support_bounce_reversal",
+      "Choppy_BULL_PROXY": "KILL_no_mechanism"
+    },
+    "wr_calibration_note": "expected_wr is calibrated lifetime baseline + sub-regime tier (per B1 framework), NOT live observed. Live observations include Phase-5 selection bias not reproducible at scale.",
+    "deferred_rules": "rule_013 (Bull Energy), rule_014 (Bull Sep), rule_015 (Choppy Pharma DOWN), rule_016 (Choppy Friday DOWN), rule_017 (Choppy Metal UP) marked production_ready=false; activate after live validation per integration_notes.md Phase D."
+  }
+}
