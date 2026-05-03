@@ -1,0 +1,269 @@
+{
+ "schema_version": 1,
+ "phase": "POST_OPEN",
+ "phase_status": "DEGRADED",
+ "phase_timestamp": "2026-04-28T04:10:39.769520+00:00",
+ "market_date": "2026-04-28",
+ "banner": {
+  "state": "DEGRADED",
+  "color": "orange",
+  "message": "LIVE \u2014 partial data",
+  "subtext": "6 validated, no reclassifications"
+ },
+ "summary": {
+  "total_signals_today": 6,
+  "buckets": {
+   "TAKE_FULL": 0,
+   "TAKE_SMALL": 0,
+   "WATCH": 0,
+   "SKIP": 6
+  },
+  "open_positions_count": 80
+ },
+ "alerts": [
+  {
+   "type": "upstream_warn",
+   "severity": "warning",
+   "message": "Upstream module eod_update reports warn",
+   "evidence": {
+    "module": "eod_update",
+    "status": "warn"
+   }
+  },
+  {
+   "type": "upstream_warn",
+   "severity": "warning",
+   "message": "Upstream module pattern_miner reports warn",
+   "evidence": {
+    "module": "pattern_miner",
+    "status": "warn"
+   }
+  },
+  {
+   "type": "upstream_warn",
+   "severity": "warning",
+   "message": "Upstream module rule_proposer reports warn",
+   "evidence": {
+    "module": "rule_proposer",
+    "status": "warn"
+   }
+  }
+ ],
+ "self_queries": [],
+ "upstream_health": {
+  "morning_scan": "ok_yesterday",
+  "open_validate": "ok_yesterday",
+  "eod_update": "warn",
+  "outcome_eval": "ok_yesterday",
+  "pattern_miner": "warn",
+  "rule_proposer": "warn",
+  "contra_tracker": "ok_yesterday"
+ },
+ "should_send_telegram": false,
+ "signals_compact": [
+  {
+   "id": null,
+   "symbol": "MARUTI",
+   "signal": null,
+   "regime": "Choppy",
+   "sector": "Auto",
+   "score": null,
+   "action": null,
+   "bucket": "SKIP"
+  },
+  {
+   "id": null,
+   "symbol": "HEROMOTOCO",
+   "signal": null,
+   "regime": "Choppy",
+   "sector": "Auto",
+   "score": null,
+   "action": null,
+   "bucket": "SKIP"
+  },
+  {
+   "id": null,
+   "symbol": "EICHERMOT",
+   "signal": null,
+   "regime": "Choppy",
+   "sector": "Auto",
+   "score": null,
+   "action": null,
+   "bucket": "SKIP"
+  },
+  {
+   "id": null,
+   "symbol": "TVSMOTOR",
+   "signal": null,
+   "regime": "Choppy",
+   "sector": "Auto",
+   "score": null,
+   "action": null,
+   "bucket": "SKIP"
+  },
+  {
+   "id": null,
+   "symbol": "COALINDIA",
+   "signal": null,
+   "regime": "Choppy",
+   "sector": "Metal",
+   "score": null,
+   "action": null,
+   "bucket": "SKIP"
+  },
+  {
+   "id": null,
+   "symbol": "COROMANDEL",
+   "signal": null,
+   "regime": "Choppy",
+   "sector": "Chem",
+   "score": null,
+   "action": null,
+   "bucket": "SKIP"
+  }
+ ],
+ "signals_total_count": 6,
+ "open_positions_count": 80,
+ "open_positions_summary": [
+  {
+   "id": "2026-04-21-ICICIBANK-UP_TRI",
+   "symbol": "ICICIBANK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-AXISBANK-UP_TRI",
+   "symbol": "AXISBANK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-KOTAKBANK-UP_TRI",
+   "symbol": "KOTAKBANK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-BANDHANBNK-UP_TRI",
+   "symbol": "BANDHANBNK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-IDFCFIRSTB-UP_TRI",
+   "symbol": "IDFCFIRSTB.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-PNB-UP_TRI",
+   "symbol": "PNB.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-CANBK-UP_TRI",
+   "symbol": "CANBK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-BANKBARODA-UP_TRI",
+   "symbol": "BANKBARODA.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-AUBANK-UP_TRI",
+   "symbol": "AUBANK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-BAJAJFINSV-UP_TRI",
+   "symbol": "BAJAJFINSV.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-HDFCLIFE-UP_TRI",
+   "symbol": "HDFCLIFE.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-SBILIFE-UP_TRI",
+   "symbol": "SBILIFE.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-ICICIPRULI-UP_TRI",
+   "symbol": "ICICIPRULI.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-CHOLAFIN-UP_TRI",
+   "symbol": "CHOLAFIN.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-ICICIGI-UP_TRI",
+   "symbol": "ICICIGI.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-M&M-UP_TRI",
+   "symbol": "M&M.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-BAJAJ-AUTO-UP_TRI",
+   "symbol": "BAJAJ-AUTO.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-HEROMOTOCO-UP_TRI",
+   "symbol": "HEROMOTOCO.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-ASHOKLEY-UP_TRI",
+   "symbol": "ASHOKLEY.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-TVSMOTOR-UP_TRI",
+   "symbol": "TVSMOTOR.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  }
+ ]
+}

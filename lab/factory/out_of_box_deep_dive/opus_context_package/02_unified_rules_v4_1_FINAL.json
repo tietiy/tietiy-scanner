@@ -1,0 +1,812 @@
+{
+ "schema_version": 4.1,
+ "n_rules": 37,
+ "rules": [
+  {
+   "id": "kill_001",
+   "type": "kill",
+   "priority": "HIGH",
+   "verdict": "REJECT",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "DOWN_TRI",
+    "sector": "Bank",
+    "regime": "Bear"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.45,
+   "trade_mechanism": "trend_fade",
+   "source_finding": "Bear \u00d7 Bank \u00d7 DOWN_TRI lifetime n=595 at 45.0% WR; live 0/11 confirms; existing kill_001 in production. Path 1 had regime=None bug; corrected to regime='Bear' in L1."
+  },
+  {
+   "id": "win_001",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "Auto",
+    "regime": "Bear"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.59,
+   "trade_mechanism": "mean_reversion",
+   "source_finding": "Auto \u00d7 Bear \u00d7 UP_TRI lifetime n=1009 at 59.5% WR; live small-sample inflated (90-100%) \u2014 recalibrated in L1 to lifetime baseline."
+  },
+  {
+   "id": "win_002",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "FMCG",
+    "regime": "Bear"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.58,
+   "trade_mechanism": "mean_reversion",
+   "source_finding": "FMCG \u00d7 Bear \u00d7 UP_TRI lifetime n=1274 at 57.6% WR; live small-sample inflated \u2014 recalibrated in L1."
+  },
+  {
+   "id": "win_003",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "IT",
+    "regime": "Bear"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.53,
+   "trade_mechanism": "mean_reversion",
+   "source_finding": "IT \u00d7 Bear \u00d7 UP_TRI lifetime n=1046 at 53.3% WR; recalibrated in L1."
+  },
+  {
+   "id": "win_004",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "Metal",
+    "regime": "Bear"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.57,
+   "trade_mechanism": "mean_reversion",
+   "source_finding": "Metal \u00d7 Bear \u00d7 UP_TRI lifetime n=1147 at 57.1% WR; recalibrated in L1."
+  },
+  {
+   "id": "win_005",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "Pharma",
+    "regime": "Bear"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.58,
+   "trade_mechanism": "mean_reversion",
+   "source_finding": "Pharma \u00d7 Bear \u00d7 UP_TRI lifetime n=1142 at 57.7% WR; recalibrated in L1."
+  },
+  {
+   "id": "watch_001",
+   "type": "watch",
+   "priority": "MEDIUM",
+   "verdict": "WATCH",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Choppy"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.523,
+   "trade_mechanism": "regime_transition",
+   "source_finding": "Choppy UP_TRI broad watch; lifetime 52.3% baseline. Existing watch_001."
+  },
+  {
+   "id": "win_006",
+   "type": "boost",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "Infra",
+    "regime": "Bear"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.54,
+   "trade_mechanism": "mean_reversion",
+   "source_finding": "Infra \u00d7 Bear \u00d7 UP_TRI lifetime n=1039 at 53.8% WR; recalibrated in L1."
+  },
+  {
+   "id": "win_007",
+   "type": "boost",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "BULL_PROXY",
+    "sector": null,
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "hot",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "hot",
+   "expected_wr": 0.65,
+   "trade_mechanism": "support_bounce_reversal",
+   "source_finding": "Bear hot BULL_PROXY support bounce."
+  },
+  {
+   "id": "rule_010_bull_uptri_recovery",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Bull"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "recovery_bull",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "recovery_bull",
+   "expected_wr": 0.62,
+   "trade_mechanism": "trend_continuation",
+   "source_finding": "Bull recovery_bull UP_TRI sustained edge across sectors."
+  },
+  {
+   "id": "rule_011_bull_uptri_healthy",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Bull"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "healthy_bull",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "healthy_bull",
+   "expected_wr": 0.58,
+   "trade_mechanism": "trend_continuation",
+   "source_finding": "Bull healthy_bull UP_TRI lifetime baseline."
+  },
+  {
+   "id": "rule_012_bull_uptri_late",
+   "type": "trim",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_SMALL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Bull"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "late_bull",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "late_bull",
+   "expected_wr": 0.51,
+   "trade_mechanism": "trend_late_stage",
+   "source_finding": "Bull late_bull UP_TRI edge fades; trim sizing."
+  },
+  {
+   "id": "rule_013_bear_downtri_kill",
+   "type": "kill",
+   "priority": "HIGH",
+   "verdict": "REJECT",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "DOWN_TRI",
+    "sector": null,
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "cold",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "cold",
+   "expected_wr": 0.42,
+   "trade_mechanism": "trend_fade",
+   "source_finding": "Bear cold DOWN_TRI strong anti-edge."
+  },
+  {
+   "id": "rule_014_choppy_uptri_breadth_high",
+   "type": "boost",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Choppy"
+   },
+   "conditions": [
+    {
+     "feature": "breadth_q",
+     "value": "high",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "breadth_high",
+   "expected_wr": 0.6,
+   "trade_mechanism": "regime_transition",
+   "source_finding": "Choppy UP_TRI with breadth high transitions to Bull."
+  },
+  {
+   "id": "rule_015_choppy_uptri_breadth_medium",
+   "type": "watch",
+   "priority": "MEDIUM",
+   "verdict": "WATCH",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Choppy"
+   },
+   "conditions": [
+    {
+     "feature": "breadth_q",
+     "value": "medium",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "breadth_medium",
+   "expected_wr": 0.52,
+   "trade_mechanism": "regime_transition",
+   "source_finding": "Choppy UP_TRI breadth medium baseline."
+  },
+  {
+   "id": "rule_016_choppy_uptri_breadth_low",
+   "type": "kill",
+   "priority": "MEDIUM",
+   "verdict": "REJECT",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Choppy"
+   },
+   "conditions": [
+    {
+     "feature": "breadth_q",
+     "value": "low",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "breadth_low",
+   "expected_wr": 0.44,
+   "trade_mechanism": "regime_fade",
+   "source_finding": "Choppy UP_TRI low breadth = false breakout."
+  },
+  {
+   "id": "rule_017_choppy_downtri_wk3",
+   "type": "boost",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "DOWN_TRI",
+    "sector": null,
+    "regime": "Choppy"
+   },
+   "conditions": [
+    {
+     "feature": "week_of_month",
+     "value": 3,
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.61,
+   "trade_mechanism": "monthly_seasonality",
+   "source_finding": "Choppy DOWN_TRI wk3 seasonality edge."
+  },
+  {
+   "id": "rule_018_choppy_downtri_wk4",
+   "type": "kill",
+   "priority": "MEDIUM",
+   "verdict": "REJECT",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "DOWN_TRI",
+    "sector": null,
+    "regime": "Choppy"
+   },
+   "conditions": [
+    {
+     "feature": "week_of_month",
+     "value": 4,
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.45,
+   "trade_mechanism": "monthly_seasonality",
+   "source_finding": "Choppy DOWN_TRI wk4 anti-seasonality (path1 explicit emit)."
+  },
+  {
+   "id": "rule_019_bear_uptri_hot_refinement",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "hot",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "hot",
+   "expected_wr": 0.71,
+   "trade_mechanism": "mean_reversion_refined",
+   "source_finding": "Bear hot UP_TRI cross-sector refinement; +9.5pp lift over Bear UP_TRI baseline (path2 contribution)."
+  },
+  {
+   "id": "rule_020_bull_downtri_late_wk3",
+   "type": "trim",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_SMALL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "DOWN_TRI",
+    "sector": null,
+    "regime": "Bull"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "late_bull",
+     "operator": "eq"
+    },
+    {
+     "feature": "week_of_month",
+     "value": 3,
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "late_bull",
+   "expected_wr": 0.65,
+   "trade_mechanism": "trend_fade_late_bull",
+   "source_finding": "Bull late_bull DOWN_TRI wk3 lifetime 65.2% WR (+21.8pp lift) \u2014 path2 synthesis from open question text."
+  },
+  {
+   "id": "rule_021_bear_bullproxy_cold",
+   "type": "kill",
+   "priority": "MEDIUM",
+   "verdict": "REJECT",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "BULL_PROXY",
+    "sector": null,
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "cold",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "cold",
+   "expected_wr": 0.41,
+   "trade_mechanism": "false_bounce",
+   "source_finding": "Bear cold BULL_PROXY = trap; reject."
+  },
+  {
+   "id": "rule_022_bear_uptri_warm",
+   "type": "watch",
+   "priority": "MEDIUM",
+   "verdict": "WATCH",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "warm",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "warm",
+   "expected_wr": 0.55,
+   "trade_mechanism": "mean_reversion_neutral",
+   "source_finding": "Bear warm UP_TRI marginal edge; watch only."
+  },
+  {
+   "id": "rule_023_bull_bullproxy_recovery",
+   "type": "boost",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "BULL_PROXY",
+    "sector": null,
+    "regime": "Bull"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "recovery_bull",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "recovery_bull",
+   "expected_wr": 0.66,
+   "trade_mechanism": "trend_initiation",
+   "source_finding": "Bull recovery_bull BULL_PROXY = trend initiation edge."
+  },
+  {
+   "id": "rule_024_choppy_bullproxy_high_breadth",
+   "type": "boost",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "BULL_PROXY",
+    "sector": null,
+    "regime": "Choppy"
+   },
+   "conditions": [
+    {
+     "feature": "breadth_q",
+     "value": "high",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "breadth_high",
+   "expected_wr": 0.59,
+   "trade_mechanism": "regime_transition",
+   "source_finding": "Choppy BULL_PROXY high breadth = transition signal."
+  },
+  {
+   "id": "rule_025_bull_uptri_late_wk4",
+   "type": "kill",
+   "priority": "MEDIUM",
+   "verdict": "REJECT",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": null,
+    "regime": "Bull"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "late_bull",
+     "operator": "eq"
+    },
+    {
+     "feature": "week_of_month",
+     "value": 4,
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "late_bull",
+   "expected_wr": 0.46,
+   "trade_mechanism": "trend_exhaustion",
+   "source_finding": "Bull late_bull UP_TRI wk4 = exhaustion; reject."
+  },
+  {
+   "id": "rule_026_bear_downtri_hot_phase5",
+   "type": "boost",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_SMALL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "DOWN_TRI",
+    "sector": null,
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "hot",
+     "operator": "eq"
+    },
+    {
+     "feature": "phase5_override",
+     "value": true,
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "hot",
+   "expected_wr": 0.62,
+   "trade_mechanism": "phase5_override_reversal",
+   "source_finding": "Bear hot DOWN_TRI with phase5 override = pre-bottom reversal."
+  },
+  {
+   "id": "rule_027_choppy_downtri_pharma",
+   "type": "kill",
+   "priority": "MEDIUM",
+   "verdict": "REJECT",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "DOWN_TRI",
+    "sector": "Pharma",
+    "regime": "Choppy"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.48,
+   "trade_mechanism": "sector_anti_edge",
+   "source_finding": "Lab said Pharma\u00d7Choppy DOWN = -4.7pp anti; live observed +4pp lift. Kill rule matches winners \u2014 flagged WARNING."
+  },
+  {
+   "id": "rule_028_bear_uptri_metal_hot",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "Metal",
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "hot",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "hot",
+   "expected_wr": 0.74,
+   "trade_mechanism": "mean_reversion_refined",
+   "source_finding": "Bear hot Metal UP_TRI strongest cell."
+  },
+  {
+   "id": "rule_029_bear_uptri_pharma_hot",
+   "type": "boost",
+   "priority": "HIGH",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "Pharma",
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "hot",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "hot",
+   "expected_wr": 0.7,
+   "trade_mechanism": "mean_reversion_refined",
+   "source_finding": "Bear hot Pharma UP_TRI consistent edge."
+  },
+  {
+   "id": "rule_030_bull_downtri_healthy_kill",
+   "type": "kill",
+   "priority": "HIGH",
+   "verdict": "REJECT",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "DOWN_TRI",
+    "sector": null,
+    "regime": "Bull"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "healthy_bull",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "healthy_bull",
+   "expected_wr": 0.43,
+   "trade_mechanism": "trend_continuation_anti",
+   "source_finding": "Bull healthy_bull DOWN_TRI = fight the trend; reject."
+  },
+  {
+   "id": "rule_031_bear_uptri_it_hot",
+   "type": "boost",
+   "priority": "MEDIUM",
+   "verdict": "TAKE_FULL",
+   "production_ready": true,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "IT",
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "hot",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "hot",
+   "expected_wr": 0.68,
+   "trade_mechanism": "mean_reversion_refined",
+   "source_finding": "Bear hot IT UP_TRI sub-regime refinement."
+  },
+  {
+   "id": "rule_032_choppy_uptri_health_low",
+   "type": "watch",
+   "priority": "LOW",
+   "verdict": "WATCH",
+   "production_ready": false,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "Health",
+    "regime": "Choppy"
+   },
+   "conditions": [
+    {
+     "feature": "breadth_q",
+     "value": "low",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "breadth_low",
+   "expected_wr": 0.5,
+   "trade_mechanism": "exploratory",
+   "source_finding": "Choppy Health UP_TRI low breadth \u2014 exploratory cell, sample insufficient."
+  },
+  {
+   "id": "rule_033_bear_bullproxy_warm",
+   "type": "watch",
+   "priority": "LOW",
+   "verdict": "WATCH",
+   "production_ready": false,
+   "match_fields": {
+    "signal": "BULL_PROXY",
+    "sector": null,
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "warm",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "warm",
+   "expected_wr": 0.52,
+   "trade_mechanism": "exploratory",
+   "source_finding": "Bear warm BULL_PROXY marginal \u2014 defer."
+  },
+  {
+   "id": "rule_034_bull_bullproxy_late",
+   "type": "watch",
+   "priority": "LOW",
+   "verdict": "WATCH",
+   "production_ready": false,
+   "match_fields": {
+    "signal": "BULL_PROXY",
+    "sector": null,
+    "regime": "Bull"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "late_bull",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "late_bull",
+   "expected_wr": 0.51,
+   "trade_mechanism": "exploratory",
+   "source_finding": "Bull late_bull BULL_PROXY exploratory."
+  },
+  {
+   "id": "rule_035_choppy_downtri_bank",
+   "type": "kill",
+   "priority": "LOW",
+   "verdict": "REJECT",
+   "production_ready": false,
+   "match_fields": {
+    "signal": "DOWN_TRI",
+    "sector": "Bank",
+    "regime": "Choppy"
+   },
+   "conditions": [],
+   "sub_regime_constraint": null,
+   "expected_wr": 0.47,
+   "trade_mechanism": "sector_anti_edge",
+   "source_finding": "Choppy Bank DOWN_TRI weak anti-edge."
+  },
+  {
+   "id": "rule_036_bear_uptri_bank_cold",
+   "type": "kill",
+   "priority": "LOW",
+   "verdict": "REJECT",
+   "production_ready": false,
+   "match_fields": {
+    "signal": "UP_TRI",
+    "sector": "Bank",
+    "regime": "Bear"
+   },
+   "conditions": [
+    {
+     "feature": "sub_regime",
+     "value": "cold",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "cold",
+   "expected_wr": 0.46,
+   "trade_mechanism": "sub_regime_sector_anti",
+   "source_finding": "Bear cold Bank UP_TRI = anti-edge candidate, sample too small."
+  },
+  {
+   "id": "rule_037_choppy_bullproxy_low",
+   "type": "watch",
+   "priority": "LOW",
+   "verdict": "WATCH",
+   "production_ready": false,
+   "match_fields": {
+    "signal": "BULL_PROXY",
+    "sector": null,
+    "regime": "Choppy"
+   },
+   "conditions": [
+    {
+     "feature": "breadth_q",
+     "value": "low",
+     "operator": "eq"
+    }
+   ],
+   "sub_regime_constraint": "breadth_low",
+   "expected_wr": 0.49,
+   "trade_mechanism": "exploratory",
+   "source_finding": "Choppy BULL_PROXY low breadth = trap candidate, exploratory."
+  }
+ ]
+}

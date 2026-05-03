@@ -1,0 +1,684 @@
+{
+ "schema_version": 1,
+ "total_resolved_signals": 165,
+ "feature_set": [
+  "signal",
+  "regime",
+  "sector",
+  "age",
+  "grade"
+ ],
+ "tier_thresholds": {
+  "validated": {
+   "n_min": 20,
+   "edge_pct_min": 15
+  },
+  "preliminary": {
+   "n_min": 10,
+   "edge_pct_min": 10
+  }
+ },
+ "baselines": {
+  "DOWN_TRI": {
+   "wr": 17.4,
+   "avg_pnl": -6.47,
+   "n": 23,
+   "wins": 4,
+   "losses": 19
+  },
+  "BULL_PROXY": {
+   "wr": 66.7,
+   "avg_pnl": 4.28,
+   "n": 24,
+   "wins": 16,
+   "losses": 8
+  },
+  "UP_TRI": {
+   "wr": 75.4,
+   "avg_pnl": 3.85,
+   "n": 118,
+   "wins": 89,
+   "losses": 29
+  }
+ },
+ "summary": {
+  "emerging": 104,
+  "preliminary": 55,
+  "validated": 27,
+  "total_patterns": 186,
+  "top_positive": "regime=Bear_sector=Bank",
+  "top_negative": "regime=Choppy"
+ },
+ "top_30_patterns_by_resolved": [
+  {
+   "id": "grade=B",
+   "features": {
+    "grade": "B"
+   },
+   "feature_depth": 1,
+   "n_resolved": 151,
+   "wins": 98,
+   "losses": 53,
+   "wr": 64.9,
+   "avg_pnl": 2.32,
+   "avg_mae": 2.55,
+   "avg_mfe": 4.4,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -10.5,
+   "tier": "preliminary",
+   "direction": "negative",
+   "insight": "Grade B underperforms UP_TRI baseline by 10.5pp (64.9% WR in 151 trades)"
+  },
+  {
+   "id": "regime=Bear",
+   "features": {
+    "regime": "Bear"
+   },
+   "feature_depth": 1,
+   "n_resolved": 119,
+   "wins": 97,
+   "losses": 22,
+   "wr": 81.5,
+   "avg_pnl": 4.03,
+   "avg_mae": 1.9,
+   "avg_mfe": 5.1,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": 6.1,
+   "tier": "emerging",
+   "direction": "positive",
+   "insight": "Bear regime outperforms UP_TRI baseline by 6.1pp (81.5% WR in 119 trades)"
+  },
+  {
+   "id": "signal=UP_TRI",
+   "features": {
+    "signal": "UP_TRI"
+   },
+   "feature_depth": 1,
+   "n_resolved": 118,
+   "wins": 89,
+   "losses": 29,
+   "wr": 75.4,
+   "avg_pnl": 3.85,
+   "avg_mae": 1.9,
+   "avg_mfe": 4.92,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": 0.0,
+   "tier": "emerging",
+   "direction": "neutral",
+   "insight": "UP_TRI matches UP_TRI baseline (75.4% WR in 118 trades)"
+  },
+  {
+   "id": "age=0",
+   "features": {
+    "age": "0"
+   },
+   "feature_depth": 1,
+   "n_resolved": 115,
+   "wins": 62,
+   "losses": 53,
+   "wr": 53.9,
+   "avg_pnl": 0.23,
+   "avg_mae": 3.27,
+   "avg_mfe": 3.88,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -21.5,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "age=0 underperforms UP_TRI baseline by 21.5pp (53.9% WR in 115 trades)"
+  },
+  {
+   "id": "regime=Bear_grade=B",
+   "features": {
+    "regime": "Bear",
+    "grade": "B"
+   },
+   "feature_depth": 2,
+   "n_resolved": 109,
+   "wins": 87,
+   "losses": 22,
+   "wr": 79.8,
+   "avg_pnl": 3.8,
+   "avg_mae": 1.99,
+   "avg_mfe": 5.06,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": 4.4,
+   "tier": "emerging",
+   "direction": "positive",
+   "insight": "Bear regime + Grade B outperforms UP_TRI baseline by 4.4pp (79.8% WR in 109 trades)"
+  },
+  {
+   "id": "age=0_grade=B",
+   "features": {
+    "age": "0",
+    "grade": "B"
+   },
+   "feature_depth": 2,
+   "n_resolved": 106,
+   "wins": 56,
+   "losses": 50,
+   "wr": 52.8,
+   "avg_pnl": 0.15,
+   "avg_mae": 3.34,
+   "avg_mfe": 3.94,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -22.6,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "age=0 + Grade B underperforms UP_TRI baseline by 22.6pp (52.8% WR in 106 trades)"
+  },
+  {
+   "id": "signal=UP_TRI_grade=B",
+   "features": {
+    "signal": "UP_TRI",
+    "grade": "B"
+   },
+   "feature_depth": 2,
+   "n_resolved": 105,
+   "wins": 79,
+   "losses": 26,
+   "wr": 75.2,
+   "avg_pnl": 3.86,
+   "avg_mae": 1.92,
+   "avg_mfe": 5.04,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -0.2,
+   "tier": "emerging",
+   "direction": "negative",
+   "insight": "UP_TRI + Grade B underperforms UP_TRI baseline by 0.2pp (75.2% WR in 105 trades)"
+  },
+  {
+   "id": "signal=UP_TRI_regime=Bear",
+   "features": {
+    "signal": "UP_TRI",
+    "regime": "Bear"
+   },
+   "feature_depth": 2,
+   "n_resolved": 83,
+   "wins": 79,
+   "losses": 4,
+   "wr": 95.2,
+   "avg_pnl": 6.18,
+   "avg_mae": 0.99,
+   "avg_mfe": 5.77,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": 19.8,
+   "tier": "validated",
+   "direction": "positive",
+   "insight": "UP_TRI + Bear regime outperforms UP_TRI baseline by 19.8pp (95.2% WR in 83 trades)"
+  },
+  {
+   "id": "signal=UP_TRI_age=0",
+   "features": {
+    "signal": "UP_TRI",
+    "age": "0"
+   },
+   "feature_depth": 2,
+   "n_resolved": 78,
+   "wins": 51,
+   "losses": 27,
+   "wr": 65.4,
+   "avg_pnl": 2.16,
+   "avg_mae": 2.53,
+   "avg_mfe": 4.93,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -10.0,
+   "tier": "preliminary",
+   "direction": "negative",
+   "insight": "UP_TRI + age=0 underperforms UP_TRI baseline by 10.0pp (65.4% WR in 78 trades)"
+  },
+  {
+   "id": "signal=UP_TRI_regime=Bear_grade=B",
+   "features": {
+    "signal": "UP_TRI",
+    "regime": "Bear",
+    "grade": "B"
+   },
+   "feature_depth": 3,
+   "n_resolved": 74,
+   "wins": 70,
+   "losses": 4,
+   "wr": 94.6,
+   "avg_pnl": 6.19,
+   "avg_mae": 0.98,
+   "avg_mfe": 5.88,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": 19.2,
+   "tier": "validated",
+   "direction": "positive",
+   "insight": "UP_TRI + Bear regime + Grade B outperforms UP_TRI baseline by 19.2pp (94.6% WR in 74 trades)"
+  },
+  {
+   "id": "signal=UP_TRI_age=0_grade=B",
+   "features": {
+    "signal": "UP_TRI",
+    "age": "0",
+    "grade": "B"
+   },
+   "feature_depth": 3,
+   "n_resolved": 69,
+   "wins": 45,
+   "losses": 24,
+   "wr": 65.2,
+   "avg_pnl": 2.28,
+   "avg_mae": 2.54,
+   "avg_mfe": 5.15,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -10.2,
+   "tier": "preliminary",
+   "direction": "negative",
+   "insight": "UP_TRI + age=0 + Grade B underperforms UP_TRI baseline by 10.2pp (65.2% WR in 69 trades)"
+  },
+  {
+   "id": "regime=Bear_age=0",
+   "features": {
+    "regime": "Bear",
+    "age": "0"
+   },
+   "feature_depth": 2,
+   "n_resolved": 69,
+   "wins": 50,
+   "losses": 19,
+   "wr": 72.5,
+   "avg_pnl": 1.41,
+   "avg_mae": 2.82,
+   "avg_mfe": 4.73,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -2.9,
+   "tier": "emerging",
+   "direction": "negative",
+   "insight": "Bear regime + age=0 underperforms UP_TRI baseline by 2.9pp (72.5% WR in 69 trades)"
+  },
+  {
+   "id": "regime=Bear_age=0_grade=B",
+   "features": {
+    "regime": "Bear",
+    "age": "0",
+    "grade": "B"
+   },
+   "feature_depth": 3,
+   "n_resolved": 64,
+   "wins": 45,
+   "losses": 19,
+   "wr": 70.3,
+   "avg_pnl": 1.26,
+   "avg_mae": 2.9,
+   "avg_mfe": 4.75,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -5.1,
+   "tier": "emerging",
+   "direction": "negative",
+   "insight": "Bear regime + age=0 + Grade B underperforms UP_TRI baseline by 5.1pp (70.3% WR in 64 trades)"
+  },
+  {
+   "id": "regime=Choppy",
+   "features": {
+    "regime": "Choppy"
+   },
+   "feature_depth": 1,
+   "n_resolved": 46,
+   "wins": 12,
+   "losses": 34,
+   "wr": 26.1,
+   "avg_pnl": -1.54,
+   "avg_mae": 3.94,
+   "avg_mfe": 2.61,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -49.3,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "Choppy regime underperforms UP_TRI baseline by 49.3pp (26.1% WR in 46 trades)"
+  },
+  {
+   "id": "regime=Choppy_age=0",
+   "features": {
+    "regime": "Choppy",
+    "age": "0"
+   },
+   "feature_depth": 2,
+   "n_resolved": 46,
+   "wins": 12,
+   "losses": 34,
+   "wr": 26.1,
+   "avg_pnl": -1.54,
+   "avg_mae": 3.94,
+   "avg_mfe": 2.61,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -49.3,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "Choppy regime + age=0 underperforms UP_TRI baseline by 49.3pp (26.1% WR in 46 trades)"
+  },
+  {
+   "id": "signal=UP_TRI_regime=Bear_age=0",
+   "features": {
+    "signal": "UP_TRI",
+    "regime": "Bear",
+    "age": "0"
+   },
+   "feature_depth": 3,
+   "n_resolved": 43,
+   "wins": 41,
+   "losses": 2,
+   "wr": 95.3,
+   "avg_pnl": 5.26,
+   "avg_mae": 1.29,
+   "avg_mfe": 6.59,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": 19.9,
+   "tier": "validated",
+   "direction": "positive",
+   "insight": "UP_TRI + Bear regime + age=0 outperforms UP_TRI baseline by 19.9pp (95.3% WR in 43 trades)"
+  },
+  {
+   "id": "regime=Choppy_grade=B",
+   "features": {
+    "regime": "Choppy",
+    "grade": "B"
+   },
+   "feature_depth": 2,
+   "n_resolved": 42,
+   "wins": 11,
+   "losses": 31,
+   "wr": 26.2,
+   "avg_pnl": -1.55,
+   "avg_mae": 4.01,
+   "avg_mfe": 2.69,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -49.2,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "Choppy regime + Grade B underperforms UP_TRI baseline by 49.2pp (26.2% WR in 42 trades)"
+  },
+  {
+   "id": "regime=Choppy_age=0_grade=B",
+   "features": {
+    "regime": "Choppy",
+    "age": "0",
+    "grade": "B"
+   },
+   "feature_depth": 3,
+   "n_resolved": 42,
+   "wins": 11,
+   "losses": 31,
+   "wr": 26.2,
+   "avg_pnl": -1.55,
+   "avg_mae": 4.01,
+   "avg_mfe": 2.69,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -49.2,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "Choppy regime + age=0 + Grade B underperforms UP_TRI baseline by 49.2pp (26.2% WR in 42 trades)"
+  },
+  {
+   "id": "signal=UP_TRI_regime=Choppy",
+   "features": {
+    "signal": "UP_TRI",
+    "regime": "Choppy"
+   },
+   "feature_depth": 2,
+   "n_resolved": 35,
+   "wins": 10,
+   "losses": 25,
+   "wr": 28.6,
+   "avg_pnl": -1.66,
+   "avg_mae": 4.05,
+   "avg_mfe": 2.89,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -46.8,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "UP_TRI + Choppy regime underperforms UP_TRI baseline by 46.8pp (28.6% WR in 35 trades)"
+  },
+  {
+   "id": "signal=UP_TRI_regime=Choppy_age=0",
+   "features": {
+    "signal": "UP_TRI",
+    "regime": "Choppy",
+    "age": "0"
+   },
+   "feature_depth": 3,
+   "n_resolved": 35,
+   "wins": 10,
+   "losses": 25,
+   "wr": 28.6,
+   "avg_pnl": -1.66,
+   "avg_mae": 4.05,
+   "avg_mfe": 2.89,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -46.8,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "UP_TRI + Choppy regime + age=0 underperforms UP_TRI baseline by 46.8pp (28.6% WR in 35 trades)"
+  },
+  {
+   "id": "sector=Bank",
+   "features": {
+    "sector": "Bank"
+   },
+   "feature_depth": 1,
+   "n_resolved": 34,
+   "wins": 16,
+   "losses": 18,
+   "wr": 47.1,
+   "avg_pnl": -2.49,
+   "avg_mae": 4.31,
+   "avg_mfe": 2.8,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -28.3,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "Bank sector underperforms UP_TRI baseline by 28.3pp (47.1% WR in 34 trades)"
+  },
+  {
+   "id": "sector=Bank_age=0",
+   "features": {
+    "sector": "Bank",
+    "age": "0"
+   },
+   "feature_depth": 2,
+   "n_resolved": 33,
+   "wins": 15,
+   "losses": 18,
+   "wr": 45.5,
+   "avg_pnl": -2.98,
+   "avg_mae": 4.44,
+   "avg_mfe": 2.47,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -29.9,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "Bank sector + age=0 underperforms UP_TRI baseline by 29.9pp (45.5% WR in 33 trades)"
+  },
+  {
+   "id": "sector=Bank_grade=B",
+   "features": {
+    "sector": "Bank",
+    "grade": "B"
+   },
+   "feature_depth": 2,
+   "n_resolved": 32,
+   "wins": 14,
+   "losses": 18,
+   "wr": 43.8,
+   "avg_pnl": -2.78,
+   "avg_mae": 4.51,
+   "avg_mfe": 2.73,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -31.6,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "Bank sector + Grade B underperforms UP_TRI baseline by 31.6pp (43.8% WR in 32 trades)"
+  },
+  {
+   "id": "signal=UP_TRI_regime=Choppy_grade=B",
+   "features": {
+    "signal": "UP_TRI",
+    "regime": "Choppy",
+    "grade": "B"
+   },
+   "feature_depth": 3,
+   "n_resolved": 31,
+   "wins": 9,
+   "losses": 22,
+   "wr": 29.0,
+   "avg_pnl": -1.68,
+   "avg_mae": 4.16,
+   "avg_mfe": 3.03,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -46.4,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "UP_TRI + Choppy regime + Grade B underperforms UP_TRI baseline by 46.4pp (29.0% WR in 31 trades)"
+  },
+  {
+   "id": "sector=Bank_age=0_grade=B",
+   "features": {
+    "sector": "Bank",
+    "age": "0",
+    "grade": "B"
+   },
+   "feature_depth": 3,
+   "n_resolved": 31,
+   "wins": 13,
+   "losses": 18,
+   "wr": 41.9,
+   "avg_pnl": -3.3,
+   "avg_mae": 4.66,
+   "avg_mfe": 2.38,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": -33.5,
+   "tier": "validated",
+   "direction": "negative",
+   "insight": "Bank sector + age=0 + Grade B underperforms UP_TRI baseline by 33.5pp (41.9% WR in 31 trades)"
+  },
+  {
+   "id": "age=1",
+   "features": {
+    "age": "1"
+   },
+   "feature_depth": 1,
+   "n_resolved": 24,
+   "wins": 23,
+   "losses": 1,
+   "wr": 95.8,
+   "avg_pnl": 7.99,
+   "avg_mae": 0.56,
+   "avg_mfe": 6.0,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": 20.4,
+   "tier": "validated",
+   "direction": "positive",
+   "insight": "age=1 outperforms UP_TRI baseline by 20.4pp (95.8% WR in 24 trades)"
+  },
+  {
+   "id": "regime=Bear_age=1",
+   "features": {
+    "regime": "Bear",
+    "age": "1"
+   },
+   "feature_depth": 2,
+   "n_resolved": 24,
+   "wins": 23,
+   "losses": 1,
+   "wr": 95.8,
+   "avg_pnl": 7.99,
+   "avg_mae": 0.56,
+   "avg_mfe": 6.0,
+   "baseline_type": "UP_TRI",
+   "baseline_wr": 75.4,
+   "edge_pct": 20.4,
+   "tier": "validated",
+   "direction": "positive",
+   "insight": "Bear regime + age=1 outperforms UP_TRI baseline by 20.4pp (95.8% WR in 24 trades)"
+  },
+  {
+   "id": "signal=BULL_PROXY",
+   "features": {
+    "signal": "BULL_PROXY"
+   },
+   "feature_depth": 1,
+   "n_resolved": 24,
+   "wins": 16,
+   "losses": 8,
+   "wr": 66.7,
+   "avg_pnl": 4.28,
+   "avg_mae": 1.85,
+   "avg_mfe": 5.32,
+   "baseline_type": "BULL_PROXY",
+   "baseline_wr": 66.7,
+   "edge_pct": 0.0,
+   "tier": "emerging",
+   "direction": "neutral",
+   "insight": "BULL_PROXY matches BULL_PROXY baseline (66.7% WR in 24 trades)"
+  },
+  {
+   "id": "signal=BULL_PROXY_grade=B",
+   "features": {
+    "signal": "BULL_PROXY",
+    "grade": "B"
+   },
+   "feature_depth": 2,
+   "n_resolved": 23,
+   "wins": 15,
+   "losses": 8,
+   "wr": 65.2,
+   "avg_pnl": 4.03,
+   "avg_mae": 1.93,
+   "avg_mfe": 5.04,
+   "baseline_type": "BULL_PROXY",
+   "baseline_wr": 66.7,
+   "edge_pct": -1.5,
+   "tier": "emerging",
+   "direction": "negative",
+   "insight": "BULL_PROXY + Grade B underperforms BULL_PROXY baseline by 1.5pp (65.2% WR in 23 trades)"
+  },
+  {
+   "id": "signal=DOWN_TRI",
+   "features": {
+    "signal": "DOWN_TRI"
+   },
+   "feature_depth": 1,
+   "n_resolved": 23,
+   "wins": 4,
+   "losses": 19,
+   "wr": 17.4,
+   "avg_pnl": -6.47,
+   "avg_mae": 6.07,
+   "avg_mfe": 0.85,
+   "baseline_type": "DOWN_TRI",
+   "baseline_wr": 17.4,
+   "edge_pct": 0.0,
+   "tier": "emerging",
+   "direction": "neutral",
+   "insight": "DOWN_TRI matches DOWN_TRI baseline (17.4% WR in 23 trades)"
+  }
+ ],
+ "total_patterns_in_full_file": 186
+}

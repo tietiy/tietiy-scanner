@@ -1,0 +1,245 @@
+{
+ "schema_version": 1,
+ "phase": "EOD",
+ "phase_status": "DEGRADED",
+ "phase_timestamp": "2026-04-28T13:31:56.735190+00:00",
+ "market_date": "2026-04-28",
+ "banner": {
+  "state": "DEGRADED",
+  "color": "orange",
+  "message": "EOD \u2014 partial data",
+  "subtext": "3 resolved (1 won, 2 stopped)"
+ },
+ "summary": {
+  "total_resolutions_today": 3,
+  "outcomes": {
+   "TARGET_HIT": 0,
+   "STOP_HIT": 0,
+   "DAY6_WIN": 1,
+   "DAY6_LOSS": 2,
+   "DAY6_FLAT": 0
+  },
+  "win_count": 1,
+  "loss_count": 2,
+  "flat_count": 0,
+  "total_pnl_pct": 3.01,
+  "open_positions_count": 80,
+  "pattern_updates": []
+ },
+ "alerts": [
+  {
+   "type": "upstream_warn",
+   "severity": "warning",
+   "message": "Upstream module eod_update reports warn",
+   "evidence": {
+    "module": "eod_update",
+    "status": "warn"
+   }
+  },
+  {
+   "type": "upstream_warn",
+   "severity": "warning",
+   "message": "Upstream module pattern_miner reports warn",
+   "evidence": {
+    "module": "pattern_miner",
+    "status": "warn"
+   }
+  },
+  {
+   "type": "upstream_warn",
+   "severity": "warning",
+   "message": "Upstream module rule_proposer reports warn",
+   "evidence": {
+    "module": "rule_proposer",
+    "status": "warn"
+   }
+  }
+ ],
+ "self_queries": [],
+ "upstream_health": {
+  "morning_scan": "ok",
+  "open_validate": "ok",
+  "eod_update": "warn",
+  "outcome_eval": "ok",
+  "pattern_miner": "warn",
+  "rule_proposer": "warn",
+  "contra_tracker": "ok"
+ },
+ "should_send_telegram": null,
+ "signals_compact": [
+  {
+   "id": null,
+   "symbol": "EICHERMOT",
+   "signal": null,
+   "regime": "Choppy",
+   "sector": "Auto",
+   "score": null,
+   "action": null,
+   "bucket": null
+  },
+  {
+   "id": null,
+   "symbol": "ONGC",
+   "signal": null,
+   "regime": "Choppy",
+   "sector": "Energy",
+   "score": null,
+   "action": null,
+   "bucket": null
+  },
+  {
+   "id": null,
+   "symbol": "VOLTAS",
+   "signal": null,
+   "regime": "Choppy",
+   "sector": "CapGoods",
+   "score": null,
+   "action": null,
+   "bucket": null
+  }
+ ],
+ "signals_total_count": 3,
+ "open_positions_count": 80,
+ "open_positions_summary": [
+  {
+   "id": "2026-04-21-ICICIBANK-UP_TRI",
+   "symbol": "ICICIBANK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-AXISBANK-UP_TRI",
+   "symbol": "AXISBANK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-KOTAKBANK-UP_TRI",
+   "symbol": "KOTAKBANK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-BANDHANBNK-UP_TRI",
+   "symbol": "BANDHANBNK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-IDFCFIRSTB-UP_TRI",
+   "symbol": "IDFCFIRSTB.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-PNB-UP_TRI",
+   "symbol": "PNB.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-CANBK-UP_TRI",
+   "symbol": "CANBK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-BANKBARODA-UP_TRI",
+   "symbol": "BANKBARODA.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-AUBANK-UP_TRI",
+   "symbol": "AUBANK.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-BAJAJFINSV-UP_TRI",
+   "symbol": "BAJAJFINSV.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-HDFCLIFE-UP_TRI",
+   "symbol": "HDFCLIFE.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-SBILIFE-UP_TRI",
+   "symbol": "SBILIFE.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-ICICIPRULI-UP_TRI",
+   "symbol": "ICICIPRULI.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-CHOLAFIN-UP_TRI",
+   "symbol": "CHOLAFIN.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-ICICIGI-UP_TRI",
+   "symbol": "ICICIGI.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-M&M-UP_TRI",
+   "symbol": "M&M.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-BAJAJ-AUTO-UP_TRI",
+   "symbol": "BAJAJ-AUTO.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  },
+  {
+   "id": "2026-04-21-HEROMOTOCO-UP_TRI",
+   "symbol": "HEROMOTOCO.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-ASHOKLEY-UP_TRI",
+   "symbol": "ASHOKLEY.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 6
+  },
+  {
+   "id": "2026-04-21-TVSMOTOR-UP_TRI",
+   "symbol": "TVSMOTOR.NS",
+   "signal": "UP_TRI",
+   "result": "PENDING",
+   "score": 5
+  }
+ ]
+}

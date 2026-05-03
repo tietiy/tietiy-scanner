@@ -1,0 +1,88 @@
+{
+  "as_of_date": "2026-04-28",
+  "_metadata": {
+    "concentration_threshold_share": 0.1,
+    "regime_concentration_threshold_share": 0.8,
+    "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
+    "fallback_source": "signal_history.json (filter outcome==OPEN)",
+    "active_source": "primary",
+    "warnings": []
+  },
+  "total_open": 80,
+  "by_signal_type": {
+    "UP_TRI": 76,
+    "BULL_PROXY": 2,
+    "DOWN_TRI": 2
+  },
+  "by_sector": {
+    "Bank": 20,
+    "Auto": 10,
+    "Pharma": 12,
+    "Metal": 2,
+    "Energy": 10,
+    "FMCG": 7,
+    "Infra": 3,
+    "CapGoods": 6,
+    "Chem": 4,
+    "Other": 2,
+    "Health": 2,
+    "Consumer": 1,
+    "IT": 1
+  },
+  "by_regime": {
+    "Choppy": 80
+  },
+  "regime_concentration": {
+    "triggered": true,
+    "threshold": 0.8,
+    "observed": 1.0,
+    "axis": "by_regime",
+    "dominant_regime": "Choppy"
+  },
+  "concentrations": [
+    {
+      "concentration_label": "UP_TRI × Choppy × Bank",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "sector": "Bank"
+      },
+      "count": 19,
+      "share": 0.2375
+    },
+    {
+      "concentration_label": "UP_TRI × Choppy × Pharma",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "sector": "Pharma"
+      },
+      "count": 12,
+      "share": 0.15
+    },
+    {
+      "concentration_label": "UP_TRI × Choppy × Auto",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "sector": "Auto"
+      },
+      "count": 10,
+      "share": 0.125
+    },
+    {
+      "concentration_label": "UP_TRI × Choppy × Energy",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "sector": "Energy"
+      },
+      "count": 9,
+      "share": 0.1125
+    }
+  ],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "portfolio_exposure",
+  "generated_at": "2026-04-28T23:11:21.370259+05:30"
+}
