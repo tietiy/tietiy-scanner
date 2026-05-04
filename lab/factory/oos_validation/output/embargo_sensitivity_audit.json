@@ -1,0 +1,134 @@
+{
+  "rule_id": "rule_019_bear_uptri_hot_refinement",
+  "test_name": "embargo_sensitivity",
+  "test_description": "Window-overlap sensitivity (mapped from consultant's 'embargo' framing, which doesn't apply directly to walkforward \u2014 no train/test split). Subsamples baseline windows[::N] to widen effective stride; tests whether aggregate stability metrics are inflated by 50% overlap of consecutive 60d-windows / 30d-step harness.",
+  "configuration": {
+    "baseline_step_days": 30,
+    "step_values_days": [
+      30,
+      60,
+      90,
+      120,
+      150,
+      180
+    ],
+    "non_baseline_steps": [
+      60,
+      90,
+      120,
+      150,
+      180
+    ],
+    "core_steps": [
+      60,
+      90,
+      120
+    ],
+    "lift_drift_tolerance_decimal": 0.03,
+    "low_window_threshold": 5
+  },
+  "baseline": {
+    "recorded_mean_lift_pp": 17.2208,
+    "recorded_pct_positive": 0.7826,
+    "reproduced_mean_lift": 0.1722080333296446,
+    "reproduced_mean_lift_pp": 17.22080333296446,
+    "reproduced_pct_positive": 0.782608695652174,
+    "reproduction_ok": true,
+    "tolerance_lift_pp": 0.5,
+    "tolerance_positive": 0.02
+  },
+  "shuffle_reference": {
+    "source": "label_randomization_audit.json:stage_1_option_B_global_shuffle.shuffle_lift_distribution",
+    "form": "decimal",
+    "shuffle_mean": -0.009695397861800488,
+    "shuffle_std": 0.03631993638737096,
+    "shuffle_p95": 0.05030594065134108,
+    "shuffle_max": 0.0867329039309172,
+    "n_trials": 100
+  },
+  "trials": {
+    "step_30": {
+      "step_size_days": 30,
+      "n_windows": 182,
+      "n_windows_with_match": 23,
+      "mean_lift": 0.1722080333296446,
+      "mean_lift_pp": 17.22080333296446,
+      "pct_positive_windows": 0.782608695652174,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": false,
+      "lift_drift_from_baseline": 0.0,
+      "decision": "PASS",
+      "rationale": "|drift| 0.000000 <= 0.03 AND lift 0.172208 > shuffle_p95 0.050306"
+    },
+    "step_60": {
+      "step_size_days": 60,
+      "n_windows": 91,
+      "n_windows_with_match": 10,
+      "mean_lift": 0.19241067603364842,
+      "mean_lift_pp": 19.241067603364844,
+      "pct_positive_windows": 0.8,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": false,
+      "lift_drift_from_baseline": 0.02020264270400382,
+      "decision": "PASS",
+      "rationale": "|drift| 0.020203 <= 0.03 AND lift 0.192411 > shuffle_p95 0.050306"
+    },
+    "step_90": {
+      "step_size_days": 90,
+      "n_windows": 61,
+      "n_windows_with_match": 6,
+      "mean_lift": 0.23372503327099747,
+      "mean_lift_pp": 23.372503327099746,
+      "pct_positive_windows": 0.8333333333333334,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": false,
+      "lift_drift_from_baseline": 0.06151699994135287,
+      "decision": "AMBIGUOUS",
+      "rationale": "|drift| 0.061517 > 0.03 (lift 0.233725 drifted from baseline) but lift > shuffle_p95 0.050306"
+    },
+    "step_120": {
+      "step_size_days": 120,
+      "n_windows": 46,
+      "n_windows_with_match": 6,
+      "mean_lift": 0.19808015273176574,
+      "mean_lift_pp": 19.808015273176576,
+      "pct_positive_windows": 0.8333333333333334,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": false,
+      "lift_drift_from_baseline": 0.02587211940212114,
+      "decision": "PASS",
+      "rationale": "|drift| 0.025872 <= 0.03 AND lift 0.198080 > shuffle_p95 0.050306"
+    },
+    "step_150": {
+      "step_size_days": 150,
+      "n_windows": 37,
+      "n_windows_with_match": 3,
+      "mean_lift": 0.12679996056711137,
+      "mean_lift_pp": 12.679996056711138,
+      "pct_positive_windows": 1.0,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": true,
+      "lift_drift_from_baseline": 0.045408072762533225,
+      "decision": "AMBIGUOUS",
+      "rationale": "|drift| 0.045408 > 0.03 (lift 0.126800 drifted from baseline) but lift > shuffle_p95 0.050306"
+    },
+    "step_180": {
+      "step_size_days": 180,
+      "n_windows": 31,
+      "n_windows_with_match": 2,
+      "mean_lift": 0.1138887071879934,
+      "mean_lift_pp": 11.38887071879934,
+      "pct_positive_windows": 0.5,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": true,
+      "lift_drift_from_baseline": 0.058319326141651195,
+      "decision": "AMBIGUOUS",
+      "rationale": "|drift| 0.058319 > 0.03 (lift 0.113889 drifted from baseline) but lift > shuffle_p95 0.050306"
+    }
+  },
+  "overall_verdict": {
+    "decision": "AMBIGUOUS",
+    "rationale": "At least one non-baseline trial AMBIGUOUS (|drift| > 0.03 but lift > shuffle_p95). Per-trial: step_60=PASS, step_90=AMBIGUOUS, step_120=PASS, step_150=AMBIGUOUS, step_180=AMBIGUOUS"
+  },
+  "elapsed_seconds": 2.31
+}
