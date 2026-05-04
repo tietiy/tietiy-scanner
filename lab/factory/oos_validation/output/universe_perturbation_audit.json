@@ -1,0 +1,310 @@
+{
+  "rule_id": "rule_019_bear_uptri_hot_refinement",
+  "scope": "option_A_drop_rule_matches_only",
+  "rank_metric": "sum(pnl_pct)",
+  "n_trials_list": [
+    1,
+    3,
+    5,
+    10,
+    20
+  ],
+  "low_window_threshold": 5,
+  "baseline": {
+    "recorded_mean_lift_pp": 17.2208,
+    "recorded_pct_positive": 0.7826,
+    "reproduced_mean_lift": 0.1722080333296446,
+    "reproduced_mean_lift_pp": 17.22080333296446,
+    "reproduced_pct_positive": 0.782608695652174,
+    "reproduction_ok": true,
+    "tolerance_lift_pp": 0.5,
+    "tolerance_positive": 0.02
+  },
+  "shuffle_reference": {
+    "source": "label_randomization_audit.json:stage_1_option_B_global_shuffle.shuffle_lift_distribution",
+    "form": "decimal",
+    "shuffle_mean": -0.009695397861800488,
+    "shuffle_std": 0.03631993638737096,
+    "shuffle_p95": 0.05030594065134108,
+    "shuffle_max": 0.0867329039309172,
+    "n_trials": 100
+  },
+  "top_20_symbols": [
+    {
+      "rank": 1,
+      "symbol": "LUPIN.NS",
+      "pnl_sum": 199.36,
+      "won_sum": 16.0,
+      "n_won_resolved": 17,
+      "n_matches": 17
+    },
+    {
+      "rank": 2,
+      "symbol": "ZYDUSLIFE.NS",
+      "pnl_sum": 166.5,
+      "won_sum": 9.0,
+      "n_won_resolved": 9,
+      "n_matches": 14
+    },
+    {
+      "rank": 3,
+      "symbol": "GLENMARK.NS",
+      "pnl_sum": 156.38,
+      "won_sum": 9.0,
+      "n_won_resolved": 11,
+      "n_matches": 14
+    },
+    {
+      "rank": 4,
+      "symbol": "CIPLA.NS",
+      "pnl_sum": 155.89,
+      "won_sum": 10.0,
+      "n_won_resolved": 11,
+      "n_matches": 12
+    },
+    {
+      "rank": 5,
+      "symbol": "ADANIGREEN.NS",
+      "pnl_sum": 154.86,
+      "won_sum": 8.0,
+      "n_won_resolved": 9,
+      "n_matches": 9
+    },
+    {
+      "rank": 6,
+      "symbol": "APOLLOTYRE.NS",
+      "pnl_sum": 148.71,
+      "won_sum": 20.0,
+      "n_won_resolved": 21,
+      "n_matches": 22
+    },
+    {
+      "rank": 7,
+      "symbol": "MANAPPURAM.NS",
+      "pnl_sum": 117.97999999999999,
+      "won_sum": 11.0,
+      "n_won_resolved": 12,
+      "n_matches": 13
+    },
+    {
+      "rank": 8,
+      "symbol": "ADANIPORTS.NS",
+      "pnl_sum": 113.62,
+      "won_sum": 14.0,
+      "n_won_resolved": 16,
+      "n_matches": 17
+    },
+    {
+      "rank": 9,
+      "symbol": "AUROPHARMA.NS",
+      "pnl_sum": 107.89999999999999,
+      "won_sum": 9.0,
+      "n_won_resolved": 9,
+      "n_matches": 11
+    },
+    {
+      "rank": 10,
+      "symbol": "MARICO.NS",
+      "pnl_sum": 106.84,
+      "won_sum": 22.0,
+      "n_won_resolved": 23,
+      "n_matches": 25
+    },
+    {
+      "rank": 11,
+      "symbol": "LAURUSLABS.NS",
+      "pnl_sum": 106.5,
+      "won_sum": 8.0,
+      "n_won_resolved": 10,
+      "n_matches": 10
+    },
+    {
+      "rank": 12,
+      "symbol": "MFSL.NS",
+      "pnl_sum": 105.07000000000001,
+      "won_sum": 8.0,
+      "n_won_resolved": 8,
+      "n_matches": 8
+    },
+    {
+      "rank": 13,
+      "symbol": "NMDC.NS",
+      "pnl_sum": 99.45,
+      "won_sum": 15.0,
+      "n_won_resolved": 20,
+      "n_matches": 22
+    },
+    {
+      "rank": 14,
+      "symbol": "ESCORTS.NS",
+      "pnl_sum": 95.47,
+      "won_sum": 12.0,
+      "n_won_resolved": 15,
+      "n_matches": 15
+    },
+    {
+      "rank": 15,
+      "symbol": "ADANIPOWER.NS",
+      "pnl_sum": 94.58,
+      "won_sum": 12.0,
+      "n_won_resolved": 15,
+      "n_matches": 15
+    },
+    {
+      "rank": 16,
+      "symbol": "PHOENIXLTD.NS",
+      "pnl_sum": 93.05,
+      "won_sum": 16.0,
+      "n_won_resolved": 19,
+      "n_matches": 20
+    },
+    {
+      "rank": 17,
+      "symbol": "ALKYLAMINE.NS",
+      "pnl_sum": 90.06,
+      "won_sum": 10.0,
+      "n_won_resolved": 12,
+      "n_matches": 13
+    },
+    {
+      "rank": 18,
+      "symbol": "GRSE.NS",
+      "pnl_sum": 89.02,
+      "won_sum": 7.0,
+      "n_won_resolved": 11,
+      "n_matches": 11
+    },
+    {
+      "rank": 19,
+      "symbol": "VEDL.NS",
+      "pnl_sum": 88.71,
+      "won_sum": 5.0,
+      "n_won_resolved": 8,
+      "n_matches": 8
+    },
+    {
+      "rank": 20,
+      "symbol": "PAGEIND.NS",
+      "pnl_sum": 86.82,
+      "won_sum": 15.0,
+      "n_won_resolved": 16,
+      "n_matches": 18
+    }
+  ],
+  "trials": {
+    "N_1": {
+      "N": 1,
+      "dropped_symbols": [
+        "LUPIN.NS"
+      ],
+      "n_rule_019_matches_dropped": 17,
+      "remaining_lift": 0.1727570372479217,
+      "remaining_lift_pp": 17.275703724792173,
+      "remaining_pct_positive_windows": 0.782608695652174,
+      "n_windows_with_match": 23,
+      "mean_match_n": 189.69565217391303,
+      "lift_ratio_vs_real": 1.0031880273391556,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": false
+    },
+    "N_3": {
+      "N": 3,
+      "dropped_symbols": [
+        "LUPIN.NS",
+        "ZYDUSLIFE.NS",
+        "GLENMARK.NS"
+      ],
+      "n_rule_019_matches_dropped": 45,
+      "remaining_lift": 0.17301249138375535,
+      "remaining_lift_pp": 17.301249138375535,
+      "remaining_pct_positive_windows": 0.782608695652174,
+      "n_windows_with_match": 23,
+      "mean_match_n": 187.2608695652174,
+      "lift_ratio_vs_real": 1.0046714316315943,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": false
+    },
+    "N_5": {
+      "N": 5,
+      "dropped_symbols": [
+        "LUPIN.NS",
+        "ZYDUSLIFE.NS",
+        "GLENMARK.NS",
+        "CIPLA.NS",
+        "ADANIGREEN.NS"
+      ],
+      "n_rule_019_matches_dropped": 66,
+      "remaining_lift": 0.17257858357187716,
+      "remaining_lift_pp": 17.257858357187715,
+      "remaining_pct_positive_windows": 0.782608695652174,
+      "n_windows_with_match": 23,
+      "mean_match_n": 185.43478260869566,
+      "lift_ratio_vs_real": 1.002151759328923,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": false
+    },
+    "N_10": {
+      "N": 10,
+      "dropped_symbols": [
+        "LUPIN.NS",
+        "ZYDUSLIFE.NS",
+        "GLENMARK.NS",
+        "CIPLA.NS",
+        "ADANIGREEN.NS",
+        "APOLLOTYRE.NS",
+        "MANAPPURAM.NS",
+        "ADANIPORTS.NS",
+        "AUROPHARMA.NS",
+        "MARICO.NS"
+      ],
+      "n_rule_019_matches_dropped": 154,
+      "remaining_lift": 0.16684009878700767,
+      "remaining_lift_pp": 16.684009878700767,
+      "remaining_pct_positive_windows": 0.782608695652174,
+      "n_windows_with_match": 23,
+      "mean_match_n": 177.95652173913044,
+      "lift_ratio_vs_real": 0.9688287797099366,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": false
+    },
+    "N_20": {
+      "N": 20,
+      "dropped_symbols": [
+        "LUPIN.NS",
+        "ZYDUSLIFE.NS",
+        "GLENMARK.NS",
+        "CIPLA.NS",
+        "ADANIGREEN.NS",
+        "APOLLOTYRE.NS",
+        "MANAPPURAM.NS",
+        "ADANIPORTS.NS",
+        "AUROPHARMA.NS",
+        "MARICO.NS",
+        "LAURUSLABS.NS",
+        "MFSL.NS",
+        "NMDC.NS",
+        "ESCORTS.NS",
+        "ADANIPOWER.NS",
+        "PHOENIXLTD.NS",
+        "ALKYLAMINE.NS",
+        "GRSE.NS",
+        "VEDL.NS",
+        "PAGEIND.NS"
+      ],
+      "n_rule_019_matches_dropped": 294,
+      "remaining_lift": 0.16186605879796626,
+      "remaining_lift_pp": 16.186605879796627,
+      "remaining_pct_positive_windows": 0.782608695652174,
+      "n_windows_with_match": 23,
+      "mean_match_n": 166.34782608695653,
+      "lift_ratio_vs_real": 0.9399448775314593,
+      "lift_above_shuffle_p95": true,
+      "low_window_count_warning": false
+    }
+  },
+  "overall_verdict": {
+    "decision": "PASS",
+    "rationale": "lift at N=20 (0.161866) > 0.5 * real_lift (0.086104) AND > shuffle_p95 (0.050306)"
+  },
+  "elapsed_seconds": 4.52
+}
