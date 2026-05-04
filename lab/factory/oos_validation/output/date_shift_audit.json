@@ -1,0 +1,71 @@
+{
+  "rule_id": "rule_019_bear_uptri_hot_refinement",
+  "group_col": "symbol",
+  "sort_col": "scan_date_dt",
+  "baseline": {
+    "recorded_mean_lift_pp": 17.2208,
+    "recorded_pct_positive": 0.7826,
+    "reproduced_mean_lift": 0.1722080333296446,
+    "reproduced_mean_lift_pp": 17.22080333296446,
+    "reproduced_pct_positive": 0.782608695652174,
+    "reproduction_ok": true,
+    "tolerance_lift_pp": 0.5,
+    "tolerance_positive": 0.02
+  },
+  "reference_distribution": {
+    "source": "label_randomization_audit.json:stage_1_option_B_global_shuffle.shuffle_lift_distribution",
+    "form": "decimal",
+    "shuffle_mean": -0.009695397861800488,
+    "shuffle_std": 0.03631993638737096,
+    "shuffle_p95": 0.05030594065134108,
+    "shuffle_min": -0.08221766094687961,
+    "shuffle_max": 0.0867329039309172,
+    "n_trials": 100
+  },
+  "thresholds": {
+    "drop_pct_pass": 0.5,
+    "drop_pct_fail": 0.1,
+    "z_pass": 2.0
+  },
+  "trials": {
+    "plus_1": {
+      "shift": 1,
+      "n_shift_induced_dropped": 9090,
+      "n_rows_post_shift": 96897,
+      "agg_mean_lift": 0.042240106652287855,
+      "agg_pct_positive_windows": 0.6521739130434783,
+      "agg_mean_match_n": 179.56521739130434,
+      "verdict": {
+        "shifted_lift": 0.042240106652287855,
+        "real_lift": 0.1722080333296446,
+        "drop": 0.12996792667735674,
+        "drop_pct": 0.7547146562470122,
+        "shifted_z": 1.4299448093787734,
+        "decision": "PASS",
+        "decision_rationale": "drop_pct 0.754715 > 0.5 AND shifted_z 1.430 < 2.0 (lift collapsed into Stage 1 null band)"
+      }
+    },
+    "minus_1": {
+      "shift": -1,
+      "n_shift_induced_dropped": 9090,
+      "n_rows_post_shift": 96897,
+      "agg_mean_lift": 0.14466887572986425,
+      "agg_pct_positive_windows": 0.9130434782608695,
+      "agg_mean_match_n": 178.17391304347825,
+      "verdict": {
+        "shifted_lift": 0.14466887572986425,
+        "real_lift": 0.1722080333296446,
+        "drop": 0.027539157599780345,
+        "drop_pct": 0.15991796124321478,
+        "shifted_z": 4.250125108846274,
+        "decision": "AMBIGUOUS",
+        "decision_rationale": "drop_pct=0.159918 / shifted_z=4.250 outside PASS band but no FAIL signal"
+      }
+    }
+  },
+  "overall_verdict": {
+    "decision": "AMBIGUOUS",
+    "decision_rationale": "plus_1=PASS, minus_1=AMBIGUOUS"
+  },
+  "elapsed_seconds": 2.89
+}

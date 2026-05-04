@@ -1,0 +1,51 @@
+{
+  "rule_id": "rule_019_bear_uptri_hot_refinement",
+  "vp_hot_threshold": 0.7,
+  "n60_hot_threshold": -0.1,
+  "n_eligible_total": 2436,
+  "n_eligible_with_both_vp_valid": 2436,
+  "categories": {
+    "hot_forward_and_hot_pit": {
+      "label": "hot_forward AND hot_pit (genuine hot)",
+      "n_rows": 2149,
+      "n_resolved": 1995,
+      "win_rate": 0.6832080200501253
+    },
+    "hot_forward_only": {
+      "label": "hot_forward ONLY (leakage-inflated)",
+      "n_rows": 126,
+      "n_resolved": 107,
+      "win_rate": 0.6728971962616822
+    },
+    "hot_pit_only": {
+      "label": "hot_pit ONLY (leakage-suppressed)",
+      "n_rows": 0,
+      "n_resolved": 0,
+      "win_rate": null
+    },
+    "neither": {
+      "label": "neither",
+      "n_rows": 161,
+      "n_resolved": 140,
+      "win_rate": 0.55
+    }
+  },
+  "implementation_comparison": {
+    "current_forward_hot": {
+      "label": "current_implementation_hot (vp_forward > 0.70)",
+      "n_rows": 2275,
+      "n_resolved": 2102,
+      "win_rate": 0.6826831588962893
+    },
+    "point_in_time_hot": {
+      "label": "pit_implementation_hot (vp_pit > 0.70)",
+      "n_rows": 2149,
+      "n_resolved": 1995,
+      "win_rate": 0.6832080200501253
+    }
+  },
+  "lift_comparison": {
+    "leakage_minus_genuine_win_rate": -0.010310823788443058
+  },
+  "elapsed_seconds": 1.09
+}

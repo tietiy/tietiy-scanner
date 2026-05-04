@@ -1,0 +1,57 @@
+{
+  "rule_id": "rule_019_bear_uptri_hot_refinement",
+  "group_col": "symbol",
+  "sort_col": "scan_date_dt",
+  "min_signals_per_symbol": 5,
+  "rule_019_matches": {
+    "label": "rule_019_matches",
+    "n_total_resolved_rows": 2102,
+    "n_symbols_total": 182,
+    "n_symbols_with_5plus": 172,
+    "n_symbols_5plus_with_variance": 154,
+    "n_symbols_5plus_zero_variance": 10,
+    "n_lag1_pairs_pooled": 1920,
+    "per_symbol_autocorr_mean": 0.25098673996069615,
+    "per_symbol_autocorr_median": 0.3162277660168379,
+    "per_symbol_autocorr_std": 0.323681113234467,
+    "per_symbol_autocorr_p25": -0.07142857142857144,
+    "per_symbol_autocorr_p75": 0.5006939628599935,
+    "pooled_autocorr": 0.4407461446861601
+  },
+  "baseline_uptri_bear_not_hot": {
+    "label": "baseline_uptri_bear_not_hot",
+    "n_total_resolved_rows": 11637,
+    "n_symbols_total": 187,
+    "n_symbols_with_5plus": 187,
+    "n_symbols_5plus_with_variance": 186,
+    "n_symbols_5plus_zero_variance": 0,
+    "n_lag1_pairs_pooled": 11450,
+    "per_symbol_autocorr_mean": 0.3918058616709508,
+    "per_symbol_autocorr_median": 0.40386376713674155,
+    "per_symbol_autocorr_std": 0.12218870038780204,
+    "per_symbol_autocorr_p25": 0.308669027933526,
+    "per_symbol_autocorr_p75": 0.48356483437045844,
+    "pooled_autocorr": 0.4207618876695198,
+    "n_excluded_nan_subregime": 0
+  },
+  "baseline_all_other": {
+    "label": "baseline_all_other",
+    "n_total_resolved_rows": 92541,
+    "n_symbols_total": 188,
+    "n_symbols_with_5plus": 188,
+    "n_symbols_5plus_with_variance": 187,
+    "n_symbols_5plus_zero_variance": 1,
+    "n_lag1_pairs_pooled": 92353,
+    "per_symbol_autocorr_mean": 0.36461702664446516,
+    "per_symbol_autocorr_median": 0.36793178973412205,
+    "per_symbol_autocorr_std": 0.04371928006847792,
+    "per_symbol_autocorr_p25": 0.33655279219890955,
+    "per_symbol_autocorr_p75": 0.3966661165163047,
+    "pooled_autocorr": 0.3660759321277457
+  },
+  "comparison_pooled": {
+    "rule_019_minus_cell_baseline": 0.019984257016640306,
+    "rule_019_minus_broad_baseline": 0.07467021255841438
+  },
+  "elapsed_seconds": 1.69
+}
