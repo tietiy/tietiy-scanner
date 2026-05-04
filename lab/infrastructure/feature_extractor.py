@@ -1204,15 +1204,22 @@ class FeatureExtractor:
             return np.nan
 
     def _nifty_vol_percentile_at(self, scan_date: pd.Timestamp) -> float:
-        """Nifty 20d vol's percentile rank vs full 15-yr distribution."""
+        """Nifty 20d vol's point-in-time percentile rank vs the distribution
+        of all 20d vols available up to and including scan_date.
+
+        Fix history (vp-leakage-fix branch): prior to this fix, the percentile
+        reference distribution was computed from the full 15-yr Nifty history
+        (forward-looking by construction — at scan_date in 2014, the rank was
+        computed against vol values from 2020+ that hadn't happened yet).
+        Corrected to truncate the reference to <= scan_date.
+        """
         try:
             window = self._nifty_close.loc[self._nifty_close.index <= scan_date]
             if len(window) < 21:
                 return np.nan
             log_ret = np.log(window / window.shift(1))
             current = float(log_ret.iloc[-20:].std() * math.sqrt(252))
-            full_log_ret = np.log(self._nifty_close / self._nifty_close.shift(1))
-            full_vol = full_log_ret.rolling(20).std() * math.sqrt(252)
+            full_vol = log_ret.rolling(20).std() * math.sqrt(252)
             valid = full_vol.dropna()
             if len(valid) == 0:
                 return np.nan
