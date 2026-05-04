@@ -1,6 +1,73 @@
 {
-  "date": "2026-05-01",
+  "date": "2026-05-04",
   "fetch_time": "03:57 IST",
-  "count": 0,
-  "results": []
+  "count": 6,
+  "results": [
+    {
+      "symbol": "HCLTECH.NS",
+      "signal": "DOWN_TRI",
+      "signal_date": "2026-04-30",
+      "actual_open": 1213.1,
+      "scan_price": 1200.2,
+      "gap_pct": -1.07,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "M&M.NS",
+      "signal": "DOWN_TRI",
+      "signal_date": "2026-04-30",
+      "actual_open": 3123.9,
+      "scan_price": 3152.3,
+      "gap_pct": 0.9,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "BAJAJ-AUTO.NS",
+      "signal": "DOWN_TRI",
+      "signal_date": "2026-04-30",
+      "actual_open": 10276.5,
+      "scan_price": 9543.5,
+      "gap_pct": -7.68,
+      "gap_status": "SKIP",
+      "note": "Gap -7.7% \u2014 skip this signal (>3%)",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "GMRAIRPORT.NS",
+      "signal": "DOWN_TRI",
+      "signal_date": "2026-04-30",
+      "actual_open": 96.22,
+      "scan_price": 96.43,
+      "gap_pct": 0.22,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "AJANTPHARM.NS",
+      "signal": "DOWN_TRI",
+      "signal_date": "2026-04-30",
+      "actual_open": 2870.0,
+      "scan_price": 2804.2,
+      "gap_pct": -2.35,
+      "gap_status": "WARNING",
+      "note": "Gap -2.4% \u2014 reduced R:R, trade with caution",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "LALPATHLAB.NS",
+      "signal": "DOWN_TRI",
+      "signal_date": "2026-04-30",
+      "actual_open": 1404.4,
+      "scan_price": 1397.8,
+      "gap_pct": -0.47,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    }
+  ]
 }
