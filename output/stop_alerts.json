@@ -1,31 +1,15 @@
 {
   "date": "2026-05-04",
-  "check_time": "09:02 AM IST",
-  "ltp_updated_at": "09:02 AM IST",
+  "check_time": "09:07 AM IST",
+  "ltp_updated_at": "09:07 AM IST",
   "open_positions": 32,
   "breached_count": 0,
   "at_count": 0,
   "near_count": 0,
-  "safe_count": 29,
+  "safe_count": 32,
   "target_hit_count": 0,
   "fetch_failed": [],
-  "sanity_rejected": [
-    {
-      "symbol": "AJANTPHARM",
-      "price": 993.0499877929688,
-      "reason": "price \u20b9993.05 deviates 64.3% from entry \u20b92780.80 (limit 30.0%)"
-    },
-    {
-      "symbol": "AJANTPHARM",
-      "price": 96.43000030517578,
-      "reason": "price \u20b996.43 deviates 96.6% from entry \u20b92804.20 (limit 30.0%)"
-    },
-    {
-      "symbol": "LALPATHLAB",
-      "price": 2822.699951171875,
-      "reason": "price \u20b92822.70 deviates 101.9% from entry \u20b91397.80 (limit 30.0%)"
-    }
-  ],
+  "sanity_rejected": [],
   "has_alerts": false,
   "alerts": [
     {
@@ -42,7 +26,7 @@
       "pnl_pct": -1.67,
       "pnl_r": -0.12,
       "note": "Safe \u20b97109.00 | -0.12R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "BHARATFORG.NS",
@@ -58,7 +42,7 @@
       "pnl_pct": -1.13,
       "pnl_r": -0.06,
       "note": "Safe \u20b91881.60 | -0.06R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "BIOCON.NS",
@@ -74,7 +58,7 @@
       "pnl_pct": 0.52,
       "pnl_r": 0.05,
       "note": "Safe \u20b9359.65 | +0.05R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "IPCALAB.NS",
@@ -90,7 +74,7 @@
       "pnl_pct": 2.42,
       "pnl_r": 0.25,
       "note": "Safe \u20b91530.90 | +0.25R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "UNITDSPR.NS",
@@ -106,7 +90,7 @@
       "pnl_pct": -4.82,
       "pnl_r": -0.3,
       "note": "Safe \u20b91325.60 | -0.30R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "OIL.NS",
@@ -122,7 +106,7 @@
       "pnl_pct": 4.48,
       "pnl_r": 0.92,
       "note": "Safe \u20b9490.80 | +0.92R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "JUBLFOOD.NS",
@@ -138,7 +122,7 @@
       "pnl_pct": -2.94,
       "pnl_r": -0.13,
       "note": "Safe \u20b9478.60 | -0.13R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "MAXHEALTH.NS",
@@ -154,7 +138,7 @@
       "pnl_pct": -1.22,
       "pnl_r": -0.09,
       "note": "Safe \u20b9993.05 | -0.09R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "AJANTPHARM.NS",
@@ -163,14 +147,14 @@
       "direction": "LONG",
       "entry": 2780.8,
       "stop": 2598.15,
-      "current_price": 993.05,
-      "alert_level": "UNKNOWN",
+      "current_price": 2822.7,
+      "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": null,
-      "pnl_pct": null,
-      "pnl_r": null,
-      "note": "Price rejected by sanity check: price \u20b9993.05 deviates 64.3% from entry \u20b92780.80 (limit 30.0%)",
-      "check_time": "09:02 AM IST"
+      "pct_from_stop": 8.64,
+      "pnl_pct": 1.51,
+      "pnl_r": 0.23,
+      "note": "Safe \u20b92822.70 | +0.23R",
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "OIL.NS",
@@ -186,7 +170,7 @@
       "pnl_pct": 3.61,
       "pnl_r": 0.48,
       "note": "Safe \u20b9490.80 | +0.48R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "KEC.NS",
@@ -202,7 +186,7 @@
       "pnl_pct": 2.51,
       "pnl_r": 0.2,
       "note": "Safe \u20b9560.70 | +0.20R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "MARUTI.NS",
@@ -218,7 +202,7 @@
       "pnl_pct": -0.7,
       "pnl_r": -0.09,
       "note": "Safe \u20b913314.00 | -0.09R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "HEROMOTOCO.NS",
@@ -234,7 +218,7 @@
       "pnl_pct": -1.11,
       "pnl_r": -0.09,
       "note": "Safe \u20b95099.00 | -0.09R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "EICHERMOT.NS",
@@ -250,7 +234,7 @@
       "pnl_pct": 0.91,
       "pnl_r": 0.12,
       "note": "Safe \u20b97109.00 | +0.12R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "TVSMOTOR.NS",
@@ -266,7 +250,7 @@
       "pnl_pct": 1.68,
       "pnl_r": 0.14,
       "note": "Safe \u20b93492.90 | +0.14R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "COROMANDEL.NS",
@@ -282,7 +266,7 @@
       "pnl_pct": 2.43,
       "pnl_r": 0.19,
       "note": "Safe \u20b91981.70 | +0.19R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "EICHERMOT.NS",
@@ -298,7 +282,7 @@
       "pnl_pct": 0.53,
       "pnl_r": 0.23,
       "note": "Safe \u20b97109.00 | +0.23R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "VINATIORGA.NS",
@@ -314,7 +298,7 @@
       "pnl_pct": 1.72,
       "pnl_r": 0.16,
       "note": "Safe \u20b91322.30 | +0.16R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "BHARTIARTL.NS",
@@ -330,7 +314,7 @@
       "pnl_pct": -2.33,
       "pnl_r": -0.46,
       "note": "Safe \u20b91886.80 | -0.46R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "UBL.NS",
@@ -346,7 +330,7 @@
       "pnl_pct": -1.26,
       "pnl_r": -0.18,
       "note": "Safe \u20b91458.60 | -0.18R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "HCLTECH.NS",
@@ -362,7 +346,7 @@
       "pnl_pct": 0.09,
       "pnl_r": 0.0,
       "note": "Safe \u20b91199.10 | +0.00R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "M&M.NS",
@@ -378,7 +362,7 @@
       "pnl_pct": 1.74,
       "pnl_r": 0.22,
       "note": "Safe \u20b93097.50 | +0.22R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "BAJAJ-AUTO.NS",
@@ -394,7 +378,7 @@
       "pnl_pct": -4.72,
       "pnl_r": -0.64,
       "note": "Safe \u20b99994.00 | -0.64R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "GMRAIRPORT.NS",
@@ -410,7 +394,7 @@
       "pnl_pct": -0.0,
       "pnl_r": -0.0,
       "note": "Safe \u20b996.43 | -0.00R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "AJANTPHARM.NS",
@@ -419,14 +403,14 @@
       "direction": "SHORT",
       "entry": 2804.2,
       "stop": 3030.77,
-      "current_price": 96.43,
-      "alert_level": "UNKNOWN",
+      "current_price": 2822.7,
+      "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": null,
-      "pnl_pct": null,
-      "pnl_r": null,
-      "note": "Price rejected by sanity check: price \u20b996.43 deviates 96.6% from entry \u20b92804.20 (limit 30.0%)",
-      "check_time": "09:02 AM IST"
+      "pct_from_stop": 6.87,
+      "pnl_pct": -0.66,
+      "pnl_r": -0.08,
+      "note": "Safe \u20b92822.70 | -0.08R",
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "LALPATHLAB.NS",
@@ -435,14 +419,14 @@
       "direction": "SHORT",
       "entry": 1397.8,
       "stop": 1521.4,
-      "current_price": 2822.7,
-      "alert_level": "UNKNOWN",
+      "current_price": 1367.2,
+      "alert_level": "SAFE",
       "target_hit": false,
-      "pct_from_stop": null,
-      "pnl_pct": null,
-      "pnl_r": null,
-      "note": "Price rejected by sanity check: price \u20b92822.70 deviates 101.9% from entry \u20b91397.80 (limit 30.0%)",
-      "check_time": "09:02 AM IST"
+      "pct_from_stop": 10.14,
+      "pnl_pct": 2.19,
+      "pnl_r": 0.25,
+      "note": "Safe \u20b91367.20 | +0.25R",
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "WIPRO.NS",
@@ -458,7 +442,7 @@
       "pnl_pct": 0.0,
       "pnl_r": 0.0,
       "note": "Safe \u20b9200.65 | +0.00R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "MPHASIS.NS",
@@ -474,7 +458,7 @@
       "pnl_pct": 0.0,
       "pnl_r": 0.0,
       "note": "Safe \u20b92276.70 | +0.00R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "PERSISTENT.NS",
@@ -490,7 +474,7 @@
       "pnl_pct": 0.0,
       "pnl_r": 0.0,
       "note": "Safe \u20b94800.00 | +0.00R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "COFORGE.NS",
@@ -506,7 +490,7 @@
       "pnl_pct": -0.0,
       "pnl_r": -0.0,
       "note": "Safe \u20b91195.90 | -0.00R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "TITAN.NS",
@@ -522,7 +506,7 @@
       "pnl_pct": -0.0,
       "pnl_r": -0.0,
       "note": "Safe \u20b94385.20 | -0.00R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     },
     {
       "symbol": "LT.NS",
@@ -538,7 +522,7 @@
       "pnl_pct": 0.0,
       "pnl_r": 0.0,
       "note": "Safe \u20b94014.00 | +0.00R",
-      "check_time": "09:02 AM IST"
+      "check_time": "09:07 AM IST"
     }
   ]
 }
