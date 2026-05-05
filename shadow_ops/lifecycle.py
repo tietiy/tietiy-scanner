@@ -37,6 +37,7 @@ drift.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import sys
 import time
@@ -74,6 +75,9 @@ TARGET_R_MULTIPLE = 2.0           # signal_replayer.py:87
 FLAT_THRESHOLD_PCT = 0.5          # signal_replayer.py:86
 
 OPEN_STATES = frozenset({"PROPOSED", "ACTIVE"})
+
+_HERE = Path(__file__).resolve().parent
+_REPO_ROOT = _HERE.parent
 
 
 # ============================================================
@@ -125,6 +129,42 @@ def _load_symbol_ohlc(symbol: str, cache_dir: Path) -> pd.DataFrame:
         df.index = df.index.tz_localize(None)
     df = df[df.index.notna()].dropna(subset=["Close"])
     return df.sort_index()
+
+
+def _file_sha256(path: Path) -> str:
+    """SHA-256 hex digest of file contents, streaming."""
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _to_repo_relative(p: Path) -> str:
+    """Return path string relative to repo root if possible; else absolute.
+    Tests may use cache_dir outside the repo (tmp_path); that's accepted."""
+    try:
+        return str(p.resolve().relative_to(_REPO_ROOT))
+    except ValueError:
+        return str(p)
+
+
+def _parquet_meta(symbol: str, cache_dir: Path,
+                  sha_cache: Dict[str, Tuple[str, str]]) -> Tuple[str, str]:
+    """Returns (rel_path, sha256_hex) for the symbol's parquet, cached per call.
+
+    Per arch §6.7 determinism contract: every FillSimulation must reference
+    the data state used so an auditor can reproduce the fill bit-for-bit.
+    """
+    if symbol in sha_cache:
+        return sha_cache[symbol]
+    p = parquet_path_for_symbol(symbol, cache_dir)
+    if not p.exists():
+        raise LifecycleError(f"missing parquet for {symbol}: {p}")
+    rel = _to_repo_relative(p)
+    sha = _file_sha256(p)
+    sha_cache[symbol] = (rel, sha)
+    return rel, sha
 
 
 def _post_scan_window(df: pd.DataFrame, scan_ts: pd.Timestamp,
@@ -190,7 +230,8 @@ class _SeqAllocator:
 
 def _emit_entry(card: TradeCard, bar: pd.Series, eval_date: date,
                 writer: JournalWriter, seq_alloc: _SeqAllocator,
-                counters: Dict[str, int]) -> None:
+                counters: Dict[str, int],
+                data_source: str, data_source_sha256: str) -> None:
     eval_iso = eval_date.isoformat()
     bar_iso = bar.name.date().isoformat()
     seq = seq_alloc.next(card.card_id, eval_iso)
@@ -208,6 +249,8 @@ def _emit_entry(card: TradeCard, bar: pd.Series, eval_date: date,
         ohlcv=_bar_ohlcv(bar),
         fill_logic_applied="audit_faithful_t1_open_unconditional",
         pnl_pct=None,
+        data_source=data_source,
+        data_source_sha256=data_source_sha256,
     )
     writer.write_event(fill)
 
@@ -231,7 +274,8 @@ def _emit_entry(card: TradeCard, bar: pd.Series, eval_date: date,
 
 def _emit_stop(card: TradeCard, bar: pd.Series, day_n: int, eval_date: date,
                writer: JournalWriter, seq_alloc: _SeqAllocator,
-               counters: Dict[str, int]) -> None:
+               counters: Dict[str, int],
+               data_source: str, data_source_sha256: str) -> None:
     eval_iso = eval_date.isoformat()
     bar_iso = bar.name.date().isoformat()
     seq = seq_alloc.next(card.card_id, eval_iso)
@@ -251,6 +295,8 @@ def _emit_stop(card: TradeCard, bar: pd.Series, day_n: int, eval_date: date,
         ohlcv=_bar_ohlcv(bar),
         fill_logic_applied=f"stop_hit_d{day_n}",
         pnl_pct=round(pnl_unrounded, 2),
+        data_source=data_source,
+        data_source_sha256=data_source_sha256,
     )
     writer.write_event(fill)
 
@@ -276,7 +322,8 @@ def _emit_stop(card: TradeCard, bar: pd.Series, day_n: int, eval_date: date,
 
 def _emit_target(card: TradeCard, bar: pd.Series, day_n: int, eval_date: date,
                  writer: JournalWriter, seq_alloc: _SeqAllocator,
-                 counters: Dict[str, int]) -> None:
+                 counters: Dict[str, int],
+                 data_source: str, data_source_sha256: str) -> None:
     eval_iso = eval_date.isoformat()
     bar_iso = bar.name.date().isoformat()
     seq = seq_alloc.next(card.card_id, eval_iso)
@@ -296,6 +343,8 @@ def _emit_target(card: TradeCard, bar: pd.Series, day_n: int, eval_date: date,
         ohlcv=_bar_ohlcv(bar),
         fill_logic_applied=f"target_hit_d{day_n}",
         pnl_pct=round(pnl_unrounded, 2),
+        data_source=data_source,
+        data_source_sha256=data_source_sha256,
     )
     writer.write_event(fill)
 
@@ -321,7 +370,8 @@ def _emit_target(card: TradeCard, bar: pd.Series, day_n: int, eval_date: date,
 
 def _emit_expired(card: TradeCard, bar: pd.Series, eval_date: date,
                   writer: JournalWriter, seq_alloc: _SeqAllocator,
-                  counters: Dict[str, int]) -> None:
+                  counters: Dict[str, int],
+                  data_source: str, data_source_sha256: str) -> None:
     eval_iso = eval_date.isoformat()
     bar_iso = bar.name.date().isoformat()
     seq = seq_alloc.next(card.card_id, eval_iso)
@@ -342,6 +392,8 @@ def _emit_expired(card: TradeCard, bar: pd.Series, eval_date: date,
         ohlcv=_bar_ohlcv(bar),
         fill_logic_applied=f"day6_open_exit_{sub.split('_')[1]}",
         pnl_pct=round(pnl_unrounded, 2),
+        data_source=data_source,
+        data_source_sha256=data_source_sha256,
     )
     writer.write_event(fill)
 
@@ -385,7 +437,8 @@ def _advance_one_card(card: TradeCard,
                      writer: JournalWriter,
                      cache_dir: Path,
                      seq_alloc: _SeqAllocator,
-                     counters: Dict[str, int]) -> Optional[str]:
+                     counters: Dict[str, int],
+                     sha_cache: Dict[str, Tuple[str, str]]) -> Optional[str]:
     """Advance a single card by exactly one trading day. Returns None on
     advance OR a skip-reason string."""
     state = _current_state(card, reader)
@@ -393,6 +446,7 @@ def _advance_one_card(card: TradeCard,
         return f"already_terminal:{state}"
 
     df = _load_symbol_ohlc(card.symbol, cache_dir)
+    data_source, data_source_sha256 = _parquet_meta(card.symbol, cache_dir, sha_cache)
     scan_ts = pd.Timestamp(card.scan_date)
     eval_ts = pd.Timestamp(eval_date)
 
@@ -421,7 +475,8 @@ def _advance_one_card(card: TradeCard,
                 f"card {card.card_id}: state=PROPOSED but day_n={day_n} (expected 1); "
                 f"operator missed days — backfill missing eval_dates first"
             )
-        _emit_entry(card, eval_bar, eval_date, writer, seq_alloc, counters)
+        _emit_entry(card, eval_bar, eval_date, writer, seq_alloc, counters,
+                    data_source, data_source_sha256)
         state = "ACTIVE"  # fall through to intraday check on the same bar
 
     # ── INTRADAY STOP/TARGET (D1-D6) ─────────────────────────────
@@ -437,14 +492,17 @@ def _advance_one_card(card: TradeCard,
                       (direction == "SHORT" and low <= target_px))
 
         if stop_hit:  # stop wins same-day double hit (signal_replayer.py:186-203)
-            _emit_stop(card, eval_bar, day_n, eval_date, writer, seq_alloc, counters)
+            _emit_stop(card, eval_bar, day_n, eval_date, writer, seq_alloc, counters,
+                       data_source, data_source_sha256)
             return None
         if target_hit:
-            _emit_target(card, eval_bar, day_n, eval_date, writer, seq_alloc, counters)
+            _emit_target(card, eval_bar, day_n, eval_date, writer, seq_alloc, counters,
+                         data_source, data_source_sha256)
             return None
 
         if day_n == HOLDING_DAYS:
-            _emit_expired(card, eval_bar, eval_date, writer, seq_alloc, counters)
+            _emit_expired(card, eval_bar, eval_date, writer, seq_alloc, counters,
+                          data_source, data_source_sha256)
             return None
         # else: card stays ACTIVE; no events this call
 
@@ -480,13 +538,14 @@ def evaluate_open_cards(eval_date: date,
         "d6_win": 0, "d6_loss": 0, "d6_flat": 0,
     }
     seq_alloc = _SeqAllocator()
+    sha_cache: Dict[str, Tuple[str, str]] = {}  # per-call SHA cache (arch §6.7)
     skipped: List[Tuple[str, str]] = []
     had_per_card_error = False
 
     for card in open_cards:
         try:
             reason = _advance_one_card(card, eval_date, reader, writer,
-                                       cache_dir, seq_alloc, counters)
+                                       cache_dir, seq_alloc, counters, sha_cache)
             if reason:
                 skipped.append((card.card_id, reason))
         except DuplicateEventIdError:

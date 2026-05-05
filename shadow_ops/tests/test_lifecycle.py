@@ -94,7 +94,19 @@ def stub_ohlc(monkeypatch):
             raise lc_mod.LifecycleError(f"missing parquet for {symbol}")
         return by_symbol[symbol]
 
+    def fake_parquet_meta(symbol, cache_dir, sha_cache):
+        # Stub matches the real signature; values are deterministic placeholders.
+        if symbol in sha_cache:
+            return sha_cache[symbol]
+        if symbol not in by_symbol:
+            raise lc_mod.LifecycleError(f"missing parquet for {symbol}")
+        rel = f"lab/cache/{symbol.replace('.', '_')}.parquet"
+        sha = "0" * 64
+        sha_cache[symbol] = (rel, sha)
+        return rel, sha
+
     monkeypatch.setattr(lc_mod, "_load_symbol_ohlc", fake_loader)
+    monkeypatch.setattr(lc_mod, "_parquet_meta", fake_parquet_meta)
     return by_symbol
 
 
@@ -510,3 +522,57 @@ def test_lifecycle_with_missing_ohlc_skips_card_or_errors_clearly(tmp_path, stub
     # Card stays ACTIVE (no transition emitted)
     r = JournalReader(tmp_path)
     assert r.latest_trade_card_state(card.card_id) == "ACTIVE"
+
+
+# ============================================================
+# 18. data_source + data_source_sha256 populated (arch §6.7)
+# ============================================================
+
+def test_fill_simulation_records_data_source_path(tmp_path):
+    """End-to-end with REAL parquet on disk: emitted FillSimulation has
+    data_source ending in the expected filename and a valid SHA-256 hex
+    matching the file's actual bytes."""
+    import hashlib
+    cache_dir = tmp_path / "cache"; cache_dir.mkdir()
+    ohlc = _build_ohlc([("2018-10-29", 100.0, 102.0, 99.0, 101.0, 1_000_000)])
+    parquet_path = cache_dir / "TEST_NS.parquet"
+    ohlc.to_parquet(parquet_path)
+
+    run_dir = tmp_path / "run"; run_dir.mkdir()
+    card = _make_card()
+    _seed_card_into_run(run_dir, card)
+
+    evaluate_open_cards(_bd("2018-10-29"), run_dir=run_dir, cache_dir=cache_dir)
+
+    fills = JournalReader(run_dir).all_fill_simulations()
+    assert len(fills) == 1
+    fill = fills[0]
+    assert fill.data_source.endswith("TEST_NS.parquet")
+    assert len(fill.data_source_sha256) == 64
+    assert all(c in "0123456789abcdef" for c in fill.data_source_sha256)
+
+    expected_sha = hashlib.sha256(parquet_path.read_bytes()).hexdigest()
+    assert fill.data_source_sha256 == expected_sha
+
+
+def test_fill_simulation_data_source_consistent_across_emits(tmp_path):
+    """D1 entry + D1 same-day stop → 2 FillSimulations with identical
+    data_source and data_source_sha256 (sha_cache works)."""
+    cache_dir = tmp_path / "cache"; cache_dir.mkdir()
+    # D1 OPEN=99 (above stop=95) entry, low=94 < stop → same-day stop
+    ohlc = _build_ohlc([("2018-10-29", 99.0, 99.5, 94.0, 94.5, 1_000_000)])
+    parquet_path = cache_dir / "TEST_NS.parquet"
+    ohlc.to_parquet(parquet_path)
+
+    run_dir = tmp_path / "run"; run_dir.mkdir()
+    card = _make_card(proposed_entry=100.0, proposed_stop=95.0, proposed_target=110.0)
+    _seed_card_into_run(run_dir, card)
+
+    evaluate_open_cards(_bd("2018-10-29"), run_dir=run_dir, cache_dir=cache_dir)
+
+    fills = JournalReader(run_dir).all_fill_simulations()
+    assert len(fills) == 2
+    assert [f.fill_attempt_type for f in fills] == ["ENTRY", "STOP"]
+    assert fills[0].data_source == fills[1].data_source
+    assert fills[0].data_source_sha256 == fills[1].data_source_sha256
+    assert fills[0].data_source_sha256 != ""
