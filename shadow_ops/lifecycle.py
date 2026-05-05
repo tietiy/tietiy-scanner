@@ -542,6 +542,8 @@ def evaluate_open_cards(eval_date: date,
     skipped: List[Tuple[str, str]] = []
     had_per_card_error = False
 
+    from shadow_ops.alerts import emit_alert  # local import to avoid cycle
+
     for card in open_cards:
         try:
             reason = _advance_one_card(card, eval_date, reader, writer,
@@ -550,9 +552,34 @@ def evaluate_open_cards(eval_date: date,
                 skipped.append((card.card_id, reason))
         except DuplicateEventIdError:
             raise  # idempotency guard
+        except LifecycleError as e:
+            skipped.append((card.card_id, f"error:LifecycleError:{e}"))
+            had_per_card_error = True
+            # Distinguish day-gap (operator missed days) from generic
+            msg = str(e)
+            is_day_gap = ("day_n=" in msg) or ("missed days" in msg)
+            atype = "LIFECYCLE_DAY_GAP" if is_day_gap else "LIFECYCLE_ERROR"
+            emit_alert(
+                run_dir, "WARNING", atype, module="lifecycle",
+                message=f"{atype} on card {card.card_id}: {msg}",
+                context={"card_id": card.card_id, "symbol": card.symbol,
+                         "eval_date": eval_iso, "scan_date": card.scan_date,
+                         "error": msg},
+                logical_date=eval_iso,
+            )
         except Exception as e:
             skipped.append((card.card_id, f"error:{type(e).__name__}:{e}"))
             had_per_card_error = True
+            emit_alert(
+                run_dir, "WARNING", "LIFECYCLE_ERROR", module="lifecycle",
+                message=(f"unexpected error on card {card.card_id}: "
+                         f"{type(e).__name__}: {e}"),
+                context={"card_id": card.card_id, "symbol": card.symbol,
+                         "eval_date": eval_iso,
+                         "error_type": type(e).__name__,
+                         "error": str(e)},
+                logical_date=eval_iso,
+            )
 
     elapsed_ms = int((time.monotonic() - t0) * 1000)
     status = "PARTIAL" if had_per_card_error else "OK"

@@ -279,10 +279,24 @@ def daily_scan(scan_date: date,
     # 1. Optional fresh data ingest (real-world daily run; tests skip)
     if run_data_ingest:
         daily_data_ingest(end_date=scan_date, cache_dir=cache_dir,
-                          universe_path=universe_path)
+                          universe_path=universe_path,
+                          alerts_run_dir=out_run_dir)
 
-    # 2. Regime + sub_regime
-    classification = classify_regime_for_date(scan_date, cache_dir=cache_dir)
+    # 2. Regime + sub_regime — boundary alert if classifier raises
+    try:
+        classification = classify_regime_for_date(scan_date, cache_dir=cache_dir)
+    except Exception as e:
+        from shadow_ops.alerts import emit_alert
+        emit_alert(
+            out_run_dir, "CRITICAL", "REGIME_CLASSIFIER_ERROR",
+            module="daily_scan",
+            message=f"classify_regime_for_date raised: {type(e).__name__}: {e}",
+            context={"scan_date": scan_date_iso,
+                     "error_type": type(e).__name__,
+                     "error": str(e)},
+            logical_date=scan_date_iso,
+        )
+        raise
     regime = classification.regime
     sub_regime = classification.sub_regime
 
@@ -450,6 +464,39 @@ def daily_scan(scan_date: date,
         },
     )
     writer.write_event(scan_event)
+
+    # --- Step 9: operational alerts based on scan outcome ---
+    from shadow_ops.alerts import emit_alert
+    if scan_status == "PARTIAL":
+        emit_alert(
+            out_run_dir, "WARNING", "SCAN_PARTIAL",
+            module="daily_scan",
+            message=(f"daily_scan PARTIAL: {len(symbols_skipped)} symbol(s) "
+                     f"skipped during signal detection"),
+            context={"scan_date": scan_date_iso,
+                     "n_skipped": len(symbols_skipped),
+                     "skipped_sample": symbols_skipped[:10]},
+            logical_date=scan_date_iso,
+        )
+    elif scan_status == "ERROR":
+        emit_alert(
+            out_run_dir, "CRITICAL", "SCAN_ERROR",
+            module="daily_scan",
+            message="daily_scan ERROR: scan halted before completion",
+            context={"scan_date": scan_date_iso,
+                     "n_skipped": len(symbols_skipped)},
+            logical_date=scan_date_iso,
+        )
+    if n_kill_001_suppressed >= 2:
+        emit_alert(
+            out_run_dir, "WARNING", "KILL_001_CLUSTER",
+            module="daily_scan",
+            message=(f"kill_001 cluster: {n_kill_001_suppressed} suppressions "
+                     f"in one scan (sectoral distress diagnostic)"),
+            context={"scan_date": scan_date_iso,
+                     "n_kill_001_suppressed": n_kill_001_suppressed},
+            logical_date=scan_date_iso,
+        )
 
     return ScanResult(
         scan_event_id=scan_event_id,

@@ -300,6 +300,7 @@ def daily_data_ingest(
     lookback_days: int = DEFAULT_LOOKBACK_DAYS,
     skip_index: bool = False,
     verbose: bool = True,
+    alerts_run_dir: Optional[Path] = None,
 ) -> IngestRunResult:
     """Daily yfinance refresh for the FNO universe + Nifty index."""
     t_start = time.time()
@@ -400,6 +401,38 @@ def daily_data_ingest(
               f"no_new_data={len(result.symbols_no_new_data)}  "
               f"failed={len(result.symbols_failed)}  "
               f"elapsed={result.elapsed_seconds}s")
+
+    # --- Step 9: emit operational alerts if a run_dir was supplied ---
+    if alerts_run_dir is not None and result.overall_status != "OK":
+        from shadow_ops.alerts import emit_alert  # local import to avoid cycle
+        ctx = {
+            "scan_date": end.isoformat(),
+            "n_symbols": n_total,
+            "n_succeeded": len(result.symbols_succeeded),
+            "n_no_new_data": len(result.symbols_no_new_data),
+            "n_failed": len(result.symbols_failed),
+            "failed_symbols": result.symbols_failed[:20],
+            "index_status": result.index_status,
+        }
+        if result.overall_status == "PARTIAL":
+            emit_alert(
+                alerts_run_dir, "WARNING", "DATA_INGEST_PARTIAL",
+                module="data_ingest",
+                message=(f"data_ingest PARTIAL: {len(result.symbols_failed)} "
+                         f"of {n_total} symbols failed"),
+                context=ctx,
+                logical_date=end.isoformat(),
+            )
+        else:  # ERROR
+            emit_alert(
+                alerts_run_dir, "CRITICAL", "DATA_INGEST_FAILURE",
+                module="data_ingest",
+                message=(f"data_ingest ERROR: only "
+                         f"{len(result.symbols_succeeded)}/{n_total} symbols "
+                         f"OK and/or index update failed"),
+                context=ctx,
+                logical_date=end.isoformat(),
+            )
 
     return result
 

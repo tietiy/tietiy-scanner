@@ -233,15 +233,68 @@ def _write_checksum_sidecar(jsonl_path: Path, sha_hex: str) -> None:
     ck.write_text(sha_hex)
 
 
+def _check_parquet_sha_drift(run_dir: Path, cache_dir: Path,
+                              fills: List[FillSimulation]) -> None:
+    """Compare each unique parquet referenced by a fill against the current
+    parquet on disk. Emits one PARQUET_SHA_DRIFT alert per drifted parquet.
+
+    This is post-hoc tamper-evidence: if a parquet was modified after a fill
+    was simulated, future re-runs of lifecycle would produce different fills,
+    and the audit trail would diverge from reality.
+    """
+    import hashlib
+    from shadow_ops.alerts import emit_alert
+
+    # Collect (data_source_relpath, recorded_sha) pairs; dedupe on path
+    by_path: Dict[str, str] = {}     # path → recorded sha (last fill wins)
+    for f in fills:
+        if f.data_source and f.data_source_sha256:
+            by_path[f.data_source] = f.data_source_sha256
+
+    repo_root = Path(__file__).resolve().parent.parent
+    for rel_path, recorded_sha in by_path.items():
+        absolute = (repo_root / rel_path) if not Path(rel_path).is_absolute() else Path(rel_path)
+        if not absolute.exists():
+            emit_alert(
+                run_dir, "WARNING", "PARQUET_SHA_DRIFT",
+                module="read_model",
+                message=f"recorded parquet missing: {rel_path}",
+                context={"path": rel_path, "recorded_sha256": recorded_sha,
+                         "reason": "file_missing"},
+            )
+            continue
+        h = hashlib.sha256()
+        with open(absolute, "rb") as fh:
+            for chunk in iter(lambda: fh.read(8192), b""):
+                h.update(chunk)
+        current_sha = h.hexdigest()
+        if current_sha != recorded_sha:
+            emit_alert(
+                run_dir, "WARNING", "PARQUET_SHA_DRIFT",
+                module="read_model",
+                message=(f"parquet SHA drift on {rel_path}: "
+                         f"recorded={recorded_sha[:16]}..., "
+                         f"current={current_sha[:16]}..."),
+                context={"path": rel_path,
+                         "recorded_sha256": recorded_sha,
+                         "current_sha256": current_sha},
+            )
+
+
 # ============================================================
 # Public API
 # ============================================================
 
-def regenerate_read_model(run_dir: Path) -> ReadModelResult:
+def regenerate_read_model(run_dir: Path,
+                          cache_dir: Optional[Path] = None) -> ReadModelResult:
     """Regenerate trade_cards_current.jsonl from the event log.
 
     Idempotent: same input events → byte-identical output. Existing file
     overwritten atomically.
+
+    If cache_dir is supplied, also checks for parquet SHA drift: any
+    FillSimulation whose recorded data_source_sha256 doesn't match the
+    current parquet's SHA produces a PARQUET_SHA_DRIFT alert (Step 9).
     """
     t0 = time.monotonic()
     run_dir = Path(run_dir)
@@ -273,6 +326,10 @@ def regenerate_read_model(run_dir: Path) -> ReadModelResult:
     output_path = run_dir / OUTPUT_FILENAME
     sha = _atomic_write_jsonl(output_path, currents)
     _write_checksum_sidecar(output_path, sha)
+
+    # --- Step 9: optional parquet SHA drift detection ---
+    if cache_dir is not None:
+        _check_parquet_sha_drift(run_dir, cache_dir, fills)
 
     elapsed_ms = int((time.monotonic() - t0) * 1000)
     return ReadModelResult(
