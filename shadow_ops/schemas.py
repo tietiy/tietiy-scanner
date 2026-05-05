@@ -276,6 +276,11 @@ class LifecycleEvent(Event):
         _check_non_empty_str("card_id", self.card_id)
         _check_in_set("from_state", self.from_state, VALID_TRADE_CARD_STATES)
         _check_in_set("to_state", self.to_state, VALID_TRADE_CARD_STATES)
+        if self.from_state == self.to_state:
+            raise ValidationError(
+                f"from_state and to_state must differ "
+                f"(self-loop transition {self.from_state!r} not allowed)"
+            )
         _check_non_empty_str("reason", self.reason)
         if not isinstance(self.trigger_data, dict):
             raise ValidationError("trigger_data must be dict")

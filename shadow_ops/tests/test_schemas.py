@@ -181,6 +181,16 @@ def test_required_field_missing_raises():
         ScanEvent(**kw)
 
 
+def test_lifecycle_event_self_loop_raises():
+    """LifecycleEvent with from_state == to_state must raise — self-loop
+    transitions are not in the architecture's valid transition table."""
+    kw = _valid_lifecycle_event_kwargs()
+    kw["from_state"] = "PROPOSED"
+    kw["to_state"] = "PROPOSED"
+    with pytest.raises(ValidationError, match="from_state and to_state must differ"):
+        LifecycleEvent(**kw)
+
+
 def test_invalid_event_type_for_class_raises():
     """event_type field must match the subclass's _event_type_value discriminator."""
     kw = _valid_scan_event_kwargs()

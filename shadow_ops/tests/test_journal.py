@@ -220,7 +220,7 @@ def test_trade_card_history_returns_lifecycle_events_for_card(tmp_path):
                                    from_state="ACTIVE", to_state="HYPOTHETICAL_FILLED"))
     w.write_event(_make_lifecycle(eid="lc3_a", card_id="card_A",
                                    from_state="HYPOTHETICAL_FILLED",
-                                   to_state="HYPOTHETICAL_FILLED"))
+                                   to_state="HYPOTHETICAL_STOPPED"))
 
     r = JournalReader(tmp_path)
     history_a = r.trade_card_history("card_A")
