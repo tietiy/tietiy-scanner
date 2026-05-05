@@ -298,6 +298,7 @@ class FillSimulation(Event):
     slippage_bps: int = 0
     data_source: str = ""
     data_source_sha256: str = ""
+    pnl_pct: Optional[float] = None  # rounded to 2 decimals; None for ENTRY fills
 
     _event_type_value: ClassVar[str] = "fill_simulation"
 
@@ -309,6 +310,8 @@ class FillSimulation(Event):
         _check_in_set("fill_decision", self.fill_decision, VALID_FILL_DECISIONS)
         if not isinstance(self.ohlcv, dict):
             raise ValidationError("ohlcv must be dict")
+        if self.pnl_pct is not None and not isinstance(self.pnl_pct, (int, float)):
+            raise ValidationError("pnl_pct must be float or None")
 
 
 # ============================================================

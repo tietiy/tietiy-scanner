@@ -155,6 +155,31 @@ def test_fill_simulation_construction():
     assert ev.fill_price == 1892.50
 
 
+def test_fill_simulation_pnl_pct_optional():
+    """pnl_pct is optional (None for ENTRY fills, populated for STOP/TARGET/EXPIRY).
+    Both None and a numeric value pass validation; non-numeric raises."""
+    # None is the default
+    ev = FillSimulation(**_valid_fill_simulation_kwargs())
+    assert ev.pnl_pct is None
+
+    # Numeric values pass
+    kw = _valid_fill_simulation_kwargs()
+    kw["pnl_pct"] = -5.0
+    ev2 = FillSimulation(**kw)
+    assert ev2.pnl_pct == -5.0
+    # Round-trip through JSON
+    line = ev2.to_json_line()
+    parsed = FillSimulation(**{k: v for k, v in __import__("json").loads(line).items()
+                                if k in {f.name for f in __import__("dataclasses").fields(FillSimulation)}})
+    assert parsed.pnl_pct == -5.0
+
+    # Non-numeric raises
+    kw_bad = _valid_fill_simulation_kwargs()
+    kw_bad["pnl_pct"] = "not_a_number"
+    with pytest.raises(ValidationError, match="pnl_pct"):
+        FillSimulation(**kw_bad)
+
+
 # ============================================================
 # Validation rejection tests
 # ============================================================
