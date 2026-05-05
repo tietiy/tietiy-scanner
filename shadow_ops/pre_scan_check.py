@@ -270,7 +270,78 @@ CHECK_NAMES = (
     "run_dir_consistency",
     "unacked_critical",
     "lifecycle_integrity",
+    "run_config_consistency",
 )
+
+
+RUN_CONFIG_FILENAME = "run_config.json"
+
+
+def _file_sha256(path: Path) -> str:
+    import hashlib
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(8192), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _check_run_config_consistency(run_dir: Path,
+                                   rules_path: Path) -> CheckResult:
+    """If run_config.json present: verify rules SHA matches bootstrap and
+    current git HEAD descends from bootstrap_sha. If absent: pass silently
+    (backward compat for pre-Step-11 campaigns)."""
+    cfg_path = run_dir / RUN_CONFIG_FILENAME
+    if not cfg_path.exists():
+        return CheckResult("run_config_consistency", True,
+                            "run_config.json absent (pre-Step-11 campaign or new run)")
+    try:
+        cfg = json.loads(cfg_path.read_text())
+    except Exception as e:
+        return CheckResult("run_config_consistency", False,
+                            f"run_config.json unreadable: {e}",
+                            {"path": str(cfg_path)})
+
+    # (a) Rules SHA match
+    bootstrap_sha = cfg.get("rules_sha256_at_bootstrap")
+    if not bootstrap_sha:
+        return CheckResult("run_config_consistency", False,
+                            "run_config.json missing rules_sha256_at_bootstrap",
+                            {"path": str(cfg_path)})
+    if not rules_path.exists():
+        return CheckResult("run_config_consistency", False,
+                            f"current rules JSON missing at {rules_path}")
+    current_sha = _file_sha256(rules_path)
+    if current_sha != bootstrap_sha:
+        return CheckResult("run_config_consistency", False,
+                            (f"rules SHA drift: bootstrap={bootstrap_sha[:16]}..., "
+                             f"current={current_sha[:16]}... "
+                             f"(rules library changed mid-campaign)"),
+                            {"bootstrap_sha": bootstrap_sha,
+                             "current_sha": current_sha,
+                             "rules_path": str(rules_path)})
+
+    # (b) Git lineage: HEAD descends from bootstrap_sha
+    bootstrap_git_sha = cfg.get("git_commit_sha")
+    if bootstrap_git_sha:
+        try:
+            out = subprocess.run(
+                ["git", "merge-base", "--is-ancestor", bootstrap_git_sha, "HEAD"],
+                cwd=str(_REPO_ROOT),
+                capture_output=True, text=True, timeout=10,
+            )
+        except (FileNotFoundError, subprocess.TimeoutExpired) as e:
+            return CheckResult("run_config_consistency", False,
+                                f"git merge-base failed: {e}")
+        if out.returncode != 0:
+            return CheckResult("run_config_consistency", False,
+                                (f"git lineage broken: HEAD does not descend from "
+                                 f"bootstrap commit {bootstrap_git_sha[:12]} "
+                                 f"(checkout drifted to unrelated branch?)"),
+                                {"bootstrap_git_sha": bootstrap_git_sha})
+
+    return CheckResult("run_config_consistency", True,
+                        f"run_config consistent (rules SHA + git lineage both match)")
 
 
 def run_pre_scan_checks(run_dir: Path,
@@ -289,13 +360,14 @@ def run_pre_scan_checks(run_dir: Path,
     skip_set = set(skip or [])
 
     runners: List[Tuple[str, Callable[[], CheckResult]]] = [
-        ("git_clean",            _check_git_clean),
-        ("universe_csv",         lambda: _check_universe_csv(universe_csv)),
-        ("rules_json",           lambda: _check_rules_json(rules_path)),
-        ("cache_freshness",      lambda: _check_cache_freshness(cache_dir, scan_date)),
-        ("run_dir_consistency",  lambda: _check_run_dir_consistency(run_dir, scan_date)),
-        ("unacked_critical",     lambda: _check_unacked_critical(run_dir, scan_date)),
-        ("lifecycle_integrity",  lambda: _check_lifecycle_integrity(run_dir)),
+        ("git_clean",                _check_git_clean),
+        ("universe_csv",             lambda: _check_universe_csv(universe_csv)),
+        ("rules_json",               lambda: _check_rules_json(rules_path)),
+        ("cache_freshness",          lambda: _check_cache_freshness(cache_dir, scan_date)),
+        ("run_dir_consistency",      lambda: _check_run_dir_consistency(run_dir, scan_date)),
+        ("unacked_critical",         lambda: _check_unacked_critical(run_dir, scan_date)),
+        ("lifecycle_integrity",      lambda: _check_lifecycle_integrity(run_dir)),
+        ("run_config_consistency",   lambda: _check_run_config_consistency(run_dir, rules_path)),
     ]
 
     results: List[CheckResult] = []

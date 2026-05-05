@@ -225,6 +225,55 @@ def test_skip_check_excludes_named(tmp_path):
     assert sorted(result.skipped) == sorted(["cache_freshness", "git_clean"])
 
 
+def test_run_config_consistency_passes_when_config_absent(tmp_path):
+    """No run_config.json → check returns OK (backward compat)."""
+    args = _good_args(tmp_path)
+    result = run_pre_scan_checks(**args)
+    by_name = {c.name: c for c in result.checks}
+    assert by_name["run_config_consistency"].ok
+    assert "absent" in by_name["run_config_consistency"].message
+
+
+def test_run_config_consistency_passes_when_config_matches(tmp_path):
+    """run_config present + rules SHA matches current → check OK."""
+    import hashlib
+    from shadow_ops.bootstrap import RUN_CONFIG_FILENAME
+    args = _good_args(tmp_path)
+    rules_sha = hashlib.sha256(args["rules_path"].read_bytes()).hexdigest()
+    # Use an ancestor SHA we know is in history (HEAD itself works for this test)
+    import subprocess
+    head_sha = subprocess.run(
+        ["git", "rev-parse", "HEAD"],
+        cwd="/Users/abhisheklalwani/code/tietiy-scanner",
+        capture_output=True, text=True, timeout=10,
+    ).stdout.strip()
+    cfg = {
+        "schema_version": "v1",
+        "rules_sha256_at_bootstrap": rules_sha,
+        "git_commit_sha": head_sha,
+    }
+    (args["run_dir"] / RUN_CONFIG_FILENAME).write_text(__import__("json").dumps(cfg))
+    result = run_pre_scan_checks(**args)
+    by_name = {c.name: c for c in result.checks}
+    assert by_name["run_config_consistency"].ok, by_name["run_config_consistency"].message
+
+
+def test_run_config_consistency_fails_on_rules_sha_drift(tmp_path):
+    """run_config records a different rules SHA than current → check FAILS."""
+    from shadow_ops.bootstrap import RUN_CONFIG_FILENAME
+    args = _good_args(tmp_path)
+    cfg = {
+        "schema_version": "v1",
+        "rules_sha256_at_bootstrap": "f" * 64,  # bogus SHA
+        "git_commit_sha": "abc" * 14,
+    }
+    (args["run_dir"] / RUN_CONFIG_FILENAME).write_text(__import__("json").dumps(cfg))
+    result = run_pre_scan_checks(**args)
+    by_name = {c.name: c for c in result.checks}
+    assert not by_name["run_config_consistency"].ok
+    assert "drift" in by_name["run_config_consistency"].message
+
+
 def test_new_run_dir_passes_consistency_and_lifecycle_checks(tmp_path):
     """A run_dir that doesn't exist yet should not fail run_dir_consistency
     or lifecycle_integrity (it's a fresh campaign)."""

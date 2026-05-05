@@ -599,72 +599,72 @@ For each PROPOSED trade card, we need to determine whether it would have been fi
 in real trading and, if so, what the realized P&L would have been. This is a
 **deterministic** simulation given the price data.
 
-### 6.2 Entry simulation (PROPOSED → ACTIVE or NO_FILL)
+### 6.2 Entry simulation (PROPOSED → ACTIVE)
 
-**Entry logic v1: `breakout_within_3_days_v1`**
+**Entry logic v1: `audit_faithful_t1_open_unconditional`**
 
-For each trading day d in the entry window {T+1, T+2, T+3}:
-1. Load OHLC data for the symbol on day d.
-2. **Gap-up past pivot**: if Open[d] ≥ pivot_price[T] → fill at Open[d]. Transition
-   PROPOSED → ACTIVE. Stop evaluating further days.
-3. **Intraday breakout**: else if High[d] ≥ pivot_price[T] → fill at pivot_price[T]
-   (assume operator's stop-buy order at pivot triggers when high reaches it).
-   Transition PROPOSED → ACTIVE. Stop evaluating further days.
-4. **No breakout day d**: continue to next day.
+Entry is **unconditional at T+1's OPEN price**, mirroring the canonical lab
+simulator at `lab/infrastructure/signal_replayer.py:160-162` (`compute_d6_outcome`).
+There is no breakout-confirmation check, no T+2/T+3 fallback window.
 
-After T+3 close:
-- If still PROPOSED: transition PROPOSED → **NO_FILL** with reason="no_breakout_in_3day_window".
+```
+post = symbol_df[symbol_df.index > scan_date]
+entry_row = post.iloc[0]                # first post-scan trading day
+actual_entry_price = float(entry_row["Open"])
+```
 
-**Rationale for T+1..T+3 window** (per §14.6 answered):
-- T+1-only is too restrictive; doesn't match how real traders evaluate breakout entries.
-- T+1..T+3 mirrors the existing scanner's `entry_date` flexibility.
-- T+3 close is the cutoff; beyond that, the pivot signal is stale.
+The PROPOSED → ACTIVE transition happens whenever the symbol has a post-scan
+bar in the cache. If the symbol has no post-scan data, the card stays PROPOSED
+and the operator backfills (data_ingest re-run) to advance it.
 
-Alternative considered: same-day close fill on T (proposal day). Rejected — rule_019
-fires on EOD scan, same-day fill would assume operator placed an order during the day
-before the scan completed.
+**The `NO_FILL` state is reserved but not auto-emitted in v1.** Audit-faithful
+entry never fails to fill on T+1; NO_FILL is left in the schema for future
+operator-override use cases.
+
+**Why audit-faithful (over an arch-doc-original T+1..T+3 breakout window)**:
+the audit's calibrated WRs (rule_019 71%, rule_031 68%, kill_001 45%) were
+computed by `compute_d6_outcome` using unconditional T+1 OPEN entry. Any
+divergence in entry semantics means shadow measures a different policy from
+the audit; the WR comparison breaks. Forward operations may want a more
+realistic entry simulation (breakout, slippage), but that's a separate
+project — not v1's mission.
 
 ### 6.3 Exit simulation (ACTIVE → terminal)
 
-**Daily evaluation** for each ACTIVE card:
+**Audit-faithful** — mirrors `signal_replayer.py:182-245` (`compute_d6_outcome`).
+Holding window is **6 trading days inclusive (D1 through D6)**: D1 is the
+entry day with intraday checks; D2–D5 are intraday checks; D6 is exit at OPEN
+if no prior intraday hit.
 
-For each trading day d from fill_date+1 through fill_date+5 (5 holding days, total
-window 6 days including fill day):
-1. Load OHLC data for the symbol on day d.
-2. Compute `target_price`:
-   - **target = entry_price + 2.0 × (entry_price − stop_price)** — 2R reward-to-risk.
-   - Confirmed against `scanner/main.py:427` (`target = round(entry + 2 * risk, 2)`)
-     and `lab/analyses/inv_010_runner.py` (2:1 RR), `lab/analyses/inv_013_runner.py`
-     (`target = entry - 2 * R` for SHORT). The historical signal-extraction pipeline
-     used 2R; matches must use 2R for forward consistency.
-   - Note: `scanner/contra_tracker.py:135` uses 1.5R, but that is a separate "contra"
-     feature path, NOT the main scanner pipeline that produced the audit dataset.
+For each post-scan trading-day bar `d` in `[D1, D6]`:
 
-3. **Stop-hit check** (gap-fill mechanics):
-   - If Open[d] ≤ stop_price (gap-down past stop): transition ACTIVE → HYPOTHETICAL_STOPPED
-     with exit_price = **Open[d]** (the actual gap-down fill price, worse than stop).
-   - Else if Low[d] ≤ stop_price (intraday touch): transition ACTIVE → HYPOTHETICAL_STOPPED
-     with exit_price = **stop_price** (stop fills at exact level).
+1. Compute `target_price`:
+   - **target = entry_price + 2.0 × (entry_price − stop_price)** for LONG
+     (2R reward-to-risk). For SHORT, `entry_price − 2.0 × …`.
+   - `entry_price` is the PROPOSED entry (from rule firing), NOT the actual D1
+     OPEN. Anchored to the audit's calibration baseline.
 
-4. **Target-hit check** (gap-fill mechanics):
-   - If Open[d] ≥ target_price (gap-up past target): transition ACTIVE → HYPOTHETICAL_FILLED
-     with exit_price = **Open[d]** (the actual gap-up fill price, better than target).
-   - Else if High[d] ≥ target_price (intraday touch): transition ACTIVE → HYPOTHETICAL_FILLED
-     with exit_price = **target_price** (target fills at exact level).
+2. **Stop-hit check** (no gap-fill in v1):
+   - LONG: if `Low[d] ≤ stop_price` → ACTIVE → HYPOTHETICAL_STOPPED with
+     exit_price = **`stop_price`** (the literal stop level, even when the bar
+     gapped far past it).
+   - SHORT: if `High[d] ≥ stop_price` → same.
 
-5. **Same-day both hit**: if both stop AND target conditions in (3) and (4) trigger
-   on the same day d, default to **stop-priority worst-case** (HYPOTHETICAL_STOPPED),
-   apply the gap-fill mechanic from (3). Per §14.5 answered: no intraday tick data
-   available, stop-priority is the conservative interpretation.
+3. **Target-hit check** (no gap-fill in v1):
+   - LONG: if `High[d] ≥ target_price` → ACTIVE → HYPOTHETICAL_FILLED with
+     exit_price = **`target_price`** (the literal target level).
+   - SHORT: if `Low[d] ≤ target_price` → same.
 
-6. **No hit by day-5 close**: on fill_date+5 close, force ACTIVE → **EXPIRED** with
-   exit_price = Close[fill_date+5].
+4. **Same-day both hit**: STOP wins (mirrors canonical loop order at
+   `signal_replayer.py:186-222`). Stop is checked before target on each bar.
 
-**Important on gap-fill mechanics**: gap-fills are deterministic OHLC realism, NOT
-slippage assumption. Real markets gap; if open is past the stop, the trader fills at
-the gap price — not at the stop level. v1 captures this. v1 still has zero "slippage"
-in the conventional sense (no bps adjustment between trigger and fill within a price
-bar; no adverse-tick widening of bid-ask).
+5. **No hit by D6 intraday**: ACTIVE → **EXPIRED** with exit_price = `Open[D6]`.
+
+**No gap-fill in v1**: stop and target exits ALWAYS occur at the literal limit
+price, regardless of how far the bar gapped past it. This is OPTIMISTIC in
+gap-against-you scenarios but matches the canonical simulator the audit was
+calibrated against. A future v2 may add gap-fill semantics, but it would change
+the policy being measured and break audit-WR comparability — out of v1 scope.
 
 ### 6.4 Realized P&L computation
 
@@ -696,6 +696,11 @@ refreshes the price data shadow consumes:
   every parquet has today's date as its latest timestamp. For any symbol where
   yfinance fetch failed: log WARNING per §9 and skip that symbol's evaluation for
   the day. Other symbols proceed.
+- **lab/cache/*.parquet is gitignored**: `lab/cache/` is not committed to the
+  repo. First-time campaign setup requires running
+  `python -m shadow_ops.data_ingest` to populate the cache before
+  `pre_scan_check.cache_freshness` (Step 9) will pass. Subsequent daily scans
+  refresh incrementally.
 
 **Cross-workstream note**: shadow's data_ingest also benefits any future re-
 extraction work (Path B replay, periodic audit refresh, etc.) by keeping
@@ -704,22 +709,22 @@ purpose; downstream consumers should not depend on shadow's schedule.
 
 ### 6.6 Slippage vs gap-fill: distinction
 
-**Gap-fills** (covered in §6.3) are deterministic OHLC realism. When open is past the
-stop or target, the fill happens at the gap price, not at the trigger level. This is
-not a slippage assumption — it's basic market mechanics.
+**Gap-fill mechanics**: NOT applied in v1 (per §6.3). Stop and target exits
+happen at the literal limit price regardless of where the bar opened. This
+matches the canonical simulator the audit was calibrated against.
 
-**Slippage** (separate concept):
-- **v1**: zero slippage. After gap-fill mechanics are applied, no further bps
-  adjustment to the fill price. No bid-ask widening, no adverse-tick assumption,
-  no liquidity penalty.
-- **v2 candidate**: configurable slippage in basis points, applied AFTER the OHLC
-  fill price is determined. Surfaced for end-of-shadow review only; not actionable
-  in v1.
+**Slippage** (separate concept, also NOT applied in v1):
+- **v1**: zero slippage AND zero gap-fill. Exit price is always the literal
+  stop/target level for intraday hits, or the D6 OPEN for expirations. No
+  bps adjustment, no bid-ask widening, no adverse-tick assumption.
+- **v2 candidate**: configurable slippage in basis points + gap-fill semantics,
+  applied as a post-processing pass on top of the audit-faithful exits.
+  Surfaced for end-of-shadow review only; not actionable in v1.
 
-Rationale: v1 is a process validation, not a P&L estimate. Adding slippage on top of
-gap-fill realism adds calibration noise that obscures whether the lifecycle worked.
-Real-trading slippage will be empirically measured during a future paper-trading
-phase, separate workstream.
+Rationale: v1 is a process validation against the audit's calibration. Adding
+slippage or gap-fill changes the policy being measured and breaks audit-WR
+comparability. Real-trading slippage will be empirically measured during a
+future paper-trading phase, separate workstream.
 
 ### 6.7 Determinism
 
@@ -1277,27 +1282,27 @@ Weekends and holidays don't count toward the 6-day window. Matches existing
 
 ### 14.17 Day-2+ regime classification — **RESOLVED — Option B (self-contained)**
 
-**Recon finding (key)**: `scanner/` and `lab/factory/` use **structurally different
-regime classifiers**, not just different code versions or a fixable bug:
+**Recon finding (refined post-Step-2 implementation)**: `scanner/` and
+`lab/factory/` **share scanner's slope/EMA50 regime classifier**; lab/'s
+`add_derived_features` treats `regime` as a passthrough INPUT and adds
+`sub_regime` (hot/warm/cold) on top. The two pipelines were not "structurally
+different classifiers" — they were a single classifier with a sub_regime
+extension layered on by lab/.
 
-- `scanner/main.py:267-317` + `scanner/scanner_core.py:133-149`: regime via
-  EMA50 slope + above/below classification (Bull/Bear/Choppy). **No `sub_regime`
-  computed**. Uses yfinance directly. No `feat_nifty_vol_percentile_20d`.
-- `lab/factory/opus_iteration/_validate_paths.py:add_derived_features`: regime via
-  `feat_nifty_vol_percentile_20d` + `feat_nifty_60d_return_pct` + breadth.
-  Sub_regime hot/warm/cold computed for Bear/Bull/Choppy.
-- rule_019 fires on `Bear AND UP_TRI AND sub_regime=hot`. **scanner/ cannot produce
-  `sub_regime`**.
+- `scanner/main.py:267-317` + `scanner/scanner_core.py:133-149`: produces
+  `regime` (Bull/Bear/Choppy) via EMA50 slope + above/below. No sub_regime.
+  Uses yfinance directly.
+- `lab/factory/opus_iteration/_validate_paths.py:add_derived_features`:
+  consumes `regime` from upstream input, computes `sub_regime` (hot/warm/cold)
+  using `feat_nifty_vol_percentile_20d` + `feat_nifty_60d_return_pct` +
+  breadth. Does not recompute regime.
+- rule_019 fires on `Bear AND UP_TRI AND sub_regime=hot`.
 
-The two pipelines were never meant to produce the same classification — scanner
-serves bridge composers, Telegram alerts, the PWA UI; lab serves the audit pipeline
-and rule library validation. Therefore scanner output is **NOT consumable for
-shadow ops** as designed in §6.5.
-
-The pre-recon binary "(a) restart scanner OR (b) duplicate features" framing was
-based on the assumption that scanner produced consumable regime classifications.
-That assumption is now refuted. **Option (a) restart-scanner alone is structurally
-insufficient**, regardless of operational burden.
+For shadow ops's forward operation, the implication is: shadow needs to
+produce both `regime` (mirror scanner's slope/EMA50 logic) and `sub_regime`
+(invoke `add_derived_features`). The pre-recon framing of "restart scanner
+OR duplicate features" doesn't fit the actual layering — see resolution
+below.
 
 **RESOLUTION: Option B (self-contained shadow with own feature extraction)**
 
