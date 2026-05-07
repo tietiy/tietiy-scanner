@@ -78,10 +78,10 @@
       "effective_exit_date": "2026-05-07",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-05-07",
+      "outcome_price": 337.85,
+      "pnl_pct": 8.01,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -90,7 +90,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-04-28T03:17:12.391717Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-05-07T10:05:44.119949Z"
     },
     {
       "id": "contra_2026-04-30-ICICIPRULI-DOWN_TRI",
@@ -705,7 +707,7 @@
       "grade": "B",
       "atr": 33.51,
       "exit_date": "15 May",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-05-15",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -747,7 +749,7 @@
       "grade": "B",
       "atr": 2.93,
       "exit_date": "15 May",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-05-15",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -789,7 +791,7 @@
       "grade": "A",
       "atr": 4.14,
       "exit_date": "15 May",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-05-15",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -831,7 +833,7 @@
       "grade": "B",
       "atr": 13.27,
       "exit_date": "15 May",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-05-15",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -849,5 +851,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-05-06T10:05:34.654040Z"
+  "updated_at": "2026-05-07T10:05:44.120515Z"
 }
