@@ -1,150 +1,161 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-03T17:13:13.742886Z",
+  "generated_at": "2026-05-10T15:30:33.885072Z",
   "week_range": [
-    "2026-04-26",
-    "2026-05-03"
+    "2026-05-03",
+    "2026-05-10"
   ],
   "patterns": {
-    "total": 186,
-    "validated_count": 27,
-    "preliminary_count": 55,
-    "emerging_count": 104,
-    "total_resolved_signals": 165,
+    "total": 240,
+    "validated_count": 40,
+    "preliminary_count": 72,
+    "emerging_count": 128,
+    "total_resolved_signals": 252,
     "baselines": {
       "DOWN_TRI": {
-        "wr": 17.4,
-        "avg_pnl": -6.47,
-        "n": 23,
-        "wins": 4,
-        "losses": 19
+        "wr": 14.3,
+        "avg_pnl": -5.74,
+        "n": 35,
+        "wins": 5,
+        "losses": 30
       },
       "BULL_PROXY": {
         "wr": 66.7,
-        "avg_pnl": 4.28,
-        "n": 24,
-        "wins": 16,
-        "losses": 8
+        "avg_pnl": 3.89,
+        "n": 27,
+        "wins": 18,
+        "losses": 9
       },
       "UP_TRI": {
-        "wr": 75.4,
-        "avg_pnl": 3.85,
-        "n": 118,
-        "wins": 89,
-        "losses": 29
+        "wr": 61.1,
+        "avg_pnl": 2.41,
+        "n": 190,
+        "wins": 116,
+        "losses": 74
       }
     },
     "top_validated": [
       {
-        "id": "regime=Choppy",
-        "wr": 26.1,
-        "n": 46,
-        "edge": -49.3,
+        "id": "regime=Choppy_sector=Bank_grade=B",
+        "wr": 24.1,
+        "n": 29,
+        "edge": -37.0,
         "direction": "negative",
-        "insight": "Choppy regime underperforms UP_TRI baseline by 49.3pp (26.1% WR in 46 trades)"
+        "insight": "Choppy regime + Bank sector + Grade B underperforms UP_TRI baseline by 37.0pp (24.1% WR in 29 trades"
       },
       {
-        "id": "regime=Choppy_age=0",
-        "wr": 26.1,
-        "n": 46,
-        "edge": -49.3,
+        "id": "regime=Choppy_sector=Bank",
+        "wr": 25.8,
+        "n": 31,
+        "edge": -35.3,
         "direction": "negative",
-        "insight": "Choppy regime + age=0 underperforms UP_TRI baseline by 49.3pp (26.1% WR in 46 trades)"
+        "insight": "Choppy regime + Bank sector underperforms UP_TRI baseline by 35.3pp (25.8% WR in 31 trades)"
       },
       {
-        "id": "regime=Choppy_grade=B",
-        "wr": 26.2,
-        "n": 42,
-        "edge": -49.2,
+        "id": "regime=Choppy_sector=Bank_age=0",
+        "wr": 25.8,
+        "n": 31,
+        "edge": -35.3,
         "direction": "negative",
-        "insight": "Choppy regime + Grade B underperforms UP_TRI baseline by 49.2pp (26.2% WR in 42 trades)"
+        "insight": "Choppy regime + Bank sector + age=0 underperforms UP_TRI baseline by 35.3pp (25.8% WR in 31 trades)"
       }
     ]
   },
   "proposals": {
-    "total": 31,
-    "pending_count": 27,
+    "total": 66,
+    "pending_count": 62,
     "approved_count": 0,
     "already_active_count": 4,
     "rejected_count": 0,
     "pending_items": [
       {
-        "id": "prop_011",
-        "action": "kill",
-        "target_signal": "UP_TRI",
-        "target_sector": null,
-        "wr": 28.6,
-        "n": 35,
-        "edge": -46.8
-      },
-      {
-        "id": "prop_012",
-        "action": "kill",
-        "target_signal": "UP_TRI",
-        "target_sector": null,
-        "wr": 28.6,
-        "n": 35,
-        "edge": -46.8
-      },
-      {
-        "id": "prop_013",
-        "action": "kill",
-        "target_signal": "UP_TRI",
-        "target_sector": null,
-        "wr": 29.0,
-        "n": 31,
-        "edge": -46.4
-      },
-      {
-        "id": "prop_014",
+        "id": "prop_021",
         "action": "kill",
         "target_signal": null,
         "target_sector": "Bank",
-        "wr": 41.9,
-        "n": 31,
-        "edge": -33.5
+        "wr": 24.1,
+        "n": 29,
+        "edge": -37.0
       },
       {
-        "id": "prop_015",
+        "id": "prop_023",
         "action": "kill",
         "target_signal": null,
         "target_sector": "Bank",
-        "wr": 43.8,
-        "n": 32,
-        "edge": -31.6
+        "wr": 25.8,
+        "n": 31,
+        "edge": -35.3
+      },
+      {
+        "id": "prop_024",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "Bank",
+        "wr": 25.8,
+        "n": 31,
+        "edge": -35.3
+      },
+      {
+        "id": "prop_032",
+        "action": "kill",
+        "target_signal": "UP_TRI",
+        "target_sector": "Bank",
+        "wr": 26.9,
+        "n": 26,
+        "edge": -34.2
+      },
+      {
+        "id": "prop_047",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "Auto",
+        "wr": 30.0,
+        "n": 20,
+        "edge": -31.1
       }
     ]
   },
   "contra": {
-    "total": 4,
-    "resolved": 0,
-    "pending": 4,
-    "wr": 0,
-    "avg_pnl": 0,
+    "total": 21,
+    "resolved": 2,
+    "pending": 19,
+    "wr": 100.0,
+    "avg_pnl": 6.86,
     "unlocked": false,
     "unlock_threshold": 30,
-    "recent_3": []
+    "recent_3": [
+      {
+        "symbol": "RBLBANK",
+        "outcome": "CONTRA_WIN",
+        "pnl": 5.71
+      },
+      {
+        "symbol": "RBLBANK",
+        "outcome": "CONTRA_WIN",
+        "pnl": 8.01
+      }
+    ]
   },
   "regime": {
     "days_logged": 5,
     "regime_distribution": {
       "Choppy": 5
     },
-    "avg_slope": 0.00376,
-    "avg_ret20": 5.38,
+    "avg_slope": 0.0028,
+    "avg_ret20": 4.64,
     "latest": {
-      "date": "2026-05-01",
+      "date": "2026-05-08",
       "regime": "Choppy",
-      "slope": 0.003433,
-      "ret20": 5.81,
-      "above_ema50": false
+      "slope": 0.002206,
+      "ret20": 1.37,
+      "above_ema50": true
     }
   },
   "health": {
     "overall": "warn",
-    "last_validated": "2026-04-28T10:06:02.126692+00:00",
-    "checks_passed": 4,
-    "checks_failed": 3
+    "last_validated": "2026-05-08T10:05:53.019135+00:00",
+    "checks_passed": 6,
+    "checks_failed": 1
   },
   "kill_rules": {
     "count": 1,
@@ -158,9 +169,9 @@
     ]
   },
   "suggestions": [
-    "\ud83d\udcdd 27 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
-    "\ud83d\udc41 Contra shadow at 0/30 resolved. 30 more before activation decision.",
-    "\ud83d\udd2c 27 validated patterns found. Review top items above.",
+    "\ud83d\udcdd 62 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
+    "\ud83d\udc41 Contra shadow at 2/30 resolved. 28 more before activation decision.",
+    "\ud83d\udd2c 40 validated patterns found. Review top items above.",
     "\ud83c\udf21 Market classified Choppy every day this week. If signal WR diverges from this, classifier may need recalibration."
   ]
 }
