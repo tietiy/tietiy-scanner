@@ -122,10 +122,10 @@
       "effective_exit_date": "2026-05-11",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-05-11",
+      "outcome_price": 567.25,
+      "pnl_pct": 8.18,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -134,7 +134,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-04-30T03:17:00.231096Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-05-11T10:05:42.131113Z"
     },
     {
       "id": "contra_2026-04-30-MUTHOOTFIN-DOWN_TRI",
@@ -164,10 +166,10 @@
       "effective_exit_date": "2026-05-11",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-05-11",
+      "outcome_price": 3481.5,
+      "pnl_pct": 0.59,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -176,7 +178,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-04-30T03:17:00.231620Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-05-11T10:05:42.316913Z"
     },
     {
       "id": "contra_2026-05-04-HDFCBANK-DOWN_TRI",
@@ -875,7 +879,7 @@
       "grade": "B",
       "atr": 43.47,
       "exit_date": "18 May",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-05-18",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -917,7 +921,7 @@
       "grade": "B",
       "atr": 30.07,
       "exit_date": "19 May",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-05-19",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -935,5 +939,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-05-07T10:05:44.120515Z"
+  "updated_at": "2026-05-11T10:05:42.317866Z"
 }
