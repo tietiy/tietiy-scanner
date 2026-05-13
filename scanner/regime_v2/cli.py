@@ -63,8 +63,11 @@ def cmd_backfill(args) -> int:
 
     raw_series = pd.Series(raw_states, index=feats.index, name="state_raw")
 
-    # Apply persistence
-    smoothed, regime_pending, conf_pending, tlog = apply_persistence(raw_series)
+    # Apply persistence — retune4 Fix L: pass dd_from_50d_high series for whipsaw exemption.
+    dd_series = feats["dd_from_50d_high_pct"] if "dd_from_50d_high_pct" in feats.columns else None
+    smoothed, regime_pending, conf_pending, tlog = apply_persistence(
+        raw_series, dd_from_50d_high_pct=dd_series
+    )
     print(f"  raw transitions: {(raw_series != raw_series.shift()).sum()}")
     print(f"  smoothed transitions: {len(tlog)}")
 

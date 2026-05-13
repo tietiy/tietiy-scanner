@@ -14,7 +14,7 @@ Allowed transitions (design §02 "Allowed direct transitions"):
 """
 from __future__ import annotations
 
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Tuple, Any
 
 import pandas as pd
 
@@ -52,13 +52,20 @@ def apply_persistence(
     exit_window_size: int = 7,
     exit_window_required: int = 4,
     # retune2 Fix G: 5-day minimum hold for BEAR/BULL after entry.
-    # Prevents premature exit on isolated bounce clusters.
+    # retune4 Fix N: verified redundant with Fix G — Fix G already enforces
+    # 5-day minimum commitment after BEAR/BULL commits via days_in_state guard.
     trend_min_hold_days: int = 5,
     use_rolling_window: bool = True,
     whipsaw_window: int = 10,
-    whipsaw_lockdown: int = 5,
+    # retune4 Fix M: asymmetric lockdown — 2 days exiting trend, 5 entering.
+    whipsaw_lockdown_default: int = 5,
+    whipsaw_lockdown_trend_exit: int = 2,
     whipsaw_threshold: int = 3,
     initial_state: str = "CHOPPY",
+    # retune4 Fix L: whipsaw exemption when dd_from_50d_high < -8%.
+    # Pass a pd.Series aligned with raw_states. None = exemption disabled.
+    dd_from_50d_high_pct: Optional[pd.Series] = None,
+    drawdown_exemption_threshold: float = -8.0,
 ) -> Tuple[pd.Series, pd.Series, pd.Series, List[Dict]]:
     """Apply persistence + transition rules to a raw state series.
 
@@ -124,8 +131,21 @@ def apply_persistence(
         # Update rolling window
         rolling.append(raw)
 
+        # retune4 Fix L: check for drawdown exemption.
+        # If dd_from_50d_high < -8% on this bar, whipsaw lockdown is suppressed
+        # (deep crashes have legitimate transitions; don't penalize them).
+        in_drawdown_exemption = False
+        if dd_from_50d_high_pct is not None:
+            try:
+                dd_val = dd_from_50d_high_pct.loc[ts]
+                if dd_val is not None and dd_val == dd_val and dd_val < drawdown_exemption_threshold:
+                    in_drawdown_exemption = True
+            except (KeyError, TypeError):
+                pass
+
         # Lockdown takes precedence: force CHOPPY (whipsaw guard overrides everything)
-        if lockdown_remaining > 0:
+        # ... EXCEPT during drawdown exemption per Fix L.
+        if lockdown_remaining > 0 and not in_drawdown_exemption:
             if current != "CHOPPY":
                 transition_log.append({
                     "date": str(ts.date()) if hasattr(ts, "date") else str(ts),
@@ -142,6 +162,9 @@ def apply_persistence(
             lockdown_remaining -= 1
             days_in_state += 1
             continue
+        elif lockdown_remaining > 0 and in_drawdown_exemption:
+            # In exemption — decrement counter but don't force CHOPPY
+            lockdown_remaining -= 1
 
         if raw == current:
             smoothed.append(current)
@@ -224,8 +247,15 @@ def apply_persistence(
             confidence_pending.append(0.0)
 
             _trim_recent(transition_dates_recent, ts, whipsaw_window)
-            if len(transition_dates_recent) >= whipsaw_threshold:
-                lockdown_remaining = whipsaw_lockdown
+            if len(transition_dates_recent) >= whipsaw_threshold and not in_drawdown_exemption:
+                # retune4 Fix M: asymmetric lockdown duration.
+                # If we just exited a trend state (BULL/BEAR) to non-trend, use short lockdown.
+                prev_was_trend = (current == "CHOPPY" and len(transition_log) > 0 and
+                                   transition_log[-1].get("from") in TREND_STATES)
+                if prev_was_trend:
+                    lockdown_remaining = whipsaw_lockdown_trend_exit
+                else:
+                    lockdown_remaining = whipsaw_lockdown_default
         else:
             smoothed.append(current)
             regime_pending.append(raw)
