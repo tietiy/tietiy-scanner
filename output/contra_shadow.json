@@ -518,10 +518,10 @@
       "effective_exit_date": "2026-05-13",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-05-13",
+      "outcome_price": 260.7,
+      "pnl_pct": -1.66,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -530,7 +530,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-05-05T03:18:01.289944Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-05-13T10:05:46.732518Z"
     },
     {
       "id": "contra_2026-05-05-YESBANK-DOWN_TRI",
@@ -560,10 +562,10 @@
       "effective_exit_date": "2026-05-13",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-05-13",
+      "outcome_price": 22.05,
+      "pnl_pct": 10.47,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -572,7 +574,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-05-05T03:18:01.290942Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-05-13T10:05:46.912762Z"
     },
     {
       "id": "contra_2026-05-05-CDSL-DOWN_TRI",
@@ -602,10 +606,10 @@
       "effective_exit_date": "2026-05-13",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-05-13",
+      "outcome_price": 1180.5,
+      "pnl_pct": -4.67,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -614,7 +618,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-05-05T03:18:01.291816Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-05-13T10:05:47.017086Z"
     },
     {
       "id": "contra_2026-05-06-ICICIBANK-DOWN_TRI",
@@ -977,7 +983,7 @@
       "grade": "B",
       "atr": 12.66,
       "exit_date": "21 May",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-05-21",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -995,5 +1001,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-05-12T10:05:49.377984Z"
+  "updated_at": "2026-05-13T10:05:47.017413Z"
 }
