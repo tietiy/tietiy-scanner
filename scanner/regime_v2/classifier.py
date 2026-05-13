@@ -100,16 +100,45 @@ def classify_regime(features: Dict, *, use_vix: bool = True) -> Tuple[str, float
     if bull_match:
         return ("BULL", 1.0, trace)
 
-    # --- Gate 2: BEAR (most restrictive) ---
+    # --- Gate 2: BEAR (memo-driven) ---
+    # retune3 BEAR_SEMANTIC_MEMO Q2 implementation.
+    # Required AND: above_ema50=False (structural).
+    # Required OR (any one): slope<-0.003 (Fix I, loosened from -0.005),
+    #                       ret20<-3% (loosened from -2%),
+    #                       dd_from_50d_high<-8% (Fix J, new).
+    # Disqualifying: above_ema200=True AND not >=2 OR conditions
+    #                AND dd_from_50d_high > -10%.
+    dd_from_50d_high = features.get("dd_from_50d_high_pct")
+    if dd_from_50d_high is None or _is_nan(dd_from_50d_high):
+        dd_from_50d_high = 0.0  # no drawdown evidence
+
+    or_slope = slope < BEAR_SLOPE_MAX  # -0.003
+    or_ret20 = ret20 < -3.0           # tightened from -2.0
+    or_drawdown = dd_from_50d_high < -8.0
+    or_conditions_met = sum([or_slope, or_ret20, or_drawdown])
+
+    structural_ok = not above_e50
+    # Disqualifying — long-cycle Bull still intact AND not deep
+    long_cycle_bull = above_e200
+    extreme_dd = dd_from_50d_high < -10.0
+    if long_cycle_bull and or_conditions_met < 2 and not extreme_dd:
+        bear_disqualified = True
+    else:
+        bear_disqualified = False
+
     bear_conds = {
-        "above_ema50_false": not above_e50,
-        "above_ema200_false": not above_e200,
-        "slope_lt_threshold": slope < BEAR_SLOPE_MAX,
-        "ret20_lt_threshold": ret20 < BEAR_RET20_MAX,
+        "above_ema50_false": structural_ok,
+        "or_slope_lt_neg003": or_slope,
+        "or_ret20_lt_neg3": or_ret20,
+        "or_drawdown_gt_8pct": or_drawdown,
+        "or_count": or_conditions_met,
+        "disqualified_long_cycle_bull": bear_disqualified,
     }
     if effective_use_vix:
         bear_conds["vix_gt_18"] = vix > BEAR_VIX_MIN
-    bear_match = all(bear_conds.values())
+        bear_conds["vix_gt_15"] = vix > 15.0  # not a hard fail in memo; informational
+
+    bear_match = structural_ok and (or_conditions_met >= 1) and (not bear_disqualified)
     trace.append({"gate": "BEAR", "matched": bear_match, "conditions": bear_conds,
                   "degraded_mode": degraded_mode})
     if bear_match:
@@ -134,13 +163,25 @@ def classify_regime(features: Dict, *, use_vix: bool = True) -> Tuple[str, float
         trace.append({"gate": "BULL_RECOVERY", "matched": False,
                       "reason": "suppressed_vix_missing"})
 
-    # --- Gate 4: BEAR_RECOVERY ---
+    # --- Gate 4: BEAR_RECOVERY (memo Q4 driven) ---
+    # retune3 BEAR_SEMANTIC_MEMO Q4:
+    # - above_ema50 = False (still below short-cycle reference)
+    # - slope > -0.001 (not actively declining)
+    # - EITHER ret20 > 0 (positive 20d return)
+    # - OR above_50d_low > +5% (bounced ≥5% off 50-day low — Fix K)
+    above_50d_low = features.get("above_50d_low_pct")
+    if above_50d_low is None or _is_nan(above_50d_low):
+        above_50d_low = 0.0
+
+    br_slope_ok = slope > -0.001         # not actively declining
+    br_ret20_or_bounce = (ret20 > BEARRECOV_RET20_MIN) or (above_50d_low > 5.0)
+
     bearrecov_conds = {
         "above_ema50_false": not above_e50,
-        "slope_gt_0": slope > 0,
-        "ret20_gt_0": ret20 > BEARRECOV_RET20_MIN,
+        "slope_gt_neg0001": br_slope_ok,
+        "ret20_gt_0_or_bounce_gt_5pct": br_ret20_or_bounce,
     }
-    bearrecov_match = all(bearrecov_conds.values())
+    bearrecov_match = (not above_e50) and br_slope_ok and br_ret20_or_bounce
     trace.append({"gate": "BEAR_RECOVERY", "matched": bearrecov_match,
                   "conditions": bearrecov_conds})
     if bearrecov_match:

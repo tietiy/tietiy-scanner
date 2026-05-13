@@ -58,6 +58,14 @@ def compute_features(
     log_ret = np.log(close / close.shift(1))
     realized_vol_20d_pct = log_ret.rolling(20).std() * math.sqrt(252) * 100.0
 
+    # retune3 BEAR_SEMANTIC_MEMO Q2: drawdown context.
+    # F-NEW-1: 50-day high; drawdown from 50d high (negative number = below high).
+    nifty_50d_high = close.rolling(50, min_periods=10).max()
+    dd_from_50d_high_pct = ((close - nifty_50d_high) / nifty_50d_high * 100.0)
+    # F-NEW-2: 50-day low; price-above-50d-low (positive number = above low).
+    nifty_50d_low = close.rolling(50, min_periods=10).min()
+    above_50d_low_pct = ((close - nifty_50d_low) / nifty_50d_low * 100.0)
+
     feats = pd.DataFrame(
         {
             "nifty_close": nifty_close,
@@ -70,6 +78,8 @@ def compute_features(
             "slope_10d_ema50": slope_10d,
             "ret20_pct": ret20_pct,
             "realized_vol_20d_pct": realized_vol_20d_pct,
+            "dd_from_50d_high_pct": dd_from_50d_high_pct,
+            "above_50d_low_pct": above_50d_low_pct,
         },
         index=ohlcv.index,
     )
