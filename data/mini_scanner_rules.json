@@ -58,6 +58,24 @@
         "tier": "preliminary"
       },
       "contra_shadow_tracked": true
+    },
+    {
+      "id": "kill_002",
+      "active": true,
+      "signal": "DOWN_TRI",
+      "sector": null,
+      "regime": null,
+      "reason": "Baseline 22.2% WR / -4.74% avg pnl on n=46 resolved (cohort_health.json). No sub-population at n>=10 is profitable. DOWN_TRI×Bank=0% WR n=11 (already covered by kill_001). DOWN_TRI×Bear=20% WR n=21. DOWN_TRI×Choppy=24% WR n=25. Geometry structurally broken: no target, no ages 1-3 detection, no regime discrimination, Day-6 forced exits cap upside while stops realize full -1R.",
+      "added_date": "2026-05-13",
+      "source": "tietiy_diagnostic_R1_fix_2",
+      "evidence": {
+        "wr": 0.222,
+        "n": 46,
+        "avg_pnl_pct": -4.74,
+        "avg_r": -0.32,
+        "tier": "validated"
+      },
+      "contra_shadow_tracked": true
     }
   ],
 
