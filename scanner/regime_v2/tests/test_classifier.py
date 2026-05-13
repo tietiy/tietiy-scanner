@@ -76,32 +76,44 @@ def test_choppy_residual():
 
 # ----- VIX-MISSING / DEGRADED MODE -----
 
-def test_bull_degraded_requires_tighter_slope():
-    # Without VIX, Bull threshold is 0.008 (not 0.005)
-    # Slope 0.006 (would pass with VIX) → should NOT be Bull without VIX
+def test_bull_degraded_mode_slope_or_ret20():
+    # retune2 Fix E: VIX-degraded BULL gate uses slope>0.004 OR ret20>3%.
+    # Either momentum signal qualifies (plus structural reqs).
+
+    # Slope below 0.004 BUT ret20 strong (>3%) → Bull qualifies
     state, _, _ = classify_regime(_f(
         above_ema50=True, above_ema200=True,
-        slope_10d_ema50=0.006, ret20_pct=8.0,
+        slope_10d_ema50=0.001, ret20_pct=5.0,
     ))  # no vix
-    assert state != "BULL"
-    # But slope 0.01 should still be Bull
-    state2, _, _ = classify_regime(_f(
+    assert state == "BULL", "ret20>3% should qualify under degraded mode"
+
+    # Slope above 0.004 (loose threshold) — also qualifies
+    state, _, _ = classify_regime(_f(
         above_ema50=True, above_ema200=True,
-        slope_10d_ema50=0.01, ret20_pct=8.0,
+        slope_10d_ema50=0.005, ret20_pct=1.0,
     ))
-    assert state2 == "BULL"
+    assert state == "BULL", "slope>0.004 should qualify under degraded mode"
+
+    # Both fail — slope tiny AND ret20 low — should NOT be Bull
+    state, _, _ = classify_regime(_f(
+        above_ema50=True, above_ema200=True,
+        slope_10d_ema50=0.001, ret20_pct=1.5,
+    ))
+    assert state != "BULL"
 
 
 def test_bull_recovery_suppressed_in_degraded_mode():
-    # Without VIX, Bull-Recovery cannot fire (design §04 edge case)
+    # retune2 Fix E note: Bull gate in degraded mode is now slope>0.004 OR ret20>3%
+    # So we need conditions that fail BULL but would have triggered BULL_RECOVERY.
+    # Use slope=0.003 (fails 0.004) AND ret20=2.0 (fails 3.0): Bull-Recovery
+    # would fire with VIX (ret20>3 needed there), but here both gates fail.
     state, _, trace = classify_regime(_f(
         above_ema50=True, above_ema200=True,
-        slope_10d_ema50=0.003, ret20_pct=5.0,
+        slope_10d_ema50=0.003, ret20_pct=2.0,
     ))
+    assert state != "BULL"
     assert state != "BULL_RECOVERY"
-    # Should fall through to CHOPPY
     assert state == "CHOPPY"
-    # Trace records the suppression
     bull_recov = [t for t in trace if t.get("gate") == "BULL_RECOVERY"]
     assert bull_recov and bull_recov[0].get("reason") == "suppressed_vix_missing"
 

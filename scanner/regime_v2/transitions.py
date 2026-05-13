@@ -38,17 +38,22 @@ ALLOWED_TRANSITIONS = {
 def apply_persistence(
     raw_states: pd.Series,
     *,
-    # retune1 Fix B: steady-state confirm reduced 3 → 2 (matches recovery cadence,
-    # reduces counter-reset sensitivity by ~33%).
+    # retune1 Fix B: steady-state confirm reduced 3 → 2 (matches recovery cadence).
     steady_confirm_days: int = 2,
     recovery_confirm_days: int = 2,
-    # retune1 Fix C: rolling-window counter parameters.
-    # Real crashes have intraday bounces; strict consecutive counter never commits.
+    # retune1 Fix C: rolling-window counter parameters (entry side).
     # 3-of-5 window tolerates 2 bounce days per 5-day stretch.
     steady_window_size: int = 5,
     steady_window_required: int = 3,
     recovery_window_size: int = 4,
     recovery_window_required: int = 2,
+    # retune2 Fix F: asymmetric persistence — exit from BULL/BEAR is sticky.
+    # 4-of-7 window tolerates 2-3 bounce days per week before exiting trend.
+    exit_window_size: int = 7,
+    exit_window_required: int = 4,
+    # retune2 Fix G: 5-day minimum hold for BEAR/BULL after entry.
+    # Prevents premature exit on isolated bounce clusters.
+    trend_min_hold_days: int = 5,
     use_rolling_window: bool = True,
     whipsaw_window: int = 10,
     whipsaw_lockdown: int = 5,
@@ -79,13 +84,18 @@ def apply_persistence(
     transition_log: List[Dict] = []
 
     current = initial_state
-    # retune1 Fix C: track rolling window of recent raw proposals (not just
-    # consecutive). Each entry is (timestamp, raw_state).
+    # retune1 Fix C: rolling window of recent raw proposals.
+    # retune2 Fix F: window size now max of entry/exit/recovery windows so
+    # we have enough history for sticky-exit evaluation.
     from collections import deque
-    rolling: deque = deque(maxlen=max(steady_window_size, recovery_window_size))
+    rolling: deque = deque(maxlen=max(steady_window_size, recovery_window_size,
+                                        exit_window_size))
 
     transition_dates_recent: List[pd.Timestamp] = []
     lockdown_remaining = 0
+    # retune2 Fix G: days_in_state counter — hard floor for BEAR/BULL exit.
+    days_in_state = 0
+    TREND_STATES = {"BULL", "BEAR"}
 
     for ts, raw in raw_states.items():
         if raw is None or (isinstance(raw, float) and raw != raw):
@@ -95,12 +105,26 @@ def apply_persistence(
             confidence_pending.append(0.0)
             if lockdown_remaining > 0:
                 lockdown_remaining -= 1
+            days_in_state += 1
             continue
 
-        # Always update rolling window with this bar's raw proposal
+        # retune2 Fix H: prefer terminal over recovery when both feasible.
+        # If raw is a recovery state, peek at the rolling window — if the
+        # corresponding terminal state has been ≥ required count of the last
+        # entry_window bars, treat raw as the terminal (escalate).
+        if raw == "BEAR_RECOVERY":
+            recent_window = list(rolling)[-steady_window_size:] if rolling else []
+            if recent_window.count("BEAR") >= steady_window_required:
+                raw = "BEAR"
+        elif raw == "BULL_RECOVERY":
+            recent_window = list(rolling)[-steady_window_size:] if rolling else []
+            if recent_window.count("BULL") >= steady_window_required:
+                raw = "BULL"
+
+        # Update rolling window
         rolling.append(raw)
 
-        # Lockdown takes precedence: force CHOPPY
+        # Lockdown takes precedence: force CHOPPY (whipsaw guard overrides everything)
         if lockdown_remaining > 0:
             if current != "CHOPPY":
                 transition_log.append({
@@ -111,41 +135,57 @@ def apply_persistence(
                 })
                 transition_dates_recent.append(ts)
                 current = "CHOPPY"
+                days_in_state = 0
             smoothed.append(current)
             regime_pending.append(None)
             confidence_pending.append(0.0)
             lockdown_remaining -= 1
+            days_in_state += 1
             continue
 
         if raw == current:
             smoothed.append(current)
             regime_pending.append(None)
             confidence_pending.append(0.0)
+            days_in_state += 1
             continue
 
-        # raw != current — check if rolling window supports a commit.
-        # retune1 Fix C: count occurrences of `raw` in last W bars.
-        if raw in RECOVERY_STATES:
+        # retune2 Fix G: 5-day minimum hold for BEAR/BULL.
+        # If currently in a trend state and have not yet held for trend_min_hold_days,
+        # block the exit (keep current).
+        if current in TREND_STATES and days_in_state < trend_min_hold_days:
+            smoothed.append(current)
+            regime_pending.append(raw)  # advertise as pending but don't commit
+            confidence_pending.append(days_in_state / trend_min_hold_days)
+            days_in_state += 1
+            continue
+
+        # retune2 Fix F: asymmetric persistence — exit from trend state uses
+        # sticky 4-of-7 window. Entry into any state uses 3-of-5 (steady) or
+        # 2-of-4 (recovery).
+        is_exit_from_trend = current in TREND_STATES
+        if is_exit_from_trend:
+            window_size = exit_window_size
+            required = exit_window_required
+            window_mode = "exit_sticky"
+        elif raw in RECOVERY_STATES:
             window_size = recovery_window_size
             required = recovery_window_required
+            window_mode = "recovery_entry"
         else:
             window_size = steady_window_size
             required = steady_window_required
+            window_mode = "steady_entry"
 
-        # Slice the most-recent window_size entries from rolling
         recent = list(rolling)[-window_size:] if use_rolling_window else None
         if use_rolling_window:
             count_in_window = recent.count(raw)
         else:
-            # Fallback to legacy consecutive counter
-            count_in_window = sum(1 for s in recent[::-1] if s == raw and not (recent[::-1].index(s)))
+            count_in_window = 0
 
         if count_in_window >= required:
-            # Check allowed-transition graph
             new_state = raw
             if raw not in ALLOWED_TRANSITIONS.get(current, set()):
-                # Disallowed direct jump — force through intermediate.
-                # After retune1 Fix A, most CHOPPY → terminal jumps ARE allowed.
                 intermediate = _find_intermediate(current, raw)
                 if intermediate is not None and intermediate != current:
                     transition_log.append({
@@ -153,9 +193,11 @@ def apply_persistence(
                         "from": current,
                         "to": intermediate,
                         "reason": f"forced_intermediate_en_route_to_{raw}",
+                        "window_mode": window_mode,
                     })
                     transition_dates_recent.append(ts)
                     current = intermediate
+                    days_in_state = 0
                     smoothed.append(current)
                     regime_pending.append(raw)
                     confidence_pending.append(0.0)
@@ -164,7 +206,6 @@ def apply_persistence(
                         lockdown_remaining = whipsaw_lockdown
                     continue
 
-            # Commit
             transition_log.append({
                 "date": str(ts.date()) if hasattr(ts, "date") else str(ts),
                 "from": current,
@@ -173,9 +214,11 @@ def apply_persistence(
                 "window_count": count_in_window,
                 "window_size": window_size,
                 "window_required": required,
+                "window_mode": window_mode,
             })
             transition_dates_recent.append(ts)
             current = new_state
+            days_in_state = 0
             smoothed.append(current)
             regime_pending.append(None)
             confidence_pending.append(0.0)
@@ -184,10 +227,10 @@ def apply_persistence(
             if len(transition_dates_recent) >= whipsaw_threshold:
                 lockdown_remaining = whipsaw_lockdown
         else:
-            # Pending — advertise the most-frequent non-current state in window
             smoothed.append(current)
             regime_pending.append(raw)
             confidence_pending.append(count_in_window / required)
+            days_in_state += 1
 
     sm = pd.Series(smoothed, index=raw_states.index, name="state")
     rp = pd.Series(regime_pending, index=raw_states.index, name="regime_pending")

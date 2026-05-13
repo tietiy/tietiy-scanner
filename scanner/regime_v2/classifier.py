@@ -63,18 +63,40 @@ def classify_regime(features: Dict, *, use_vix: bool = True) -> Tuple[str, float
         return ("CHOPPY", 0.0, trace)
 
     # --- Gate 1: BULL (most restrictive) ---
+    # retune2 Fix E: Sonnet review showed VIX-degraded BULL gate too strict;
+    # new-ATH rally Aug 2025-Feb 2026 stayed CHOPPY. In degraded mode, accept
+    # either (a) loose slope>0.004 OR (b) strong ret20>3%. Structural reqs
+    # (above_ema50 + above_ema200 + ret20>0) stay as joint gates.
     bull_slope_min = BULL_SLOPE_MIN if effective_use_vix else BULL_SLOPE_MIN_NO_VIX
-    bull_conds = {
-        "above_ema50": above_e50,
-        "above_ema200": above_e200,
-        "slope_gt_threshold": slope > bull_slope_min,
-        "ret20_gt_0": ret20 > 0,
-    }
+    bull_structural = above_e50 and above_e200 and ret20 > 0
     if effective_use_vix:
-        bull_conds["vix_lt_18"] = vix < BULL_VIX_MAX
-    bull_match = all(bull_conds.values())
+        bull_momentum_ok = slope > bull_slope_min
+        bull_match = bull_structural and bull_momentum_ok and vix < BULL_VIX_MAX
+        bull_conds = {
+            "above_ema50": above_e50,
+            "above_ema200": above_e200,
+            "slope_gt_threshold": slope > bull_slope_min,
+            "ret20_gt_0": ret20 > 0,
+            "vix_lt_18": vix < BULL_VIX_MAX,
+        }
+    else:
+        # retune2 Fix E: degraded-mode momentum check is slope OR ret20 strong
+        bull_slope_degraded_min = 0.004
+        bull_ret20_strong = 3.0
+        bull_momentum_ok = (slope > bull_slope_degraded_min) or (ret20 > bull_ret20_strong)
+        bull_match = bull_structural and bull_momentum_ok
+        bull_conds = {
+            "above_ema50": above_e50,
+            "above_ema200": above_e200,
+            "ret20_gt_0": ret20 > 0,
+            "degraded_momentum_ok": bull_momentum_ok,
+            "_detail": {
+                "slope_gt_0004": slope > bull_slope_degraded_min,
+                "ret20_gt_3": ret20 > bull_ret20_strong,
+            }
+        }
     trace.append({"gate": "BULL", "matched": bull_match, "conditions": bull_conds,
-                  "degraded_mode": degraded_mode, "slope_threshold_used": bull_slope_min})
+                  "degraded_mode": degraded_mode})
     if bull_match:
         return ("BULL", 1.0, trace)
 

@@ -76,11 +76,16 @@ def test_choppy_to_bull_direct_allowed():
 
 
 def test_pending_state_is_advertised():
-    raw = _series(["BEAR"] * 5 + ["BEAR_RECOVERY"] * 5)
+    # retune2 Fix H note: BEAR_RECOVERY raw gets escalated to BEAR when window
+    # already has 3+ BEAR. So to test pending, use a state that won't escalate.
+    # CHOPPY as pending from initial BEAR (after min hold satisfied).
+    raw = _series(["BEAR"] * 7 + ["CHOPPY"] * 5)
     sm, rp, cp, log = apply_persistence(raw, initial_state="BEAR")
-    # First day of pending: regime_pending should be BEAR_RECOVERY
-    assert rp.iloc[5] == "BEAR_RECOVERY"
-    assert cp.iloc[5] > 0  # nonzero confidence
+    # After bar 5+ (5-day min hold satisfied), CHOPPY raw is proposed.
+    # First CHOPPY bar (idx 7) — should advertise CHOPPY as pending.
+    # Exit window is 4-of-7 so won't commit immediately.
+    assert rp.iloc[7] == "CHOPPY"
+    assert cp.iloc[7] > 0
 
 
 def test_disallowed_direct_jump_routes_through_intermediate():
@@ -138,6 +143,50 @@ def test_whipsaw_lockdown_triggered_by_3_transitions_in_window():
         idx_after = raw.index.get_loc(lockdown_date) + 1
         # The 5 days after lockdown should all be CHOPPY
         assert (sm.iloc[idx_after:idx_after+3] == "CHOPPY").all()
+
+
+def test_trend_minimum_hold_blocks_premature_exit():
+    """retune2 Fix G: once in BEAR, must hold ≥5 days regardless of raw."""
+    # Sequence: 5 CHOPPY warmup, 3 BEAR (commits at bar 7), then 5 CHOPPY (try to exit)
+    raw = _series(["CHOPPY"] * 5 + ["BEAR"] * 3 + ["CHOPPY"] * 5)
+    sm, rp, cp, log = apply_persistence(raw, initial_state="CHOPPY")
+    # Bar 7: BEAR commits (3 BEAR in window)
+    assert sm.iloc[7] == "BEAR"
+    # Bars 8-11: should STAY BEAR despite raw=CHOPPY (5-day min hold)
+    for i in range(8, 12):
+        assert sm.iloc[i] == "BEAR", f"bar {i}: expected BEAR (min hold), got {sm.iloc[i]}"
+
+
+def test_trend_exit_uses_sticky_4_of_7():
+    """retune2 Fix F: exit from BEAR requires 4-of-7 non-BEAR window."""
+    # Commit BEAR first, hold for 5+ days, then test exit-window logic.
+    # 5 CHOPPY + 3 BEAR (commit at 7) + 5 more BEAR (hold 5 days) + 5 CHOPPY
+    raw = _series(["CHOPPY"] * 5 + ["BEAR"] * 8 + ["CHOPPY"] * 8)
+    sm, rp, cp, log = apply_persistence(raw, initial_state="CHOPPY")
+    # Bar 7: BEAR commits
+    assert sm.iloc[7] == "BEAR"
+    # Bars 8-12: hold BEAR (5-day min hold satisfied at bar 12)
+    assert sm.iloc[12] == "BEAR"
+    # Bar 13 onwards: raw=CHOPPY. With 4-of-7 exit, need 4 CHOPPY in last 7 bars.
+    # Bar 13: window has [BEAR(8) BEAR(9) BEAR(10) BEAR(11) BEAR(12) BEAR(?) CHOPPY] — only 1 CHOPPY → STAY BEAR
+    # Bar 16: window has 4 CHOPPY → should commit CHOPPY
+    assert sm.iloc[13] == "BEAR"
+    # By bar 16 (4 CHOPPYs in the most recent 7), should have exited.
+    # (Exact bar depends on rolling window content; just check we DO eventually exit)
+    final = sm.iloc[-1]
+    assert final != "BEAR", f"should have exited BEAR by end, still in {final}"
+
+
+def test_recovery_state_escalation_to_terminal():
+    """retune2 Fix H: BEAR_RECOVERY raw escalates to BEAR if window already has 3+ BEAR."""
+    # Build up to 3 BEAR proposals in window, then propose BEAR_RECOVERY
+    # Window must already see 3 BEAR for escalation to fire.
+    raw = _series(["BEAR"] * 5 + ["BEAR_RECOVERY"] * 3 + ["BEAR"] * 5)
+    sm, rp, cp, log = apply_persistence(raw, initial_state="BEAR")
+    # Bar 5: raw=BEAR_RECOVERY but window has 5 BEAR → escalates to BEAR (raw becomes BEAR)
+    # So sm should stay BEAR throughout (no recovery interlude)
+    assert (sm.iloc[5:8] == "BEAR").all(), \
+        f"recovery should be escalated to BEAR, got {list(sm.iloc[5:8])}"
 
 
 def test_handles_nan_states():
