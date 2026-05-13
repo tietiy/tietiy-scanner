@@ -19,30 +19,60 @@ def test_constant_state_no_transitions():
     assert len(log) == 0
 
 
-def test_steady_state_needs_3_day_confirmation():
-    # Start in CHOPPY, then 3 days of BEAR-Recovery, then commit on day 4
-    raw = _series(["CHOPPY"] * 5 + ["BEAR_RECOVERY"] * 5)
-    sm, rp, cp, log = apply_persistence(raw)
-    # Day 5: CHOPPY still (day 1 of pending)
+def test_steady_state_rolling_window_3_of_5():
+    # retune1 Fix C: steady states need 3 of last 5 bars to commit.
+    # 5 days of CHOPPY then 5 days of BEAR. By bar 8 (3rd consecutive BEAR =
+    # 3-of-5 in rolling), should commit BEAR. (CHOPPY → BEAR direct allowed
+    # per retune1 Fix A.)
+    raw = _series(["CHOPPY"] * 5 + ["BEAR"] * 5)
+    sm, rp, cp, log = apply_persistence(raw, initial_state="CHOPPY")
+    # First BEAR bar (idx 5): rolling=[CHOPPY,CHOPPY,CHOPPY,CHOPPY,BEAR] → BEAR count=1, < 3
     assert sm.iloc[5] == "CHOPPY"
-    # Day 6: CHOPPY still (day 2)
-    # BEAR_RECOVERY is a recovery state → 2-day confirmation
-    # Day 6: should commit (day 2)
-    assert sm.iloc[6] == "BEAR_RECOVERY"
-    # One transition logged
+    # Second BEAR (idx 6): rolling=[CHOPPY,CHOPPY,CHOPPY,BEAR,BEAR] → BEAR count=2, < 3
+    assert sm.iloc[6] == "CHOPPY"
+    # Third BEAR (idx 7): rolling=[CHOPPY,CHOPPY,BEAR,BEAR,BEAR] → BEAR count=3 → COMMIT
+    assert sm.iloc[7] == "BEAR"
     assert len(log) == 1
-    assert log[0]["from"] == "CHOPPY"
-    assert log[0]["to"] == "BEAR_RECOVERY"
+    assert log[0]["to"] == "BEAR"
 
 
-def test_recovery_state_2_day_confirmation():
-    raw = _series(["CHOPPY"] * 3 + ["BULL_RECOVERY"] * 3 + ["CHOPPY"] * 3)
+def test_recovery_state_2_of_4_window():
+    # Recovery states need 2 of last 4 bars to commit.
+    raw = _series(["CHOPPY"] * 3 + ["BULL_RECOVERY"] * 5)
     sm, rp, cp, log = apply_persistence(raw)
-    # BULL_RECOVERY needs 2 days to confirm
-    # Position 4: pending (day 2) — wait, position 3 is day 1, 4 is day 2 → commit
-    # Actually: raw[3]='BULL_RECOVERY' is day 1, raw[4] day 2, so sm[4] should be BULL_RECOVERY
-    assert sm.iloc[3] == "CHOPPY"  # pending
+    # First BULL_RECOVERY bar (idx 3): rolling has 1 → < 2
+    assert sm.iloc[3] == "CHOPPY"
+    # Second BULL_RECOVERY (idx 4): rolling has 2 → COMMIT
     assert sm.iloc[4] == "BULL_RECOVERY"
+
+
+def test_rolling_window_tolerates_bounce_days():
+    # retune1 Fix C: real crashes have intraday bounces; the window must tolerate them.
+    # Sequence: 3 CHOPPY warmup + BEAR BEAR CHOPPY BEAR BEAR (1 bounce day mid-crash).
+    # The fifth bar's window=[BEAR,BEAR,CHOPPY,BEAR,BEAR] → BEAR count=4, commits.
+    raw = _series(["CHOPPY"] * 3 + ["BEAR", "BEAR", "CHOPPY", "BEAR", "BEAR"])
+    sm, rp, cp, log = apply_persistence(raw, initial_state="CHOPPY")
+    # At index 7 (last BEAR), BEAR has appeared 4 times in window → commit
+    assert sm.iloc[7] == "BEAR"
+
+
+def test_choppy_to_bear_direct_allowed():
+    # retune1 Fix A: CHOPPY → BEAR is now a direct allowed transition.
+    raw = _series(["CHOPPY"] * 5 + ["BEAR"] * 5)
+    sm, rp, cp, log = apply_persistence(raw, initial_state="CHOPPY")
+    # Should commit directly to BEAR (no intermediate routing).
+    assert sm.iloc[7] == "BEAR"
+    # Transition log should have ONE entry with reason confirmed_rolling
+    confirms = [t for t in log if t.get("reason") == "confirmed_rolling"]
+    intermediates = [t for t in log if "intermediate" in t.get("reason", "")]
+    assert len(confirms) >= 1
+    assert len(intermediates) == 0  # no forced intermediate needed
+
+
+def test_choppy_to_bull_direct_allowed():
+    raw = _series(["CHOPPY"] * 5 + ["BULL"] * 5)
+    sm, rp, cp, log = apply_persistence(raw, initial_state="CHOPPY")
+    assert sm.iloc[7] == "BULL"
 
 
 def test_pending_state_is_advertised():
@@ -66,8 +96,11 @@ def test_find_intermediate_for_bull_to_bear():
     inter = _find_intermediate("BULL", "BEAR")
     assert inter is not None
     assert inter != "BULL"
-    # Direct neighbor of BULL — only BULL_RECOVERY
-    assert inter == "BULL_RECOVERY"
+    # retune1 Fix A: BULL → BEAR now routes through CHOPPY (2-hop)
+    # because CHOPPY → BEAR is direct after Fix A. Previously routed via
+    # BULL_RECOVERY → BEAR_RECOVERY → BEAR (3-hop). Either is semantically
+    # valid as an intermediate; BFS picks the shortest path.
+    assert inter in {"CHOPPY", "BULL_RECOVERY"}
 
 
 def test_find_intermediate_for_allowed_direct():

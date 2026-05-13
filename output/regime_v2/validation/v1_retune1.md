@@ -14,20 +14,20 @@
 
 ### C1 — ❌ FAIL
 
-  - **pct**: 11.7
-  - **count_preserved**: 11
+  - **pct**: 42.6
+  - **count_preserved**: 40
   - **count_original**: 94
   - **threshold**: ≥ 80%
 
 ### C2 — ✅ PASS
 
-  - **wr_pct**: 90.9
+  - **wr_pct**: 95.0
   - **threshold**: ≥ 85%
 
 ### C3 — ✅ PASS
 
   - **pct_adjacent**: 100.0
-  - **out_distribution**: {'CHOPPY': 83}
+  - **out_distribution**: {'CHOPPY': 54}
   - **threshold**: ≥ 80% in CHOPPY or BEAR_RECOVERY
 
 ### C4 — ✅ PASS

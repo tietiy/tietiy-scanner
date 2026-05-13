@@ -11,20 +11,20 @@
   - **value**: 21
   - **range**: 6 ≤ x ≤ 20
 
-### T2 — ❌ FAIL
+### T2 — ✅ PASS
 
   - **n_inflections**: 2
-  - **n_captured**: 1
-  - **pct**: 50.0
+  - **n_captured**: 2
+  - **pct**: 100.0
   - **threshold**: ≥ 75%
   - **log**:
-    - {'inflection': '2026-03-13', 'nearest_transition': '2026-03-09', 'days_off': 4, 'captured': True}
-    - {'inflection': '2026-04-08', 'nearest_transition': '2026-04-02', 'days_off': 6, 'captured': False}
+    - {'inflection': '2026-03-13', 'nearest_transition': '2026-03-16', 'days_off': 3, 'captured': True}
+    - {'inflection': '2026-04-08', 'nearest_transition': '2026-04-07', 'days_off': 1, 'captured': True}
 
 ### T3 — ❌ FAIL
 
-  - **n_false**: 5
+  - **n_false**: 6
   - **n_transitions**: 21
-  - **pct**: 23.8
+  - **pct**: 28.6
   - **threshold**: ≤ 20%
 

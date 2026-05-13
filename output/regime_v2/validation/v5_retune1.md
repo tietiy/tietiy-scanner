@@ -7,25 +7,23 @@
 ### P1 — ❌ FAIL
 
   - **v1_weighted_std_pnl**: 4.36
-  - **v2_weighted_std_pnl**: 5.42
+  - **v2_weighted_std_pnl**: 4.79
   - **threshold**: V2 < V1
 
-### P2 — ❌ FAIL
+### P2 — ✅ PASS
 
-  - **UP_TRI_bear_family_wr_v2**: 84.6
-  - **UP_TRI_bear_family_n_v2**: 13
-  - **BULL_PROXY_bear_family_wr_v2**: 100.0
-  - **BULL_PROXY_bear_family_n_v2**: 1
+  - **UP_TRI_bear_family_wr_v2**: 92.9
+  - **UP_TRI_bear_family_n_v2**: 42
+  - **BULL_PROXY_bear_family_wr_v2**: 90.0
+  - **BULL_PROXY_bear_family_n_v2**: 10
   - **UP_TRI_bear_v1_baseline_wr**: 94.7
   - **thresholds**: UP_TRI Bear-family ≥85%, BULL_PROXY Bear-family ≥75%
-  - **details**: {'UP_TRI_bear_pass': np.False_, 'BULL_PROXY_bear_pass': np.True_}
+  - **details**: {'UP_TRI_bear_pass': np.True_, 'BULL_PROXY_bear_pass': np.True_}
 
-### P3 — ✅ PASS
+### P3 — ❌ FAIL
 
-  - **count**: 2
-  - **cohorts**:
-    - {'signal_type': 'BULL_PROXY', 'v2_regime': 'CHOPPY', 'n': 26, 'wins': 17, 'avg_pnl': 3.88, 'std_pnl': 6.04, 'wr_pct': 65.4}
-    - {'signal_type': 'UP_TRI', 'v2_regime': 'CHOPPY', 'n': 188, 'wins': 115, 'avg_pnl': 2.41, 'std_pnl': 5.32, 'wr_pct': 61.2}
+  - **count**: 0
+  - **cohorts**: []
   - **threshold**: ≥ 1 (bonus)
 
 ### P4 — ✅ PASS
@@ -49,11 +47,14 @@
 
 | signal | v2_regime | n | wr% | avg_pnl | std_pnl |
 |---|---|---:|---:|---:|---:|
+| BULL_PROXY | BEAR | 9 | 88.9 | 9.84 | 4.65 |
 | BULL_PROXY | BEAR_RECOVERY | 1 | 100.0 | 4.1 | nan |
-| BULL_PROXY | CHOPPY | 26 | 65.4 | 3.88 | 6.04 |
+| BULL_PROXY | CHOPPY | 17 | 52.9 | 0.72 | 3.95 |
 | BULL_PROXY | nan | 4 | 0.0 | -3.86 | 1.19 |
+| DOWN_TRI | BEAR | 18 | 22.2 | -7.36 | 6.31 |
 | DOWN_TRI | BEAR_RECOVERY | 17 | 35.3 | -2.26 | 5.22 |
-| DOWN_TRI | CHOPPY | 34 | 32.4 | -4.51 | 6.34 |
+| DOWN_TRI | CHOPPY | 16 | 43.8 | -1.31 | 4.76 |
 | DOWN_TRI | nan | 3 | 0.0 | -6.65 | 1.98 |
-| UP_TRI | BEAR_RECOVERY | 13 | 84.6 | 4.32 | 3.54 |
-| UP_TRI | CHOPPY | 188 | 61.2 | 2.41 | 5.32 |
+| UP_TRI | BEAR | 40 | 95.0 | 7.16 | 4.11 |
+| UP_TRI | BEAR_RECOVERY | 2 | 50.0 | 2.8 | 7.45 |
+| UP_TRI | CHOPPY | 159 | 54.7 | 1.36 | 4.83 |
