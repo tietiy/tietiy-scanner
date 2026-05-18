@@ -914,10 +914,10 @@
       "effective_exit_date": "2026-05-18",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-05-18",
+      "outcome_price": 1715.0,
+      "pnl_pct": -6.0,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -926,7 +926,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-05-08T03:17:09.654610Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-05-18T10:05:40.488018Z"
     },
     {
       "id": "contra_2026-05-11-AUBANK-DOWN_TRI",
@@ -1643,5 +1645,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-05-15T10:05:47.276549Z"
+  "updated_at": "2026-05-18T10:05:40.488735Z"
 }
