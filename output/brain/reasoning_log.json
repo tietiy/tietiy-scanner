@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-05-27T22:01:21.536723+05:30",
+  "generated_at": "2026-05-28T22:01:11.259543+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -1741,6 +1741,51 @@
       "request_id": "msg_01Rx1hP6QFC2cYJRQ9zxDmq2",
       "decision": "generate_warn",
       "rationale": "Portfolio is 100% Choppy regime (observed 1.0, above the 0.80 threshold) and all matched cohorts (Choppy×UP_TRI n=118, Choppy×BULL_PROXY n=16) sit only at Candidate tier — unvalidated edge. No single cell breaches 20% (top cells at 14.29%) and UP_TRI share at 10/14 = 71.4% is below 85%, but the regime concentration alone with unvalidated cohort support warrants warn — the book is also fully directional long (14/14), so a Choppy→Bear flip would unwind the entire book simultaneously with no statistical justification.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-28T22:00:56.907812+05:30",
+      "run_id": "brain_run_2026-05-28_2200",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=UP_TRI_2026-05-28",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Bear (Tier M, n=96). 20 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 7888,
+      "output_tokens": 277,
+      "cost_usd": 0.0464,
+      "request_id": "msg_01VmB4qvMexvQVv2Sx2ZJnUP",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification remains robust (n=96, Wilson lower 0.8815, +35.5pp edge over UP_TRI baseline) with promotion correctly capped at Tier M/TAKE_SMALL given R-multiple 0.61. Cohort is regime-gated to Bear while current regime is Choppy (stable, 7 days) with 100% Choppy exposure across 14 open positions, so activation is deferred and the existing concentration is not compounded. Consistent with continuous prior approvals of this exact cohort (2026-04-29 through 2026-05-27) and no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-28T22:00:59.643745+05:30",
+      "run_id": "brain_run_2026-05-28_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy stable 7 days; 20 prior regime alerts in history.",
+      "input_tokens": 4367,
+      "output_tokens": 167,
+      "cost_usd": 0.026,
+      "request_id": "msg_011vrZgKJeHSGt6JtZEcGeWy",
+      "decision": "no_alert",
+      "rationale": "Both recent and prior 7-day distributions are unanimously Choppy (7/7 vs 7/7) with zero distributional change. The Bear-to-Choppy transition was already alerted on 2026-04-29 and the regime has persisted well beyond the 14-day alert window. The negative slope is internal weakening within Choppy, already noted in prior reasoning, not a new regime classification shift.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-28T22:01:11.259543+05:30",
+      "run_id": "brain_run_2026-05-28_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=True (100.0% Choppy), 4 sector concentrations, signal types (BULL_PROXY 3, UP_TRI 11). 20 prior exposure warnings.",
+      "input_tokens": 6983,
+      "output_tokens": 829,
+      "cost_usd": 0.0556,
+      "request_id": "msg_01HtKRAtUSavJN7Xx9FfjSem",
+      "decision": "generate_warn",
+      "rationale": "Portfolio is 100% Choppy regime (observed 1.0, above the 0.80 threshold) AND two cells breach the 0.20 cell threshold: UP_TRI×Choppy×Energy and UP_TRI×Choppy×Metal both at 21.43%. All concentration cells map only to Candidate-tier cohorts (Choppy×UP_TRI n=141, Choppy×BULL_PROXY n=20) — unvalidated edge. The book is also fully directional long (UP_TRI + BULL_PROXY = 14/14), so a Choppy→Bear flip would unwind the entire 14-position long book simultaneously with no statistical justification.",
       "aborted_by_circuit_breaker": false
     }
   ]
