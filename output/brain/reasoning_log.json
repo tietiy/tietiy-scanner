@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-05-28T22:01:11.259543+05:30",
+  "generated_at": "2026-05-29T22:01:14.219009+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -1786,6 +1786,51 @@
       "request_id": "msg_01HtKRAtUSavJN7Xx9FfjSem",
       "decision": "generate_warn",
       "rationale": "Portfolio is 100% Choppy regime (observed 1.0, above the 0.80 threshold) AND two cells breach the 0.20 cell threshold: UP_TRI×Choppy×Energy and UP_TRI×Choppy×Metal both at 21.43%. All concentration cells map only to Candidate-tier cohorts (Choppy×UP_TRI n=141, Choppy×BULL_PROXY n=20) — unvalidated edge. The book is also fully directional long (UP_TRI + BULL_PROXY = 14/14), so a Choppy→Bear flip would unwind the entire 14-position long book simultaneously with no statistical justification.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-29T22:01:01.488352+05:30",
+      "run_id": "brain_run_2026-05-29_2200",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=UP_TRI_2026-05-29",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Bear (Tier M, n=96). 20 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 7888,
+      "output_tokens": 276,
+      "cost_usd": 0.0463,
+      "request_id": "msg_015UugNvao6pACn8Pt84vvQB",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification remains robust (n=96, Wilson lower 0.8815, +36.3pp edge over UP_TRI baseline) with promotion correctly capped at Tier M/TAKE_SMALL given R-multiple 0.61. Cohort is regime-gated to Bear while current regime is Choppy (stable, 7 days) with 100% Choppy exposure across 25 open positions, so activation is deferred and existing concentration is not compounded. Consistent with continuous prior approvals of this exact cohort (2026-04-29 through 2026-05-28) and no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-29T22:01:04.395993+05:30",
+      "run_id": "brain_run_2026-05-29_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy stable 7 days; 20 prior regime alerts in history.",
+      "input_tokens": 4383,
+      "output_tokens": 167,
+      "cost_usd": 0.0261,
+      "request_id": "msg_01BNQ253pLdYmRHiiy57EVfD",
+      "decision": "no_alert",
+      "rationale": "Both recent and prior 7-day distributions are unanimously Choppy (7/7 vs 7/7) with zero distributional change. The Bear-to-Choppy transition was already alerted on 2026-04-29 and the regime has persisted well beyond the 14-day alert window. The negative slope is internal weakening within Choppy, already noted in prior reasoning, not a new regime classification shift.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-05-29T22:01:14.219009+05:30",
+      "run_id": "brain_run_2026-05-29_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=True (100.0% Choppy), 4 sector concentrations, signal types (UP_TRI 24, BULL_PROXY 1). 20 prior exposure warnings.",
+      "input_tokens": 7036,
+      "output_tokens": 798,
+      "cost_usd": 0.0551,
+      "request_id": "msg_01PRfBre4AQ88UrTkPKuDgsj",
+      "decision": "generate_warn",
+      "rationale": "Portfolio is 100% Choppy regime (observed 1.0, above the 0.80 threshold) AND the UP_TRI×Choppy×FMCG cell breaches the 0.20 cell threshold at 24%. The matched Choppy×UP_TRI cohort sits only at Candidate tier (n=144) — unvalidated edge. UP_TRI also dominates signal mix at 24/25 = 96% (above the 0.85 threshold), and the book is fully directional long, so a Choppy→Bear flip would unwind the entire 25-position book simultaneously.",
       "aborted_by_circuit_breaker": false
     }
   ]
