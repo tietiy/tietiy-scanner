@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-05-31T15:47:15.048006Z",
+  "generated_at": "2026-06-07T15:49:37.908666Z",
   "week_range": [
-    "2026-05-24",
-    "2026-05-31"
+    "2026-05-31",
+    "2026-06-07"
   ],
   "patterns": {
-    "total": 290,
-    "validated_count": 42,
-    "preliminary_count": 77,
-    "emerging_count": 171,
-    "total_resolved_signals": 357,
+    "total": 295,
+    "validated_count": 44,
+    "preliminary_count": 73,
+    "emerging_count": 178,
+    "total_resolved_signals": 390,
     "baselines": {
       "DOWN_TRI": {
         "wr": 47.8,
@@ -20,50 +20,50 @@
         "losses": 48
       },
       "BULL_PROXY": {
-        "wr": 63.2,
-        "avg_pnl": 2.79,
-        "n": 38,
-        "wins": 24,
-        "losses": 14
+        "wr": 62.5,
+        "avg_pnl": 2.51,
+        "n": 40,
+        "wins": 25,
+        "losses": 15
       },
       "UP_TRI": {
-        "wr": 56.8,
-        "avg_pnl": 1.89,
-        "n": 227,
-        "wins": 129,
-        "losses": 98
+        "wr": 54.7,
+        "avg_pnl": 1.67,
+        "n": 258,
+        "wins": 141,
+        "losses": 117
       }
     },
     "top_validated": [
       {
         "id": "age=1",
-        "wr": 96.0,
-        "n": 25,
-        "edge": 39.2,
+        "wr": 96.2,
+        "n": 26,
+        "edge": 41.5,
         "direction": "positive",
-        "insight": "age=1 outperforms UP_TRI baseline by 39.2pp (96.0% WR in 25 trades)"
+        "insight": "age=1 outperforms UP_TRI baseline by 41.5pp (96.2% WR in 26 trades)"
       },
       {
         "id": "regime=Bear_age=1",
         "wr": 95.8,
         "n": 24,
-        "edge": 39.0,
+        "edge": 41.1,
         "direction": "positive",
-        "insight": "Bear regime + age=1 outperforms UP_TRI baseline by 39.0pp (95.8% WR in 24 trades)"
+        "insight": "Bear regime + age=1 outperforms UP_TRI baseline by 41.1pp (95.8% WR in 24 trades)"
       },
       {
         "id": "age=1_grade=B",
         "wr": 95.5,
         "n": 22,
-        "edge": 38.7,
+        "edge": 40.8,
         "direction": "positive",
-        "insight": "age=1 + Grade B outperforms UP_TRI baseline by 38.7pp (95.5% WR in 22 trades)"
+        "insight": "age=1 + Grade B outperforms UP_TRI baseline by 40.8pp (95.5% WR in 22 trades)"
       }
     ]
   },
   "proposals": {
-    "total": 92,
-    "pending_count": 58,
+    "total": 97,
+    "pending_count": 63,
     "approved_count": 0,
     "already_active_count": 4,
     "rejected_count": 30,
@@ -73,39 +73,39 @@
         "action": "kill",
         "target_signal": "UP_TRI",
         "target_sector": "Bank",
-        "wr": 24.2,
-        "n": 33,
-        "edge": -32.6
+        "wr": 26.5,
+        "n": 34,
+        "edge": -28.2
       },
       {
         "id": "prop_021",
         "action": "kill",
         "target_signal": null,
         "target_sector": "Bank",
-        "wr": 25.6,
-        "n": 39,
-        "edge": -31.2
-      },
-      {
-        "id": "prop_023",
-        "action": "kill",
-        "target_signal": null,
-        "target_sector": "Bank",
         "wr": 26.8,
         "n": 41,
-        "edge": -30.0
-      },
-      {
-        "id": "prop_024",
-        "action": "kill",
-        "target_signal": null,
-        "target_sector": "Bank",
-        "wr": 26.8,
-        "n": 41,
-        "edge": -30.0
+        "edge": -27.9
       },
       {
         "id": "prop_076",
+        "action": "warn",
+        "target_signal": "DOWN_TRI",
+        "target_sector": null,
+        "wr": 20.0,
+        "n": 20,
+        "edge": -27.8
+      },
+      {
+        "id": "prop_077",
+        "action": "warn",
+        "target_signal": "DOWN_TRI",
+        "target_sector": null,
+        "wr": 20.0,
+        "n": 20,
+        "edge": -27.8
+      },
+      {
+        "id": "prop_078",
         "action": "warn",
         "target_signal": "DOWN_TRI",
         "target_sector": null,
@@ -116,28 +116,28 @@
     ]
   },
   "contra": {
-    "total": 111,
-    "resolved": 49,
-    "pending": 62,
-    "wr": 63.3,
-    "avg_pnl": 1.45,
+    "total": 132,
+    "resolved": 111,
+    "pending": 21,
+    "wr": 57.7,
+    "avg_pnl": 0.75,
     "unlocked": true,
     "unlock_threshold": 30,
     "recent_3": [
       {
-        "symbol": "AARTIIND",
+        "symbol": "THERMAX",
         "outcome": "CONTRA_WIN",
-        "pnl": 6.67
+        "pnl": 11.8
       },
       {
-        "symbol": "KPITTECH",
-        "outcome": "CONTRA_WIN",
-        "pnl": 3.62
+        "symbol": "TATACONSUM",
+        "outcome": "CONTRA_LOSS",
+        "pnl": -4.43
       },
       {
-        "symbol": "VGUARD",
-        "outcome": "CONTRA_WIN",
-        "pnl": 2.37
+        "symbol": "DEEPAKNTR",
+        "outcome": "CONTRA_LOSS",
+        "pnl": -1.63
       }
     ]
   },
@@ -146,21 +146,21 @@
     "regime_distribution": {
       "Choppy": 5
     },
-    "avg_slope": -0.00281,
-    "avg_ret20": -0.72,
+    "avg_slope": -0.00196,
+    "avg_ret20": -2.96,
     "latest": {
-      "date": "2026-05-29",
+      "date": "2026-06-05",
       "regime": "Choppy",
-      "slope": -0.001256,
-      "ret20": -1.12,
-      "above_ema50": true
+      "slope": -0.002233,
+      "ret20": -3.8,
+      "above_ema50": false
     }
   },
   "health": {
     "overall": "warn",
-    "last_validated": "2026-05-29T10:05:46.404136+00:00",
-    "checks_passed": 5,
-    "checks_failed": 2
+    "last_validated": "2026-06-05T10:05:54.385189+00:00",
+    "checks_passed": 6,
+    "checks_failed": 1
   },
   "kill_rules": {
     "count": 2,
@@ -180,8 +180,8 @@
     ]
   },
   "suggestions": [
-    "\ud83d\udcdd 58 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
-    "\ud83d\udd2c 42 validated patterns found. Review top items above.",
+    "\ud83d\udcdd 63 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
+    "\ud83d\udd2c 44 validated patterns found. Review top items above.",
     "\ud83c\udf21 Market classified Choppy every day this week. If signal WR diverges from this, classifier may need recalibration."
   ]
 }
