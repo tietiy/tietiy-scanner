@@ -1,11 +1,11 @@
 {
-  "last_scan": "2026-06-08T03:17:05Z",
+  "last_scan": "2026-06-09T03:17:29Z",
   "deployed_at": null,
-  "market_date": "2026-06-08",
+  "market_date": "2026-06-09",
   "regime": "Choppy",
   "universe_size": 188,
-  "signals_found": 3,
-  "active_signals_count": 87,
+  "signals_found": 4,
+  "active_signals_count": 84,
   "is_trading_day": true,
   "scanner_version": "v2.0",
   "app_version": "2.0",
@@ -18,14 +18,14 @@
   "corporate_action_skip": [
     "TRENT.NS"
   ],
-  "history_record_count": 504,
+  "history_record_count": 508,
   "sector_momentum": {
-    "Bank": "Neutral",
-    "IT": "Neutral",
-    "Pharma": "Leading",
-    "Auto": "Neutral",
+    "Bank": "Lagging",
+    "IT": "Lagging",
+    "Pharma": "Neutral",
+    "Auto": "Lagging",
     "Metal": "Neutral",
-    "Energy": "Neutral",
+    "Energy": "Lagging",
     "FMCG": "Lagging",
     "Infra": "Lagging"
   }
