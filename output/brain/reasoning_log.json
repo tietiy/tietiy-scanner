@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-06-11T22:01:21.463668+05:30",
+  "generated_at": "2026-06-12T22:01:18.671886+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -2371,6 +2371,51 @@
       "request_id": "msg_01RLbjChE8kCpL2zjuspuGVX",
       "decision": "generate_warn",
       "rationale": "Portfolio is 100% Choppy regime (observed 1.0, above the 0.80 threshold) AND UP_TRI×Choppy×Auto cell breaches the 0.20 cell threshold at 22.22%. UP_TRI also dominates signal mix at 14/18 = 77.8% (below 0.85) with the book fully directional long (UP_TRI + BULL_PROXY + UP_TRI_SA = 18/18). Matched Choppy×UP_TRI cohort sits only at Candidate tier (n=188) — unvalidated edge across all concentration cells.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-06-12T22:01:04.967511+05:30",
+      "run_id": "brain_run_2026-06-12_2200",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=UP_TRI_2026-06-12",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Bear (Tier M, n=96). 20 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 7785,
+      "output_tokens": 355,
+      "cost_usd": 0.0478,
+      "request_id": "msg_01RN85bx3jsVhHr3xAghoiFX",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification remains robust (n=96, Wilson lower 0.8815, +41.1pp edge over UP_TRI baseline) with promotion correctly capped at Tier M/TAKE_SMALL given R-multiple 0.61. Cohort is regime-gated to Bear while current regime is Choppy (shifting, 6 days) with 81.82% Choppy exposure across 11 open positions, so activation is deferred and existing concentration is not compounded. Consistent with continuous prior approvals of this exact cohort (2026-04-29 through 2026-06-11) and no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-06-12T22:01:08.527770+05:30",
+      "run_id": "brain_run_2026-06-12_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy shifting 6 days; 20 prior regime alerts in history.",
+      "input_tokens": 4412,
+      "output_tokens": 222,
+      "cost_usd": 0.0276,
+      "request_id": "msg_013rpmW7itXqfvNRkMGXjZ9f",
+      "decision": "no_alert",
+      "rationale": "Current regime remains Choppy with recent 7d distribution 6 Choppy / 1 Bear vs prior 7/7 Choppy — the dominant regime is unchanged, only a single Bear day appearing as a wobble. Days_in_current_regime=6 within Choppy and weekly intelligence slope (-0.002233) maintains the same negative sign as prior weeks, indicating continued internal weakening rather than a regime classification shift. The original Bear-to-Choppy transition was alerted on 2026-04-29 and is well past the 14-day window.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-06-12T22:01:18.671886+05:30",
+      "run_id": "brain_run_2026-06-12_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=True (81.8% Choppy), 1 sector concentrations, signal types (UP_TRI 7, UP_TRI_SA 2, BULL_PROXY 2). 20 prior exposure warnings.",
+      "input_tokens": 5948,
+      "output_tokens": 743,
+      "cost_usd": 0.0483,
+      "request_id": "msg_017bsab3HU8Y3CkbAai7Pm7K",
+      "decision": "generate_warn",
+      "rationale": "Regime concentration is triggered at 0.8182 (Choppy, above the 0.80 threshold) with no validated cohort_health entries supporting the Choppy×UP_TRI exposure — unvalidated edge. The book is also fully directional long (UP_TRI + UP_TRI_SA + BULL_PROXY = 11/11), and combined UP_TRI-family share sits at 9/11 = 81.8% with the UP_TRI_SA×Choppy×IT cell at 18.2% (just below the 0.20 cell threshold). A Choppy→Bear regime flip would unwind the long-heavy book simultaneously with no statistical justification.",
       "aborted_by_circuit_breaker": false
     }
   ]
