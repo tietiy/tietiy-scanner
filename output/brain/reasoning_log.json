@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-06-13T22:01:29.412579+05:30",
+  "generated_at": "2026-06-14T22:01:36.721444+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -2461,6 +2461,51 @@
       "request_id": "msg_014ipDRkfz1x9ygq7BBy4CDq",
       "decision": "generate_warn",
       "rationale": "Regime concentration triggered at 0.8571 (Choppy, above 0.80 threshold) AND UP_TRI×Choppy×Bank cell breaches the 0.20 cell threshold at 21.98%. UP_TRI also dominates signal mix at 82/91 = 90.1% (above 0.85 threshold) with the book overwhelmingly directional long (UP_TRI + BULL_PROXY + UP_TRI_SA = 88/91 = 96.7%). Matched Choppy×UP_TRI cohort sits only at Candidate tier (n=188) — unvalidated edge across all concentration cells.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-06-14T22:01:18.803376+05:30",
+      "run_id": "brain_run_2026-06-14_2201",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=UP_TRI_2026-06-14",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Bear (Tier M, n=96). 20 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 7788,
+      "output_tokens": 428,
+      "cost_usd": 0.0496,
+      "request_id": "msg_01UZ3WvysXpah9rjDo253qpS",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification remains robust (n=96, Wilson lower 0.8815, +41.1pp edge over UP_TRI baseline) with promotion correctly capped at Tier M/TAKE_SMALL given R-multiple 0.61. Regime has just shifted to Bear (day 1), so the cohort is now active — however TAKE_SMALL sizing limits incremental exposure, and current portfolio is still dominated by Choppy (85.71%) rather than Bear, so promotion does not compound the flagged concentration. Consistent with continuous prior approvals of this exact cohort (2026-04-29 through 2026-06-13) and no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-06-14T22:01:27.151354+05:30",
+      "run_id": "brain_run_2026-06-14_2201",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Bear shifting 1 days; 20 prior regime alerts in history.",
+      "input_tokens": 4512,
+      "output_tokens": 538,
+      "cost_usd": 0.036,
+      "request_id": "msg_01QmdmPSdZYTQRjcwzntie5k",
+      "decision": "generate_alert",
+      "rationale": "Current regime flipped to Bear with days_in_current_regime=1 after a prior 7/7 Choppy stable distribution, and the weekly intelligence slope has steepened sharply negative (-0.00715 vs ~-0.002 prior) with avg_ret20 at -2.23 and price below EMA50. The recent 7d distribution is now Choppy-majority but includes a fresh Bear day breaking the prior unanimous stability, signaling a genuine inflection from the prolonged Choppy regime.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-06-14T22:01:36.721444+05:30",
+      "run_id": "brain_run_2026-06-14_2201",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=True (85.7% Choppy), 1 sector concentrations, signal types (UP_TRI 82, DOWN_TRI 3, BULL_PROXY 4, UP_TRI_SA 2). 20 prior exposure warnings.",
+      "input_tokens": 6246,
+      "output_tokens": 804,
+      "cost_usd": 0.0513,
+      "request_id": "msg_01H4y3rrDtvS17RVLT2sS3Bv",
+      "decision": "generate_warn",
+      "rationale": "Regime concentration triggered at 0.8571 (Choppy, above 0.80 threshold) AND UP_TRI×Choppy×Bank cell breaches the 0.20 cell threshold at 21.98%. UP_TRI also dominates signal mix at 82/91 = 90.1% (above 0.85 threshold) with the book overwhelmingly directional long (UP_TRI + BULL_PROXY + UP_TRI_SA = 88/91 = 96.7%). The matched Choppy×UP_TRI cohort sits only at Candidate tier (n=188) — unvalidated edge across the concentrated cell.",
       "aborted_by_circuit_breaker": false
     }
   ]
