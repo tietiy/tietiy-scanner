@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-06-17T22:01:35.390579+05:30",
+  "generated_at": "2026-06-18T22:01:42.275439+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -2641,6 +2641,51 @@
       "request_id": "msg_01J12N4WWzrRRz1AAoUGyyr9",
       "decision": "generate_warn",
       "rationale": "The UP_TRI×Choppy×Pharma cell breaches the 0.20 cell threshold at 28.57% (2 of 7 positions), and the matched Choppy×UP_TRI cohort sits only at Candidate tier (n=188) — unvalidated edge. While regime concentration (Choppy at 71.4%) and signal mix (UP_TRI at 71.4%) are within tolerance, the sector-clustered Pharma exposure in an unvalidated cohort is the actionable risk.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-06-18T22:01:29.775700+05:30",
+      "run_id": "brain_run_2026-06-18_2201",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=UP_TRI_2026-06-18",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Bear (Tier M, n=96). 20 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 7798,
+      "output_tokens": 408,
+      "cost_usd": 0.0492,
+      "request_id": "msg_018kcmRkmESa3uXkait5A6H9",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification remains robust (n=96, Wilson lower 0.8815, +42.2pp edge over UP_TRI baseline) with promotion correctly capped at Tier M/TAKE_SMALL given R-multiple 0.61. Regime is Bear (day 1, shifting) so cohort is now active, but Bear exposure is only 2/23 (8.7%) while the 91.3% concentration trigger is on Choppy — promotion does not compound the flagged concentration, and TAKE_SMALL sizing limits incremental risk. Consistent with continuous prior approvals (2026-04-29 through 2026-06-17) and no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-06-18T22:01:32.405051+05:30",
+      "run_id": "brain_run_2026-06-18_2201",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Bear shifting 1 days; 20 prior regime alerts in history.",
+      "input_tokens": 4528,
+      "output_tokens": 175,
+      "cost_usd": 0.027,
+      "request_id": "msg_01G7XWiJGNgPWnVnjxF13Mqt",
+      "decision": "no_alert",
+      "rationale": "The Choppy-to-Bear transition was already alerted on 2026-06-14. Today's regime_watch shows identical stale conditions: same current regime (Bear), same days_in_current_regime (1), same recent distribution (6 Choppy / 1 Bear), same slope (-0.00715), same weekly intelligence source_date (2026-06-12). Re-alerting would be duplicate noise on unchanged data.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-06-18T22:01:42.275439+05:30",
+      "run_id": "brain_run_2026-06-18_2201",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=True (91.3% Choppy), 2 sector concentrations, signal types (BULL_PROXY 1, UP_TRI 22). 20 prior exposure warnings.",
+      "input_tokens": 6263,
+      "output_tokens": 774,
+      "cost_usd": 0.0507,
+      "request_id": "msg_018vdNwSUJekTPLuV9cP1uvL",
+      "decision": "generate_warn",
+      "rationale": "Regime concentration is triggered at 0.913 (Choppy, above 0.80 threshold) AND two cells breach the 0.20 cell threshold: UP_TRI×Choppy×Pharma at 26.09% and UP_TRI×Choppy×Chem at 17.39% (latter just below, but Pharma is the breach). UP_TRI also dominates signal mix at 22/23 = 95.7% (above 0.85 threshold) with the book fully directional long. Matched Choppy×UP_TRI cohort sits only at Candidate tier (n=234) — unvalidated edge across all concentration cells.",
       "aborted_by_circuit_breaker": false
     }
   ]
