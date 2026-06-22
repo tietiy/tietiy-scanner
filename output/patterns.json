@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-06-19T10:05:59.455049Z",
-  "total_resolved_signals": 457,
+  "generated_at": "2026-06-22T10:05:58.335888Z",
+  "total_resolved_signals": 458,
   "feature_set": [
     "signal",
     "regime",
@@ -30,11 +30,11 @@
       "losses": 48
     },
     "BULL_PROXY": {
-      "wr": 60.0,
-      "avg_pnl": 2.31,
-      "n": 45,
+      "wr": 58.7,
+      "avg_pnl": 2.23,
+      "n": 46,
       "wins": 27,
-      "losses": 18
+      "losses": 19
     },
     "UP_TRI": {
       "wr": 50.6,
@@ -608,19 +608,19 @@
         "age": "0"
       },
       "feature_depth": 3,
-      "n_resolved": 26,
+      "n_resolved": 27,
       "wins": 10,
-      "losses": 16,
-      "wr": 38.5,
-      "avg_pnl": -0.73,
-      "avg_mae": 3.57,
-      "avg_mfe": 2.99,
+      "losses": 17,
+      "wr": 37.0,
+      "avg_pnl": -0.75,
+      "avg_mae": 3.54,
+      "avg_mfe": 2.9,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -21.5,
+      "baseline_wr": 58.7,
+      "edge_pct": -21.7,
       "tier": "validated",
       "direction": "negative",
-      "insight": "BULL_PROXY + Choppy regime + age=0 underperforms BULL_PROXY baseline by 21.5pp (38.5% WR in 26 trades)"
+      "insight": "BULL_PROXY + Choppy regime + age=0 underperforms BULL_PROXY baseline by 21.7pp (37.0% WR in 27 trades)"
     },
     {
       "id": "signal=BULL_PROXY_regime=Choppy_grade=B",
@@ -630,19 +630,19 @@
         "grade": "B"
       },
       "feature_depth": 3,
-      "n_resolved": 26,
+      "n_resolved": 27,
       "wins": 10,
-      "losses": 16,
-      "wr": 38.5,
-      "avg_pnl": -0.59,
-      "avg_mae": 3.56,
-      "avg_mfe": 3.03,
+      "losses": 17,
+      "wr": 37.0,
+      "avg_pnl": -0.62,
+      "avg_mae": 3.53,
+      "avg_mfe": 2.94,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -21.5,
+      "baseline_wr": 58.7,
+      "edge_pct": -21.7,
       "tier": "validated",
       "direction": "negative",
-      "insight": "BULL_PROXY + Choppy regime + Grade B underperforms BULL_PROXY baseline by 21.5pp (38.5% WR in 26 trades)"
+      "insight": "BULL_PROXY + Choppy regime + Grade B underperforms BULL_PROXY baseline by 21.7pp (37.0% WR in 27 trades)"
     },
     {
       "id": "regime=Bear_age=0",
@@ -838,6 +838,27 @@
       "insight": "Choppy regime + Bank sector underperforms UP_TRI baseline by 17.3pp (33.3% WR in 60 trades)"
     },
     {
+      "id": "signal=BULL_PROXY_regime=Choppy",
+      "features": {
+        "signal": "BULL_PROXY",
+        "regime": "Choppy"
+      },
+      "feature_depth": 2,
+      "n_resolved": 29,
+      "wins": 12,
+      "losses": 17,
+      "wr": 41.4,
+      "avg_pnl": -0.5,
+      "avg_mae": 3.39,
+      "avg_mfe": 2.96,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": -17.3,
+      "tier": "validated",
+      "direction": "negative",
+      "insight": "BULL_PROXY + Choppy regime underperforms BULL_PROXY baseline by 17.3pp (41.4% WR in 29 trades)"
+    },
+    {
       "id": "regime=Choppy_sector=Infra_age=0",
       "features": {
         "regime": "Choppy",
@@ -858,27 +879,6 @@
       "tier": "validated",
       "direction": "negative",
       "insight": "Choppy regime + Infra sector + age=0 underperforms UP_TRI baseline by 17.3pp (33.3% WR in 24 trades)"
-    },
-    {
-      "id": "signal=BULL_PROXY_regime=Choppy",
-      "features": {
-        "signal": "BULL_PROXY",
-        "regime": "Choppy"
-      },
-      "feature_depth": 2,
-      "n_resolved": 28,
-      "wins": 12,
-      "losses": 16,
-      "wr": 42.9,
-      "avg_pnl": -0.46,
-      "avg_mae": 3.41,
-      "avg_mfe": 3.05,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -17.1,
-      "tier": "validated",
-      "direction": "negative",
-      "insight": "BULL_PROXY + Choppy regime underperforms BULL_PROXY baseline by 17.1pp (42.9% WR in 28 trades)"
     },
     {
       "id": "signal=UP_TRI_regime=Choppy_sector=Bank",
@@ -1546,33 +1546,11 @@
       "avg_mae": 0.65,
       "avg_mfe": 7.73,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 31.7,
+      "baseline_wr": 58.7,
+      "edge_pct": 33.0,
       "tier": "preliminary",
       "direction": "positive",
-      "insight": "BULL_PROXY + age=1 outperforms BULL_PROXY baseline by 31.7pp (91.7% WR in 12 trades)"
-    },
-    {
-      "id": "signal=BULL_PROXY_regime=Choppy_sector=Bank",
-      "features": {
-        "signal": "BULL_PROXY",
-        "regime": "Choppy",
-        "sector": "Bank"
-      },
-      "feature_depth": 3,
-      "n_resolved": 10,
-      "wins": 3,
-      "losses": 7,
-      "wr": 30.0,
-      "avg_pnl": -1.26,
-      "avg_mae": 3.84,
-      "avg_mfe": 3.07,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -30.0,
-      "tier": "preliminary",
-      "direction": "negative",
-      "insight": "BULL_PROXY + Choppy regime + Bank sector underperforms BULL_PROXY baseline by 30.0pp (30.0% WR in 10 trades)"
+      "insight": "BULL_PROXY + age=1 outperforms BULL_PROXY baseline by 33.0pp (91.7% WR in 12 trades)"
     },
     {
       "id": "signal=BULL_PROXY_regime=Bear_age=1",
@@ -1590,11 +1568,11 @@
       "avg_mae": 0.52,
       "avg_mfe": 8.53,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 30.0,
+      "baseline_wr": 58.7,
+      "edge_pct": 31.3,
       "tier": "preliminary",
       "direction": "positive",
-      "insight": "BULL_PROXY + Bear regime + age=1 outperforms BULL_PROXY baseline by 30.0pp (90.0% WR in 10 trades)"
+      "insight": "BULL_PROXY + Bear regime + age=1 outperforms BULL_PROXY baseline by 31.3pp (90.0% WR in 10 trades)"
     },
     {
       "id": "signal=BULL_PROXY_age=1_grade=B",
@@ -1612,11 +1590,11 @@
       "avg_mae": 0.69,
       "avg_mfe": 7.76,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 30.0,
+      "baseline_wr": 58.7,
+      "edge_pct": 31.3,
       "tier": "preliminary",
       "direction": "positive",
-      "insight": "BULL_PROXY + age=1 + Grade B outperforms BULL_PROXY baseline by 30.0pp (90.0% WR in 10 trades)"
+      "insight": "BULL_PROXY + age=1 + Grade B outperforms BULL_PROXY baseline by 31.3pp (90.0% WR in 10 trades)"
     },
     {
       "id": "signal=BULL_PROXY_regime=Bear",
@@ -1633,11 +1611,11 @@
       "avg_mae": 0.9,
       "avg_mfe": 6.94,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 28.2,
+      "baseline_wr": 58.7,
+      "edge_pct": 29.5,
       "tier": "preliminary",
       "direction": "positive",
-      "insight": "BULL_PROXY + Bear regime outperforms BULL_PROXY baseline by 28.2pp (88.2% WR in 17 trades)"
+      "insight": "BULL_PROXY + Bear regime outperforms BULL_PROXY baseline by 29.5pp (88.2% WR in 17 trades)"
     },
     {
       "id": "signal=BULL_PROXY_regime=Bear_grade=B",
@@ -1655,11 +1633,33 @@
       "avg_mae": 0.96,
       "avg_mfe": 6.63,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 27.5,
+      "baseline_wr": 58.7,
+      "edge_pct": 28.8,
       "tier": "preliminary",
       "direction": "positive",
-      "insight": "BULL_PROXY + Bear regime + Grade B outperforms BULL_PROXY baseline by 27.5pp (87.5% WR in 16 trades)"
+      "insight": "BULL_PROXY + Bear regime + Grade B outperforms BULL_PROXY baseline by 28.8pp (87.5% WR in 16 trades)"
+    },
+    {
+      "id": "signal=BULL_PROXY_regime=Choppy_sector=Bank",
+      "features": {
+        "signal": "BULL_PROXY",
+        "regime": "Choppy",
+        "sector": "Bank"
+      },
+      "feature_depth": 3,
+      "n_resolved": 10,
+      "wins": 3,
+      "losses": 7,
+      "wr": 30.0,
+      "avg_pnl": -1.26,
+      "avg_mae": 3.84,
+      "avg_mfe": 3.07,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": -28.7,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "BULL_PROXY + Choppy regime + Bank sector underperforms BULL_PROXY baseline by 28.7pp (30.0% WR in 10 trades)"
     },
     {
       "id": "signal=UP_TRI_sector=Metal_grade=B",
@@ -1684,28 +1684,6 @@
       "insight": "UP_TRI + Metal sector + Grade B outperforms UP_TRI baseline by 25.9pp (76.5% WR in 17 trades)"
     },
     {
-      "id": "signal=BULL_PROXY_sector=Bank_age=0",
-      "features": {
-        "signal": "BULL_PROXY",
-        "sector": "Bank",
-        "age": "0"
-      },
-      "feature_depth": 3,
-      "n_resolved": 11,
-      "wins": 4,
-      "losses": 7,
-      "wr": 36.4,
-      "avg_pnl": -0.74,
-      "avg_mae": 3.66,
-      "avg_mfe": 3.34,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -23.6,
-      "tier": "preliminary",
-      "direction": "negative",
-      "insight": "BULL_PROXY + Bank sector + age=0 underperforms BULL_PROXY baseline by 23.6pp (36.4% WR in 11 trades)"
-    },
-    {
       "id": "signal=UP_TRI_regime=Choppy_sector=Other",
       "features": {
         "signal": "UP_TRI",
@@ -1726,6 +1704,28 @@
       "tier": "preliminary",
       "direction": "negative",
       "insight": "UP_TRI + Choppy regime + Other sector underperforms UP_TRI baseline by 22.8pp (27.8% WR in 18 trades)"
+    },
+    {
+      "id": "signal=BULL_PROXY_sector=Bank_age=0",
+      "features": {
+        "signal": "BULL_PROXY",
+        "sector": "Bank",
+        "age": "0"
+      },
+      "feature_depth": 3,
+      "n_resolved": 11,
+      "wins": 4,
+      "losses": 7,
+      "wr": 36.4,
+      "avg_pnl": -0.74,
+      "avg_mae": 3.66,
+      "avg_mfe": 3.34,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": -22.3,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "BULL_PROXY + Bank sector + age=0 underperforms BULL_PROXY baseline by 22.3pp (36.4% WR in 11 trades)"
     },
     {
       "id": "sector=IT_age=1",
@@ -1814,49 +1814,6 @@
       "insight": "UP_TRI + Choppy regime + age=1 underperforms UP_TRI baseline by 19.8pp (30.8% WR in 13 trades)"
     },
     {
-      "id": "signal=BULL_PROXY_sector=Bank",
-      "features": {
-        "signal": "BULL_PROXY",
-        "sector": "Bank"
-      },
-      "feature_depth": 2,
-      "n_resolved": 12,
-      "wins": 5,
-      "losses": 7,
-      "wr": 41.7,
-      "avg_pnl": 0.45,
-      "avg_mae": 3.35,
-      "avg_mfe": 4.19,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -18.3,
-      "tier": "preliminary",
-      "direction": "negative",
-      "insight": "BULL_PROXY + Bank sector underperforms BULL_PROXY baseline by 18.3pp (41.7% WR in 12 trades)"
-    },
-    {
-      "id": "signal=BULL_PROXY_sector=Bank_grade=B",
-      "features": {
-        "signal": "BULL_PROXY",
-        "sector": "Bank",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 12,
-      "wins": 5,
-      "losses": 7,
-      "wr": 41.7,
-      "avg_pnl": 0.45,
-      "avg_mae": 3.35,
-      "avg_mfe": 4.19,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -18.3,
-      "tier": "preliminary",
-      "direction": "negative",
-      "insight": "BULL_PROXY + Bank sector + Grade B underperforms BULL_PROXY baseline by 18.3pp (41.7% WR in 12 trades)"
-    },
-    {
       "id": "signal=UP_TRI_regime=Choppy_sector=FMCG",
       "features": {
         "signal": "UP_TRI",
@@ -1942,6 +1899,49 @@
       "tier": "preliminary",
       "direction": "negative",
       "insight": "DOWN_TRI + Energy sector + Grade B underperforms DOWN_TRI baseline by 17.0pp (30.8% WR in 13 trades)"
+    },
+    {
+      "id": "signal=BULL_PROXY_sector=Bank",
+      "features": {
+        "signal": "BULL_PROXY",
+        "sector": "Bank"
+      },
+      "feature_depth": 2,
+      "n_resolved": 12,
+      "wins": 5,
+      "losses": 7,
+      "wr": 41.7,
+      "avg_pnl": 0.45,
+      "avg_mae": 3.35,
+      "avg_mfe": 4.19,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": -17.0,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "BULL_PROXY + Bank sector underperforms BULL_PROXY baseline by 17.0pp (41.7% WR in 12 trades)"
+    },
+    {
+      "id": "signal=BULL_PROXY_sector=Bank_grade=B",
+      "features": {
+        "signal": "BULL_PROXY",
+        "sector": "Bank",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 12,
+      "wins": 5,
+      "losses": 7,
+      "wr": 41.7,
+      "avg_pnl": 0.45,
+      "avg_mae": 3.35,
+      "avg_mfe": 4.19,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": -17.0,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "BULL_PROXY + Bank sector + Grade B underperforms BULL_PROXY baseline by 17.0pp (41.7% WR in 12 trades)"
     },
     {
       "id": "sector=IT_age=1_grade=B",
@@ -2095,47 +2095,6 @@
       "insight": "Choppy regime + age=0 + Grade A underperforms UP_TRI baseline by 13.6pp (37.0% WR in 27 trades)"
     },
     {
-      "id": "sector=Chem",
-      "features": {
-        "sector": "Chem"
-      },
-      "feature_depth": 1,
-      "n_resolved": 25,
-      "wins": 16,
-      "losses": 9,
-      "wr": 64.0,
-      "avg_pnl": 2.79,
-      "avg_mae": 2.51,
-      "avg_mfe": 4.27,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": 13.4,
-      "tier": "preliminary",
-      "direction": "positive",
-      "insight": "Chem sector outperforms UP_TRI baseline by 13.4pp (64.0% WR in 25 trades)"
-    },
-    {
-      "id": "sector=Chem_grade=B",
-      "features": {
-        "sector": "Chem",
-        "grade": "B"
-      },
-      "feature_depth": 2,
-      "n_resolved": 25,
-      "wins": 16,
-      "losses": 9,
-      "wr": 64.0,
-      "avg_pnl": 2.79,
-      "avg_mae": 2.51,
-      "avg_mfe": 4.27,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": 13.4,
-      "tier": "preliminary",
-      "direction": "positive",
-      "insight": "Chem sector + Grade B outperforms UP_TRI baseline by 13.4pp (64.0% WR in 25 trades)"
-    },
-    {
       "id": "signal=BULL_PROXY_age=0_grade=B",
       "features": {
         "signal": "BULL_PROXY",
@@ -2143,19 +2102,19 @@
         "grade": "B"
       },
       "feature_depth": 3,
-      "n_resolved": 32,
+      "n_resolved": 33,
       "wins": 15,
-      "losses": 17,
-      "wr": 46.9,
-      "avg_pnl": 0.05,
-      "avg_mae": 3.16,
-      "avg_mfe": 3.36,
+      "losses": 18,
+      "wr": 45.5,
+      "avg_pnl": 0.0,
+      "avg_mae": 3.14,
+      "avg_mfe": 3.27,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -13.1,
+      "baseline_wr": 58.7,
+      "edge_pct": -13.2,
       "tier": "preliminary",
       "direction": "negative",
-      "insight": "BULL_PROXY + age=0 + Grade B underperforms BULL_PROXY baseline by 13.1pp (46.9% WR in 32 trades)"
+      "insight": "BULL_PROXY + age=0 + Grade B underperforms BULL_PROXY baseline by 13.2pp (45.5% WR in 33 trades)"
     },
     {
       "id": "signal=UP_TRI_sector=Infra",
@@ -2462,19 +2421,60 @@
         "age": "0"
       },
       "feature_depth": 2,
-      "n_resolved": 33,
+      "n_resolved": 34,
       "wins": 16,
-      "losses": 17,
-      "wr": 48.5,
-      "avg_pnl": 0.07,
-      "avg_mae": 3.12,
-      "avg_mfe": 3.35,
+      "losses": 18,
+      "wr": 47.1,
+      "avg_pnl": 0.02,
+      "avg_mae": 3.11,
+      "avg_mfe": 3.26,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -11.5,
+      "baseline_wr": 58.7,
+      "edge_pct": -11.6,
       "tier": "preliminary",
       "direction": "negative",
-      "insight": "BULL_PROXY + age=0 underperforms BULL_PROXY baseline by 11.5pp (48.5% WR in 33 trades)"
+      "insight": "BULL_PROXY + age=0 underperforms BULL_PROXY baseline by 11.6pp (47.1% WR in 34 trades)"
+    },
+    {
+      "id": "sector=Chem",
+      "features": {
+        "sector": "Chem"
+      },
+      "feature_depth": 1,
+      "n_resolved": 26,
+      "wins": 16,
+      "losses": 10,
+      "wr": 61.5,
+      "avg_pnl": 2.63,
+      "avg_mae": 2.51,
+      "avg_mfe": 4.12,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": 10.9,
+      "tier": "preliminary",
+      "direction": "positive",
+      "insight": "Chem sector outperforms UP_TRI baseline by 10.9pp (61.5% WR in 26 trades)"
+    },
+    {
+      "id": "sector=Chem_grade=B",
+      "features": {
+        "sector": "Chem",
+        "grade": "B"
+      },
+      "feature_depth": 2,
+      "n_resolved": 26,
+      "wins": 16,
+      "losses": 10,
+      "wr": 61.5,
+      "avg_pnl": 2.63,
+      "avg_mae": 2.51,
+      "avg_mfe": 4.12,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": 10.9,
+      "tier": "preliminary",
+      "direction": "positive",
+      "insight": "Chem sector + Grade B outperforms UP_TRI baseline by 10.9pp (61.5% WR in 26 trades)"
     },
     {
       "id": "regime=Choppy_age=1",
@@ -2496,6 +2496,26 @@
       "tier": "preliminary",
       "direction": "negative",
       "insight": "Choppy regime + age=1 underperforms UP_TRI baseline by 10.6pp (40.0% WR in 15 trades)"
+    },
+    {
+      "id": "regime=Choppy",
+      "features": {
+        "regime": "Choppy"
+      },
+      "feature_depth": 1,
+      "n_resolved": 337,
+      "wins": 135,
+      "losses": 202,
+      "wr": 40.1,
+      "avg_pnl": -0.34,
+      "avg_mae": 3.8,
+      "avg_mfe": 3.32,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": -10.5,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "Choppy regime underperforms UP_TRI baseline by 10.5pp (40.1% WR in 337 trades)"
     },
     {
       "id": "signal=UP_TRI_sector=Chem",
@@ -2606,45 +2626,25 @@
       "insight": "CapGoods sector + age=0 + Grade B outperforms UP_TRI baseline by 10.5pp (61.1% WR in 18 trades)"
     },
     {
-      "id": "regime=Choppy",
-      "features": {
-        "regime": "Choppy"
-      },
-      "feature_depth": 1,
-      "n_resolved": 336,
-      "wins": 135,
-      "losses": 201,
-      "wr": 40.2,
-      "avg_pnl": -0.34,
-      "avg_mae": 3.81,
-      "avg_mfe": 3.33,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": -10.4,
-      "tier": "preliminary",
-      "direction": "negative",
-      "insight": "Choppy regime underperforms UP_TRI baseline by 10.4pp (40.2% WR in 336 trades)"
-    },
-    {
       "id": "regime=Choppy_age=0",
       "features": {
         "regime": "Choppy",
         "age": "0"
       },
       "feature_depth": 2,
-      "n_resolved": 317,
+      "n_resolved": 318,
       "wins": 128,
-      "losses": 189,
-      "wr": 40.4,
+      "losses": 190,
+      "wr": 40.3,
       "avg_pnl": -0.32,
       "avg_mae": 3.84,
-      "avg_mfe": 3.31,
+      "avg_mfe": 3.3,
       "baseline_type": "UP_TRI",
       "baseline_wr": 50.6,
-      "edge_pct": -10.2,
+      "edge_pct": -10.3,
       "tier": "preliminary",
       "direction": "negative",
-      "insight": "Choppy regime + age=0 underperforms UP_TRI baseline by 10.2pp (40.4% WR in 317 trades)"
+      "insight": "Choppy regime + age=0 underperforms UP_TRI baseline by 10.3pp (40.3% WR in 318 trades)"
     },
     {
       "id": "regime=Choppy_grade=B",
@@ -2653,19 +2653,41 @@
         "grade": "B"
       },
       "feature_depth": 2,
-      "n_resolved": 307,
+      "n_resolved": 308,
       "wins": 124,
-      "losses": 183,
-      "wr": 40.4,
+      "losses": 184,
+      "wr": 40.3,
       "avg_pnl": -0.32,
       "avg_mae": 3.83,
-      "avg_mfe": 3.36,
+      "avg_mfe": 3.35,
       "baseline_type": "UP_TRI",
       "baseline_wr": 50.6,
-      "edge_pct": -10.2,
+      "edge_pct": -10.3,
       "tier": "preliminary",
       "direction": "negative",
-      "insight": "Choppy regime + Grade B underperforms UP_TRI baseline by 10.2pp (40.4% WR in 307 trades)"
+      "insight": "Choppy regime + Grade B underperforms UP_TRI baseline by 10.3pp (40.3% WR in 308 trades)"
+    },
+    {
+      "id": "regime=Choppy_age=0_grade=B",
+      "features": {
+        "regime": "Choppy",
+        "age": "0",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 291,
+      "wins": 118,
+      "losses": 173,
+      "wr": 40.5,
+      "avg_pnl": -0.3,
+      "avg_mae": 3.85,
+      "avg_mfe": 3.33,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": -10.1,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "Choppy regime + age=0 + Grade B underperforms UP_TRI baseline by 10.1pp (40.5% WR in 291 trades)"
     },
     {
       "id": "regime=Bear_grade=A",
@@ -2886,6 +2908,49 @@
       "insight": "Bear regime + Metal sector + Grade A outperforms UP_TRI baseline by 49.4pp (100.0% WR in 5 trades)"
     },
     {
+      "id": "regime=Bear_sector=Pharma",
+      "features": {
+        "regime": "Bear",
+        "sector": "Pharma"
+      },
+      "feature_depth": 2,
+      "n_resolved": 6,
+      "wins": 6,
+      "losses": 0,
+      "wr": 100.0,
+      "avg_pnl": 5.17,
+      "avg_mae": 0.21,
+      "avg_mfe": 4.4,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": 41.3,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "Bear regime + Pharma sector outperforms BULL_PROXY baseline by 41.3pp (100.0% WR in 6 trades)"
+    },
+    {
+      "id": "regime=Bear_sector=Pharma_grade=B",
+      "features": {
+        "regime": "Bear",
+        "sector": "Pharma",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 6,
+      "wins": 6,
+      "losses": 0,
+      "wr": 100.0,
+      "avg_pnl": 5.17,
+      "avg_mae": 0.21,
+      "avg_mfe": 4.4,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": 41.3,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "Bear regime + Pharma sector + Grade B outperforms BULL_PROXY baseline by 41.3pp (100.0% WR in 6 trades)"
+    },
+    {
       "id": "signal=DOWN_TRI_sector=FMCG_grade=B",
       "features": {
         "signal": "DOWN_TRI",
@@ -2906,49 +2971,6 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "DOWN_TRI + FMCG sector + Grade B outperforms DOWN_TRI baseline by 41.1pp (88.9% WR in 9 trades)"
-    },
-    {
-      "id": "regime=Bear_sector=Pharma",
-      "features": {
-        "regime": "Bear",
-        "sector": "Pharma"
-      },
-      "feature_depth": 2,
-      "n_resolved": 6,
-      "wins": 6,
-      "losses": 0,
-      "wr": 100.0,
-      "avg_pnl": 5.17,
-      "avg_mae": 0.21,
-      "avg_mfe": 4.4,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 40.0,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "Bear regime + Pharma sector outperforms BULL_PROXY baseline by 40.0pp (100.0% WR in 6 trades)"
-    },
-    {
-      "id": "regime=Bear_sector=Pharma_grade=B",
-      "features": {
-        "regime": "Bear",
-        "sector": "Pharma",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 6,
-      "wins": 6,
-      "losses": 0,
-      "wr": 100.0,
-      "avg_pnl": 5.17,
-      "avg_mae": 0.21,
-      "avg_mfe": 4.4,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 40.0,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "Bear regime + Pharma sector + Grade B outperforms BULL_PROXY baseline by 40.0pp (100.0% WR in 6 trades)"
     },
     {
       "id": "regime=Bear_sector=Chem",
@@ -3656,11 +3678,11 @@
       "avg_mae": 1.18,
       "avg_mfe": 6.05,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 25.7,
+      "baseline_wr": 58.7,
+      "edge_pct": 27.0,
       "tier": "emerging",
       "direction": "positive",
-      "insight": "BULL_PROXY + Metal sector outperforms BULL_PROXY baseline by 25.7pp (85.7% WR in 7 trades)"
+      "insight": "BULL_PROXY + Metal sector outperforms BULL_PROXY baseline by 27.0pp (85.7% WR in 7 trades)"
     },
     {
       "id": "signal=BULL_PROXY_regime=Bear_age=0",
@@ -3678,11 +3700,11 @@
       "avg_mae": 1.45,
       "avg_mfe": 4.66,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 25.7,
+      "baseline_wr": 58.7,
+      "edge_pct": 27.0,
       "tier": "emerging",
       "direction": "positive",
-      "insight": "BULL_PROXY + Bear regime + age=0 outperforms BULL_PROXY baseline by 25.7pp (85.7% WR in 7 trades)"
+      "insight": "BULL_PROXY + Bear regime + age=0 outperforms BULL_PROXY baseline by 27.0pp (85.7% WR in 7 trades)"
     },
     {
       "id": "signal=UP_TRI_regime=Bear_sector=Energy",
@@ -3721,54 +3743,11 @@
       "avg_mae": 1.36,
       "avg_mfe": 8.03,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 20.0,
+      "baseline_wr": 58.7,
+      "edge_pct": 21.3,
       "tier": "emerging",
       "direction": "positive",
-      "insight": "BULL_PROXY + Energy sector outperforms BULL_PROXY baseline by 20.0pp (80.0% WR in 5 trades)"
-    },
-    {
-      "id": "signal=BULL_PROXY_sector=Infra",
-      "features": {
-        "signal": "BULL_PROXY",
-        "sector": "Infra"
-      },
-      "feature_depth": 2,
-      "n_resolved": 5,
-      "wins": 2,
-      "losses": 3,
-      "wr": 40.0,
-      "avg_pnl": 0.8,
-      "avg_mae": 2.74,
-      "avg_mfe": 2.96,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -20.0,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "BULL_PROXY + Infra sector underperforms BULL_PROXY baseline by 20.0pp (40.0% WR in 5 trades)"
-    },
-    {
-      "id": "signal=BULL_PROXY_sector=Infra_age=0",
-      "features": {
-        "signal": "BULL_PROXY",
-        "sector": "Infra",
-        "age": "0"
-      },
-      "feature_depth": 3,
-      "n_resolved": 5,
-      "wins": 2,
-      "losses": 3,
-      "wr": 40.0,
-      "avg_pnl": 0.8,
-      "avg_mae": 2.74,
-      "avg_mfe": 2.96,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -20.0,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "BULL_PROXY + Infra sector + age=0 underperforms BULL_PROXY baseline by 20.0pp (40.0% WR in 5 trades)"
+      "insight": "BULL_PROXY + Energy sector outperforms BULL_PROXY baseline by 21.3pp (80.0% WR in 5 trades)"
     },
     {
       "id": "signal=BULL_PROXY_sector=Energy_grade=B",
@@ -3786,33 +3765,11 @@
       "avg_mae": 1.36,
       "avg_mfe": 8.03,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 20.0,
+      "baseline_wr": 58.7,
+      "edge_pct": 21.3,
       "tier": "emerging",
       "direction": "positive",
-      "insight": "BULL_PROXY + Energy sector + Grade B outperforms BULL_PROXY baseline by 20.0pp (80.0% WR in 5 trades)"
-    },
-    {
-      "id": "signal=BULL_PROXY_sector=Infra_grade=B",
-      "features": {
-        "signal": "BULL_PROXY",
-        "sector": "Infra",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 5,
-      "wins": 2,
-      "losses": 3,
-      "wr": 40.0,
-      "avg_pnl": 0.8,
-      "avg_mae": 2.74,
-      "avg_mfe": 2.96,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": -20.0,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "BULL_PROXY + Infra sector + Grade B underperforms BULL_PROXY baseline by 20.0pp (40.0% WR in 5 trades)"
+      "insight": "BULL_PROXY + Energy sector + Grade B outperforms BULL_PROXY baseline by 21.3pp (80.0% WR in 5 trades)"
     },
     {
       "id": "signal=DOWN_TRI_sector=Other",
@@ -4097,6 +4054,71 @@
       "insight": "DOWN_TRI + age=0 + Grade A outperforms DOWN_TRI baseline by 18.9pp (66.7% WR in 6 trades)"
     },
     {
+      "id": "signal=BULL_PROXY_sector=Infra",
+      "features": {
+        "signal": "BULL_PROXY",
+        "sector": "Infra"
+      },
+      "feature_depth": 2,
+      "n_resolved": 5,
+      "wins": 2,
+      "losses": 3,
+      "wr": 40.0,
+      "avg_pnl": 0.8,
+      "avg_mae": 2.74,
+      "avg_mfe": 2.96,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": -18.7,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "BULL_PROXY + Infra sector underperforms BULL_PROXY baseline by 18.7pp (40.0% WR in 5 trades)"
+    },
+    {
+      "id": "signal=BULL_PROXY_sector=Infra_age=0",
+      "features": {
+        "signal": "BULL_PROXY",
+        "sector": "Infra",
+        "age": "0"
+      },
+      "feature_depth": 3,
+      "n_resolved": 5,
+      "wins": 2,
+      "losses": 3,
+      "wr": 40.0,
+      "avg_pnl": 0.8,
+      "avg_mae": 2.74,
+      "avg_mfe": 2.96,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": -18.7,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "BULL_PROXY + Infra sector + age=0 underperforms BULL_PROXY baseline by 18.7pp (40.0% WR in 5 trades)"
+    },
+    {
+      "id": "signal=BULL_PROXY_sector=Infra_grade=B",
+      "features": {
+        "signal": "BULL_PROXY",
+        "sector": "Infra",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 5,
+      "wins": 2,
+      "losses": 3,
+      "wr": 40.0,
+      "avg_pnl": 0.8,
+      "avg_mae": 2.74,
+      "avg_mfe": 2.96,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": -18.7,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "BULL_PROXY + Infra sector + Grade B underperforms BULL_PROXY baseline by 18.7pp (40.0% WR in 5 trades)"
+    },
+    {
       "id": "regime=Bear_sector=Other",
       "features": {
         "regime": "Bear",
@@ -4182,28 +4204,6 @@
       "tier": "emerging",
       "direction": "negative",
       "insight": "Bear regime + Other sector + age=0 underperforms UP_TRI baseline by 10.6pp (40.0% WR in 5 trades)"
-    },
-    {
-      "id": "regime=Choppy_age=0_grade=B",
-      "features": {
-        "regime": "Choppy",
-        "age": "0",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 290,
-      "wins": 118,
-      "losses": 172,
-      "wr": 40.7,
-      "avg_pnl": -0.3,
-      "avg_mae": 3.86,
-      "avg_mfe": 3.34,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": -9.9,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "Choppy regime + age=0 + Grade B underperforms UP_TRI baseline by 9.9pp (40.7% WR in 290 trades)"
     },
     {
       "id": "sector=FMCG_grade=B",
@@ -4764,6 +4764,49 @@
       "insight": "Pharma sector + Grade B outperforms UP_TRI baseline by 8.2pp (58.8% WR in 34 trades)"
     },
     {
+      "id": "signal=BULL_PROXY_sector=Auto",
+      "features": {
+        "signal": "BULL_PROXY",
+        "sector": "Auto"
+      },
+      "feature_depth": 2,
+      "n_resolved": 6,
+      "wins": 4,
+      "losses": 2,
+      "wr": 66.7,
+      "avg_pnl": 1.15,
+      "avg_mae": 2.19,
+      "avg_mfe": 3.61,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": 8.0,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "BULL_PROXY + Auto sector outperforms BULL_PROXY baseline by 8.0pp (66.7% WR in 6 trades)"
+    },
+    {
+      "id": "signal=BULL_PROXY_sector=Auto_grade=B",
+      "features": {
+        "signal": "BULL_PROXY",
+        "sector": "Auto",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 6,
+      "wins": 4,
+      "losses": 2,
+      "wr": 66.7,
+      "avg_pnl": 1.15,
+      "avg_mae": 2.19,
+      "avg_mfe": 3.61,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": 8.0,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "BULL_PROXY + Auto sector + Grade B outperforms BULL_PROXY baseline by 8.0pp (66.7% WR in 6 trades)"
+    },
+    {
       "id": "signal=DOWN_TRI_regime=Choppy",
       "features": {
         "signal": "DOWN_TRI",
@@ -5067,49 +5110,6 @@
       "insight": "DOWN_TRI + Choppy regime + Grade B outperforms DOWN_TRI baseline by 6.7pp (54.5% WR in 66 trades)"
     },
     {
-      "id": "signal=BULL_PROXY_sector=Auto",
-      "features": {
-        "signal": "BULL_PROXY",
-        "sector": "Auto"
-      },
-      "feature_depth": 2,
-      "n_resolved": 6,
-      "wins": 4,
-      "losses": 2,
-      "wr": 66.7,
-      "avg_pnl": 1.15,
-      "avg_mae": 2.19,
-      "avg_mfe": 3.61,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 6.7,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "BULL_PROXY + Auto sector outperforms BULL_PROXY baseline by 6.7pp (66.7% WR in 6 trades)"
-    },
-    {
-      "id": "signal=BULL_PROXY_sector=Auto_grade=B",
-      "features": {
-        "signal": "BULL_PROXY",
-        "sector": "Auto",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 6,
-      "wins": 4,
-      "losses": 2,
-      "wr": 66.7,
-      "avg_pnl": 1.15,
-      "avg_mae": 2.19,
-      "avg_mfe": 3.61,
-      "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
-      "edge_pct": 6.7,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "BULL_PROXY + Auto sector + Grade B outperforms BULL_PROXY baseline by 6.7pp (66.7% WR in 6 trades)"
-    },
-    {
       "id": "signal=UP_TRI_sector=Other",
       "features": {
         "signal": "UP_TRI",
@@ -5151,49 +5151,6 @@
       "tier": "emerging",
       "direction": "negative",
       "insight": "Choppy regime + Other sector + age=0 underperforms UP_TRI baseline by 6.6pp (44.0% WR in 25 trades)"
-    },
-    {
-      "id": "sector=Chem_age=0",
-      "features": {
-        "sector": "Chem",
-        "age": "0"
-      },
-      "feature_depth": 2,
-      "n_resolved": 21,
-      "wins": 12,
-      "losses": 9,
-      "wr": 57.1,
-      "avg_pnl": 1.13,
-      "avg_mae": 2.98,
-      "avg_mfe": 3.85,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": 6.5,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "Chem sector + age=0 outperforms UP_TRI baseline by 6.5pp (57.1% WR in 21 trades)"
-    },
-    {
-      "id": "sector=Chem_age=0_grade=B",
-      "features": {
-        "sector": "Chem",
-        "age": "0",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 21,
-      "wins": 12,
-      "losses": 9,
-      "wr": 57.1,
-      "avg_pnl": 1.13,
-      "avg_mae": 2.98,
-      "avg_mfe": 3.85,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": 6.5,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "Chem sector + age=0 + Grade B outperforms UP_TRI baseline by 6.5pp (57.1% WR in 21 trades)"
     },
     {
       "id": "regime=Bear_sector=Energy_age=0",
@@ -5646,6 +5603,47 @@
       "insight": "Choppy regime + Other sector + Grade B underperforms UP_TRI baseline by 4.8pp (45.8% WR in 24 trades)"
     },
     {
+      "id": "age=0_grade=B",
+      "features": {
+        "age": "0",
+        "grade": "B"
+      },
+      "feature_depth": 2,
+      "n_resolved": 357,
+      "wins": 164,
+      "losses": 193,
+      "wr": 45.9,
+      "avg_pnl": -0.01,
+      "avg_mae": 3.67,
+      "avg_mfe": 3.58,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": -4.7,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "age=0 + Grade B underperforms UP_TRI baseline by 4.7pp (45.9% WR in 357 trades)"
+    },
+    {
+      "id": "age=0",
+      "features": {
+        "age": "0"
+      },
+      "feature_depth": 1,
+      "n_resolved": 389,
+      "wins": 179,
+      "losses": 210,
+      "wr": 46.0,
+      "avg_pnl": -0.0,
+      "avg_mae": 3.65,
+      "avg_mfe": 3.55,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": -4.6,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "age=0 underperforms UP_TRI baseline by 4.6pp (46.0% WR in 389 trades)"
+    },
+    {
       "id": "sector=FMCG_age=0_grade=B",
       "features": {
         "sector": "FMCG",
@@ -5666,47 +5664,6 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "FMCG sector + age=0 + Grade B outperforms UP_TRI baseline by 4.6pp (55.2% WR in 29 trades)"
-    },
-    {
-      "id": "age=0",
-      "features": {
-        "age": "0"
-      },
-      "feature_depth": 1,
-      "n_resolved": 388,
-      "wins": 179,
-      "losses": 209,
-      "wr": 46.1,
-      "avg_pnl": 0.0,
-      "avg_mae": 3.65,
-      "avg_mfe": 3.56,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": -4.5,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "age=0 underperforms UP_TRI baseline by 4.5pp (46.1% WR in 388 trades)"
-    },
-    {
-      "id": "age=0_grade=B",
-      "features": {
-        "age": "0",
-        "grade": "B"
-      },
-      "feature_depth": 2,
-      "n_resolved": 356,
-      "wins": 164,
-      "losses": 192,
-      "wr": 46.1,
-      "avg_pnl": -0.01,
-      "avg_mae": 3.67,
-      "avg_mfe": 3.59,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": -4.5,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "age=0 + Grade B underperforms UP_TRI baseline by 4.5pp (46.1% WR in 356 trades)"
     },
     {
       "id": "signal=UP_TRI_age=0_grade=B",
@@ -5775,6 +5732,27 @@
       "insight": "Other sector + age=0 + Grade B underperforms UP_TRI baseline by 4.2pp (46.4% WR in 28 trades)"
     },
     {
+      "id": "sector=Chem_age=0",
+      "features": {
+        "sector": "Chem",
+        "age": "0"
+      },
+      "feature_depth": 2,
+      "n_resolved": 22,
+      "wins": 12,
+      "losses": 10,
+      "wr": 54.5,
+      "avg_pnl": 1.01,
+      "avg_mae": 2.97,
+      "avg_mfe": 3.69,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": 3.9,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "Chem sector + age=0 outperforms UP_TRI baseline by 3.9pp (54.5% WR in 22 trades)"
+    },
+    {
       "id": "signal=UP_TRI_sector=Energy_age=0",
       "features": {
         "signal": "UP_TRI",
@@ -5797,6 +5775,28 @@
       "insight": "UP_TRI + Energy sector + age=0 outperforms UP_TRI baseline by 3.9pp (54.5% WR in 22 trades)"
     },
     {
+      "id": "sector=Chem_age=0_grade=B",
+      "features": {
+        "sector": "Chem",
+        "age": "0",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 22,
+      "wins": 12,
+      "losses": 10,
+      "wr": 54.5,
+      "avg_pnl": 1.01,
+      "avg_mae": 2.97,
+      "avg_mfe": 3.69,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": 3.9,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "Chem sector + age=0 + Grade B outperforms UP_TRI baseline by 3.9pp (54.5% WR in 22 trades)"
+    },
+    {
       "id": "signal=UP_TRI_sector=CapGoods_age=0",
       "features": {
         "signal": "UP_TRI",
@@ -5817,6 +5817,71 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "UP_TRI + CapGoods sector + age=0 outperforms UP_TRI baseline by 3.9pp (54.5% WR in 11 trades)"
+    },
+    {
+      "id": "regime=Choppy_sector=Chem",
+      "features": {
+        "regime": "Choppy",
+        "sector": "Chem"
+      },
+      "feature_depth": 2,
+      "n_resolved": 17,
+      "wins": 8,
+      "losses": 9,
+      "wr": 47.1,
+      "avg_pnl": 0.41,
+      "avg_mae": 3.27,
+      "avg_mfe": 3.34,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": -3.5,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "Choppy regime + Chem sector underperforms UP_TRI baseline by 3.5pp (47.1% WR in 17 trades)"
+    },
+    {
+      "id": "regime=Choppy_sector=Chem_age=0",
+      "features": {
+        "regime": "Choppy",
+        "sector": "Chem",
+        "age": "0"
+      },
+      "feature_depth": 3,
+      "n_resolved": 17,
+      "wins": 8,
+      "losses": 9,
+      "wr": 47.1,
+      "avg_pnl": 0.41,
+      "avg_mae": 3.27,
+      "avg_mfe": 3.34,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": -3.5,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "Choppy regime + Chem sector + age=0 underperforms UP_TRI baseline by 3.5pp (47.1% WR in 17 trades)"
+    },
+    {
+      "id": "regime=Choppy_sector=Chem_grade=B",
+      "features": {
+        "regime": "Choppy",
+        "sector": "Chem",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 17,
+      "wins": 8,
+      "losses": 9,
+      "wr": 47.1,
+      "avg_pnl": 0.41,
+      "avg_mae": 3.27,
+      "avg_mfe": 3.34,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 50.6,
+      "edge_pct": -3.5,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "Choppy regime + Chem sector + Grade B underperforms UP_TRI baseline by 3.5pp (47.1% WR in 17 trades)"
     },
     {
       "id": "sector=Energy_age=0",
@@ -5911,19 +5976,19 @@
         "grade": "B"
       },
       "feature_depth": 2,
-      "n_resolved": 42,
+      "n_resolved": 43,
       "wins": 24,
-      "losses": 18,
-      "wr": 57.1,
-      "avg_pnl": 2.17,
+      "losses": 19,
+      "wr": 55.8,
+      "avg_pnl": 2.09,
       "avg_mae": 2.57,
-      "avg_mfe": 4.4,
+      "avg_mfe": 4.31,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
+      "baseline_wr": 58.7,
       "edge_pct": -2.9,
       "tier": "emerging",
       "direction": "negative",
-      "insight": "BULL_PROXY + Grade B underperforms BULL_PROXY baseline by 2.9pp (57.1% WR in 42 trades)"
+      "insight": "BULL_PROXY + Grade B underperforms BULL_PROXY baseline by 2.9pp (55.8% WR in 43 trades)"
     },
     {
       "id": "signal=UP_TRI_sector=Other_grade=B",
@@ -6396,6 +6461,71 @@
       "insight": "UP_TRI + Energy sector + Grade B outperforms UP_TRI baseline by 1.3pp (51.9% WR in 27 trades)"
     },
     {
+      "id": "sector=Energy_age=1",
+      "features": {
+        "sector": "Energy",
+        "age": "1"
+      },
+      "feature_depth": 2,
+      "n_resolved": 5,
+      "wins": 3,
+      "losses": 2,
+      "wr": 60.0,
+      "avg_pnl": 5.02,
+      "avg_mae": 1.61,
+      "avg_mfe": 7.37,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": 1.3,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "Energy sector + age=1 outperforms BULL_PROXY baseline by 1.3pp (60.0% WR in 5 trades)"
+    },
+    {
+      "id": "signal=BULL_PROXY_sector=Auto_age=0",
+      "features": {
+        "signal": "BULL_PROXY",
+        "sector": "Auto",
+        "age": "0"
+      },
+      "feature_depth": 3,
+      "n_resolved": 5,
+      "wins": 3,
+      "losses": 2,
+      "wr": 60.0,
+      "avg_pnl": 0.55,
+      "avg_mae": 2.28,
+      "avg_mfe": 3.51,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": 1.3,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "BULL_PROXY + Auto sector + age=0 outperforms BULL_PROXY baseline by 1.3pp (60.0% WR in 5 trades)"
+    },
+    {
+      "id": "sector=Energy_age=1_grade=B",
+      "features": {
+        "sector": "Energy",
+        "age": "1",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 5,
+      "wins": 3,
+      "losses": 2,
+      "wr": 60.0,
+      "avg_pnl": 5.02,
+      "avg_mae": 1.61,
+      "avg_mfe": 7.37,
+      "baseline_type": "BULL_PROXY",
+      "baseline_wr": 58.7,
+      "edge_pct": 1.3,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "Energy sector + age=1 + Grade B outperforms BULL_PROXY baseline by 1.3pp (60.0% WR in 5 trades)"
+    },
+    {
       "id": "sector=Other_grade=B",
       "features": {
         "sector": "Other",
@@ -6568,71 +6698,6 @@
       "insight": "UP_TRI + FMCG sector + Grade B underperforms UP_TRI baseline by 0.6pp (50.0% WR in 24 trades)"
     },
     {
-      "id": "regime=Choppy_sector=Chem",
-      "features": {
-        "regime": "Choppy",
-        "sector": "Chem"
-      },
-      "feature_depth": 2,
-      "n_resolved": 16,
-      "wins": 8,
-      "losses": 8,
-      "wr": 50.0,
-      "avg_pnl": 0.53,
-      "avg_mae": 3.31,
-      "avg_mfe": 3.51,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": -0.6,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "Choppy regime + Chem sector underperforms UP_TRI baseline by 0.6pp (50.0% WR in 16 trades)"
-    },
-    {
-      "id": "regime=Choppy_sector=Chem_age=0",
-      "features": {
-        "regime": "Choppy",
-        "sector": "Chem",
-        "age": "0"
-      },
-      "feature_depth": 3,
-      "n_resolved": 16,
-      "wins": 8,
-      "losses": 8,
-      "wr": 50.0,
-      "avg_pnl": 0.53,
-      "avg_mae": 3.31,
-      "avg_mfe": 3.51,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": -0.6,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "Choppy regime + Chem sector + age=0 underperforms UP_TRI baseline by 0.6pp (50.0% WR in 16 trades)"
-    },
-    {
-      "id": "regime=Choppy_sector=Chem_grade=B",
-      "features": {
-        "regime": "Choppy",
-        "sector": "Chem",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 16,
-      "wins": 8,
-      "losses": 8,
-      "wr": 50.0,
-      "avg_pnl": 0.53,
-      "avg_mae": 3.31,
-      "avg_mfe": 3.51,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 50.6,
-      "edge_pct": -0.6,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "Choppy regime + Chem sector + Grade B underperforms UP_TRI baseline by 0.6pp (50.0% WR in 16 trades)"
-    },
-    {
       "id": "signal=UP_TRI",
       "features": {
         "signal": "UP_TRI"
@@ -6679,19 +6744,19 @@
         "grade": "B"
       },
       "feature_depth": 1,
-      "n_resolved": 418,
+      "n_resolved": 419,
       "wins": 212,
-      "losses": 206,
-      "wr": 50.7,
-      "avg_pnl": 0.77,
+      "losses": 207,
+      "wr": 50.6,
+      "avg_pnl": 0.76,
       "avg_mae": 3.34,
       "avg_mfe": 3.8,
       "baseline_type": "UP_TRI",
       "baseline_wr": 50.6,
-      "edge_pct": 0.1,
+      "edge_pct": 0.0,
       "tier": "emerging",
-      "direction": "positive",
-      "insight": "Grade B outperforms UP_TRI baseline by 0.1pp (50.7% WR in 418 trades)"
+      "direction": "neutral",
+      "insight": "Grade B matches UP_TRI baseline (50.6% WR in 419 trades)"
     },
     {
       "id": "signal=DOWN_TRI",
@@ -6740,26 +6805,26 @@
         "signal": "BULL_PROXY"
       },
       "feature_depth": 1,
-      "n_resolved": 45,
+      "n_resolved": 46,
       "wins": 27,
-      "losses": 18,
-      "wr": 60.0,
-      "avg_pnl": 2.31,
-      "avg_mae": 2.46,
-      "avg_mfe": 4.52,
+      "losses": 19,
+      "wr": 58.7,
+      "avg_pnl": 2.23,
+      "avg_mae": 2.47,
+      "avg_mfe": 4.43,
       "baseline_type": "BULL_PROXY",
-      "baseline_wr": 60.0,
+      "baseline_wr": 58.7,
       "edge_pct": 0.0,
       "tier": "emerging",
       "direction": "neutral",
-      "insight": "BULL_PROXY matches BULL_PROXY baseline (60.0% WR in 45 trades)"
+      "insight": "BULL_PROXY matches BULL_PROXY baseline (58.7% WR in 46 trades)"
     }
   ],
   "summary": {
-    "emerging": 190,
-    "preliminary": 73,
+    "emerging": 192,
+    "preliminary": 74,
     "validated": 49,
-    "total_patterns": 312,
+    "total_patterns": 315,
     "top_positive": "regime=Bear_age=1",
     "top_negative": "regime=Choppy_sector=IT"
   }
