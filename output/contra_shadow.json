@@ -9714,10 +9714,10 @@
       "effective_exit_date": "2026-06-26",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-06-26",
+      "outcome_price": 85.0,
+      "pnl_pct": -3.41,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -9726,7 +9726,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-06-18T03:17:19.628679Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-06-29T10:05:51.729706Z"
     },
     {
       "id": "contra_2026-06-19-COALINDIA-DOWN_TRI",
@@ -9756,10 +9758,10 @@
       "effective_exit_date": "2026-06-29",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-06-29",
+      "outcome_price": 435.65,
+      "pnl_pct": -3.62,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -9768,7 +9770,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-06-19T03:17:55.660393Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-06-29T10:05:51.854499Z"
     },
     {
       "id": "contra_2026-06-19-WELCORP-DOWN_TRI",
@@ -9798,10 +9802,10 @@
       "effective_exit_date": "2026-06-29",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-06-29",
+      "outcome_price": 1465.0,
+      "pnl_pct": 4.84,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -9810,7 +9814,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-06-19T03:17:55.670294Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-06-29T10:05:52.176083Z"
     },
     {
       "id": "contra_2026-06-22-ADANIENT-DOWN_TRI",
@@ -10149,5 +10155,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-06-25T10:05:56.579963Z"
+  "updated_at": "2026-06-29T10:05:52.176367Z"
 }
