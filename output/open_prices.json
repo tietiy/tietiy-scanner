@@ -1,17 +1,28 @@
 {
-  "date": "2026-07-06",
+  "date": "2026-07-07",
   "fetch_time": "03:57 IST",
-  "count": 1,
+  "count": 2,
   "results": [
     {
-      "symbol": "TVSMOTOR.NS",
-      "signal": "BULL_PROXY",
-      "signal_date": "2026-07-03",
-      "actual_open": 3627.4,
-      "scan_price": 3626.8,
-      "gap_pct": 0.02,
+      "symbol": "IPCALAB.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-07-06",
+      "actual_open": 1773.5,
+      "scan_price": 1778.9,
+      "gap_pct": -0.3,
       "gap_status": "OK",
       "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "ABB.NS",
+      "signal": "BULL_PROXY",
+      "signal_date": "2026-07-06",
+      "actual_open": 7106.5,
+      "scan_price": 6950.5,
+      "gap_pct": 2.24,
+      "gap_status": "WARNING",
+      "note": "Gap +2.2% \u2014 reduced R:R, trade with caution",
       "fetch_time": "03:57 IST"
     }
   ]
