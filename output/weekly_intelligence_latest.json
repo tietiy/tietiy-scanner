@@ -1,9 +1,9 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-05T15:45:29.431666Z",
+  "generated_at": "2026-07-12T15:32:16.654495Z",
   "week_range": [
-    "2026-06-28",
-    "2026-07-05"
+    "2026-07-05",
+    "2026-07-12"
   ],
   "patterns": {
     "total": 329,
@@ -116,9 +116,9 @@
     ]
   },
   "contra": {
-    "total": 260,
+    "total": 303,
     "resolved": 231,
-    "pending": 29,
+    "pending": 72,
     "wr": 64.1,
     "avg_pnl": 1.66,
     "unlocked": true,
@@ -144,16 +144,16 @@
   "regime": {
     "days_logged": 5,
     "regime_distribution": {
-      "Bull": 3,
-      "Choppy": 2
+      "Choppy": 3,
+      "Bull": 2
     },
-    "avg_slope": 0.00515,
-    "avg_ret20": 2.4,
+    "avg_slope": 0.00508,
+    "avg_ret20": 4.17,
     "latest": {
-      "date": "2026-07-03",
+      "date": "2026-07-10",
       "regime": "Choppy",
-      "slope": 0.004793,
-      "ret20": 3.24,
+      "slope": 0.004927,
+      "ret20": 3.46,
       "above_ema50": true
     }
   },
