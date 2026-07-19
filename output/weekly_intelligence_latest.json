@@ -1,16 +1,16 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-12T15:32:16.654495Z",
+  "generated_at": "2026-07-19T15:29:35.319361Z",
   "week_range": [
-    "2026-07-05",
-    "2026-07-12"
+    "2026-07-12",
+    "2026-07-19"
   ],
   "patterns": {
-    "total": 329,
-    "validated_count": 45,
-    "preliminary_count": 68,
-    "emerging_count": 216,
-    "total_resolved_signals": 524,
+    "total": 365,
+    "validated_count": 39,
+    "preliminary_count": 75,
+    "emerging_count": 251,
+    "total_resolved_signals": 587,
     "baselines": {
       "DOWN_TRI": {
         "wr": 47.8,
@@ -20,18 +20,18 @@
         "losses": 48
       },
       "BULL_PROXY": {
-        "wr": 58.3,
-        "avg_pnl": 2.12,
-        "n": 48,
+        "wr": 54.9,
+        "avg_pnl": 1.8,
+        "n": 51,
         "wins": 28,
-        "losses": 20
+        "losses": 23
       },
       "UP_TRI": {
-        "wr": 50.0,
-        "avg_pnl": 1.05,
-        "n": 384,
-        "wins": 192,
-        "losses": 192
+        "wr": 50.2,
+        "avg_pnl": 1.09,
+        "n": 444,
+        "wins": 223,
+        "losses": 221
       }
     },
     "top_validated": [
@@ -39,31 +39,31 @@
         "id": "regime=Bear_age=1",
         "wr": 95.8,
         "n": 24,
-        "edge": 45.8,
+        "edge": 45.6,
         "direction": "positive",
-        "insight": "Bear regime + age=1 outperforms UP_TRI baseline by 45.8pp (95.8% WR in 24 trades)"
+        "insight": "Bear regime + age=1 outperforms UP_TRI baseline by 45.6pp (95.8% WR in 24 trades)"
       },
       {
         "id": "regime=Bear_age=1_grade=B",
         "wr": 95.2,
         "n": 21,
-        "edge": 45.2,
+        "edge": 45.0,
         "direction": "positive",
-        "insight": "Bear regime + age=1 + Grade B outperforms UP_TRI baseline by 45.2pp (95.2% WR in 21 trades)"
+        "insight": "Bear regime + age=1 + Grade B outperforms UP_TRI baseline by 45.0pp (95.2% WR in 21 trades)"
       },
       {
         "id": "signal=UP_TRI_regime=Bear",
         "wr": 94.0,
         "n": 84,
-        "edge": 44.0,
+        "edge": 43.8,
         "direction": "positive",
-        "insight": "UP_TRI + Bear regime outperforms UP_TRI baseline by 44.0pp (94.0% WR in 84 trades)"
+        "insight": "UP_TRI + Bear regime outperforms UP_TRI baseline by 43.8pp (94.0% WR in 84 trades)"
       }
     ]
   },
   "proposals": {
-    "total": 103,
-    "pending_count": 69,
+    "total": 110,
+    "pending_count": 76,
     "approved_count": 0,
     "already_active_count": 4,
     "rejected_count": 30,
@@ -75,7 +75,7 @@
         "target_sector": "IT",
         "wr": 10.0,
         "n": 20,
-        "edge": -40.0
+        "edge": -40.2
       },
       {
         "id": "prop_076",
@@ -111,57 +111,57 @@
         "target_sector": null,
         "wr": 22.7,
         "n": 22,
-        "edge": -27.3
+        "edge": -27.5
       }
     ]
   },
   "contra": {
-    "total": 303,
-    "resolved": 231,
-    "pending": 72,
-    "wr": 64.1,
-    "avg_pnl": 1.66,
+    "total": 317,
+    "resolved": 297,
+    "pending": 20,
+    "wr": 60.9,
+    "avg_pnl": 1.37,
     "unlocked": true,
     "unlock_threshold": 30,
     "recent_3": [
       {
-        "symbol": "ADANIPORTS",
-        "outcome": "CONTRA_WIN",
-        "pnl": 3.95
+        "symbol": "HDFCLIFE",
+        "outcome": "CONTRA_LOSS",
+        "pnl": -0.72
       },
       {
-        "symbol": "APOLLOHOSP",
-        "outcome": "CONTRA_WIN",
-        "pnl": 1.98
+        "symbol": "MFSL",
+        "outcome": "CONTRA_LOSS",
+        "pnl": -1.76
       },
       {
-        "symbol": "FORTIS",
-        "outcome": "CONTRA_FLAT",
-        "pnl": 0.37
+        "symbol": "KPIL",
+        "outcome": "CONTRA_LOSS",
+        "pnl": -2.42
       }
     ]
   },
   "regime": {
     "days_logged": 5,
     "regime_distribution": {
-      "Choppy": 3,
-      "Bull": 2
+      "Choppy": 2,
+      "Bull": 3
     },
-    "avg_slope": 0.00508,
-    "avg_ret20": 4.17,
+    "avg_slope": 0.00514,
+    "avg_ret20": 1.01,
     "latest": {
-      "date": "2026-07-10",
+      "date": "2026-07-17",
       "regime": "Choppy",
-      "slope": 0.004927,
-      "ret20": 3.46,
+      "slope": 0.004886,
+      "ret20": -0.39,
       "above_ema50": true
     }
   },
   "health": {
     "overall": "warn",
-    "last_validated": "2026-07-03T10:06:16.429713+00:00",
-    "checks_passed": 5,
-    "checks_failed": 2
+    "last_validated": "2026-07-17T10:06:14.827006+00:00",
+    "checks_passed": 6,
+    "checks_failed": 1
   },
   "kill_rules": {
     "count": 2,
@@ -181,7 +181,7 @@
     ]
   },
   "suggestions": [
-    "\ud83d\udcdd 69 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
-    "\ud83d\udd2c 45 validated patterns found. Review top items above."
+    "\ud83d\udcdd 76 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
+    "\ud83d\udd2c 39 validated patterns found. Review top items above."
   ]
 }
