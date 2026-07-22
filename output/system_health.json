@@ -1,29 +1,29 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-21T10:05:58.037157+00:00",
-  "date": "2026-07-21",
+  "generated_at": "2026-07-22T10:06:24.088898+00:00",
+  "date": "2026-07-22",
   "trading_day": true,
   "overall": "warn",
   "checks": {
     "morning_scan": {
       "status": "ok",
-      "note": "Scanned 188 stocks, 0 signals"
+      "note": "Scanned 188 stocks, 3 signals"
     },
     "open_validate": {
-      "status": "ok",
-      "note": "1 opens validated at 03:57 IST"
+      "status": "warn",
+      "note": "open_prices.date=2026-07-21 not today"
     },
     "eod_update": {
       "status": "warn",
-      "note": "No symbol has 2026-07-21 data yet"
+      "note": "No symbol has 2026-07-22 data yet"
     },
     "outcome_eval": {
       "status": "ok",
-      "note": "688 records, 70 pending, 618 resolved"
+      "note": "691 records, 71 pending, 620 resolved"
     },
     "pattern_miner": {
       "status": "ok",
-      "note": "366 patterns (V:39 P:77)"
+      "note": "370 patterns (V:41 P:76)"
     },
     "rule_proposer": {
       "status": "ok",
@@ -31,7 +31,7 @@
     },
     "contra_tracker": {
       "status": "ok",
-      "note": "342 shadows (R:303 P:39) \u2014 fresh today"
+      "note": "355 shadows (R:303 P:52) \u2014 fresh today"
     }
   },
   "alerts": []
