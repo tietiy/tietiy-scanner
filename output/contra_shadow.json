@@ -13630,10 +13630,10 @@
       "effective_exit_date": "2026-07-24",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-07-24",
+      "outcome_price": 763.1,
+      "pnl_pct": -2.51,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -13642,7 +13642,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-07-16T03:18:16.097465Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-07-24T10:05:57.981926Z"
     },
     {
       "id": "contra_2026-07-17-SBIN-DOWN_TRI",
@@ -15979,7 +15981,7 @@
       "grade": "B",
       "atr": 93.39,
       "exit_date": "03 Aug",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-08-03",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -16021,7 +16023,7 @@
       "grade": "B",
       "atr": 8.88,
       "exit_date": "03 Aug",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-08-03",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -16063,7 +16065,7 @@
       "grade": "B",
       "atr": 27.48,
       "exit_date": "03 Aug",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-08-03",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -16105,7 +16107,7 @@
       "grade": "B",
       "atr": 25.79,
       "exit_date": "03 Aug",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-08-03",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -16123,5 +16125,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-07-23T10:05:52.245293Z"
+  "updated_at": "2026-07-24T10:05:57.983682Z"
 }
