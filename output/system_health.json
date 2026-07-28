@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-07-27T10:05:58.837631+00:00",
-  "date": "2026-07-27",
+  "generated_at": "2026-07-28T10:06:21.492230+00:00",
+  "date": "2026-07-28",
   "trading_day": true,
   "overall": "warn",
   "checks": {
@@ -15,15 +15,15 @@
     },
     "eod_update": {
       "status": "warn",
-      "note": "No symbol has 2026-07-27 data yet"
+      "note": "No symbol has 2026-07-28 data yet"
     },
     "outcome_eval": {
       "status": "ok",
-      "note": "720 records, 63 pending, 657 resolved"
+      "note": "722 records, 64 pending, 658 resolved"
     },
     "pattern_miner": {
       "status": "ok",
-      "note": "390 patterns (V:36 P:87)"
+      "note": "390 patterns (V:36 P:89)"
     },
     "rule_proposer": {
       "status": "ok",
@@ -31,7 +31,7 @@
     },
     "contra_tracker": {
       "status": "ok",
-      "note": "376 shadows (R:310 P:66) \u2014 fresh today"
+      "note": "381 shadows (R:317 P:64) \u2014 fresh today"
     }
   },
   "alerts": []
