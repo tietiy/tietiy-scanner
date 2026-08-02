@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-08-01T22:01:24.834144+05:30",
+  "generated_at": "2026-08-02T22:01:15.854114+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -5326,6 +5326,66 @@
       "request_id": "msg_011CdcM8E6tJa2WgQNT1Syta",
       "decision": "generate_warn",
       "rationale": "Regime concentration is triggered at 81.82% Choppy (above the 0.80 threshold) AND UP_TRI dominates signal mix at 60/66 = 90.9% (above 0.85). Matched Choppy×UP_TRI cohort sits only at Candidate tier (n=334) — unvalidated edge across all three concentrated cells (Bank 15.15%, CapGoods 12.12%, Chem 12.12%). Individual cells are within the 0.20 tolerance, but dual regime + signal-type monoculture on an unvalidated cohort is the actionable risk.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-02T22:00:57.404278+05:30",
+      "run_id": "brain_run_2026-08-02_2200",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=UP_TRI_2026-08-02",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: UP_TRI×Bear (Tier M, n=97). 20 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 8425,
+      "output_tokens": 293,
+      "cost_usd": 0.0495,
+      "request_id": "msg_011CdeEunoLufVZX4SPAUiyD",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification remains robust (n=97, Wilson lower 0.869, +43.5pp edge over UP_TRI baseline) with promotion correctly capped at Tier M/TAKE_SMALL given R-multiple 0.61 below the Tier S threshold. Cohort is regime-gated to Bear while current regime is Choppy (stable, day 7), so the cohort is dormant and the flagged 81.82% Choppy / ~91% UP_TRI concentration is not compounded by a Bear-gated promotion. Consistent with continuous prior approvals (2026-04-29 through 2026-08-01) with no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-02T22:01:03.195038+05:30",
+      "run_id": "brain_run_2026-08-02_2200",
+      "gate_name": "cohort_promotion_judge",
+      "model": "claude-opus-4-7",
+      "candidate_id": "brain_boost_promote_signal+regime_regime=Bear__signal_type=BULL_PROXY_2026-08-02",
+      "gate_input_summary": "Reviewed 1 boost_promote candidates: BULL_PROXY×Bear (Tier M, n=17). 20 prior reasoning entries; 0 matching decisions.",
+      "input_tokens": 8441,
+      "output_tokens": 411,
+      "cost_usd": 0.0525,
+      "request_id": "msg_011CdeEv4nmfowi2ixSxNd99",
+      "decision": "approve",
+      "rationale": "Step 4 tier classification is robust (n=17, Wilson lower 0.6566 above Tier M floor, +34.4pp edge over BULL_PROXY baseline of 53.85%) with promotion correctly capped at Tier M/TAKE_SMALL given R-multiple 0.98 (<1.0). Cohort is regime-gated to Bear while current regime is Choppy (stable, day 7), so it is dormant; the flagged 81.82% Choppy regime concentration is on a different regime, so a Bear-gated BULL_PROXY promotion does not compound concentration risk and may diversify when Bear re-emerges. Consistent with continuous prior approvals of this exact cohort (2026-06-19 through 08-01) with no trader rejection on record.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-02T22:01:06.103465+05:30",
+      "run_id": "brain_run_2026-08-02_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy stable 7 days; 20 prior regime alerts in history.",
+      "input_tokens": 5186,
+      "output_tokens": 201,
+      "cost_usd": 0.031,
+      "request_id": "msg_011CdeEvVNsSsE4MP4ByPvAG",
+      "decision": "no_alert",
+      "rationale": "Recent 7d distribution is 7/7 Choppy vs prior 7d (4 Choppy / 3 Bull) — Choppy has consolidated as the sole regime with no majority flip. Weekly intelligence slope (+0.002484) maintains the same positive sign as prior weeks (+0.003538, +0.004886), showing no inflection despite mild deceleration. Days_in_current_regime is 7 with stable classification, confirming continued wobble-resolution rather than a new shift.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-02T22:01:15.854114+05:30",
+      "run_id": "brain_run_2026-08-02_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=True (81.8% Choppy), 3 sector concentrations, signal types (UP_TRI 60, DOWN_TRI 3, BULL_PROXY 3). 20 prior exposure warnings.",
+      "input_tokens": 6490,
+      "output_tokens": 756,
+      "cost_usd": 0.0513,
+      "request_id": "msg_011CdeEvjGYR5dXuCczCxX86",
+      "decision": "generate_warn",
+      "rationale": "Regime concentration triggered at 81.82% Choppy (above 0.80) and UP_TRI dominates signal mix at 60/66 = 90.9% (above 0.85). Matched Choppy×UP_TRI cohort sits only at Candidate tier (n=334) — unvalidated edge across all three concentrated cells (Bank 15.15%, CapGoods 12.12%, Chem 12.12%). Individual cells remain within the 0.20 tolerance, but dual regime + signal-type monoculture on an unvalidated cohort is the actionable risk.",
       "aborted_by_circuit_breaker": false
     }
   ]
