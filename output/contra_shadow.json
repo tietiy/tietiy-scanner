@@ -17326,10 +17326,10 @@
       "effective_exit_date": "2026-08-12",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-08-12",
+      "outcome_price": 2285.7,
+      "pnl_pct": -5.6,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -17338,7 +17338,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-04T03:18:10.678906Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "open_prices",
+      "resolved_at": "2026-08-12T10:06:00.666390Z"
     },
     {
       "id": "contra_2026-08-04-BIOCON-DOWN_TRI",
@@ -17368,10 +17370,10 @@
       "effective_exit_date": "2026-08-12",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-08-12",
+      "outcome_price": 427.75,
+      "pnl_pct": 0.56,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -17380,7 +17382,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-04T03:18:10.695509Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-08-12T10:06:00.821542Z"
     },
     {
       "id": "contra_2026-08-04-IPCALAB-DOWN_TRI",
@@ -17410,10 +17414,10 @@
       "effective_exit_date": "2026-08-12",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-08-12",
+      "outcome_price": 1758.5,
+      "pnl_pct": 0.61,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -17422,7 +17426,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-04T03:18:10.711910Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-08-12T10:06:01.052981Z"
     },
     {
       "id": "contra_2026-08-04-BHEL-DOWN_TRI",
@@ -17452,10 +17458,10 @@
       "effective_exit_date": "2026-08-12",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-08-12",
+      "outcome_price": 404.5,
+      "pnl_pct": -0.61,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -17464,7 +17470,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-04T03:18:10.728478Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-08-12T10:06:01.217830Z"
     },
     {
       "id": "contra_2026-08-04-SIEMENS-DOWN_TRI",
@@ -17494,10 +17502,10 @@
       "effective_exit_date": "2026-08-12",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-08-12",
+      "outcome_price": 4022.0,
+      "pnl_pct": 9.93,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -17506,7 +17514,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-04T03:18:10.744883Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-08-12T10:06:01.422537Z"
     },
     {
       "id": "contra_2026-08-04-ABB-DOWN_TRI",
@@ -17536,10 +17546,10 @@
       "effective_exit_date": "2026-08-12",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-08-12",
+      "outcome_price": 7611.5,
+      "pnl_pct": 4.39,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -17548,7 +17558,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-04T03:18:10.761539Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-08-12T10:06:01.722651Z"
     },
     {
       "id": "contra_2026-08-05-SBIN-DOWN_TRI",
@@ -18331,7 +18343,7 @@
       "grade": "B",
       "atr": 54.75,
       "exit_date": "20 Aug",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-08-20",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -18349,5 +18361,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-08-11T10:05:56.856173Z"
+  "updated_at": "2026-08-12T10:06:01.723229Z"
 }
