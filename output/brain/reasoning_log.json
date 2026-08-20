@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-08-19T22:01:03.197067+05:30",
+  "generated_at": "2026-08-20T22:01:15.611342+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -6226,6 +6226,36 @@
       "request_id": "msg_011CeCRfFLWS3C27eRutsngv",
       "decision": "generate_warn",
       "rationale": "Regime concentration is triggered at 100% Bull (22/22, well above the 0.80 threshold) and UP_TRI dominates signal mix at 17/22 = 77.3%, but combined with BULL_PROXY the book is 22/22 = 100% directional-long — a full monoculture. Matched Bull×UP_TRI cohort sits only at Candidate tier (n=138) — unvalidated edge. Extends a multi-week warn streak of regime + directional-long monoculture on an unvalidated cohort.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-20T22:01:01.794027+05:30",
+      "run_id": "brain_run_2026-08-20_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Bull shifting 6 days; 20 prior regime alerts in history.",
+      "input_tokens": 4966,
+      "output_tokens": 172,
+      "cost_usd": 0.0291,
+      "request_id": "msg_011CeEKUdGcsjqCMZcZFH4hu",
+      "decision": "no_alert",
+      "rationale": "The Choppy→Bull transition was already alerted on 2026-08-10 when the second consecutive Bull day and slope acceleration confirmed the inflection. Today's data (days_in_current_regime=6, recent 7d: 6 Bull / 1 Choppy, slope +0.008266 maintaining positive sign) is continuation of that already-alerted shift. Re-alerting would duplicate signal.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-20T22:01:15.611342+05:30",
+      "run_id": "brain_run_2026-08-20_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=True (100.0% Bull), 4 sector concentrations, signal types (UP_TRI 12, BULL_PROXY 5). 20 prior exposure warnings.",
+      "input_tokens": 6995,
+      "output_tokens": 932,
+      "cost_usd": 0.0583,
+      "request_id": "msg_011CeEKUsPgT42PZQL9DuYnm",
+      "decision": "generate_warn",
+      "rationale": "Regime concentration is triggered at 100% Bull (17/17, well above the 0.80 threshold) and the UP_TRI×Bull×CapGoods cell breaches the 0.20 cell threshold at 17.65% (3/17) — just below the hard line, but combined with three other cells at 11.76% (Pharma, Chem, Bank) the book is a tightly clustered directional-long monoculture. UP_TRI is 12/17 = 70.6% and combined with BULL_PROXY the book is 100% directional-long. Matched Bull×UP_TRI cohort sits only at Candidate tier (n=145) — unvalidated edge across all concentrated cells, extending a multi-week warn streak.",
       "aborted_by_circuit_breaker": false
     }
   ]
