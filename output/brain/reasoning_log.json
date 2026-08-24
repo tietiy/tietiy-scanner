@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-08-23T22:01:03.997250+05:30",
+  "generated_at": "2026-08-24T22:01:08.560467+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -6346,6 +6346,36 @@
       "request_id": "msg_011CeKztvSiWzTBj2CUjxEmQ",
       "decision": "generate_warn",
       "rationale": "No hard threshold is breached individually — regime concentration at 64.15% Choppy is below 0.80, top cell UP_TRI×Choppy×Bank at 15.09% is below 0.20, and UP_TRI at 42/53 = 79.2% is below 0.85. However, combining UP_TRI (42) with BULL_PROXY (8) yields 50/53 = 94.3% directional-long exposure, effectively a monoculture, and the matched Choppy×UP_TRI cohort remains Candidate-tier (n=373) — unvalidated edge. This extends a multi-week warn streak of directional-long exposure without cohort validation.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-24T22:00:56.898648+05:30",
+      "run_id": "brain_run_2026-08-24_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy shifting 2 days; 20 prior regime alerts in history.",
+      "input_tokens": 4914,
+      "output_tokens": 222,
+      "cost_usd": 0.0301,
+      "request_id": "msg_011CeMthuko8R8HU6HwFpvSX",
+      "decision": "no_alert",
+      "rationale": "Recent 7d distribution (5 Bull / 2 Choppy) still shows Bull as the majority — no distributional flip has occurred despite today's Choppy classification pushing days_in_current_regime to 2. Weekly intelligence slope (+0.00356) maintains the same positive sign as prior weeks with price above EMA50 and avg_ret20 at 1.52, showing no inflection. This matches the isolated Choppy spike pattern flagged on 2026-08-23 within a sustained Bull regime, not a true Bull→Choppy transition.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-24T22:01:08.560467+05:30",
+      "run_id": "brain_run_2026-08-24_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=False (60.0% ?), 9 sector concentrations, signal types (UP_TRI 7, BULL_PROXY 3). 20 prior exposure warnings.",
+      "input_tokens": 8206,
+      "output_tokens": 888,
+      "cost_usd": 0.0632,
+      "request_id": "msg_011CeMtiAofGJ5PfYtEPUkAv",
+      "decision": "generate_warn",
+      "rationale": "UP_TRI×Bull×Bank cell hits the 0.20 cell threshold exactly at 20% (2/10), triggering the hard cell-concentration rule. Additionally, the book is 100% directional-long (UP_TRI 70% + BULL_PROXY 30%) and all concentrated cells match only Candidate-tier cohorts (Bull×UP_TRI n=145, Choppy×UP_TRI n=373, Bull×BULL_PROXY n=5) — unvalidated edge across the entire book. Extends a multi-week warn streak of directional-long monoculture on unvalidated cohorts.",
       "aborted_by_circuit_breaker": false
     }
   ]
