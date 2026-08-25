@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-08-24T22:01:08.560467+05:30",
+  "generated_at": "2026-08-25T22:01:15.849348+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -6376,6 +6376,36 @@
       "request_id": "msg_011CeMtiAofGJ5PfYtEPUkAv",
       "decision": "generate_warn",
       "rationale": "UP_TRI×Bull×Bank cell hits the 0.20 cell threshold exactly at 20% (2/10), triggering the hard cell-concentration rule. Additionally, the book is 100% directional-long (UP_TRI 70% + BULL_PROXY 30%) and all concentrated cells match only Candidate-tier cohorts (Bull×UP_TRI n=145, Choppy×UP_TRI n=373, Bull×BULL_PROXY n=5) — unvalidated edge across the entire book. Extends a multi-week warn streak of directional-long monoculture on unvalidated cohorts.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-25T22:01:03.867624+05:30",
+      "run_id": "brain_run_2026-08-25_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy shifting 3 days; 20 prior regime alerts in history.",
+      "input_tokens": 4935,
+      "output_tokens": 622,
+      "cost_usd": 0.0402,
+      "request_id": "msg_011CePnWxsZrsp8GKMHbMwkm",
+      "decision": "generate_alert",
+      "rationale": "Recent 7d distribution now shows 4 Bull / 3 Choppy vs prior 7d of 5 Bull / 2 Choppy — while Bull still holds a razor-thin plurality, this is the third consecutive Choppy day (days_in_current_regime=3), breaking the isolated single-day spike pattern flagged on 08-23 and 08-24. Weekly slope has decelerated from +0.008266 to +0.00356 and avg_ret20 dropped from prior highs to 1.52, indicating trend loss consistent with a genuine Bull→Choppy inflection rather than continued wobble.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-25T22:01:15.849348+05:30",
+      "run_id": "brain_run_2026-08-25_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=False (63.6% ?), 1 sector concentrations, signal types (UP_TRI 8, BULL_PROXY 3). 20 prior exposure warnings.",
+      "input_tokens": 6459,
+      "output_tokens": 841,
+      "cost_usd": 0.0533,
+      "request_id": "msg_011CePnXcJ6WQsEpAffxydML",
+      "decision": "generate_warn",
+      "rationale": "No single hard threshold is breached individually — regime concentration at 63.64% Choppy sits below 0.80, top cell UP_TRI×Bull×Bank at 18.18% is below 0.20, and UP_TRI at 8/11 = 72.7% is below 0.85. However, combining UP_TRI (8) with BULL_PROXY (3) yields 11/11 = 100% directional-long exposure — a full monoculture — and the matched Bull×UP_TRI cohort remains Candidate-tier (n=145), unvalidated edge. This extends a multi-week warn streak of directional-long exposure without cohort validation.",
       "aborted_by_circuit_breaker": false
     }
   ]
