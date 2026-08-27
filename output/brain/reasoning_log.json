@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-08-26T22:01:15.123245+05:30",
+  "generated_at": "2026-08-27T22:00:57.410525+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -6436,6 +6436,36 @@
       "request_id": "msg_011CeRgLQiq6VQ4u5eUvx2MQ",
       "decision": "generate_warn",
       "rationale": "Regime concentration is triggered at 83.33% Choppy (10/12, above the 0.80 threshold), and the book is effectively a directional-long monoculture at 100% (UP_TRI 9/12 = 75% + BULL_PROXY 3/12 = 25%). Both concentrated cells (UP_TRI×Choppy×Bank at 16.67% and UP_TRI×Choppy×Pharma at 16.67%) match only the Candidate-tier Choppy×UP_TRI cohort (n=338) — unvalidated edge across all concentration axes. Extends a multi-week warn streak of regime + directional-long monoculture on an unvalidated cohort.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-27T22:00:54.567472+05:30",
+      "run_id": "brain_run_2026-08-27_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy shifting 4 days; 20 prior regime alerts in history.",
+      "input_tokens": 4965,
+      "output_tokens": 185,
+      "cost_usd": 0.0295,
+      "request_id": "msg_011CeTa8ZeKkMnaEfL94rxUk",
+      "decision": "no_alert",
+      "rationale": "The Bull→Choppy transition was already alerted on 2026-08-25 when the third consecutive Choppy day and slope deceleration (+0.008266→+0.00356) confirmed the inflection. Today's data (days_in_current_regime=4, recent 7d: 4 Choppy / 3 Bull, unchanged slope +0.00356) is continuation of that already-alerted shift, not new news. Re-alerting would duplicate signal.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-27T22:00:57.410525+05:30",
+      "run_id": "brain_run_2026-08-27_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=False (0.0% ?), 0 sector concentrations, signal types (). 20 prior exposure warnings.",
+      "input_tokens": 6211,
+      "output_tokens": 108,
+      "cost_usd": 0.0338,
+      "request_id": "msg_011CeTa8kB69C1v8Jt7pCXux",
+      "decision": "no_warn",
+      "rationale": "Portfolio has zero open positions (total_open=0). No concentration can exist without exposure. Regime concentration flag is false and no cells are populated. The multi-week warn streak breaks naturally because the book is flat.",
       "aborted_by_circuit_breaker": false
     }
   ]
