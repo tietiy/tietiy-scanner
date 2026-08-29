@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "view_name": "reasoning_log",
-  "generated_at": "2026-08-28T22:01:06.146025+05:30",
+  "generated_at": "2026-08-29T22:01:12.419317+05:30",
   "entries": [
     {
       "timestamp": "2026-04-29T01:58:54.875912+05:30",
@@ -6496,6 +6496,36 @@
       "request_id": "msg_011CeVTwf2mnK4hZuhWbmEma",
       "decision": "generate_warn",
       "rationale": "Regime concentration is triggered at 100% Choppy (11/11, well above the 0.80 threshold), and the book is 100% directional-long (UP_TRI 8/11 = 72.7% + BULL_PROXY 3/11 = 27.3%) — effectively a monoculture. The UP_TRI×Choppy×Bank cell breaches the 0.20 cell threshold at 27.27% (3/11), and both concentrated cells match only the Candidate-tier Choppy×UP_TRI cohort (n=339) — unvalidated edge. Extends a multi-week warn streak of regime + directional-long monoculture on an unvalidated cohort.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-29T22:01:00.293767+05:30",
+      "run_id": "brain_run_2026-08-29_2200",
+      "gate_name": "regime_shift_detector",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "regime_watch shows Choppy shifting 5 days; 20 prior regime alerts in history.",
+      "input_tokens": 5033,
+      "output_tokens": 195,
+      "cost_usd": 0.03,
+      "request_id": "msg_011CeXMkp2mLVa1KBkVXVx2v",
+      "decision": "no_alert",
+      "rationale": "The Bull→Choppy transition was already alerted on 2026-08-25 when the third consecutive Choppy day and slope deceleration (+0.008266→+0.00356) confirmed the inflection. Today's data (days_in_current_regime=5, recent 7d: 5 Choppy / 2 Bull, unchanged slope +0.00356 maintaining same positive sign) is continuation of that already-alerted shift, not new news. Re-alerting would duplicate signal.",
+      "aborted_by_circuit_breaker": false
+    },
+    {
+      "timestamp": "2026-08-29T22:01:12.419317+05:30",
+      "run_id": "brain_run_2026-08-29_2200",
+      "gate_name": "exposure_correlation_analyzer",
+      "model": "claude-opus-4-7",
+      "candidate_id": null,
+      "gate_input_summary": "portfolio_exposure: regime_concentration triggered=True (96.3% Choppy), 2 sector concentrations, signal types (UP_TRI 45, DOWN_TRI 3, BULL_PROXY 6). 20 prior exposure warnings.",
+      "input_tokens": 6786,
+      "output_tokens": 895,
+      "cost_usd": 0.0563,
+      "request_id": "msg_011CeXMm16mvWE6QypMAabCc",
+      "decision": "generate_warn",
+      "rationale": "Regime concentration is triggered at 96.3% Choppy (52/54, well above the 0.80 threshold) and the UP_TRI×Choppy×Bank cell breaches the 0.20 cell threshold at 22.22% (12/54). UP_TRI dominates signal mix at 45/54 = 83.3%, and combined with BULL_PROXY the book is 51/54 = 94.4% directional-long — effectively a monoculture. Both concentrated cells match only the Candidate-tier Choppy×UP_TRI cohort (n=339) — unvalidated edge across all concentration axes.",
       "aborted_by_circuit_breaker": false
     }
   ]
