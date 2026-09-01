@@ -1,6 +1,62 @@
 {
-  "date": "2026-08-27",
+  "date": "2026-09-01",
   "fetch_time": "03:57 IST",
-  "count": 0,
-  "results": []
+  "count": 5,
+  "results": [
+    {
+      "symbol": "AXISBANK.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-08-31",
+      "actual_open": 1267.4,
+      "scan_price": 1265.0,
+      "gap_pct": 0.19,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "TATASTEEL.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-08-31",
+      "actual_open": 183.16,
+      "scan_price": 186.5,
+      "gap_pct": -1.79,
+      "gap_status": "WARNING",
+      "note": "Gap -1.8% \u2014 reduced R:R, trade with caution",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "SAIL.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-08-31",
+      "actual_open": 195.71,
+      "scan_price": 200.0,
+      "gap_pct": -2.14,
+      "gap_status": "WARNING",
+      "note": "Gap -2.1% \u2014 reduced R:R, trade with caution",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "JINDALSTEL.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-08-31",
+      "actual_open": 1173.8,
+      "scan_price": 1179.2,
+      "gap_pct": -0.46,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "ADANIENT.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-08-31",
+      "actual_open": 2915.0,
+      "scan_price": 3168.5,
+      "gap_pct": -8.0,
+      "gap_status": "SKIP",
+      "note": "Gap -8.0% \u2014 skip this signal (>3%)",
+      "fetch_time": "03:57 IST"
+    }
+  ]
 }
