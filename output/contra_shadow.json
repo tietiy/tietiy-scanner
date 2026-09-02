@@ -21418,10 +21418,10 @@
       "effective_exit_date": "2026-09-02",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-09-02",
+      "outcome_price": 1026.0,
+      "pnl_pct": -2.16,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -21430,7 +21430,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-24T03:17:24.599687Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-02T10:05:53.875829Z"
     },
     {
       "id": "contra_2026-08-24-BANDHANBNK-DOWN_TRI",
@@ -21460,10 +21462,10 @@
       "effective_exit_date": "2026-09-02",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-09-02",
+      "outcome_price": 161.0,
+      "pnl_pct": -8.05,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -21472,7 +21474,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-24T03:17:24.619797Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-02T10:05:54.011881Z"
     },
     {
       "id": "contra_2026-08-24-RELIANCE-DOWN_TRI",
@@ -21502,10 +21506,10 @@
       "effective_exit_date": "2026-09-02",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-09-02",
+      "outcome_price": 1298.0,
+      "pnl_pct": -1.37,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -21514,7 +21518,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-24T03:17:24.639963Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-02T10:05:54.270881Z"
     },
     {
       "id": "contra_2026-08-24-RVNL-DOWN_TRI",
@@ -21544,10 +21550,10 @@
       "effective_exit_date": "2026-09-02",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-09-02",
+      "outcome_price": 207.0,
+      "pnl_pct": -8.12,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -21556,7 +21562,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-24T03:17:24.660220Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-02T10:05:54.440880Z"
     },
     {
       "id": "contra_2026-08-25-M&M-DOWN_TRI",
@@ -22969,7 +22977,7 @@
       "grade": "B",
       "atr": 6.32,
       "exit_date": "10 Sep",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-09-10",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -23011,7 +23019,7 @@
       "grade": "B",
       "atr": 93.71,
       "exit_date": "10 Sep",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-09-10",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -23029,5 +23037,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-09-01T10:06:01.561105Z"
+  "updated_at": "2026-09-02T10:05:54.441959Z"
 }
