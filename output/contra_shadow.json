@@ -21594,10 +21594,10 @@
       "effective_exit_date": "2026-09-03",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-09-03",
+      "outcome_price": 3200.0,
+      "pnl_pct": -6.27,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -21606,7 +21606,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-25T03:17:20.133142Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-03T10:05:57.605721Z"
     },
     {
       "id": "contra_2026-08-25-BHARATFORG-DOWN_TRI",
@@ -21636,10 +21638,10 @@
       "effective_exit_date": "2026-09-03",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-09-03",
+      "outcome_price": 2025.0,
+      "pnl_pct": -0.78,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -21648,7 +21650,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-25T03:17:20.153944Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-03T10:05:57.751227Z"
     },
     {
       "id": "contra_2026-08-25-IRCTC-DOWN_TRI",
@@ -21678,10 +21682,10 @@
       "effective_exit_date": "2026-09-03",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-09-03",
+      "outcome_price": 474.95,
+      "pnl_pct": -1.7,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -21690,7 +21694,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-25T03:17:20.174440Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-03T10:05:57.865535Z"
     },
     {
       "id": "contra_2026-08-25-TATAELXSI-DOWN_TRI",
@@ -21720,10 +21726,10 @@
       "effective_exit_date": "2026-09-03",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-09-03",
+      "outcome_price": 3630.0,
+      "pnl_pct": -1.18,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -21732,7 +21738,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-08-25T03:17:20.194966Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-03T10:05:58.020747Z"
     },
     {
       "id": "contra_2026-08-26-HCLTECH-DOWN_TRI",
@@ -23061,7 +23069,7 @@
       "grade": "B",
       "atr": 4.13,
       "exit_date": "11 Sep",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-09-11",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -23103,7 +23111,7 @@
       "grade": "B",
       "atr": 69.21,
       "exit_date": "11 Sep",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-09-11",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -23145,7 +23153,7 @@
       "grade": "B",
       "atr": 93.71,
       "exit_date": "11 Sep",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-09-11",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -23163,5 +23171,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-09-02T10:05:54.441959Z"
+  "updated_at": "2026-09-03T10:05:58.021838Z"
 }
