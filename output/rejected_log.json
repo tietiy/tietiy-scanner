@@ -1,9 +1,9 @@
 {
-  "date": "2026-09-14",
-  "count": 17,
+  "date": "2026-09-15",
+  "count": 8,
   "rejections": [
     {
-      "date": "2026-09-14",
+      "date": "2026-09-15",
       "symbol": "PERSISTENT.NS",
       "signal": "DOWN_TRI",
       "alpha_score": 6,
@@ -21,52 +21,7 @@
       "scanner_version": "v2.0"
     },
     {
-      "date": "2026-09-14",
-      "symbol": "BAJAJ-AUTO.NS",
-      "signal": "BULL_PROXY",
-      "alpha_score": 3,
-      "regime": "Bear",
-      "grade": "B",
-      "passed": true,
-      "shadow_only": true,
-      "rejection_reason": "score_below_threshold",
-      "rejection_filter": "min_score",
-      "threshold": 7,
-      "actual_value": 3,
-      "scanner_version": "v2.0"
-    },
-    {
-      "date": "2026-09-14",
-      "symbol": "BAJAJ-AUTO.NS",
-      "signal": "BULL_PROXY",
-      "alpha_score": 3,
-      "regime": "Bear",
-      "grade": "B",
-      "passed": true,
-      "shadow_only": true,
-      "rejection_reason": "regime_not_aligned",
-      "rejection_filter": "regime_alignment",
-      "threshold": "LONG",
-      "actual_value": "Bear",
-      "scanner_version": "v2.0"
-    },
-    {
-      "date": "2026-09-14",
-      "symbol": "BAJAJ-AUTO.NS",
-      "signal": "BULL_PROXY",
-      "alpha_score": 3,
-      "regime": "Bear",
-      "grade": "B",
-      "passed": true,
-      "shadow_only": true,
-      "rejection_reason": "volume_not_confirmed",
-      "rejection_filter": "require_volume",
-      "threshold": true,
-      "actual_value": false,
-      "scanner_version": "v2.0"
-    },
-    {
-      "date": "2026-09-14",
+      "date": "2026-09-15",
       "symbol": "GLENMARK.NS",
       "signal": "DOWN_TRI",
       "alpha_score": 6,
@@ -84,7 +39,7 @@
       "scanner_version": "v2.0"
     },
     {
-      "date": "2026-09-14",
+      "date": "2026-09-15",
       "symbol": "SAIL.NS",
       "signal": "DOWN_TRI",
       "alpha_score": 6,
@@ -102,7 +57,7 @@
       "scanner_version": "v2.0"
     },
     {
-      "date": "2026-09-14",
+      "date": "2026-09-15",
       "symbol": "JINDALSTEL.NS",
       "signal": "DOWN_TRI",
       "alpha_score": 7,
@@ -120,52 +75,7 @@
       "scanner_version": "v2.0"
     },
     {
-      "date": "2026-09-14",
-      "symbol": "GAIL.NS",
-      "signal": "UP_TRI",
-      "alpha_score": 6,
-      "regime": "Bear",
-      "grade": "B",
-      "passed": true,
-      "shadow_only": true,
-      "rejection_reason": "score_below_threshold",
-      "rejection_filter": "min_score",
-      "threshold": 7,
-      "actual_value": 6,
-      "scanner_version": "v2.0"
-    },
-    {
-      "date": "2026-09-14",
-      "symbol": "GAIL.NS",
-      "signal": "UP_TRI",
-      "alpha_score": 6,
-      "regime": "Bear",
-      "grade": "B",
-      "passed": true,
-      "shadow_only": true,
-      "rejection_reason": "regime_not_aligned",
-      "rejection_filter": "regime_alignment",
-      "threshold": "LONG",
-      "actual_value": "Bear",
-      "scanner_version": "v2.0"
-    },
-    {
-      "date": "2026-09-14",
-      "symbol": "GAIL.NS",
-      "signal": "UP_TRI",
-      "alpha_score": 6,
-      "regime": "Bear",
-      "grade": "B",
-      "passed": true,
-      "shadow_only": true,
-      "rejection_reason": "volume_not_confirmed",
-      "rejection_filter": "require_volume",
-      "threshold": true,
-      "actual_value": false,
-      "scanner_version": "v2.0"
-    },
-    {
-      "date": "2026-09-14",
+      "date": "2026-09-15",
       "symbol": "WHIRLPOOL.NS",
       "signal": "DOWN_TRI",
       "alpha_score": 6,
@@ -183,7 +93,7 @@
       "scanner_version": "v2.0"
     },
     {
-      "date": "2026-09-14",
+      "date": "2026-09-15",
       "symbol": "CDSL.NS",
       "signal": "DOWN_TRI",
       "alpha_score": 5,
@@ -201,7 +111,7 @@
       "scanner_version": "v2.0"
     },
     {
-      "date": "2026-09-14",
+      "date": "2026-09-15",
       "symbol": "ZYDUSLIFE.NS",
       "signal": "DOWN_TRI",
       "alpha_score": 5,
@@ -219,7 +129,7 @@
       "scanner_version": "v2.0"
     },
     {
-      "date": "2026-09-14",
+      "date": "2026-09-15",
       "symbol": "ADANIENT.NS",
       "signal": "DOWN_TRI",
       "alpha_score": 5,
@@ -234,51 +144,6 @@
       "kill_rule_id": "kill_002",
       "kill_reason": "Baseline 22.2% WR / -4.74% avg pnl on n=46 resolved (cohort_health.json). No sub-population at n>=10 is profitable. DOWN_TRI\u00d7Bank=0% WR n=11 (already covered by kill_001). DOWN_TRI\u00d7Bear=20% WR n=21. DOWN_TRI\u00d7Choppy=24% WR n=25. Geometry structurally broken: no target, no ages 1-3 detection, no regime discrimination, Day-6 forced exits cap upside while stops realize full -1R.",
       "contra_tracked": true,
-      "scanner_version": "v2.0"
-    },
-    {
-      "date": "2026-09-14",
-      "symbol": "ADANIENT.NS",
-      "signal": "BULL_PROXY",
-      "alpha_score": 3,
-      "regime": "Bear",
-      "grade": "B",
-      "passed": true,
-      "shadow_only": true,
-      "rejection_reason": "score_below_threshold",
-      "rejection_filter": "min_score",
-      "threshold": 7,
-      "actual_value": 3,
-      "scanner_version": "v2.0"
-    },
-    {
-      "date": "2026-09-14",
-      "symbol": "ADANIENT.NS",
-      "signal": "BULL_PROXY",
-      "alpha_score": 3,
-      "regime": "Bear",
-      "grade": "B",
-      "passed": true,
-      "shadow_only": true,
-      "rejection_reason": "regime_not_aligned",
-      "rejection_filter": "regime_alignment",
-      "threshold": "LONG",
-      "actual_value": "Bear",
-      "scanner_version": "v2.0"
-    },
-    {
-      "date": "2026-09-14",
-      "symbol": "ADANIENT.NS",
-      "signal": "BULL_PROXY",
-      "alpha_score": 3,
-      "regime": "Bear",
-      "grade": "B",
-      "passed": true,
-      "shadow_only": true,
-      "rejection_reason": "volume_not_confirmed",
-      "rejection_filter": "require_volume",
-      "threshold": true,
-      "actual_value": false,
       "scanner_version": "v2.0"
     }
   ]
