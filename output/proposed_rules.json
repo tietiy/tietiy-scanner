@@ -1,8 +1,8 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-16T10:06:21.960894Z",
+  "generated_at": "2026-09-17T10:06:01.209575Z",
   "source_patterns_file": "/home/runner/work/tietiy-scanner/tietiy-scanner/output/patterns.json",
-  "source_patterns_count": 319,
+  "source_patterns_count": 320,
   "active_kill_rules_count": 2,
   "total_proposals": 133,
   "pending_count": 99,
@@ -27,10 +27,10 @@
         "avg_pnl": -2.54,
         "avg_mae": 6.07,
         "avg_mfe": 2.38,
-        "edge_pp": -28.9,
+        "edge_pp": -28.7,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "rejected",
       "proposed_date": "2026-05-12T10:06:08.091476Z",
@@ -38,7 +38,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959818Z",
+      "last_updated": "2026-09-17T10:06:01.208141Z",
       "insight": "Choppy regime + IT sector underperforms UP_TRI baseline by 33.8pp (27.3% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "IT-broad kill. UP_TRI\u00d7IT WR=68.4% n=19 would kill win_003.",
@@ -56,10 +56,10 @@
         "avg_pnl": -2.82,
         "avg_mae": 6.76,
         "avg_mfe": 2.5,
-        "edge_pp": -27.6,
+        "edge_pp": -27.4,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-05-19T10:05:59.337858Z",
@@ -67,7 +67,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959827Z",
+      "last_updated": "2026-09-17T10:06:01.208148Z",
       "insight": "UP_TRI + Choppy regime + IT sector underperforms UP_TRI baseline by 59.0pp (0.0% WR in 11 trades)"
     },
     {
@@ -82,10 +82,10 @@
         "avg_pnl": -2.46,
         "avg_mae": 5.87,
         "avg_mfe": 2.48,
-        "edge_pp": -27.6,
+        "edge_pp": -27.4,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "rejected",
       "proposed_date": "2026-05-12T10:06:08.091629Z",
@@ -93,7 +93,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959831Z",
+      "last_updated": "2026-09-17T10:06:01.208153Z",
       "insight": "Choppy regime + IT sector + Grade B underperforms UP_TRI baseline by 33.8pp (27.3% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Same \u2014 IT-broad kill.",
@@ -111,10 +111,10 @@
         "avg_pnl": -1.65,
         "avg_mae": 5.25,
         "avg_mfe": 2.19,
-        "edge_pp": -23.3,
+        "edge_pp": -23.1,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "rejected",
       "proposed_date": "2026-05-12T10:06:08.091528Z",
@@ -122,7 +122,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959843Z",
+      "last_updated": "2026-09-17T10:06:01.208157Z",
       "insight": "IT sector + age=0 underperforms UP_TRI baseline by 33.8pp (27.3% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Duplicate of prop_068.",
@@ -140,10 +140,10 @@
         "avg_pnl": -2.17,
         "avg_mae": 5.45,
         "avg_mfe": 2.44,
-        "edge_pp": -22.9,
+        "edge_pp": -22.7,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-07-27T10:05:58.775397Z",
@@ -151,7 +151,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959847Z",
+      "last_updated": "2026-09-17T10:06:01.208159Z",
       "insight": "IT sector underperforms UP_TRI baseline by 11.2pp (38.0% WR in 50 trades)"
     },
     {
@@ -166,10 +166,10 @@
         "avg_pnl": -1.76,
         "avg_mae": 5.7,
         "avg_mfe": 2.26,
-        "edge_pp": -21.6,
+        "edge_pp": -21.4,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-05-19T10:05:59.337914Z",
@@ -177,7 +177,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959851Z",
+      "last_updated": "2026-09-17T10:06:01.208173Z",
       "insight": "UP_TRI + IT sector + age=0 underperforms UP_TRI baseline by 59.0pp (0.0% WR in 11 trades)"
     },
     {
@@ -192,10 +192,10 @@
         "avg_pnl": -1.48,
         "avg_mae": 4.98,
         "avg_mfe": 2.24,
-        "edge_pp": -21.6,
+        "edge_pp": -21.4,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "rejected",
       "proposed_date": "2026-05-12T10:06:08.091679Z",
@@ -203,7 +203,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959854Z",
+      "last_updated": "2026-09-17T10:06:01.208178Z",
       "insight": "IT sector + age=0 + Grade B underperforms UP_TRI baseline by 33.8pp (27.3% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Same \u2014 IT-broad kill.",
@@ -221,10 +221,10 @@
         "avg_pnl": -2.32,
         "avg_mae": 5.83,
         "avg_mfe": 2.52,
-        "edge_pp": -21.5,
+        "edge_pp": -21.3,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-07-16T10:06:24.351338Z",
@@ -232,7 +232,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959856Z",
+      "last_updated": "2026-09-17T10:06:01.208182Z",
       "insight": "UP_TRI + IT sector underperforms UP_TRI baseline by 10.3pp (40.0% WR in 35 trades)"
     },
     {
@@ -247,10 +247,10 @@
         "avg_pnl": -2.09,
         "avg_mae": 5.25,
         "avg_mfe": 2.51,
-        "edge_pp": -21.5,
+        "edge_pp": -21.3,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-04-28T10:06:02.325504Z",
@@ -258,7 +258,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959859Z",
+      "last_updated": "2026-09-17T10:06:01.208186Z",
       "insight": "IT sector + Grade B underperforms UP_TRI baseline by 12.9pp (62.5% WR in 16 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -274,10 +274,10 @@
         "avg_pnl": -1.22,
         "avg_mae": 3.41,
         "avg_mfe": 1.85,
-        "edge_pp": -19.7,
+        "edge_pp": -19.5,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-28T10:06:27.381160Z",
@@ -285,7 +285,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959861Z",
+      "last_updated": "2026-09-17T10:06:01.208190Z",
       "insight": "UP_TRI + Energy sector underperforms UP_TRI baseline by 10.3pp (28.3% WR in 46 trades)"
     },
     {
@@ -300,10 +300,10 @@
         "avg_pnl": -1.22,
         "avg_mae": 3.41,
         "avg_mfe": 1.85,
-        "edge_pp": -19.7,
+        "edge_pp": -19.5,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-28T10:06:27.381233Z",
@@ -311,7 +311,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959864Z",
+      "last_updated": "2026-09-17T10:06:01.208193Z",
       "insight": "UP_TRI + Energy sector + Grade B underperforms UP_TRI baseline by 10.3pp (28.3% WR in 46 trades)"
     },
     {
@@ -326,10 +326,10 @@
         "avg_pnl": -2.24,
         "avg_mae": 5.65,
         "avg_mfe": 2.61,
-        "edge_pp": -19.7,
+        "edge_pp": -19.5,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-04-28T10:06:02.325539Z",
@@ -337,7 +337,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959866Z",
+      "last_updated": "2026-09-17T10:06:01.208197Z",
       "insight": "UP_TRI + IT sector + Grade B underperforms UP_TRI baseline by 12.9pp (62.5% WR in 16 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -353,10 +353,10 @@
         "avg_pnl": -1.3,
         "avg_mae": 3.49,
         "avg_mfe": 1.91,
-        "edge_pp": -17.6,
+        "edge_pp": -17.4,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-09-01T10:06:09.926953Z",
@@ -364,7 +364,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959869Z",
+      "last_updated": "2026-09-17T10:06:01.208202Z",
       "insight": "UP_TRI + Energy sector + age=0 underperforms UP_TRI baseline by 18.1pp (20.6% WR in 34 trades)"
     },
     {
@@ -379,10 +379,10 @@
         "avg_pnl": -1.07,
         "avg_mae": 3.56,
         "avg_mfe": 2.26,
-        "edge_pp": -15.9,
+        "edge_pp": -15.7,
         "tier": "validated",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-09-01T10:06:09.927034Z",
@@ -390,7 +390,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959872Z",
+      "last_updated": "2026-09-17T10:06:01.208206Z",
       "insight": "UP_TRI + Choppy regime + Energy sector underperforms UP_TRI baseline by 16.0pp (22.7% WR in 22 trades)"
     },
     {
@@ -405,10 +405,10 @@
         "avg_pnl": -1.75,
         "avg_mae": 5.75,
         "avg_mfe": 2.08,
-        "edge_pp": -27.1,
+        "edge_pp": -26.9,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "rejected",
       "proposed_date": "2026-05-12T10:06:08.091579Z",
@@ -416,7 +416,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959875Z",
+      "last_updated": "2026-09-17T10:06:01.208209Z",
       "insight": "Choppy regime + IT sector + age=0 underperforms UP_TRI baseline by 33.8pp (27.3% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Duplicate; kills UP_TRI\u00d7IT winner.",
@@ -434,10 +434,10 @@
         "avg_pnl": -1.43,
         "avg_mae": 3.18,
         "avg_mfe": 1.26,
-        "edge_pp": -25.1,
+        "edge_pp": -24.9,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-07-16T10:06:24.350757Z",
@@ -445,7 +445,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959878Z",
+      "last_updated": "2026-09-17T10:06:01.208213Z",
       "insight": "UP_TRI + Bull regime + Energy sector underperforms UP_TRI baseline by 40.3pp (10.0% WR in 10 trades)"
     },
     {
@@ -460,10 +460,10 @@
         "avg_pnl": -1.31,
         "avg_mae": 3.08,
         "avg_mfe": 1.37,
-        "edge_pp": -20.0,
+        "edge_pp": -19.8,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-07-16T10:06:24.350688Z",
@@ -471,7 +471,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959882Z",
+      "last_updated": "2026-09-17T10:06:01.208219Z",
       "insight": "Bull regime + Energy sector underperforms UP_TRI baseline by 40.3pp (10.0% WR in 10 trades)"
     },
     {
@@ -486,10 +486,10 @@
         "avg_pnl": -1.31,
         "avg_mae": 3.08,
         "avg_mfe": 1.37,
-        "edge_pp": -20.0,
+        "edge_pp": -19.8,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-07-16T10:06:24.350824Z",
@@ -497,7 +497,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959885Z",
+      "last_updated": "2026-09-17T10:06:01.208223Z",
       "insight": "Bull regime + Energy sector + Grade B underperforms UP_TRI baseline by 40.3pp (10.0% WR in 10 trades)"
     },
     {
@@ -512,10 +512,10 @@
         "avg_pnl": -1.27,
         "avg_mae": 3.08,
         "avg_mfe": 1.45,
-        "edge_pp": -18.8,
+        "edge_pp": -18.6,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-07-23T10:06:04.583660Z",
@@ -523,7 +523,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959888Z",
+      "last_updated": "2026-09-17T10:06:01.208227Z",
       "insight": "Bull regime + Energy sector + age=0 underperforms UP_TRI baseline by 30.2pp (20.0% WR in 10 trades)"
     },
     {
@@ -538,10 +538,10 @@
         "avg_pnl": -1.16,
         "avg_mae": 3.28,
         "avg_mfe": 1.85,
-        "edge_pp": -17.6,
+        "edge_pp": -17.4,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-28T10:06:27.380713Z",
@@ -549,7 +549,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959891Z",
+      "last_updated": "2026-09-17T10:06:01.208230Z",
       "insight": "Bull regime + Chem sector underperforms UP_TRI baseline by 18.6pp (20.0% WR in 10 trades)"
     },
     {
@@ -564,10 +564,10 @@
         "avg_pnl": -1.16,
         "avg_mae": 3.28,
         "avg_mfe": 1.85,
-        "edge_pp": -17.6,
+        "edge_pp": -17.4,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-28T10:06:27.380805Z",
@@ -575,7 +575,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959894Z",
+      "last_updated": "2026-09-17T10:06:01.208234Z",
       "insight": "UP_TRI + Bull regime + Chem sector underperforms UP_TRI baseline by 18.6pp (20.0% WR in 10 trades)"
     },
     {
@@ -590,10 +590,10 @@
         "avg_pnl": -1.16,
         "avg_mae": 3.28,
         "avg_mfe": 1.85,
-        "edge_pp": -17.6,
+        "edge_pp": -17.4,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-28T10:06:27.380879Z",
@@ -601,7 +601,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959897Z",
+      "last_updated": "2026-09-17T10:06:01.208238Z",
       "insight": "Bull regime + Chem sector + Grade B underperforms UP_TRI baseline by 18.6pp (20.0% WR in 10 trades)"
     },
     {
@@ -616,10 +616,10 @@
         "avg_pnl": -0.72,
         "avg_mae": 3.11,
         "avg_mfe": 2.37,
-        "edge_pp": -11.5,
+        "edge_pp": -11.3,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "rejected",
       "proposed_date": "2026-04-24T10:06:35.969703Z",
@@ -627,7 +627,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959903Z",
+      "last_updated": "2026-09-17T10:06:01.208248Z",
       "insight": "Energy sector underperforms UP_TRI baseline by 35.2pp (60.0% WR in 15 trades)",
       "status_note": "pattern_no_longer_surfaced",
       "rejected_by": "operator_via_cc",
@@ -645,10 +645,10 @@
         "avg_pnl": -0.72,
         "avg_mae": 3.11,
         "avg_mfe": 2.37,
-        "edge_pp": -11.5,
+        "edge_pp": -11.3,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "rejected",
       "proposed_date": "2026-04-24T10:06:35.969728Z",
@@ -656,7 +656,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959906Z",
+      "last_updated": "2026-09-17T10:06:01.208252Z",
       "insight": "Energy sector + Grade B underperforms UP_TRI baseline by 35.2pp (60.0% WR in 15 trades)",
       "status_note": "pattern_no_longer_surfaced",
       "rejected_by": "operator_via_cc",
@@ -674,10 +674,10 @@
         "avg_pnl": -1.04,
         "avg_mae": 4.13,
         "avg_mfe": 2.77,
-        "edge_pp": -11.5,
+        "edge_pp": -11.3,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-05-08T10:05:52.961679Z",
@@ -685,7 +685,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959911Z",
+      "last_updated": "2026-09-17T10:06:01.208256Z",
       "insight": "CapGoods sector + age=0 underperforms UP_TRI baseline by 11.1pp (50.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -701,10 +701,10 @@
         "avg_pnl": -1.04,
         "avg_mae": 4.13,
         "avg_mfe": 2.77,
-        "edge_pp": -11.5,
+        "edge_pp": -11.3,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-05-08T10:05:52.962124Z",
@@ -712,7 +712,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959919Z",
+      "last_updated": "2026-09-17T10:06:01.208260Z",
       "insight": "CapGoods sector + age=0 + Grade B underperforms UP_TRI baseline by 11.1pp (50.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -728,10 +728,10 @@
         "avg_pnl": -1.26,
         "avg_mae": 3.61,
         "avg_mfe": 2.55,
-        "edge_pp": -11.3,
+        "edge_pp": -11.1,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-06-09T10:05:54.943843Z",
@@ -739,8 +739,62 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959924Z",
+      "last_updated": "2026-09-17T10:06:01.208265Z",
       "insight": "UP_TRI + Choppy regime + Infra sector underperforms UP_TRI baseline by 42.0pp (10.0% WR in 10 trades)"
+    },
+    {
+      "id": "prop_132",
+      "pattern_id": "signal=UP_TRI_sector=Chem",
+      "action": "warn",
+      "target_signal": "UP_TRI",
+      "target_sector": "Chem",
+      "evidence": {
+        "wr": 27.3,
+        "n": 33,
+        "avg_pnl": -0.8,
+        "avg_mae": 3.31,
+        "avg_mfe": 2.53,
+        "edge_pp": -10.1,
+        "tier": "preliminary",
+        "baseline_type": "UP_TRI",
+        "baseline_wr": 37.4
+      },
+      "status": "pending",
+      "proposed_date": "2026-09-08T10:05:59.829337Z",
+      "approved_date": null,
+      "approved_by": null,
+      "rejected_date": null,
+      "rejected_reason": null,
+      "last_updated": "2026-09-17T10:06:01.208274Z",
+      "insight": "UP_TRI + Chem sector underperforms UP_TRI baseline by 10.4pp (28.1% WR in 32 trades)",
+      "status_note": "pattern_no_longer_surfaced"
+    },
+    {
+      "id": "prop_133",
+      "pattern_id": "signal=UP_TRI_sector=Chem_grade=B",
+      "action": "warn",
+      "target_signal": "UP_TRI",
+      "target_sector": "Chem",
+      "evidence": {
+        "wr": 27.3,
+        "n": 33,
+        "avg_pnl": -0.8,
+        "avg_mae": 3.31,
+        "avg_mfe": 2.53,
+        "edge_pp": -10.1,
+        "tier": "preliminary",
+        "baseline_type": "UP_TRI",
+        "baseline_wr": 37.4
+      },
+      "status": "pending",
+      "proposed_date": "2026-09-08T10:05:59.829422Z",
+      "approved_date": null,
+      "approved_by": null,
+      "rejected_date": null,
+      "rejected_reason": null,
+      "last_updated": "2026-09-17T10:06:01.208279Z",
+      "insight": "UP_TRI + Chem sector + Grade B underperforms UP_TRI baseline by 10.4pp (28.1% WR in 32 trades)",
+      "status_note": "pattern_no_longer_surfaced"
     },
     {
       "id": "prop_118",
@@ -754,10 +808,10 @@
         "avg_pnl": -1.42,
         "avg_mae": 4.13,
         "avg_mfe": 2.56,
-        "edge_pp": -10.3,
+        "edge_pp": -10.1,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-19T10:05:57.634375Z",
@@ -765,7 +819,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959931Z",
+      "last_updated": "2026-09-17T10:06:01.208284Z",
       "insight": "Bull regime + IT sector underperforms UP_TRI baseline by 10.9pp (27.3% WR in 11 trades)"
     },
     {
@@ -780,10 +834,10 @@
         "avg_pnl": -1.25,
         "avg_mae": 4.24,
         "avg_mfe": 2.35,
-        "edge_pp": -10.3,
+        "edge_pp": -10.1,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-28T10:06:27.381001Z",
@@ -791,7 +845,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959934Z",
+      "last_updated": "2026-09-17T10:06:01.208288Z",
       "insight": "Bull regime + Metal sector underperforms UP_TRI baseline by 11.3pp (27.3% WR in 11 trades)"
     },
     {
@@ -806,10 +860,10 @@
         "avg_pnl": -1.42,
         "avg_mae": 4.13,
         "avg_mfe": 2.56,
-        "edge_pp": -10.3,
+        "edge_pp": -10.1,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-19T10:05:57.634451Z",
@@ -817,7 +871,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959937Z",
+      "last_updated": "2026-09-17T10:06:01.208293Z",
       "insight": "UP_TRI + Bull regime + IT sector underperforms UP_TRI baseline by 10.9pp (27.3% WR in 11 trades)"
     },
     {
@@ -832,10 +886,10 @@
         "avg_pnl": -1.25,
         "avg_mae": 4.24,
         "avg_mfe": 2.35,
-        "edge_pp": -10.3,
+        "edge_pp": -10.1,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-28T10:06:27.381080Z",
@@ -843,7 +897,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959941Z",
+      "last_updated": "2026-09-17T10:06:01.208298Z",
       "insight": "Bull regime + Metal sector + age=0 underperforms UP_TRI baseline by 11.3pp (27.3% WR in 11 trades)"
     },
     {
@@ -858,10 +912,10 @@
         "avg_pnl": -1.42,
         "avg_mae": 4.13,
         "avg_mfe": 2.56,
-        "edge_pp": -10.3,
+        "edge_pp": -10.1,
         "tier": "preliminary",
         "baseline_type": "UP_TRI",
-        "baseline_wr": 37.6
+        "baseline_wr": 37.4
       },
       "status": "pending",
       "proposed_date": "2026-08-19T10:05:57.634525Z",
@@ -869,7 +923,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.959944Z",
+      "last_updated": "2026-09-17T10:06:01.208302Z",
       "insight": "Bull regime + IT sector + Grade B underperforms UP_TRI baseline by 10.9pp (27.3% WR in 11 trades)"
     },
     {
@@ -895,7 +949,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960019Z",
+      "last_updated": "2026-09-17T10:06:01.208440Z",
       "insight": "Energy sector + age=0 underperforms UP_TRI baseline by 10.8pp (27.9% WR in 43 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -922,62 +976,8 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960020Z",
+      "last_updated": "2026-09-17T10:06:01.208442Z",
       "insight": "Energy sector + age=0 + Grade B underperforms UP_TRI baseline by 10.8pp (27.9% WR in 43 trades)",
-      "status_note": "pattern_no_longer_surfaced"
-    },
-    {
-      "id": "prop_132",
-      "pattern_id": "signal=UP_TRI_sector=Chem",
-      "action": "warn",
-      "target_signal": "UP_TRI",
-      "target_sector": "Chem",
-      "evidence": {
-        "wr": 28.1,
-        "n": 32,
-        "avg_pnl": -0.61,
-        "avg_mae": 3.19,
-        "avg_mfe": 2.59,
-        "edge_pp": -10.4,
-        "tier": "preliminary",
-        "baseline_type": "UP_TRI",
-        "baseline_wr": 38.5
-      },
-      "status": "pending",
-      "proposed_date": "2026-09-08T10:05:59.829337Z",
-      "approved_date": null,
-      "approved_by": null,
-      "rejected_date": null,
-      "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960021Z",
-      "insight": "UP_TRI + Chem sector underperforms UP_TRI baseline by 10.4pp (28.1% WR in 32 trades)",
-      "status_note": "pattern_no_longer_surfaced"
-    },
-    {
-      "id": "prop_133",
-      "pattern_id": "signal=UP_TRI_sector=Chem_grade=B",
-      "action": "warn",
-      "target_signal": "UP_TRI",
-      "target_sector": "Chem",
-      "evidence": {
-        "wr": 28.1,
-        "n": 32,
-        "avg_pnl": -0.61,
-        "avg_mae": 3.19,
-        "avg_mfe": 2.59,
-        "edge_pp": -10.4,
-        "tier": "preliminary",
-        "baseline_type": "UP_TRI",
-        "baseline_wr": 38.5
-      },
-      "status": "pending",
-      "proposed_date": "2026-09-08T10:05:59.829422Z",
-      "approved_date": null,
-      "approved_by": null,
-      "rejected_date": null,
-      "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960021Z",
-      "insight": "UP_TRI + Chem sector + Grade B underperforms UP_TRI baseline by 10.4pp (28.1% WR in 32 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
     {
@@ -1003,7 +1003,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960022Z",
+      "last_updated": "2026-09-17T10:06:01.208443Z",
       "insight": "UP_TRI + Choppy regime + Grade A underperforms UP_TRI baseline by 48.5pp (9.1% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1030,7 +1030,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960022Z",
+      "last_updated": "2026-09-17T10:06:01.208444Z",
       "insight": "UP_TRI + CapGoods sector + age=0 underperforms UP_TRI baseline by 17.0pp (33.3% WR in 18 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1057,7 +1057,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960023Z",
+      "last_updated": "2026-09-17T10:06:01.208445Z",
       "insight": "DOWN_TRI + Energy sector underperforms DOWN_TRI baseline by 21.5pp (27.3% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1084,7 +1084,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960023Z",
+      "last_updated": "2026-09-17T10:06:01.208445Z",
       "insight": "DOWN_TRI + Choppy regime + Energy sector underperforms DOWN_TRI baseline by 15.6pp (40.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1111,7 +1111,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960024Z",
+      "last_updated": "2026-09-17T10:06:01.208446Z",
       "insight": "DOWN_TRI + Energy sector + age=0 underperforms DOWN_TRI baseline by 21.5pp (27.3% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1138,7 +1138,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960025Z",
+      "last_updated": "2026-09-17T10:06:01.208447Z",
       "insight": "DOWN_TRI + Energy sector + Grade B underperforms DOWN_TRI baseline by 21.5pp (27.3% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1165,7 +1165,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960025Z",
+      "last_updated": "2026-09-17T10:06:01.208448Z",
       "insight": "UP_TRI + Choppy regime + Other sector underperforms UP_TRI baseline by 41.2pp (20.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1192,7 +1192,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960026Z",
+      "last_updated": "2026-09-17T10:06:01.208448Z",
       "insight": "DOWN_TRI + Bear regime underperforms DOWN_TRI baseline by 11.5pp (20.0% WR in 20 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1219,7 +1219,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960026Z",
+      "last_updated": "2026-09-17T10:06:01.208449Z",
       "insight": "DOWN_TRI + Bear regime + age=0 underperforms DOWN_TRI baseline by 11.5pp (20.0% WR in 20 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1246,7 +1246,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960027Z",
+      "last_updated": "2026-09-17T10:06:01.208450Z",
       "insight": "DOWN_TRI + Bear regime + Grade B underperforms DOWN_TRI baseline by 11.5pp (20.0% WR in 20 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1273,7 +1273,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960027Z",
+      "last_updated": "2026-09-17T10:06:01.208450Z",
       "insight": "BULL_PROXY + Choppy regime + age=0 underperforms BULL_PROXY baseline by 36.7pp (30.0% WR in 10 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Broad BULL_PROXY kill without regime/age filter.",
@@ -1302,7 +1302,7 @@
       "approved_by": "auto_sync_kill_patterns",
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960028Z",
+      "last_updated": "2026-09-17T10:06:01.208451Z",
       "insight": "DOWN_TRI + Bank sector underperforms DOWN_TRI baseline by 19.0pp (0.0% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1329,7 +1329,7 @@
       "approved_by": "auto_sync_kill_patterns",
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960028Z",
+      "last_updated": "2026-09-17T10:06:01.208452Z",
       "insight": "DOWN_TRI + Bear regime + Bank sector underperforms DOWN_TRI baseline by 19.0pp (0.0% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1356,7 +1356,7 @@
       "approved_by": "auto_sync_kill_patterns",
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960028Z",
+      "last_updated": "2026-09-17T10:06:01.208453Z",
       "insight": "DOWN_TRI + Bank sector + age=0 underperforms DOWN_TRI baseline by 19.0pp (0.0% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1383,7 +1383,7 @@
       "approved_by": "auto_sync_kill_patterns",
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960029Z",
+      "last_updated": "2026-09-17T10:06:01.208454Z",
       "insight": "DOWN_TRI + Bank sector + Grade B underperforms DOWN_TRI baseline by 19.0pp (0.0% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1410,7 +1410,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960029Z",
+      "last_updated": "2026-09-17T10:06:01.208454Z",
       "insight": "BULL_PROXY + Choppy regime + Bank sector underperforms BULL_PROXY baseline by 29.1pp (30.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1437,7 +1437,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960030Z",
+      "last_updated": "2026-09-17T10:06:01.208455Z",
       "insight": "UP_TRI + Choppy regime + FMCG sector underperforms UP_TRI baseline by 38.7pp (18.2% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1464,7 +1464,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960031Z",
+      "last_updated": "2026-09-17T10:06:01.208456Z",
       "insight": "UP_TRI + Choppy regime + age=1 underperforms UP_TRI baseline by 20.0pp (30.8% WR in 13 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1491,7 +1491,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960031Z",
+      "last_updated": "2026-09-17T10:06:01.208457Z",
       "insight": "BULL_PROXY + Bank sector + age=0 underperforms BULL_PROXY baseline by 22.5pp (40.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1518,7 +1518,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960032Z",
+      "last_updated": "2026-09-17T10:06:01.208457Z",
       "insight": "Choppy regime + Metal sector + Grade B underperforms UP_TRI baseline by 19.6pp (36.4% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1545,7 +1545,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960032Z",
+      "last_updated": "2026-09-17T10:06:01.208458Z",
       "insight": "BULL_PROXY + Choppy regime + Grade B underperforms BULL_PROXY baseline by 30.3pp (36.4% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Duplicate of prop_044.",
@@ -1574,7 +1574,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960033Z",
+      "last_updated": "2026-09-17T10:06:01.208459Z",
       "insight": "Choppy regime + Infra sector underperforms UP_TRI baseline by 18.5pp (37.5% WR in 16 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1601,7 +1601,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960033Z",
+      "last_updated": "2026-09-17T10:06:01.208459Z",
       "insight": "UP_TRI + Choppy regime + Auto sector underperforms UP_TRI baseline by 36.2pp (25.0% WR in 12 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1628,7 +1628,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960034Z",
+      "last_updated": "2026-09-17T10:06:01.208460Z",
       "insight": "Choppy regime + Auto sector + age=0 underperforms UP_TRI baseline by 38.1pp (23.1% WR in 13 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Auto-broad kill. UP_TRI\u00d7Auto WR=64% n=25 would be destroyed.",
@@ -1657,7 +1657,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960034Z",
+      "last_updated": "2026-09-17T10:06:01.208461Z",
       "insight": "BULL_PROXY + Choppy regime underperforms BULL_PROXY baseline by 30.3pp (36.4% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Broad BULL_PROXY kill without regime gate.",
@@ -1686,7 +1686,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960035Z",
+      "last_updated": "2026-09-17T10:06:01.208462Z",
       "insight": "Choppy regime + Infra sector + age=0 underperforms UP_TRI baseline by 18.5pp (37.5% WR in 16 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1713,7 +1713,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960035Z",
+      "last_updated": "2026-09-17T10:06:01.208462Z",
       "insight": "BULL_PROXY + age=0 underperforms BULL_PROXY baseline by 21.2pp (45.5% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Broad BULL_PROXY kill. BULL_PROXY\u00d7Bear WR=87.5% n=16 (validated edge) would be killed.",
@@ -1742,7 +1742,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960036Z",
+      "last_updated": "2026-09-17T10:06:01.208463Z",
       "insight": "BULL_PROXY + age=0 + Grade B underperforms BULL_PROXY baseline by 21.2pp (45.5% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Duplicate of prop_005.",
@@ -1771,7 +1771,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960036Z",
+      "last_updated": "2026-09-17T10:06:01.208464Z",
       "insight": "UP_TRI + Choppy regime underperforms UP_TRI baseline by 46.7pp (29.4% WR in 34 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Broad UP_TRI kill. UP_TRI\u00d7Bear WR=94.7% n=96 (THE validated edge) would be killed. No regime filter.",
@@ -1800,7 +1800,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960037Z",
+      "last_updated": "2026-09-17T10:06:01.208464Z",
       "insight": "Choppy regime + Auto sector underperforms UP_TRI baseline by 32.6pp (28.6% WR in 14 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Auto-broad kill destroys UP_TRI\u00d7Auto winners.",
@@ -1829,7 +1829,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960037Z",
+      "last_updated": "2026-09-17T10:06:01.208465Z",
       "insight": "BULL_PROXY + Bank sector underperforms BULL_PROXY baseline by 13.2pp (50.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1856,7 +1856,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960038Z",
+      "last_updated": "2026-09-17T10:06:01.208466Z",
       "insight": "BULL_PROXY + Bank sector + Grade B underperforms BULL_PROXY baseline by 13.2pp (50.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1883,7 +1883,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960038Z",
+      "last_updated": "2026-09-17T10:06:01.208466Z",
       "insight": "UP_TRI + CapGoods sector underperforms UP_TRI baseline by 13.5pp (36.8% WR in 19 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1910,7 +1910,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960039Z",
+      "last_updated": "2026-09-17T10:06:01.208467Z",
       "insight": "UP_TRI + CapGoods sector + Grade B underperforms UP_TRI baseline by 13.5pp (36.8% WR in 19 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1937,7 +1937,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960039Z",
+      "last_updated": "2026-09-17T10:06:01.208468Z",
       "insight": "Choppy regime + Metal sector + age=0 underperforms UP_TRI baseline by 21.9pp (35.7% WR in 14 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1964,7 +1964,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960040Z",
+      "last_updated": "2026-09-17T10:06:01.208469Z",
       "insight": "Choppy regime + Metal sector underperforms UP_TRI baseline by 21.9pp (35.7% WR in 14 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -1991,7 +1991,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960040Z",
+      "last_updated": "2026-09-17T10:06:01.208470Z",
       "insight": "UP_TRI + Choppy regime + Chem sector underperforms UP_TRI baseline by 10.1pp (39.1% WR in 23 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2018,7 +2018,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960041Z",
+      "last_updated": "2026-09-17T10:06:01.208470Z",
       "insight": "Choppy regime + Infra sector + Grade B underperforms UP_TRI baseline by 20.1pp (33.3% WR in 15 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2045,7 +2045,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960041Z",
+      "last_updated": "2026-09-17T10:06:01.208471Z",
       "insight": "UP_TRI + Choppy regime + Metal sector underperforms UP_TRI baseline by 10.1pp (40.0% WR in 15 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2072,7 +2072,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960042Z",
+      "last_updated": "2026-09-17T10:06:01.208471Z",
       "insight": "UP_TRI + Choppy regime + age=0 underperforms UP_TRI baseline by 46.7pp (29.4% WR in 34 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Duplicate of prop_011.",
@@ -2101,7 +2101,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960042Z",
+      "last_updated": "2026-09-17T10:06:01.208472Z",
       "insight": "Choppy regime + Chem sector underperforms UP_TRI baseline by 11.8pp (36.7% WR in 30 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2128,7 +2128,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960043Z",
+      "last_updated": "2026-09-17T10:06:01.208473Z",
       "insight": "Choppy regime + Chem sector + Grade B underperforms UP_TRI baseline by 11.8pp (36.7% WR in 30 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2155,7 +2155,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960043Z",
+      "last_updated": "2026-09-17T10:06:01.208474Z",
       "insight": "Choppy regime + Bank sector + age=0 underperforms UP_TRI baseline by 29.9pp (46.2% WR in 13 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2182,7 +2182,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960044Z",
+      "last_updated": "2026-09-17T10:06:01.208475Z",
       "insight": "Choppy regime + Bank sector + Grade B underperforms UP_TRI baseline by 34.4pp (41.7% WR in 12 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2209,7 +2209,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960044Z",
+      "last_updated": "2026-09-17T10:06:01.208475Z",
       "insight": "Choppy regime + Bank sector underperforms UP_TRI baseline by 29.9pp (46.2% WR in 13 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2236,7 +2236,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960045Z",
+      "last_updated": "2026-09-17T10:06:01.208476Z",
       "insight": "Choppy regime + Other sector underperforms UP_TRI baseline by 41.2pp (20.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2263,7 +2263,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960045Z",
+      "last_updated": "2026-09-17T10:06:01.208477Z",
       "insight": "UP_TRI + Other sector + age=0 underperforms UP_TRI baseline by 46.1pp (30.0% WR in 10 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "UP_TRI\u00d7Other positive (avg_pnl=+0.64).",
@@ -2292,7 +2292,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960046Z",
+      "last_updated": "2026-09-17T10:06:01.208477Z",
       "insight": "UP_TRI + Choppy regime + Grade B underperforms UP_TRI baseline by 46.1pp (30.0% WR in 30 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Same as prop_011 \u2014 broad UP_TRI kill.",
@@ -2321,7 +2321,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960046Z",
+      "last_updated": "2026-09-17T10:06:01.208478Z",
       "insight": "Choppy regime + Auto sector + Grade B underperforms UP_TRI baseline by 27.9pp (33.3% WR in 12 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Auto-broad kill destroys UP_TRI\u00d7Auto winners.",
@@ -2350,7 +2350,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960047Z",
+      "last_updated": "2026-09-17T10:06:01.208479Z",
       "insight": "UP_TRI + Choppy regime + Bank sector underperforms UP_TRI baseline by 34.3pp (26.9% WR in 26 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2377,7 +2377,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960047Z",
+      "last_updated": "2026-09-17T10:06:01.208479Z",
       "insight": "UP_TRI + Auto sector + age=0 underperforms UP_TRI baseline by 30.4pp (30.8% WR in 13 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2404,7 +2404,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960048Z",
+      "last_updated": "2026-09-17T10:06:01.208480Z",
       "insight": "Bank sector + age=0 + Grade B underperforms UP_TRI baseline by 34.2pp (41.9% WR in 31 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2431,7 +2431,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960048Z",
+      "last_updated": "2026-09-17T10:06:01.208481Z",
       "insight": "UP_TRI + age=0 + Grade A underperforms UP_TRI baseline by 19.5pp (41.7% WR in 12 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Broad UP_TRI kill, small n=12.",
@@ -2460,7 +2460,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960049Z",
+      "last_updated": "2026-09-17T10:06:01.208482Z",
       "insight": "Bank sector + Grade B underperforms UP_TRI baseline by 32.3pp (43.8% WR in 32 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2487,7 +2487,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960049Z",
+      "last_updated": "2026-09-17T10:06:01.208482Z",
       "insight": "Bank sector + age=0 underperforms UP_TRI baseline by 30.6pp (45.5% WR in 33 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2514,7 +2514,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960050Z",
+      "last_updated": "2026-09-17T10:06:01.208483Z",
       "insight": "Bank sector underperforms UP_TRI baseline by 29.0pp (47.1% WR in 34 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2541,7 +2541,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960050Z",
+      "last_updated": "2026-09-17T10:06:01.208484Z",
       "insight": "UP_TRI + Chem sector + age=0 underperforms UP_TRI baseline by 10.4pp (39.1% WR in 23 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2568,7 +2568,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960051Z",
+      "last_updated": "2026-09-17T10:06:01.208484Z",
       "insight": "UP_TRI + Infra sector underperforms UP_TRI baseline by 13.3pp (37.5% WR in 24 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2595,7 +2595,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960051Z",
+      "last_updated": "2026-09-17T10:06:01.208485Z",
       "insight": "Auto sector + age=0 underperforms UP_TRI baseline by 23.7pp (37.5% WR in 16 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Same \u2014 Auto-broad kill.",
@@ -2624,7 +2624,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960052Z",
+      "last_updated": "2026-09-17T10:06:01.208486Z",
       "insight": "UP_TRI + Bank sector + Grade B underperforms UP_TRI baseline by 19.3pp (41.9% WR in 31 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2651,7 +2651,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960052Z",
+      "last_updated": "2026-09-17T10:06:01.208486Z",
       "insight": "Choppy regime + Other sector + age=0 underperforms UP_TRI baseline by 41.2pp (20.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2678,7 +2678,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960053Z",
+      "last_updated": "2026-09-17T10:06:01.208487Z",
       "insight": "UP_TRI + Bank sector underperforms UP_TRI baseline by 17.1pp (44.1% WR in 34 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2705,7 +2705,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960053Z",
+      "last_updated": "2026-09-17T10:06:01.208488Z",
       "insight": "UP_TRI + Bank sector + age=0 underperforms UP_TRI baseline by 17.1pp (44.1% WR in 34 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2732,7 +2732,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960054Z",
+      "last_updated": "2026-09-17T10:06:01.208488Z",
       "insight": "Other sector + age=0 underperforms UP_TRI baseline by 51.1pp (25.0% WR in 12 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2759,7 +2759,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960054Z",
+      "last_updated": "2026-09-17T10:06:01.208489Z",
       "insight": "UP_TRI + Other sector underperforms UP_TRI baseline by 26.1pp (50.0% WR in 14 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "UP_TRI\u00d7Other strongly positive (avg_pnl=+1.63).",
@@ -2788,7 +2788,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960055Z",
+      "last_updated": "2026-09-17T10:06:01.208490Z",
       "insight": "Choppy regime + Other sector + Grade B underperforms UP_TRI baseline by 31.1pp (30.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2815,7 +2815,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960055Z",
+      "last_updated": "2026-09-17T10:06:01.208490Z",
       "insight": "Other sector + age=0 + Grade B underperforms UP_TRI baseline by 48.8pp (27.3% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Other bucket near-flat profitable (avg_pnl=+0.12).",
@@ -2844,7 +2844,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960055Z",
+      "last_updated": "2026-09-17T10:06:01.208491Z",
       "insight": "UP_TRI + FMCG sector + age=0 underperforms UP_TRI baseline by 11.2pp (50.0% WR in 12 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2871,7 +2871,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960056Z",
+      "last_updated": "2026-09-17T10:06:01.208492Z",
       "insight": "Auto sector + age=0 + Grade B underperforms UP_TRI baseline by 18.3pp (42.9% WR in 14 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Same \u2014 Auto-broad kill.",
@@ -2900,7 +2900,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960056Z",
+      "last_updated": "2026-09-17T10:06:01.208492Z",
       "insight": "UP_TRI + Grade A underperforms UP_TRI baseline by 10.2pp (47.4% WR in 19 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2927,7 +2927,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960057Z",
+      "last_updated": "2026-09-17T10:06:01.208493Z",
       "insight": "Choppy regime + Pharma sector underperforms UP_TRI baseline by 14.5pp (46.7% WR in 15 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2954,7 +2954,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960057Z",
+      "last_updated": "2026-09-17T10:06:01.208494Z",
       "insight": "Choppy regime + Pharma sector + age=0 underperforms UP_TRI baseline by 14.5pp (46.7% WR in 15 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -2981,7 +2981,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960058Z",
+      "last_updated": "2026-09-17T10:06:01.208495Z",
       "insight": "Choppy regime + Pharma sector + Grade B underperforms UP_TRI baseline by 14.5pp (46.7% WR in 15 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3008,7 +3008,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960059Z",
+      "last_updated": "2026-09-17T10:06:01.208496Z",
       "insight": "Choppy regime + Energy sector underperforms UP_TRI baseline by 11.1pp (50.0% WR in 16 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3035,7 +3035,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960059Z",
+      "last_updated": "2026-09-17T10:06:01.208497Z",
       "insight": "Choppy regime + Energy sector + age=0 underperforms UP_TRI baseline by 11.1pp (50.0% WR in 16 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3062,7 +3062,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960060Z",
+      "last_updated": "2026-09-17T10:06:01.208497Z",
       "insight": "Choppy regime + Energy sector + Grade B underperforms UP_TRI baseline by 11.1pp (50.0% WR in 16 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3089,7 +3089,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960060Z",
+      "last_updated": "2026-09-17T10:06:01.208498Z",
       "insight": "Choppy regime + FMCG sector + Grade B underperforms UP_TRI baseline by 31.1pp (30.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3116,7 +3116,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960061Z",
+      "last_updated": "2026-09-17T10:06:01.208499Z",
       "insight": "Other sector underperforms UP_TRI baseline by 32.3pp (43.8% WR in 16 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Other sector positive cohort (avg_pnl=+0.77).",
@@ -3145,7 +3145,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960061Z",
+      "last_updated": "2026-09-17T10:06:01.208499Z",
       "insight": "Choppy regime + FMCG sector underperforms UP_TRI baseline by 31.1pp (30.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3172,7 +3172,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960062Z",
+      "last_updated": "2026-09-17T10:06:01.208500Z",
       "insight": "Choppy regime + FMCG sector + age=0 underperforms UP_TRI baseline by 31.1pp (30.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3199,7 +3199,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960062Z",
+      "last_updated": "2026-09-17T10:06:01.208501Z",
       "insight": "Other sector + Grade B underperforms UP_TRI baseline by 29.4pp (46.7% WR in 15 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "Other sector positive (avg_pnl=+1.01).",
@@ -3228,7 +3228,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960063Z",
+      "last_updated": "2026-09-17T10:06:01.208501Z",
       "insight": "FMCG sector + age=0 + Grade B underperforms UP_TRI baseline by 15.7pp (45.5% WR in 11 trades)",
       "rejected_by": "operator_via_cc",
       "rejection_reason": "FMCG sector profitable. UP_TRI\u00d7FMCG WR=64.7%. Broad FMCG kill destroys cohort.",
@@ -3257,7 +3257,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960063Z",
+      "last_updated": "2026-09-17T10:06:01.208502Z",
       "insight": "Auto sector underperforms UP_TRI baseline by 11.1pp (50.0% WR in 30 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3284,7 +3284,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960063Z",
+      "last_updated": "2026-09-17T10:06:01.208503Z",
       "insight": "FMCG sector + age=0 underperforms UP_TRI baseline by 11.2pp (50.0% WR in 12 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3311,7 +3311,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960064Z",
+      "last_updated": "2026-09-17T10:06:01.208503Z",
       "insight": "CapGoods sector underperforms UP_TRI baseline by 11.1pp (50.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3338,7 +3338,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960064Z",
+      "last_updated": "2026-09-17T10:06:01.208504Z",
       "insight": "Choppy regime + CapGoods sector underperforms UP_TRI baseline by 11.1pp (50.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3365,7 +3365,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960065Z",
+      "last_updated": "2026-09-17T10:06:01.208505Z",
       "insight": "CapGoods sector + Grade B underperforms UP_TRI baseline by 11.1pp (50.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3392,7 +3392,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960065Z",
+      "last_updated": "2026-09-17T10:06:01.208506Z",
       "insight": "Choppy regime + CapGoods sector + age=0 underperforms UP_TRI baseline by 11.1pp (50.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3419,7 +3419,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960066Z",
+      "last_updated": "2026-09-17T10:06:01.208506Z",
       "insight": "Choppy regime + CapGoods sector + Grade B underperforms UP_TRI baseline by 11.1pp (50.0% WR in 10 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3446,7 +3446,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960066Z",
+      "last_updated": "2026-09-17T10:06:01.208507Z",
       "insight": "DOWN_TRI + Choppy regime underperforms DOWN_TRI baseline by 12.5pp (0.0% WR in 12 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3473,7 +3473,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960067Z",
+      "last_updated": "2026-09-17T10:06:01.208508Z",
       "insight": "DOWN_TRI + Choppy regime + age=0 underperforms DOWN_TRI baseline by 12.5pp (0.0% WR in 12 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3500,7 +3500,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960067Z",
+      "last_updated": "2026-09-17T10:06:01.208508Z",
       "insight": "DOWN_TRI + Choppy regime + Grade B underperforms DOWN_TRI baseline by 12.5pp (0.0% WR in 11 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3527,7 +3527,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960068Z",
+      "last_updated": "2026-09-17T10:06:01.208509Z",
       "insight": "UP_TRI + Other sector + Grade B underperforms UP_TRI baseline by 22.3pp (53.8% WR in 13 trades)",
       "status_note": "pattern_no_longer_surfaced",
       "rejected_by": "operator_via_cc",
@@ -3556,7 +3556,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960068Z",
+      "last_updated": "2026-09-17T10:06:01.208510Z",
       "insight": "Bear regime + Energy sector underperforms UP_TRI baseline by 35.2pp (60.0% WR in 15 trades)",
       "status_note": "pattern_no_longer_surfaced",
       "rejected_by": "operator_via_cc",
@@ -3585,7 +3585,7 @@
       "approved_by": null,
       "rejected_date": "2026-05-13",
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960069Z",
+      "last_updated": "2026-09-17T10:06:01.208511Z",
       "insight": "Bear regime + Energy sector + Grade B underperforms UP_TRI baseline by 35.2pp (60.0% WR in 15 trades)",
       "status_note": "pattern_no_longer_surfaced",
       "rejected_by": "operator_via_cc",
@@ -3614,7 +3614,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960069Z",
+      "last_updated": "2026-09-17T10:06:01.208511Z",
       "insight": "UP_TRI + age=0 + Grade B underperforms UP_TRI baseline by 10.2pp (65.2% WR in 69 trades)",
       "status_note": "pattern_no_longer_surfaced"
     },
@@ -3641,7 +3641,7 @@
       "approved_by": null,
       "rejected_date": null,
       "rejected_reason": null,
-      "last_updated": "2026-09-16T10:06:21.960070Z",
+      "last_updated": "2026-09-17T10:06:01.208512Z",
       "insight": "UP_TRI + age=0 underperforms UP_TRI baseline by 10.0pp (65.4% WR in 78 trades)",
       "status_note": "pattern_no_longer_surfaced"
     }
