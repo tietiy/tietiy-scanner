@@ -1,10 +1,10 @@
 {
-  "date": "2026-09-22",
+  "date": "2026-09-23",
   "fetched_at": "03:35 PM IST",
-  "open_positions": 53,
+  "open_positions": 56,
   "hit_count": 10,
   "probable_count": 0,
-  "exit_due_count": 0,
+  "exit_due_count": 10,
   "fetch_failed": [],
   "results": [
     {
@@ -14,16 +14,16 @@
       "direction": "LONG",
       "entry": 1498.1,
       "stop": 1123.26,
-      "open": 1390.0,
-      "close": 1388.9,
-      "high": 1411.0,
-      "low": 1376.5,
+      "open": 1388.0,
+      "close": 1370.0,
+      "high": 1393.2,
+      "low": 1369.1,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91388.90 | Stop \u20b91123.26 | P&L -0.29R",
-      "pnl_pct": -7.29,
-      "pnl_r": -0.29,
+      "note": "Close \u20b91370.00 | Stop \u20b91123.26 | P&L -0.34R",
+      "pnl_pct": -8.55,
+      "pnl_r": -0.34,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -35,16 +35,16 @@
       "direction": "LONG",
       "entry": 2607.8,
       "stop": 1845.96,
-      "open": 2390.2,
-      "close": 2399.7,
-      "high": 2459.2,
-      "low": 2386.9,
+      "open": 2407.0,
+      "close": 2380.6,
+      "high": 2415.3,
+      "low": 2376.0,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b92399.70 | Stop \u20b91845.96 | P&L -0.27R",
-      "pnl_pct": -7.98,
-      "pnl_r": -0.27,
+      "note": "Close \u20b92380.60 | Stop \u20b91845.96 | P&L -0.30R",
+      "pnl_pct": -8.71,
+      "pnl_r": -0.3,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -56,16 +56,16 @@
       "direction": "LONG",
       "entry": 19.95,
       "stop": 16.6,
-      "open": 23.17,
-      "close": 23.2,
-      "high": 23.29,
-      "low": 23.04,
+      "open": 23.2,
+      "close": 23.24,
+      "high": 23.38,
+      "low": 23.17,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b923.20 | Stop \u20b916.60 | P&L +0.97R",
-      "pnl_pct": 16.29,
-      "pnl_r": 0.97,
+      "note": "Close \u20b923.24 | Stop \u20b916.60 | P&L +0.98R",
+      "pnl_pct": 16.49,
+      "pnl_r": 0.98,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -77,16 +77,16 @@
       "direction": "LONG",
       "entry": 1977.4,
       "stop": 1725.16,
-      "open": 1892.1,
-      "close": 1869.0,
-      "high": 1892.3,
-      "low": 1863.0,
+      "open": 1869.0,
+      "close": 1886.7,
+      "high": 1901.3,
+      "low": 1863.3,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91869.00 | Stop \u20b91725.16 | P&L -0.43R",
-      "pnl_pct": -5.48,
-      "pnl_r": -0.43,
+      "note": "Close \u20b91886.70 | Stop \u20b91725.16 | P&L -0.36R",
+      "pnl_pct": -4.59,
+      "pnl_r": -0.36,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -98,16 +98,16 @@
       "direction": "LONG",
       "entry": 262.61,
       "stop": 224.18,
-      "open": 335.0,
-      "close": 333.55,
-      "high": 337.65,
-      "low": 330.3,
+      "open": 333.55,
+      "close": 340.85,
+      "high": 340.85,
+      "low": 332.05,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9333.55 | Stop \u20b9224.18 | P&L +1.85R",
-      "pnl_pct": 27.01,
-      "pnl_r": 1.85,
+      "note": "Close \u20b9340.85 | Stop \u20b9224.18 | P&L +2.04R",
+      "pnl_pct": 29.79,
+      "pnl_r": 2.04,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -119,16 +119,16 @@
       "direction": "LONG",
       "entry": 293.89,
       "stop": 235.84,
-      "open": 211.0,
-      "close": 211.15,
-      "high": 213.3,
-      "low": 209.63,
+      "open": 211.8,
+      "close": 211.77,
+      "high": 213.86,
+      "low": 210.45,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday low \u20b9209.63 hit stop \u20b9235.84 \u2014 exit confirmed",
-      "pnl_pct": -28.15,
-      "pnl_r": -1.43,
+      "note": "Intraday low \u20b9210.45 hit stop \u20b9235.84 \u2014 exit confirmed",
+      "pnl_pct": -27.94,
+      "pnl_r": -1.41,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -140,16 +140,16 @@
       "direction": "LONG",
       "entry": 423.4,
       "stop": 348.52,
-      "open": 453.55,
-      "close": 457.5,
-      "high": 462.7,
-      "low": 450.65,
+      "open": 459.95,
+      "close": 464.2,
+      "high": 468.0,
+      "low": 455.4,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9457.50 | Stop \u20b9348.52 | P&L +0.46R",
-      "pnl_pct": 8.05,
-      "pnl_r": 0.46,
+      "note": "Close \u20b9464.20 | Stop \u20b9348.52 | P&L +0.54R",
+      "pnl_pct": 9.64,
+      "pnl_r": 0.54,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -161,16 +161,16 @@
       "direction": "LONG",
       "entry": 463.05,
       "stop": 349.05,
-      "open": 592.1,
-      "close": 598.7,
-      "high": 615.85,
-      "low": 589.3,
+      "open": 601.0,
+      "close": 623.05,
+      "high": 628.1,
+      "low": 594.55,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9598.70 | Stop \u20b9349.05 | P&L +1.19R",
-      "pnl_pct": 29.29,
-      "pnl_r": 1.19,
+      "note": "Close \u20b9623.05 | Stop \u20b9349.05 | P&L +1.40R",
+      "pnl_pct": 34.55,
+      "pnl_r": 1.4,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -182,16 +182,16 @@
       "direction": "LONG",
       "entry": 997.65,
       "stop": 793.65,
-      "open": 1037.9,
-      "close": 1036.4,
-      "high": 1043.5,
-      "low": 1027.6,
+      "open": 1034.0,
+      "close": 1053.0,
+      "high": 1055.8,
+      "low": 1032.6,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91036.40 | Stop \u20b9793.65 | P&L +0.19R",
-      "pnl_pct": 3.88,
-      "pnl_r": 0.19,
+      "note": "Close \u20b91053.00 | Stop \u20b9793.65 | P&L +0.27R",
+      "pnl_pct": 5.55,
+      "pnl_r": 0.27,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -203,16 +203,16 @@
       "direction": "LONG",
       "entry": 1982.5,
       "stop": 1673.31,
-      "open": 1761.1,
-      "close": 1756.3,
-      "high": 1772.7,
-      "low": 1740.0,
+      "open": 1758.0,
+      "close": 1760.0,
+      "high": 1770.1,
+      "low": 1744.4,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91756.30 | Stop \u20b91673.31 | P&L -0.73R",
-      "pnl_pct": -11.41,
-      "pnl_r": -0.73,
+      "note": "Close \u20b91760.00 | Stop \u20b91673.31 | P&L -0.72R",
+      "pnl_pct": -11.22,
+      "pnl_r": -0.72,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -224,16 +224,16 @@
       "direction": "LONG",
       "entry": 2231.5,
       "stop": 1968.62,
-      "open": 1952.0,
-      "close": 1933.8,
-      "high": 1956.8,
-      "low": 1933.8,
+      "open": 1938.0,
+      "close": 1950.0,
+      "high": 1954.0,
+      "low": 1936.0,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday low \u20b91933.80 hit stop \u20b91968.62 \u2014 exit confirmed",
-      "pnl_pct": -13.34,
-      "pnl_r": -1.13,
+      "note": "Intraday low \u20b91936.00 hit stop \u20b91968.62 \u2014 exit confirmed",
+      "pnl_pct": -12.61,
+      "pnl_r": -1.07,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -245,16 +245,16 @@
       "direction": "LONG",
       "entry": 559.55,
       "stop": 474.7,
-      "open": 405.1,
-      "close": 391.55,
-      "high": 408.7,
-      "low": 390.5,
+      "open": 393.9,
+      "close": 402.4,
+      "high": 403.65,
+      "low": 393.9,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday low \u20b9390.50 hit stop \u20b9474.70 \u2014 exit confirmed",
-      "pnl_pct": -30.02,
-      "pnl_r": -1.98,
+      "note": "Intraday low \u20b9393.90 hit stop \u20b9474.70 \u2014 exit confirmed",
+      "pnl_pct": -28.09,
+      "pnl_r": -1.85,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -266,16 +266,16 @@
       "direction": "LONG",
       "entry": 890.9,
       "stop": 739.26,
-      "open": 894.2,
-      "close": 896.55,
-      "high": 908.8,
-      "low": 892.35,
+      "open": 895.0,
+      "close": 894.0,
+      "high": 898.4,
+      "low": 887.4,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9896.55 | Stop \u20b9739.26 | P&L +0.04R",
-      "pnl_pct": 0.63,
-      "pnl_r": 0.04,
+      "note": "Close \u20b9894.00 | Stop \u20b9739.26 | P&L +0.02R",
+      "pnl_pct": 0.35,
+      "pnl_r": 0.02,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -287,16 +287,16 @@
       "direction": "LONG",
       "entry": 451.2,
       "stop": 376.33,
-      "open": 500.35,
-      "close": 496.0,
-      "high": 504.8,
-      "low": 492.05,
+      "open": 493.0,
+      "close": 491.35,
+      "high": 504.25,
+      "low": 489.2,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9496.00 | Stop \u20b9376.33 | P&L +0.60R",
-      "pnl_pct": 9.93,
-      "pnl_r": 0.6,
+      "note": "Close \u20b9491.35 | Stop \u20b9376.33 | P&L +0.54R",
+      "pnl_pct": 8.9,
+      "pnl_r": 0.54,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -308,16 +308,16 @@
       "direction": "SHORT",
       "entry": 1240.6,
       "stop": 1416.75,
-      "open": 1037.7,
-      "close": 1029.4,
-      "high": 1041.0,
-      "low": 1019.2,
+      "open": 1021.8,
+      "close": 1020.5,
+      "high": 1029.4,
+      "low": 1015.1,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91029.40 | Stop \u20b91416.75 | P&L +1.20R",
-      "pnl_pct": 17.02,
-      "pnl_r": 1.2,
+      "note": "Close \u20b91020.50 | Stop \u20b91416.75 | P&L +1.25R",
+      "pnl_pct": 17.74,
+      "pnl_r": 1.25,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -329,16 +329,16 @@
       "direction": "LONG",
       "entry": 452.5,
       "stop": 411.8,
-      "open": 424.7,
-      "close": 428.0,
-      "high": 428.75,
-      "low": 419.65,
+      "open": 428.25,
+      "close": 424.55,
+      "high": 429.4,
+      "low": 421.55,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9428.00 | Stop \u20b9411.80 | P&L -0.60R",
-      "pnl_pct": -5.41,
-      "pnl_r": -0.6,
+      "note": "Close \u20b9424.55 | Stop \u20b9411.80 | P&L -0.69R",
+      "pnl_pct": -6.18,
+      "pnl_r": -0.69,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -350,16 +350,16 @@
       "direction": "SHORT",
       "entry": 9543.5,
       "stop": 10247.78,
-      "open": 11460.0,
-      "close": 11363.0,
-      "high": 11515.0,
-      "low": 11281.0,
+      "open": 11363.0,
+      "close": 11400.0,
+      "high": 11425.0,
+      "low": 11293.0,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday high \u20b911515.00 hit stop \u20b910247.78 \u2014 exit confirmed",
-      "pnl_pct": -19.07,
-      "pnl_r": -2.58,
+      "note": "Intraday high \u20b911425.00 hit stop \u20b910247.78 \u2014 exit confirmed",
+      "pnl_pct": -19.45,
+      "pnl_r": -2.64,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -371,10 +371,10 @@
       "direction": "SHORT",
       "entry": 1914.7,
       "stop": 2247.29,
-      "open": 2180.9,
+      "open": 2199.0,
       "close": 2195.0,
-      "high": 2199.3,
-      "low": 2159.9,
+      "high": 2204.0,
+      "low": 2178.0,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
@@ -392,16 +392,16 @@
       "direction": "LONG",
       "entry": 391.8,
       "stop": 353.36,
-      "open": 416.5,
-      "close": 412.65,
-      "high": 417.8,
-      "low": 412.55,
+      "open": 414.65,
+      "close": 413.25,
+      "high": 417.25,
+      "low": 411.35,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9412.65 | Stop \u20b9353.36 | P&L +0.54R",
-      "pnl_pct": 5.32,
-      "pnl_r": 0.54,
+      "note": "Close \u20b9413.25 | Stop \u20b9353.36 | P&L +0.56R",
+      "pnl_pct": 5.47,
+      "pnl_r": 0.56,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -413,16 +413,16 @@
       "direction": "LONG",
       "entry": 581.15,
       "stop": 511.78,
-      "open": 510.05,
-      "close": 508.2,
-      "high": 521.7,
-      "low": 507.1,
+      "open": 513.0,
+      "close": 513.0,
+      "high": 521.3,
+      "low": 509.4,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday low \u20b9507.10 hit stop \u20b9511.78 \u2014 exit confirmed",
-      "pnl_pct": -12.55,
-      "pnl_r": -1.05,
+      "note": "Intraday low \u20b9509.40 hit stop \u20b9511.78 \u2014 exit confirmed",
+      "pnl_pct": -11.73,
+      "pnl_r": -0.98,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -434,16 +434,16 @@
       "direction": "LONG",
       "entry": 908.25,
       "stop": 864.62,
-      "open": 1025.3,
-      "close": 1008.8,
-      "high": 1029.2,
-      "low": 1005.0,
+      "open": 1034.7,
+      "close": 1043.2,
+      "high": 1043.2,
+      "low": 1022.0,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91008.80 | Stop \u20b9864.62 | P&L +2.30R",
-      "pnl_pct": 11.07,
-      "pnl_r": 2.3,
+      "note": "Close \u20b91043.20 | Stop \u20b9864.62 | P&L +3.09R",
+      "pnl_pct": 14.86,
+      "pnl_r": 3.09,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -455,16 +455,16 @@
       "direction": "LONG",
       "entry": 1160.9,
       "stop": 1059.76,
-      "open": 1037.7,
-      "close": 1029.4,
-      "high": 1041.0,
-      "low": 1019.2,
+      "open": 1021.8,
+      "close": 1020.5,
+      "high": 1029.4,
+      "low": 1015.1,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday low \u20b91019.20 hit stop \u20b91059.76 \u2014 exit confirmed",
-      "pnl_pct": -11.33,
-      "pnl_r": -1.3,
+      "note": "Intraday low \u20b91015.10 hit stop \u20b91059.76 \u2014 exit confirmed",
+      "pnl_pct": -12.09,
+      "pnl_r": -1.39,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -476,16 +476,16 @@
       "direction": "LONG",
       "entry": 1483.9,
       "stop": 1288.66,
-      "open": 1553.7,
-      "close": 1551.6,
-      "high": 1558.7,
-      "low": 1530.9,
+      "open": 1540.0,
+      "close": 1557.0,
+      "high": 1558.0,
+      "low": 1539.3,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91551.60 | Stop \u20b91288.66 | P&L +0.35R",
-      "pnl_pct": 4.56,
-      "pnl_r": 0.35,
+      "note": "Close \u20b91557.00 | Stop \u20b91288.66 | P&L +0.37R",
+      "pnl_pct": 4.93,
+      "pnl_r": 0.37,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -497,16 +497,16 @@
       "direction": "LONG",
       "entry": 5194.3,
       "stop": 4412.8,
-      "open": 5454.5,
-      "close": 5366.0,
-      "high": 5463.0,
-      "low": 5359.0,
+      "open": 5400.0,
+      "close": 5240.0,
+      "high": 5413.0,
+      "low": 5213.5,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b95366.00 | Stop \u20b94412.80 | P&L +0.22R",
-      "pnl_pct": 3.31,
-      "pnl_r": 0.22,
+      "note": "Close \u20b95240.00 | Stop \u20b94412.80 | P&L +0.06R",
+      "pnl_pct": 0.88,
+      "pnl_r": 0.06,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -518,16 +518,16 @@
       "direction": "LONG",
       "entry": 9964.0,
       "stop": 8396.33,
-      "open": 10962.0,
-      "close": 10989.0,
-      "high": 11111.0,
-      "low": 10835.0,
+      "open": 10989.0,
+      "close": 10849.0,
+      "high": 11072.0,
+      "low": 10801.0,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b910989.00 | Stop \u20b98396.33 | P&L +0.65R",
-      "pnl_pct": 10.29,
-      "pnl_r": 0.65,
+      "note": "Close \u20b910849.00 | Stop \u20b98396.33 | P&L +0.56R",
+      "pnl_pct": 8.88,
+      "pnl_r": 0.56,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -539,16 +539,16 @@
       "direction": "LONG",
       "entry": 393.9,
       "stop": 324.93,
-      "open": 302.1,
-      "close": 300.05,
-      "high": 302.8,
-      "low": 298.5,
+      "open": 300.1,
+      "close": 300.5,
+      "high": 302.65,
+      "low": 298.7,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday low \u20b9298.50 hit stop \u20b9324.93 \u2014 exit confirmed",
-      "pnl_pct": -23.83,
-      "pnl_r": -1.36,
+      "note": "Intraday low \u20b9298.70 hit stop \u20b9324.93 \u2014 exit confirmed",
+      "pnl_pct": -23.71,
+      "pnl_r": -1.35,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -560,16 +560,16 @@
       "direction": "LONG",
       "entry": 947.15,
       "stop": 868.44,
-      "open": 1011.8,
-      "close": 1006.0,
-      "high": 1016.6,
-      "low": 995.5,
+      "open": 1012.0,
+      "close": 1010.8,
+      "high": 1018.0,
+      "low": 1005.5,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91006.00 | Stop \u20b9868.44 | P&L +0.75R",
-      "pnl_pct": 6.21,
-      "pnl_r": 0.75,
+      "note": "Close \u20b91010.80 | Stop \u20b9868.44 | P&L +0.81R",
+      "pnl_pct": 6.72,
+      "pnl_r": 0.81,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -581,16 +581,16 @@
       "direction": "LONG",
       "entry": 1443.7,
       "stop": 1389.95,
-      "open": 1718.3,
-      "close": 1700.0,
-      "high": 1719.0,
-      "low": 1689.3,
+      "open": 1700.0,
+      "close": 1721.5,
+      "high": 1724.7,
+      "low": 1692.6,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91700.00 | Stop \u20b91389.95 | P&L +4.77R",
-      "pnl_pct": 17.75,
-      "pnl_r": 4.77,
+      "note": "Close \u20b91721.50 | Stop \u20b91389.95 | P&L +5.17R",
+      "pnl_pct": 19.24,
+      "pnl_r": 5.17,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -602,16 +602,16 @@
       "direction": "LONG",
       "entry": 1357.6,
       "stop": 1165.53,
-      "open": 1143.0,
-      "close": 1100.8,
-      "high": 1143.1,
-      "low": 1100.0,
+      "open": 1092.9,
+      "close": 1130.0,
+      "high": 1131.4,
+      "low": 1090.8,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday low \u20b91100.00 hit stop \u20b91165.53 \u2014 exit confirmed",
-      "pnl_pct": -18.92,
-      "pnl_r": -1.34,
+      "note": "Intraday low \u20b91090.80 hit stop \u20b91165.53 \u2014 exit confirmed",
+      "pnl_pct": -16.76,
+      "pnl_r": -1.18,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -623,16 +623,16 @@
       "direction": "LONG",
       "entry": 286.05,
       "stop": 251.27,
-      "open": 233.64,
-      "close": 234.35,
-      "high": 234.9,
-      "low": 232.71,
+      "open": 233.2,
+      "close": 236.87,
+      "high": 237.7,
+      "low": 233.2,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday low \u20b9232.71 hit stop \u20b9251.27 \u2014 exit confirmed",
-      "pnl_pct": -18.07,
-      "pnl_r": -1.49,
+      "note": "Intraday low \u20b9233.20 hit stop \u20b9251.27 \u2014 exit confirmed",
+      "pnl_pct": -17.19,
+      "pnl_r": -1.41,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -644,16 +644,16 @@
       "direction": "LONG",
       "entry": 333.55,
       "stop": 317.35,
-      "open": 296.2,
-      "close": 295.1,
-      "high": 298.65,
-      "low": 293.2,
+      "open": 295.25,
+      "close": 300.0,
+      "high": 301.1,
+      "low": 295.25,
       "stop_hit": true,
       "stop_probable": true,
       "stop_status": "HIT",
-      "note": "Intraday low \u20b9293.20 hit stop \u20b9317.35 \u2014 exit confirmed",
-      "pnl_pct": -11.53,
-      "pnl_r": -2.37,
+      "note": "Intraday low \u20b9295.25 hit stop \u20b9317.35 \u2014 exit confirmed",
+      "pnl_pct": -10.06,
+      "pnl_r": -2.07,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -665,16 +665,16 @@
       "direction": "LONG",
       "entry": 1282.0,
       "stop": 1105.99,
-      "open": 1296.0,
-      "close": 1304.0,
-      "high": 1316.9,
-      "low": 1291.9,
+      "open": 1295.6,
+      "close": 1297.0,
+      "high": 1322.7,
+      "low": 1291.1,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91304.00 | Stop \u20b91105.99 | P&L +0.12R",
-      "pnl_pct": 1.72,
-      "pnl_r": 0.12,
+      "note": "Close \u20b91297.00 | Stop \u20b91105.99 | P&L +0.09R",
+      "pnl_pct": 1.17,
+      "pnl_r": 0.09,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -686,16 +686,16 @@
       "direction": "LONG",
       "entry": 3168.5,
       "stop": 2866.2,
-      "open": 2995.0,
-      "close": 2997.0,
-      "high": 3026.1,
-      "low": 2979.6,
+      "open": 3015.5,
+      "close": 2993.2,
+      "high": 3023.9,
+      "low": 2978.2,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b92997.00 | Stop \u20b92866.20 | P&L -0.57R",
-      "pnl_pct": -5.41,
-      "pnl_r": -0.57,
+      "note": "Close \u20b92993.20 | Stop \u20b92866.20 | P&L -0.58R",
+      "pnl_pct": -5.53,
+      "pnl_r": -0.58,
       "exit_due": false,
       "day_number": 6,
       "fetch_time": "03:35 PM IST"
@@ -707,18 +707,18 @@
       "direction": "LONG",
       "entry": 84.8,
       "stop": 80.87,
-      "open": 85.64,
-      "close": 85.37,
-      "high": 86.1,
-      "low": 84.9,
+      "open": 85.98,
+      "close": 87.9,
+      "high": 89.61,
+      "low": 85.9,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b985.37 | Stop \u20b980.87 | P&L +0.15R",
-      "pnl_pct": 0.67,
-      "pnl_r": 0.15,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b987.90 | Stop \u20b980.87 | P&L +0.79R",
+      "pnl_pct": 3.66,
+      "pnl_r": 0.79,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -728,18 +728,18 @@
       "direction": "LONG",
       "entry": 114.7,
       "stop": 111.13,
-      "open": 118.45,
-      "close": 117.0,
-      "high": 118.74,
-      "low": 116.7,
+      "open": 116.61,
+      "close": 118.3,
+      "high": 118.9,
+      "low": 116.61,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9117.00 | Stop \u20b9111.13 | P&L +0.64R",
-      "pnl_pct": 2.01,
-      "pnl_r": 0.64,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b9118.30 | Stop \u20b9111.13 | P&L +1.01R",
+      "pnl_pct": 3.14,
+      "pnl_r": 1.01,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -749,18 +749,18 @@
       "direction": "LONG",
       "entry": 344.0,
       "stop": 328.02,
-      "open": 345.2,
-      "close": 345.8,
-      "high": 346.5,
-      "low": 343.1,
+      "open": 345.55,
+      "close": 346.0,
+      "high": 349.95,
+      "low": 344.55,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9345.80 | Stop \u20b9328.02 | P&L +0.11R",
-      "pnl_pct": 0.52,
-      "pnl_r": 0.11,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b9346.00 | Stop \u20b9328.02 | P&L +0.13R",
+      "pnl_pct": 0.58,
+      "pnl_r": 0.13,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -771,17 +771,17 @@
       "entry": 363.0,
       "stop": 340.08,
       "open": 367.0,
-      "close": 367.0,
-      "high": 370.0,
-      "low": 365.9,
+      "close": 369.0,
+      "high": 369.9,
+      "low": 367.0,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9367.00 | Stop \u20b9340.08 | P&L +0.17R",
-      "pnl_pct": 1.1,
-      "pnl_r": 0.17,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b9369.00 | Stop \u20b9340.08 | P&L +0.26R",
+      "pnl_pct": 1.65,
+      "pnl_r": 0.26,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -791,18 +791,18 @@
       "direction": "LONG",
       "entry": 1255.0,
       "stop": 1174.98,
-      "open": 1309.0,
-      "close": 1304.0,
+      "open": 1316.9,
+      "close": 1300.9,
       "high": 1317.0,
-      "low": 1300.0,
+      "low": 1289.6,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91304.00 | Stop \u20b91174.98 | P&L +0.61R",
-      "pnl_pct": 3.9,
-      "pnl_r": 0.61,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b91300.90 | Stop \u20b91174.98 | P&L +0.57R",
+      "pnl_pct": 3.66,
+      "pnl_r": 0.57,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -812,18 +812,18 @@
       "direction": "LONG",
       "entry": 258.0,
       "stop": 250.52,
-      "open": 267.9,
-      "close": 265.8,
-      "high": 268.25,
-      "low": 264.75,
+      "open": 265.85,
+      "close": 270.15,
+      "high": 271.05,
+      "low": 265.15,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9265.80 | Stop \u20b9250.52 | P&L +1.04R",
-      "pnl_pct": 3.02,
-      "pnl_r": 1.04,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b9270.15 | Stop \u20b9250.52 | P&L +1.62R",
+      "pnl_pct": 4.71,
+      "pnl_r": 1.62,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -833,18 +833,18 @@
       "direction": "LONG",
       "entry": 1713.8,
       "stop": 1553.47,
-      "open": 1796.0,
-      "close": 1795.0,
-      "high": 1812.7,
-      "low": 1786.1,
+      "open": 1799.0,
+      "close": 1807.3,
+      "high": 1810.1,
+      "low": 1790.5,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91795.00 | Stop \u20b91553.47 | P&L +0.51R",
-      "pnl_pct": 4.74,
-      "pnl_r": 0.51,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b91807.30 | Stop \u20b91553.47 | P&L +0.58R",
+      "pnl_pct": 5.46,
+      "pnl_r": 0.58,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -854,18 +854,18 @@
       "direction": "LONG",
       "entry": 1830.4,
       "stop": 1772.87,
-      "open": 1833.9,
-      "close": 1817.2,
-      "high": 1836.3,
-      "low": 1813.0,
+      "open": 1818.1,
+      "close": 1833.2,
+      "high": 1836.7,
+      "low": 1818.0,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91817.20 | Stop \u20b91772.87 | P&L -0.23R",
-      "pnl_pct": -0.72,
-      "pnl_r": -0.23,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b91833.20 | Stop \u20b91772.87 | P&L +0.05R",
+      "pnl_pct": 0.15,
+      "pnl_r": 0.05,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -875,18 +875,18 @@
       "direction": "LONG",
       "entry": 202.0,
       "stop": 191.4,
-      "open": 207.0,
-      "close": 206.96,
-      "high": 210.0,
-      "low": 206.56,
+      "open": 207.99,
+      "close": 204.8,
+      "high": 208.4,
+      "low": 203.5,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9206.96 | Stop \u20b9191.40 | P&L +0.47R",
-      "pnl_pct": 2.46,
-      "pnl_r": 0.47,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b9204.80 | Stop \u20b9191.40 | P&L +0.26R",
+      "pnl_pct": 1.39,
+      "pnl_r": 0.26,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -896,18 +896,18 @@
       "direction": "LONG",
       "entry": 373.7,
       "stop": 348.31,
-      "open": 384.9,
-      "close": 390.0,
-      "high": 392.0,
-      "low": 380.55,
+      "open": 392.05,
+      "close": 391.45,
+      "high": 407.65,
+      "low": 389.1,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9390.00 | Stop \u20b9348.31 | P&L +0.64R",
-      "pnl_pct": 4.36,
-      "pnl_r": 0.64,
-      "exit_due": false,
-      "day_number": 5,
+      "note": "Close \u20b9391.45 | Stop \u20b9348.31 | P&L +0.70R",
+      "pnl_pct": 4.75,
+      "pnl_r": 0.7,
+      "exit_due": true,
+      "day_number": 6,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -917,18 +917,18 @@
       "direction": "LONG",
       "entry": 172.5,
       "stop": 155.14,
-      "open": 180.0,
-      "close": 184.7,
-      "high": 185.11,
-      "low": 179.9,
+      "open": 185.95,
+      "close": 191.38,
+      "high": 193.0,
+      "low": 185.7,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9184.70 | Stop \u20b9155.14 | P&L +0.70R",
-      "pnl_pct": 7.07,
-      "pnl_r": 0.7,
+      "note": "Close \u20b9191.38 | Stop \u20b9155.14 | P&L +1.09R",
+      "pnl_pct": 10.94,
+      "pnl_r": 1.09,
       "exit_due": false,
-      "day_number": 4,
+      "day_number": 5,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -938,18 +938,18 @@
       "direction": "LONG",
       "entry": 262.8,
       "stop": 257.42,
-      "open": 267.0,
-      "close": 265.95,
-      "high": 268.3,
+      "open": 265.95,
+      "close": 270.2,
+      "high": 270.85,
       "low": 265.95,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9265.95 | Stop \u20b9257.42 | P&L +0.59R",
-      "pnl_pct": 1.2,
-      "pnl_r": 0.59,
+      "note": "Close \u20b9270.20 | Stop \u20b9257.42 | P&L +1.38R",
+      "pnl_pct": 2.82,
+      "pnl_r": 1.38,
       "exit_due": false,
-      "day_number": 4,
+      "day_number": 5,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -960,17 +960,17 @@
       "entry": 327.0,
       "stop": 314.68,
       "open": 326.5,
-      "close": 327.8,
-      "high": 329.0,
-      "low": 325.55,
+      "close": 326.0,
+      "high": 329.4,
+      "low": 325.0,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9327.80 | Stop \u20b9314.68 | P&L +0.06R",
-      "pnl_pct": 0.24,
-      "pnl_r": 0.06,
+      "note": "Close \u20b9326.00 | Stop \u20b9314.68 | P&L -0.08R",
+      "pnl_pct": -0.31,
+      "pnl_r": -0.08,
       "exit_due": false,
-      "day_number": 4,
+      "day_number": 5,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -980,18 +980,18 @@
       "direction": "LONG",
       "entry": 1295.3,
       "stop": 1172.81,
-      "open": 1261.0,
-      "close": 1246.3,
-      "high": 1268.4,
-      "low": 1242.0,
+      "open": 1247.1,
+      "close": 1259.4,
+      "high": 1268.0,
+      "low": 1247.1,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91246.30 | Stop \u20b91172.81 | P&L -0.40R",
-      "pnl_pct": -3.78,
-      "pnl_r": -0.4,
+      "note": "Close \u20b91259.40 | Stop \u20b91172.81 | P&L -0.29R",
+      "pnl_pct": -2.77,
+      "pnl_r": -0.29,
       "exit_due": false,
-      "day_number": 4,
+      "day_number": 5,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -1001,18 +1001,18 @@
       "direction": "LONG",
       "entry": 1939.1,
       "stop": 1842.45,
-      "open": 1935.0,
-      "close": 1944.9,
-      "high": 1953.4,
-      "low": 1935.0,
+      "open": 1944.2,
+      "close": 1956.0,
+      "high": 1989.0,
+      "low": 1936.2,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91944.90 | Stop \u20b91842.45 | P&L +0.06R",
-      "pnl_pct": 0.3,
-      "pnl_r": 0.06,
+      "note": "Close \u20b91956.00 | Stop \u20b91842.45 | P&L +0.17R",
+      "pnl_pct": 0.87,
+      "pnl_r": 0.17,
       "exit_due": false,
-      "day_number": 4,
+      "day_number": 5,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -1022,18 +1022,18 @@
       "direction": "LONG",
       "entry": 404.15,
       "stop": 366.9,
-      "open": 404.3,
-      "close": 423.2,
-      "high": 424.4,
-      "low": 402.85,
+      "open": 423.2,
+      "close": 428.0,
+      "high": 429.6,
+      "low": 422.05,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9423.20 | Stop \u20b9366.90 | P&L +0.51R",
-      "pnl_pct": 4.71,
-      "pnl_r": 0.51,
+      "note": "Close \u20b9428.00 | Stop \u20b9366.90 | P&L +0.64R",
+      "pnl_pct": 5.9,
+      "pnl_r": 0.64,
       "exit_due": false,
-      "day_number": 3,
+      "day_number": 4,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -1043,18 +1043,18 @@
       "direction": "LONG",
       "entry": 3259.0,
       "stop": 3023.64,
-      "open": 3170.8,
-      "close": 3235.0,
-      "high": 3254.0,
-      "low": 3170.8,
+      "open": 3249.0,
+      "close": 3270.7,
+      "high": 3280.0,
+      "low": 3214.2,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b93235.00 | Stop \u20b93023.64 | P&L -0.10R",
-      "pnl_pct": -0.74,
-      "pnl_r": -0.1,
+      "note": "Close \u20b93270.70 | Stop \u20b93023.64 | P&L +0.05R",
+      "pnl_pct": 0.36,
+      "pnl_r": 0.05,
       "exit_due": false,
-      "day_number": 3,
+      "day_number": 4,
       "fetch_time": "03:35 PM IST"
     },
     {
@@ -1064,16 +1064,16 @@
       "direction": "LONG",
       "entry": 693.25,
       "stop": 571.96,
-      "open": 695.0,
-      "close": 674.0,
-      "high": 697.05,
-      "low": 673.0,
+      "open": 677.0,
+      "close": 669.9,
+      "high": 677.9,
+      "low": 667.1,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b9674.00 | Stop \u20b9571.96 | P&L -0.16R",
-      "pnl_pct": -2.78,
-      "pnl_r": -0.16,
+      "note": "Close \u20b9669.90 | Stop \u20b9571.96 | P&L -0.19R",
+      "pnl_pct": -3.37,
+      "pnl_r": -0.19,
       "exit_due": false,
       "day_number": 2,
       "fetch_time": "03:35 PM IST"
@@ -1085,16 +1085,16 @@
       "direction": "LONG",
       "entry": 3563.6,
       "stop": 3318.2,
-      "open": 3539.0,
-      "close": 3519.3,
-      "high": 3547.0,
-      "low": 3465.8,
+      "open": 3519.6,
+      "close": 3568.1,
+      "high": 3575.1,
+      "low": 3518.7,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b93519.30 | Stop \u20b93318.20 | P&L -0.18R",
-      "pnl_pct": -1.24,
-      "pnl_r": -0.18,
+      "note": "Close \u20b93568.10 | Stop \u20b93318.20 | P&L +0.02R",
+      "pnl_pct": 0.13,
+      "pnl_r": 0.02,
       "exit_due": false,
       "day_number": 2,
       "fetch_time": "03:35 PM IST"
@@ -1106,16 +1106,79 @@
       "direction": "LONG",
       "entry": 1896.9,
       "stop": 1805.18,
-      "open": 1920.4,
-      "close": 1909.8,
-      "high": 1944.0,
-      "low": 1903.1,
+      "open": 1903.0,
+      "close": 1924.3,
+      "high": 1930.0,
+      "low": 1890.0,
       "stop_hit": false,
       "stop_probable": false,
       "stop_status": "SAFE",
-      "note": "Close \u20b91909.80 | Stop \u20b91805.18 | P&L +0.14R",
-      "pnl_pct": 0.68,
-      "pnl_r": 0.14,
+      "note": "Close \u20b91924.30 | Stop \u20b91805.18 | P&L +0.30R",
+      "pnl_pct": 1.44,
+      "pnl_r": 0.3,
+      "exit_due": false,
+      "day_number": 2,
+      "fetch_time": "03:35 PM IST"
+    },
+    {
+      "symbol": "GODREJCP.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-09-23",
+      "direction": "LONG",
+      "entry": 873.6,
+      "stop": 835.17,
+      "open": 871.5,
+      "close": 879.75,
+      "high": 883.65,
+      "low": 871.5,
+      "stop_hit": false,
+      "stop_probable": false,
+      "stop_status": "SAFE",
+      "note": "Close \u20b9879.75 | Stop \u20b9835.17 | P&L +0.16R",
+      "pnl_pct": 0.7,
+      "pnl_r": 0.16,
+      "exit_due": false,
+      "day_number": 2,
+      "fetch_time": "03:35 PM IST"
+    },
+    {
+      "symbol": "PVRINOX.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-09-23",
+      "direction": "LONG",
+      "entry": 1334.8,
+      "stop": 1080.1,
+      "open": 1329.3,
+      "close": 1317.5,
+      "high": 1329.3,
+      "low": 1292.4,
+      "stop_hit": false,
+      "stop_probable": false,
+      "stop_status": "SAFE",
+      "note": "Close \u20b91317.50 | Stop \u20b91080.10 | P&L -0.07R",
+      "pnl_pct": -1.3,
+      "pnl_r": -0.07,
+      "exit_due": false,
+      "day_number": 2,
+      "fetch_time": "03:35 PM IST"
+    },
+    {
+      "symbol": "MAXHEALTH.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-09-23",
+      "direction": "LONG",
+      "entry": 1056.5,
+      "stop": 949.94,
+      "open": 1056.5,
+      "close": 1059.9,
+      "high": 1067.3,
+      "low": 1053.2,
+      "stop_hit": false,
+      "stop_probable": false,
+      "stop_status": "SAFE",
+      "note": "Close \u20b91059.90 | Stop \u20b9949.94 | P&L +0.03R",
+      "pnl_pct": 0.32,
+      "pnl_r": 0.03,
       "exit_due": false,
       "day_number": 2,
       "fetch_time": "03:35 PM IST"
@@ -1123,419 +1186,443 @@
   ],
   "ohlc_by_symbol": {
     "COCHINSHIP.NS": {
-      "2026-09-22": {
-        "open": 1390.0,
-        "high": 1411.0,
-        "low": 1376.5,
-        "close": 1388.9
+      "2026-09-23": {
+        "open": 1388.0,
+        "high": 1393.2,
+        "low": 1369.1,
+        "close": 1370.0
       }
     },
     "GRSE.NS": {
-      "2026-09-22": {
-        "open": 2390.2,
-        "high": 2459.2,
-        "low": 2386.9,
-        "close": 2399.7
+      "2026-09-23": {
+        "open": 2407.0,
+        "high": 2415.3,
+        "low": 2376.0,
+        "close": 2380.6
       }
     },
     "YESBANK.NS": {
-      "2026-09-22": {
-        "open": 23.17,
-        "high": 23.29,
-        "low": 23.04,
-        "close": 23.2
+      "2026-09-23": {
+        "open": 23.2,
+        "high": 23.38,
+        "low": 23.17,
+        "close": 23.24
       }
     },
     "COLPAL.NS": {
-      "2026-09-22": {
-        "open": 1892.1,
-        "high": 1892.3,
-        "low": 1863.0,
-        "close": 1869.0
+      "2026-09-23": {
+        "open": 1869.0,
+        "high": 1901.3,
+        "low": 1863.3,
+        "close": 1886.7
       }
     },
     "NYKAA.NS": {
-      "2026-09-22": {
-        "open": 335.0,
-        "high": 337.65,
-        "low": 330.3,
-        "close": 333.55
+      "2026-09-23": {
+        "open": 333.55,
+        "high": 340.85,
+        "low": 332.05,
+        "close": 340.85
       }
     },
     "RVNL.NS": {
-      "2026-09-22": {
-        "open": 211.0,
-        "high": 213.3,
-        "low": 209.63,
-        "close": 211.15
+      "2026-09-23": {
+        "open": 211.8,
+        "high": 213.86,
+        "low": 210.45,
+        "close": 211.77
       }
     },
     "SUMICHEM.NS": {
-      "2026-09-22": {
-        "open": 453.55,
-        "high": 462.7,
-        "low": 450.65,
-        "close": 457.5
+      "2026-09-23": {
+        "open": 459.95,
+        "high": 468.0,
+        "low": 455.4,
+        "close": 464.2
       }
     },
     "GNFC.NS": {
-      "2026-09-22": {
-        "open": 592.1,
-        "high": 615.85,
-        "low": 589.3,
-        "close": 598.7
+      "2026-09-23": {
+        "open": 601.0,
+        "high": 628.1,
+        "low": 594.55,
+        "close": 623.05
       }
     },
     "AUBANK.NS": {
-      "2026-09-22": {
-        "open": 1037.9,
-        "high": 1043.5,
-        "low": 1027.6,
-        "close": 1036.4
+      "2026-09-23": {
+        "open": 1034.0,
+        "high": 1055.8,
+        "low": 1032.6,
+        "close": 1053.0
       }
     },
     "SBILIFE.NS": {
-      "2026-09-22": {
-        "open": 1761.1,
-        "high": 1772.7,
-        "low": 1740.0,
-        "close": 1756.3
+      "2026-09-23": {
+        "open": 1758.0,
+        "high": 1770.1,
+        "low": 1744.4,
+        "close": 1760.0
       }
     },
     "HINDUNILVR.NS": {
-      "2026-09-22": {
-        "open": 1952.0,
-        "high": 1956.8,
-        "low": 1933.8,
-        "close": 1933.8
+      "2026-09-23": {
+        "open": 1938.0,
+        "high": 1954.0,
+        "low": 1936.0,
+        "close": 1950.0
       }
     },
     "KEC.NS": {
-      "2026-09-22": {
-        "open": 405.1,
-        "high": 408.7,
-        "low": 390.5,
-        "close": 391.55
+      "2026-09-23": {
+        "open": 393.9,
+        "high": 403.65,
+        "low": 393.9,
+        "close": 402.4
       }
     },
     "FORTIS.NS": {
-      "2026-09-22": {
-        "open": 894.2,
-        "high": 908.8,
-        "low": 892.35,
-        "close": 896.55
+      "2026-09-23": {
+        "open": 895.0,
+        "high": 898.4,
+        "low": 887.4,
+        "close": 894.0
       }
     },
     "AARTIIND.NS": {
-      "2026-09-22": {
-        "open": 500.35,
-        "high": 504.8,
-        "low": 492.05,
-        "close": 496.0
+      "2026-09-23": {
+        "open": 493.0,
+        "high": 504.25,
+        "low": 489.2,
+        "close": 491.35
       }
     },
     "INFY.NS": {
-      "2026-09-22": {
-        "open": 1037.7,
-        "high": 1041.0,
-        "low": 1019.2,
-        "close": 1029.4
+      "2026-09-23": {
+        "open": 1021.8,
+        "high": 1029.4,
+        "low": 1015.1,
+        "close": 1020.5
       }
     },
     "COALINDIA.NS": {
-      "2026-09-22": {
-        "open": 424.7,
-        "high": 428.75,
-        "low": 419.65,
-        "close": 428.0
+      "2026-09-23": {
+        "open": 428.25,
+        "high": 429.4,
+        "low": 421.55,
+        "close": 424.55
       }
     },
     "BAJAJ-AUTO.NS": {
-      "2026-09-22": {
-        "open": 11460.0,
-        "high": 11515.0,
-        "low": 11281.0,
-        "close": 11363.0
+      "2026-09-23": {
+        "open": 11363.0,
+        "high": 11425.0,
+        "low": 11293.0,
+        "close": 11400.0
       }
     },
     "APLAPOLLO.NS": {
-      "2026-09-22": {
-        "open": 2180.9,
-        "high": 2199.3,
-        "low": 2159.9,
+      "2026-09-23": {
+        "open": 2199.0,
+        "high": 2204.0,
+        "low": 2178.0,
         "close": 2195.0
       }
     },
     "KOTAKBANK.NS": {
-      "2026-09-22": {
-        "open": 416.5,
-        "high": 417.8,
-        "low": 412.55,
-        "close": 412.65
+      "2026-09-23": {
+        "open": 414.65,
+        "high": 417.25,
+        "low": 411.35,
+        "close": 413.25
       }
     },
     "HINDCOPPER.NS": {
-      "2026-09-22": {
-        "open": 510.05,
-        "high": 521.7,
-        "low": 507.1,
-        "close": 508.2
+      "2026-09-23": {
+        "open": 513.0,
+        "high": 521.3,
+        "low": 509.4,
+        "close": 513.0
       }
     },
     "BAJFINANCE.NS": {
-      "2026-09-22": {
-        "open": 1025.3,
-        "high": 1029.2,
-        "low": 1005.0,
-        "close": 1008.8
+      "2026-09-23": {
+        "open": 1034.7,
+        "high": 1043.2,
+        "low": 1022.0,
+        "close": 1043.2
       }
     },
     "TECHM.NS": {
-      "2026-09-22": {
-        "open": 1553.7,
-        "high": 1558.7,
-        "low": 1530.9,
-        "close": 1551.6
+      "2026-09-23": {
+        "open": 1540.0,
+        "high": 1558.0,
+        "low": 1539.3,
+        "close": 1557.0
       }
     },
     "PERSISTENT.NS": {
-      "2026-09-22": {
-        "open": 5454.5,
-        "high": 5463.0,
-        "low": 5359.0,
-        "close": 5366.0
+      "2026-09-23": {
+        "open": 5400.0,
+        "high": 5413.0,
+        "low": 5213.5,
+        "close": 5240.0
       }
     },
     "OFSS.NS": {
-      "2026-09-22": {
-        "open": 10962.0,
-        "high": 11111.0,
-        "low": 10835.0,
-        "close": 10989.0
+      "2026-09-23": {
+        "open": 10989.0,
+        "high": 11072.0,
+        "low": 10801.0,
+        "close": 10849.0
       }
     },
     "TMPV.NS": {
-      "2026-09-22": {
-        "open": 302.1,
-        "high": 302.8,
-        "low": 298.5,
-        "close": 300.05
+      "2026-09-23": {
+        "open": 300.1,
+        "high": 302.65,
+        "low": 298.7,
+        "close": 300.5
       }
     },
     "SHRIRAMFIN.NS": {
-      "2026-09-22": {
-        "open": 1011.8,
-        "high": 1016.6,
-        "low": 995.5,
-        "close": 1006.0
+      "2026-09-23": {
+        "open": 1012.0,
+        "high": 1018.0,
+        "low": 1005.5,
+        "close": 1010.8
       }
     },
     "AUROPHARMA.NS": {
-      "2026-09-22": {
-        "open": 1718.3,
-        "high": 1719.0,
-        "low": 1689.3,
-        "close": 1700.0
+      "2026-09-23": {
+        "open": 1700.0,
+        "high": 1724.7,
+        "low": 1692.6,
+        "close": 1721.5
       }
     },
     "VOLTAS.NS": {
-      "2026-09-22": {
-        "open": 1143.0,
-        "high": 1143.1,
-        "low": 1100.0,
-        "close": 1100.8
+      "2026-09-23": {
+        "open": 1092.9,
+        "high": 1131.4,
+        "low": 1090.8,
+        "close": 1130.0
       }
     },
     "BANKBARODA.NS": {
-      "2026-09-22": {
-        "open": 233.64,
-        "high": 234.9,
-        "low": 232.71,
-        "close": 234.35
+      "2026-09-23": {
+        "open": 233.2,
+        "high": 237.7,
+        "low": 233.2,
+        "close": 236.87
       }
     },
     "ANGELONE.NS": {
-      "2026-09-22": {
-        "open": 296.2,
-        "high": 298.65,
-        "low": 293.2,
-        "close": 295.1
+      "2026-09-23": {
+        "open": 295.25,
+        "high": 301.1,
+        "low": 295.25,
+        "close": 300.0
       }
     },
     "NAUKRI.NS": {
-      "2026-09-22": {
-        "open": 1296.0,
-        "high": 1316.9,
-        "low": 1291.9,
-        "close": 1304.0
+      "2026-09-23": {
+        "open": 1295.6,
+        "high": 1322.7,
+        "low": 1291.1,
+        "close": 1297.0
       }
     },
     "ADANIENT.NS": {
-      "2026-09-22": {
-        "open": 2995.0,
-        "high": 3026.1,
-        "low": 2979.6,
-        "close": 2997.0
+      "2026-09-23": {
+        "open": 3015.5,
+        "high": 3023.9,
+        "low": 2978.2,
+        "close": 2993.2
       }
     },
     "IDFCFIRSTB.NS": {
-      "2026-09-22": {
-        "open": 85.64,
-        "high": 86.1,
-        "low": 84.9,
-        "close": 85.37
+      "2026-09-23": {
+        "open": 85.98,
+        "high": 89.61,
+        "low": 85.9,
+        "close": 87.9
       }
     },
     "PNB.NS": {
-      "2026-09-22": {
-        "open": 118.45,
-        "high": 118.74,
-        "low": 116.7,
-        "close": 117.0
+      "2026-09-23": {
+        "open": 116.61,
+        "high": 118.9,
+        "low": 116.61,
+        "close": 118.3
       }
     },
     "PFC.NS": {
-      "2026-09-22": {
-        "open": 345.2,
-        "high": 346.5,
-        "low": 343.1,
-        "close": 345.8
+      "2026-09-23": {
+        "open": 345.55,
+        "high": 349.95,
+        "low": 344.55,
+        "close": 346.0
       }
     },
     "TATAPOWER.NS": {
-      "2026-09-22": {
+      "2026-09-23": {
         "open": 367.0,
-        "high": 370.0,
-        "low": 365.9,
-        "close": 367.0
+        "high": 369.9,
+        "low": 367.0,
+        "close": 369.0
       }
     },
     "ADANIGREEN.NS": {
-      "2026-09-22": {
-        "open": 1309.0,
+      "2026-09-23": {
+        "open": 1316.9,
         "high": 1317.0,
-        "low": 1300.0,
-        "close": 1304.0
+        "low": 1289.6,
+        "close": 1300.9
       }
     },
     "ITC.NS": {
-      "2026-09-22": {
-        "open": 267.9,
-        "high": 268.25,
-        "low": 264.75,
-        "close": 265.8
+      "2026-09-23": {
+        "open": 265.85,
+        "high": 271.05,
+        "low": 265.15,
+        "close": 270.15
       }
     },
     "ADANIPORTS.NS": {
-      "2026-09-22": {
-        "open": 1796.0,
-        "high": 1812.7,
-        "low": 1786.1,
-        "close": 1795.0
+      "2026-09-23": {
+        "open": 1799.0,
+        "high": 1810.1,
+        "low": 1790.5,
+        "close": 1807.3
       }
     },
     "BHARTIARTL.NS": {
-      "2026-09-22": {
-        "open": 1833.9,
-        "high": 1836.3,
-        "low": 1813.0,
-        "close": 1817.2
+      "2026-09-23": {
+        "open": 1818.1,
+        "high": 1836.7,
+        "low": 1818.0,
+        "close": 1833.2
       }
     },
     "ADANIPOWER.NS": {
-      "2026-09-22": {
-        "open": 207.0,
-        "high": 210.0,
-        "low": 206.56,
-        "close": 206.96
+      "2026-09-23": {
+        "open": 207.99,
+        "high": 208.4,
+        "low": 203.5,
+        "close": 204.8
       }
     },
     "EMAMILTD.NS": {
-      "2026-09-22": {
-        "open": 384.9,
-        "high": 392.0,
-        "low": 380.55,
-        "close": 390.0
+      "2026-09-23": {
+        "open": 392.05,
+        "high": 407.65,
+        "low": 389.1,
+        "close": 391.45
       }
     },
     "BANDHANBNK.NS": {
-      "2026-09-22": {
-        "open": 180.0,
-        "high": 185.11,
-        "low": 179.9,
-        "close": 184.7
+      "2026-09-23": {
+        "open": 185.95,
+        "high": 193.0,
+        "low": 185.7,
+        "close": 191.38
       }
     },
     "POWERGRID.NS": {
-      "2026-09-22": {
-        "open": 267.0,
-        "high": 268.3,
+      "2026-09-23": {
+        "open": 265.95,
+        "high": 270.85,
         "low": 265.95,
-        "close": 265.95
+        "close": 270.2
       }
     },
     "NTPC.NS": {
-      "2026-09-22": {
+      "2026-09-23": {
         "open": 326.5,
-        "high": 329.0,
-        "low": 325.55,
-        "close": 327.8
+        "high": 329.4,
+        "low": 325.0,
+        "close": 326.0
       }
     },
     "TORNTPOWER.NS": {
-      "2026-09-22": {
-        "open": 1261.0,
-        "high": 1268.4,
-        "low": 1242.0,
-        "close": 1246.3
+      "2026-09-23": {
+        "open": 1247.1,
+        "high": 1268.0,
+        "low": 1247.1,
+        "close": 1259.4
       }
     },
     "COROMANDEL.NS": {
-      "2026-09-22": {
-        "open": 1935.0,
-        "high": 1953.4,
-        "low": 1935.0,
-        "close": 1944.9
+      "2026-09-23": {
+        "open": 1944.2,
+        "high": 1989.0,
+        "low": 1936.2,
+        "close": 1956.0
       }
     },
     "RBLBANK.NS": {
-      "2026-09-22": {
-        "open": 404.3,
-        "high": 424.4,
-        "low": 402.85,
-        "close": 423.2
+      "2026-09-23": {
+        "open": 423.2,
+        "high": 429.6,
+        "low": 422.05,
+        "close": 428.0
       }
     },
     "BSE.NS": {
-      "2026-09-22": {
-        "open": 3170.8,
-        "high": 3254.0,
-        "low": 3170.8,
-        "close": 3235.0
+      "2026-09-23": {
+        "open": 3249.0,
+        "high": 3280.0,
+        "low": 3214.2,
+        "close": 3270.7
       }
     },
     "TATACHEM.NS": {
-      "2026-09-22": {
-        "open": 695.0,
-        "high": 697.05,
-        "low": 673.0,
-        "close": 674.0
+      "2026-09-23": {
+        "open": 677.0,
+        "high": 677.9,
+        "low": 667.1,
+        "close": 669.9
       }
     },
     "AJANTPHARM.NS": {
-      "2026-09-22": {
-        "open": 3539.0,
-        "high": 3547.0,
-        "low": 3465.8,
-        "close": 3519.3
+      "2026-09-23": {
+        "open": 3519.6,
+        "high": 3575.1,
+        "low": 3518.7,
+        "close": 3568.1
       }
     },
     "LALPATHLAB.NS": {
-      "2026-09-22": {
-        "open": 1920.4,
-        "high": 1944.0,
-        "low": 1903.1,
-        "close": 1909.8
+      "2026-09-23": {
+        "open": 1903.0,
+        "high": 1930.0,
+        "low": 1890.0,
+        "close": 1924.3
+      }
+    },
+    "GODREJCP.NS": {
+      "2026-09-23": {
+        "open": 871.5,
+        "high": 883.65,
+        "low": 871.5,
+        "close": 879.75
+      }
+    },
+    "PVRINOX.NS": {
+      "2026-09-23": {
+        "open": 1329.3,
+        "high": 1329.3,
+        "low": 1292.4,
+        "close": 1317.5
+      }
+    },
+    "MAXHEALTH.NS": {
+      "2026-09-23": {
+        "open": 1056.5,
+        "high": 1067.3,
+        "low": 1053.2,
+        "close": 1059.9
       }
     }
   },
