@@ -3,16 +3,6 @@
   "description": "Regime classifier debug log. Captures raw values for Phase C classifier rewrite. Read-only, never consumed by scanner logic.",
   "logs": [
     {
-      "date": "2026-05-20",
-      "scan_time_utc": "03:15",
-      "nifty_close": 23618.0,
-      "last_slope": -0.002194,
-      "last_above_ema50": false,
-      "ret20_pct": -3.9,
-      "regime_score": -1,
-      "classified_as": "Choppy"
-    },
-    {
       "date": "2026-05-21",
       "scan_time_utc": "03:15",
       "nifty_close": 23659.0,
@@ -895,6 +885,16 @@
     {
       "date": "2026-09-22",
       "scan_time_utc": "03:16",
+      "nifty_close": 23414.3,
+      "last_slope": -0.011801,
+      "last_above_ema50": false,
+      "ret20_pct": -3.32,
+      "regime_score": -1,
+      "classified_as": "Bear"
+    },
+    {
+      "date": "2026-09-23",
+      "scan_time_utc": "03:15",
       "nifty_close": 23414.3,
       "last_slope": -0.011801,
       "last_above_ema50": false,
