@@ -26434,10 +26434,10 @@
       "effective_exit_date": "2026-09-29",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-09-29",
+      "outcome_price": 1193.8,
+      "pnl_pct": -2.66,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -26446,7 +26446,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-09-21T03:17:08.438688Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-29T10:05:52.398921Z"
     },
     {
       "id": "contra_2026-09-21-PHOENIXLTD-DOWN_TRI",
@@ -26476,10 +26478,10 @@
       "effective_exit_date": "2026-09-29",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-09-29",
+      "outcome_price": 1946.3,
+      "pnl_pct": 3.64,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -26488,7 +26490,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-09-21T03:17:08.464227Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-09-29T10:05:52.466152Z"
     },
     {
       "id": "contra_2026-09-22-LICHSGFIN-DOWN_TRI",
@@ -26869,5 +26873,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-09-28T10:06:02.699770Z"
+  "updated_at": "2026-09-29T10:05:52.466603Z"
 }
