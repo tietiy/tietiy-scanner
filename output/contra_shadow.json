@@ -26610,10 +26610,10 @@
       "effective_exit_date": "2026-10-01",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-10-01",
+      "outcome_price": 385.2,
+      "pnl_pct": -3.19,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -26622,7 +26622,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-09-23T03:16:56.892343Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-10-01T10:06:00.301694Z"
     },
     {
       "id": "contra_2026-09-24-HAL-DOWN_TRI",
@@ -27069,7 +27071,7 @@
       "grade": "B",
       "atr": 0.59,
       "exit_date": "12 Oct",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-10-12",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -27087,5 +27089,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-09-30T10:05:51.996701Z"
+  "updated_at": "2026-10-01T10:06:00.301987Z"
 }
