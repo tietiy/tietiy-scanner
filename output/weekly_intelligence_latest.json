@@ -1,30 +1,30 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-09-27T18:34:22.258665Z",
+  "generated_at": "2026-10-04T18:16:06.978276Z",
   "week_range": [
-    "2026-09-20",
-    "2026-09-27"
+    "2026-09-27",
+    "2026-10-04"
   ],
   "patterns": {
-    "total": 312,
-    "validated_count": 22,
-    "preliminary_count": 58,
-    "emerging_count": 232,
-    "total_resolved_signals": 501,
+    "total": 336,
+    "validated_count": 21,
+    "preliminary_count": 71,
+    "emerging_count": 244,
+    "total_resolved_signals": 511,
     "baselines": {
-      "BULL_PROXY": {
-        "wr": 39.6,
-        "avg_pnl": -0.33,
-        "n": 48,
-        "wins": 19,
-        "losses": 29
-      },
       "UP_TRI": {
         "wr": 37.5,
-        "avg_pnl": -0.01,
-        "n": 453,
-        "wins": 170,
-        "losses": 283
+        "avg_pnl": -0.05,
+        "n": 467,
+        "wins": 175,
+        "losses": 292
+      },
+      "BULL_PROXY": {
+        "wr": 29.5,
+        "avg_pnl": -0.87,
+        "n": 44,
+        "wins": 13,
+        "losses": 31
       }
     },
     "top_validated": [
@@ -55,8 +55,8 @@
     ]
   },
   "proposals": {
-    "total": 135,
-    "pending_count": 101,
+    "total": 141,
+    "pending_count": 107,
     "approved_count": 0,
     "already_active_count": 4,
     "rejected_count": 30,
@@ -89,48 +89,48 @@
         "edge": -21.5
       },
       {
-        "id": "prop_126",
+        "id": "prop_029",
         "action": "warn",
         "target_signal": "UP_TRI",
-        "target_sector": "Energy",
-        "wr": 16.7,
-        "n": 42,
-        "edge": -20.8
+        "target_sector": "IT",
+        "wr": 17.4,
+        "n": 23,
+        "edge": -20.1
       },
       {
-        "id": "prop_127",
-        "action": "warn",
+        "id": "prop_128",
+        "action": "kill",
         "target_signal": "UP_TRI",
         "target_sector": "Energy",
-        "wr": 16.7,
-        "n": 42,
-        "edge": -20.8
+        "wr": 20.0,
+        "n": 40,
+        "edge": -17.5
       }
     ]
   },
   "contra": {
-    "total": 609,
-    "resolved": 582,
-    "pending": 27,
-    "wr": 53.8,
-    "avg_pnl": 0.67,
+    "total": 616,
+    "resolved": 605,
+    "pending": 11,
+    "wr": 53.4,
+    "avg_pnl": 0.64,
     "unlocked": true,
     "unlock_threshold": 30,
     "recent_3": [
       {
-        "symbol": "CDSL",
-        "outcome": "CONTRA_LOSS",
-        "pnl": -0.88
-      },
-      {
-        "symbol": "ZYDUSLIFE",
+        "symbol": "LICHSGFIN",
         "outcome": "CONTRA_WIN",
-        "pnl": 3.3
+        "pnl": 1.27
       },
       {
-        "symbol": "ADANIENT",
+        "symbol": "RELIANCE",
         "outcome": "CONTRA_LOSS",
-        "pnl": -1.45
+        "pnl": -3.62
+      },
+      {
+        "symbol": "BEL",
+        "outcome": "CONTRA_LOSS",
+        "pnl": -3.19
       }
     ]
   },
@@ -139,21 +139,21 @@
     "regime_distribution": {
       "Bear": 5
     },
-    "avg_slope": -0.01186,
-    "avg_ret20": -3.75,
+    "avg_slope": -0.0131,
+    "avg_ret20": -5.35,
     "latest": {
-      "date": "2026-09-25",
+      "date": "2026-10-02",
       "regime": "Bear",
-      "slope": -0.012442,
-      "ret20": -4.73,
+      "slope": -0.014327,
+      "ret20": -6.08,
       "above_ema50": false
     }
   },
   "health": {
     "overall": "warn",
-    "last_validated": "2026-09-23T10:06:01.765158+00:00",
-    "checks_passed": 6,
-    "checks_failed": 1
+    "last_validated": "2026-10-01T10:06:13.810557+00:00",
+    "checks_passed": 5,
+    "checks_failed": 2
   },
   "kill_rules": {
     "count": 2,
@@ -173,8 +173,8 @@
     ]
   },
   "suggestions": [
-    "\ud83d\udcdd 101 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
-    "\ud83d\udd2c 22 validated patterns found. Review top items above.",
+    "\ud83d\udcdd 107 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
+    "\ud83d\udd2c 21 validated patterns found. Review top items above.",
     "\ud83c\udf21 Market classified Bear every day this week. If signal WR diverges from this, classifier may need recalibration."
   ]
 }
