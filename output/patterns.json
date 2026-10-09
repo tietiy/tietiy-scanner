@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-08T10:06:07.519088Z",
-  "total_resolved_signals": 522,
+  "generated_at": "2026-10-09T10:05:58.124082Z",
+  "total_resolved_signals": 525,
   "feature_set": [
     "signal",
     "regime",
@@ -24,10 +24,10 @@
   "baselines": {
     "UP_TRI": {
       "wr": 35.8,
-      "avg_pnl": -0.18,
-      "n": 477,
-      "wins": 171,
-      "losses": 306
+      "avg_pnl": -0.19,
+      "n": 480,
+      "wins": 172,
+      "losses": 308
     },
     "BULL_PROXY": {
       "wr": 28.9,
@@ -253,28 +253,6 @@
       "insight": "UP_TRI + Choppy regime + Pharma sector outperforms UP_TRI baseline by 20.7pp (56.5% WR in 23 trades)"
     },
     {
-      "id": "signal=UP_TRI_sector=Pharma_age=0",
-      "features": {
-        "signal": "UP_TRI",
-        "sector": "Pharma",
-        "age": "0"
-      },
-      "feature_depth": 3,
-      "n_resolved": 32,
-      "wins": 18,
-      "losses": 14,
-      "wr": 56.2,
-      "avg_pnl": 1.2,
-      "avg_mae": 2.18,
-      "avg_mfe": 3.42,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 20.4,
-      "tier": "validated",
-      "direction": "positive",
-      "insight": "UP_TRI + Pharma sector + age=0 outperforms UP_TRI baseline by 20.4pp (56.2% WR in 32 trades)"
-    },
-    {
       "id": "signal=UP_TRI_sector=IT",
       "features": {
         "signal": "UP_TRI",
@@ -318,47 +296,26 @@
       "insight": "UP_TRI + IT sector + Grade B underperforms UP_TRI baseline by 19.1pp (16.7% WR in 24 trades)"
     },
     {
-      "id": "sector=Pharma_age=0",
+      "id": "signal=UP_TRI_sector=Pharma_age=0",
       "features": {
+        "signal": "UP_TRI",
         "sector": "Pharma",
         "age": "0"
       },
-      "feature_depth": 2,
-      "n_resolved": 35,
-      "wins": 19,
-      "losses": 16,
-      "wr": 54.3,
-      "avg_pnl": 1.06,
-      "avg_mae": 2.32,
-      "avg_mfe": 3.45,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 18.5,
-      "tier": "validated",
-      "direction": "positive",
-      "insight": "Pharma sector + age=0 outperforms UP_TRI baseline by 18.5pp (54.3% WR in 35 trades)"
-    },
-    {
-      "id": "sector=Pharma_age=0_grade=B",
-      "features": {
-        "sector": "Pharma",
-        "age": "0",
-        "grade": "B"
-      },
       "feature_depth": 3,
-      "n_resolved": 35,
-      "wins": 19,
-      "losses": 16,
-      "wr": 54.3,
-      "avg_pnl": 1.06,
-      "avg_mae": 2.32,
-      "avg_mfe": 3.45,
+      "n_resolved": 33,
+      "wins": 18,
+      "losses": 15,
+      "wr": 54.5,
+      "avg_pnl": 1.03,
+      "avg_mae": 2.26,
+      "avg_mfe": 3.38,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
-      "edge_pct": 18.5,
+      "edge_pct": 18.7,
       "tier": "validated",
       "direction": "positive",
-      "insight": "Pharma sector + age=0 + Grade B outperforms UP_TRI baseline by 18.5pp (54.3% WR in 35 trades)"
+      "insight": "UP_TRI + Pharma sector + age=0 outperforms UP_TRI baseline by 18.7pp (54.5% WR in 33 trades)"
     },
     {
       "id": "regime=Bull_sector=Bank_grade=B",
@@ -383,6 +340,71 @@
       "insight": "Bull regime + Bank sector + Grade B outperforms UP_TRI baseline by 18.0pp (53.8% WR in 26 trades)"
     },
     {
+      "id": "sector=Pharma_age=0",
+      "features": {
+        "sector": "Pharma",
+        "age": "0"
+      },
+      "feature_depth": 2,
+      "n_resolved": 36,
+      "wins": 19,
+      "losses": 17,
+      "wr": 52.8,
+      "avg_pnl": 0.91,
+      "avg_mae": 2.38,
+      "avg_mfe": 3.42,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 17.0,
+      "tier": "validated",
+      "direction": "positive",
+      "insight": "Pharma sector + age=0 outperforms UP_TRI baseline by 17.0pp (52.8% WR in 36 trades)"
+    },
+    {
+      "id": "sector=Pharma_age=0_grade=B",
+      "features": {
+        "sector": "Pharma",
+        "age": "0",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 36,
+      "wins": 19,
+      "losses": 17,
+      "wr": 52.8,
+      "avg_pnl": 0.91,
+      "avg_mae": 2.38,
+      "avg_mfe": 3.42,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 17.0,
+      "tier": "validated",
+      "direction": "positive",
+      "insight": "Pharma sector + age=0 + Grade B outperforms UP_TRI baseline by 17.0pp (52.8% WR in 36 trades)"
+    },
+    {
+      "id": "signal=UP_TRI_sector=Bank_grade=B",
+      "features": {
+        "signal": "UP_TRI",
+        "sector": "Bank",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 88,
+      "wins": 46,
+      "losses": 42,
+      "wr": 52.3,
+      "avg_pnl": 1.29,
+      "avg_mae": 2.32,
+      "avg_mfe": 3.94,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 16.5,
+      "tier": "validated",
+      "direction": "positive",
+      "insight": "UP_TRI + Bank sector + Grade B outperforms UP_TRI baseline by 16.5pp (52.3% WR in 88 trades)"
+    },
+    {
       "id": "signal=UP_TRI_regime=Choppy_sector=Bank",
       "features": {
         "signal": "UP_TRI",
@@ -403,28 +425,6 @@
       "tier": "validated",
       "direction": "positive",
       "insight": "UP_TRI + Choppy regime + Bank sector outperforms UP_TRI baseline by 16.1pp (51.9% WR in 54 trades)"
-    },
-    {
-      "id": "signal=UP_TRI_sector=Bank_grade=B",
-      "features": {
-        "signal": "UP_TRI",
-        "sector": "Bank",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 87,
-      "wins": 45,
-      "losses": 42,
-      "wr": 51.7,
-      "avg_pnl": 1.22,
-      "avg_mae": 2.35,
-      "avg_mfe": 3.85,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 15.9,
-      "tier": "validated",
-      "direction": "positive",
-      "insight": "UP_TRI + Bank sector + Grade B outperforms UP_TRI baseline by 15.9pp (51.7% WR in 87 trades)"
     },
     {
       "id": "sector=Metal_grade=B",
@@ -448,25 +448,25 @@
       "insight": "Metal sector + Grade B underperforms UP_TRI baseline by 15.8pp (20.0% WR in 20 trades)"
     },
     {
-      "id": "regime=Bear_age=0",
+      "id": "sector=Bank_grade=B",
       "features": {
-        "regime": "Bear",
-        "age": "0"
+        "sector": "Bank",
+        "grade": "B"
       },
       "feature_depth": 2,
-      "n_resolved": 49,
-      "wins": 10,
-      "losses": 39,
-      "wr": 20.4,
-      "avg_pnl": -1.6,
-      "avg_mae": 3.84,
-      "avg_mfe": 1.98,
+      "n_resolved": 94,
+      "wins": 48,
+      "losses": 46,
+      "wr": 51.1,
+      "avg_pnl": 1.1,
+      "avg_mae": 2.37,
+      "avg_mfe": 3.83,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
-      "edge_pct": -15.4,
+      "edge_pct": 15.3,
       "tier": "validated",
-      "direction": "negative",
-      "insight": "Bear regime + age=0 underperforms UP_TRI baseline by 15.4pp (20.4% WR in 49 trades)"
+      "direction": "positive",
+      "insight": "Bank sector + Grade B outperforms UP_TRI baseline by 15.3pp (51.1% WR in 94 trades)"
     },
     {
       "id": "signal=UP_TRI_sector=Energy_age=0",
@@ -627,19 +627,19 @@
         "sector": "Auto"
       },
       "feature_depth": 2,
-      "n_resolved": 11,
+      "n_resolved": 12,
       "wins": 1,
-      "losses": 10,
-      "wr": 9.1,
-      "avg_pnl": -1.66,
-      "avg_mae": 3.28,
-      "avg_mfe": 0.94,
+      "losses": 11,
+      "wr": 8.3,
+      "avg_pnl": -1.84,
+      "avg_mae": 3.39,
+      "avg_mfe": 0.96,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
-      "edge_pct": -26.7,
+      "edge_pct": -27.5,
       "tier": "preliminary",
       "direction": "negative",
-      "insight": "Bear regime + Auto sector underperforms UP_TRI baseline by 26.7pp (9.1% WR in 11 trades)"
+      "insight": "Bear regime + Auto sector underperforms UP_TRI baseline by 27.5pp (8.3% WR in 12 trades)"
     },
     {
       "id": "regime=Bear_sector=Auto_grade=B",
@@ -649,19 +649,19 @@
         "grade": "B"
       },
       "feature_depth": 3,
-      "n_resolved": 11,
+      "n_resolved": 12,
       "wins": 1,
-      "losses": 10,
-      "wr": 9.1,
-      "avg_pnl": -1.66,
-      "avg_mae": 3.28,
-      "avg_mfe": 0.94,
+      "losses": 11,
+      "wr": 8.3,
+      "avg_pnl": -1.84,
+      "avg_mae": 3.39,
+      "avg_mfe": 0.96,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
-      "edge_pct": -26.7,
+      "edge_pct": -27.5,
       "tier": "preliminary",
       "direction": "negative",
-      "insight": "Bear regime + Auto sector + Grade B underperforms UP_TRI baseline by 26.7pp (9.1% WR in 11 trades)"
+      "insight": "Bear regime + Auto sector + Grade B underperforms UP_TRI baseline by 27.5pp (8.3% WR in 12 trades)"
     },
     {
       "id": "signal=UP_TRI_regime=Bull_sector=FMCG",
@@ -834,6 +834,49 @@
       "tier": "preliminary",
       "direction": "negative",
       "insight": "UP_TRI_SA + age=0 underperforms UP_TRI baseline by 17.6pp (18.2% WR in 11 trades)"
+    },
+    {
+      "id": "regime=Bear_sector=Pharma",
+      "features": {
+        "regime": "Bear",
+        "sector": "Pharma"
+      },
+      "feature_depth": 2,
+      "n_resolved": 11,
+      "wins": 2,
+      "losses": 9,
+      "wr": 18.2,
+      "avg_pnl": -0.93,
+      "avg_mae": 2.61,
+      "avg_mfe": 1.58,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -17.6,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "Bear regime + Pharma sector underperforms UP_TRI baseline by 17.6pp (18.2% WR in 11 trades)"
+    },
+    {
+      "id": "regime=Bear_sector=Pharma_grade=B",
+      "features": {
+        "regime": "Bear",
+        "sector": "Pharma",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 11,
+      "wins": 2,
+      "losses": 9,
+      "wr": 18.2,
+      "avg_pnl": -0.93,
+      "avg_mae": 2.61,
+      "avg_mfe": 1.58,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -17.6,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "Bear regime + Pharma sector + Grade B underperforms UP_TRI baseline by 17.6pp (18.2% WR in 11 trades)"
     },
     {
       "id": "signal=UP_TRI_regime=Bull_sector=Auto",
@@ -1028,27 +1071,6 @@
       "insight": "Bull regime + Chem sector underperforms UP_TRI baseline by 15.8pp (20.0% WR in 10 trades)"
     },
     {
-      "id": "regime=Bear_sector=Pharma",
-      "features": {
-        "regime": "Bear",
-        "sector": "Pharma"
-      },
-      "feature_depth": 2,
-      "n_resolved": 10,
-      "wins": 2,
-      "losses": 8,
-      "wr": 20.0,
-      "avg_pnl": -0.59,
-      "avg_mae": 2.4,
-      "avg_mfe": 1.51,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -15.8,
-      "tier": "preliminary",
-      "direction": "negative",
-      "insight": "Bear regime + Pharma sector underperforms UP_TRI baseline by 15.8pp (20.0% WR in 10 trades)"
-    },
-    {
       "id": "sector=Infra_age=1",
       "features": {
         "sector": "Infra",
@@ -1111,6 +1133,28 @@
       "tier": "preliminary",
       "direction": "negative",
       "insight": "UP_TRI + Bull regime + Chem sector underperforms UP_TRI baseline by 15.8pp (20.0% WR in 10 trades)"
+    },
+    {
+      "id": "signal=UP_TRI_regime=Bear_sector=Pharma",
+      "features": {
+        "signal": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Pharma"
+      },
+      "feature_depth": 3,
+      "n_resolved": 10,
+      "wins": 2,
+      "losses": 8,
+      "wr": 20.0,
+      "avg_pnl": -0.91,
+      "avg_mae": 2.55,
+      "avg_mfe": 1.62,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -15.8,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "UP_TRI + Bear regime + Pharma sector underperforms UP_TRI baseline by 15.8pp (20.0% WR in 10 trades)"
     },
     {
       "id": "signal=UP_TRI_age=2_grade=B",
@@ -1179,47 +1223,25 @@
       "insight": "Bull regime + Chem sector + Grade B underperforms UP_TRI baseline by 15.8pp (20.0% WR in 10 trades)"
     },
     {
-      "id": "regime=Bear_sector=Pharma_grade=B",
+      "id": "signal=UP_TRI_sector=Bank",
       "features": {
-        "regime": "Bear",
-        "sector": "Pharma",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 10,
-      "wins": 2,
-      "losses": 8,
-      "wr": 20.0,
-      "avg_pnl": -0.59,
-      "avg_mae": 2.4,
-      "avg_mfe": 1.51,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -15.8,
-      "tier": "preliminary",
-      "direction": "negative",
-      "insight": "Bear regime + Pharma sector + Grade B underperforms UP_TRI baseline by 15.8pp (20.0% WR in 10 trades)"
-    },
-    {
-      "id": "sector=Bank_grade=B",
-      "features": {
-        "sector": "Bank",
-        "grade": "B"
+        "signal": "UP_TRI",
+        "sector": "Bank"
       },
       "feature_depth": 2,
       "n_resolved": 93,
       "wins": 47,
       "losses": 46,
       "wr": 50.5,
-      "avg_pnl": 1.03,
-      "avg_mae": 2.4,
-      "avg_mfe": 3.74,
+      "avg_pnl": 1.18,
+      "avg_mae": 2.36,
+      "avg_mfe": 3.87,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
       "edge_pct": 14.7,
       "tier": "preliminary",
       "direction": "positive",
-      "insight": "Bank sector + Grade B outperforms UP_TRI baseline by 14.7pp (50.5% WR in 93 trades)"
+      "insight": "UP_TRI + Bank sector outperforms UP_TRI baseline by 14.7pp (50.5% WR in 93 trades)"
     },
     {
       "id": "sector=Metal",
@@ -1242,26 +1264,25 @@
       "insight": "Metal sector underperforms UP_TRI baseline by 14.7pp (21.1% WR in 38 trades)"
     },
     {
-      "id": "signal=UP_TRI_regime=Bear_age=0",
+      "id": "regime=Bear_age=0",
       "features": {
-        "signal": "UP_TRI",
         "regime": "Bear",
         "age": "0"
       },
-      "feature_depth": 3,
-      "n_resolved": 38,
-      "wins": 8,
-      "losses": 30,
-      "wr": 21.1,
-      "avg_pnl": -1.48,
-      "avg_mae": 3.78,
+      "feature_depth": 2,
+      "n_resolved": 52,
+      "wins": 11,
+      "losses": 41,
+      "wr": 21.2,
+      "avg_pnl": -1.53,
+      "avg_mae": 3.79,
       "avg_mfe": 2.17,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
-      "edge_pct": -14.7,
+      "edge_pct": -14.6,
       "tier": "preliminary",
       "direction": "negative",
-      "insight": "UP_TRI + Bear regime + age=0 underperforms UP_TRI baseline by 14.7pp (21.1% WR in 38 trades)"
+      "insight": "Bear regime + age=0 underperforms UP_TRI baseline by 14.6pp (21.2% WR in 52 trades)"
     },
     {
       "id": "sector=Energy_age=0",
@@ -1351,25 +1372,48 @@
       "insight": "Choppy regime + Metal sector + Grade B underperforms UP_TRI baseline by 14.4pp (21.4% WR in 14 trades)"
     },
     {
-      "id": "signal=UP_TRI_sector=Bank",
+      "id": "signal=UP_TRI_sector=Bank_age=0",
       "features": {
         "signal": "UP_TRI",
-        "sector": "Bank"
+        "sector": "Bank",
+        "age": "0"
       },
-      "feature_depth": 2,
-      "n_resolved": 92,
-      "wins": 46,
-      "losses": 46,
+      "feature_depth": 3,
+      "n_resolved": 76,
+      "wins": 38,
+      "losses": 38,
       "wr": 50.0,
-      "avg_pnl": 1.11,
-      "avg_mae": 2.39,
+      "avg_pnl": 1.19,
+      "avg_mae": 2.44,
+      "avg_mfe": 3.85,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 14.2,
+      "tier": "preliminary",
+      "direction": "positive",
+      "insight": "UP_TRI + Bank sector + age=0 outperforms UP_TRI baseline by 14.2pp (50.0% WR in 76 trades)"
+    },
+    {
+      "id": "sector=Bank_age=0_grade=B",
+      "features": {
+        "sector": "Bank",
+        "age": "0",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 76,
+      "wins": 38,
+      "losses": 38,
+      "wr": 50.0,
+      "avg_pnl": 1.08,
+      "avg_mae": 2.48,
       "avg_mfe": 3.78,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
       "edge_pct": 14.2,
       "tier": "preliminary",
       "direction": "positive",
-      "insight": "UP_TRI + Bank sector outperforms UP_TRI baseline by 14.2pp (50.0% WR in 92 trades)"
+      "insight": "Bank sector + age=0 + Grade B outperforms UP_TRI baseline by 14.2pp (50.0% WR in 76 trades)"
     },
     {
       "id": "regime=Choppy_sector=Bank",
@@ -1631,28 +1675,6 @@
       "insight": "FMCG sector + age=1 + Grade B outperforms UP_TRI baseline by 14.2pp (50.0% WR in 10 trades)"
     },
     {
-      "id": "regime=Bear_age=0_grade=B",
-      "features": {
-        "regime": "Bear",
-        "age": "0",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 46,
-      "wins": 10,
-      "losses": 36,
-      "wr": 21.7,
-      "avg_pnl": -1.46,
-      "avg_mae": 3.68,
-      "avg_mfe": 2.04,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -14.1,
-      "tier": "preliminary",
-      "direction": "negative",
-      "insight": "Bear regime + age=0 + Grade B underperforms UP_TRI baseline by 14.1pp (21.7% WR in 46 trades)"
-    },
-    {
       "id": "regime=Choppy_sector=Metal",
       "features": {
         "regime": "Choppy",
@@ -1672,6 +1694,48 @@
       "tier": "preliminary",
       "direction": "negative",
       "insight": "Choppy regime + Metal sector underperforms UP_TRI baseline by 14.1pp (21.7% WR in 23 trades)"
+    },
+    {
+      "id": "signal=UP_TRI_regime=Bear_age=0",
+      "features": {
+        "signal": "UP_TRI",
+        "regime": "Bear",
+        "age": "0"
+      },
+      "feature_depth": 3,
+      "n_resolved": 41,
+      "wins": 9,
+      "losses": 32,
+      "wr": 22.0,
+      "avg_pnl": -1.4,
+      "avg_mae": 3.73,
+      "avg_mfe": 2.39,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -13.8,
+      "tier": "preliminary",
+      "direction": "negative",
+      "insight": "UP_TRI + Bear regime + age=0 underperforms UP_TRI baseline by 13.8pp (22.0% WR in 41 trades)"
+    },
+    {
+      "id": "sector=Bank",
+      "features": {
+        "sector": "Bank"
+      },
+      "feature_depth": 1,
+      "n_resolved": 99,
+      "wins": 49,
+      "losses": 50,
+      "wr": 49.5,
+      "avg_pnl": 1.01,
+      "avg_mae": 2.4,
+      "avg_mfe": 3.77,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 13.7,
+      "tier": "preliminary",
+      "direction": "positive",
+      "insight": "Bank sector outperforms UP_TRI baseline by 13.7pp (49.5% WR in 99 trades)"
     },
     {
       "id": "sector=Metal_grade=A",
@@ -1717,68 +1781,26 @@
       "insight": "Metal sector + age=0 + Grade B underperforms UP_TRI baseline by 13.6pp (22.2% WR in 18 trades)"
     },
     {
-      "id": "signal=UP_TRI_sector=Bank_age=0",
+      "id": "regime=Bear_age=0_grade=B",
       "features": {
-        "signal": "UP_TRI",
-        "sector": "Bank",
-        "age": "0"
-      },
-      "feature_depth": 3,
-      "n_resolved": 75,
-      "wins": 37,
-      "losses": 38,
-      "wr": 49.3,
-      "avg_pnl": 1.11,
-      "avg_mae": 2.48,
-      "avg_mfe": 3.74,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 13.5,
-      "tier": "preliminary",
-      "direction": "positive",
-      "insight": "UP_TRI + Bank sector + age=0 outperforms UP_TRI baseline by 13.5pp (49.3% WR in 75 trades)"
-    },
-    {
-      "id": "sector=Bank_age=0_grade=B",
-      "features": {
-        "sector": "Bank",
+        "regime": "Bear",
         "age": "0",
         "grade": "B"
       },
       "feature_depth": 3,
-      "n_resolved": 75,
-      "wins": 37,
+      "n_resolved": 49,
+      "wins": 11,
       "losses": 38,
-      "wr": 49.3,
-      "avg_pnl": 1.0,
-      "avg_mae": 2.52,
-      "avg_mfe": 3.66,
+      "wr": 22.4,
+      "avg_pnl": -1.39,
+      "avg_mae": 3.64,
+      "avg_mfe": 2.23,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
-      "edge_pct": 13.5,
+      "edge_pct": -13.4,
       "tier": "preliminary",
-      "direction": "positive",
-      "insight": "Bank sector + age=0 + Grade B outperforms UP_TRI baseline by 13.5pp (49.3% WR in 75 trades)"
-    },
-    {
-      "id": "sector=Bank",
-      "features": {
-        "sector": "Bank"
-      },
-      "feature_depth": 1,
-      "n_resolved": 98,
-      "wins": 48,
-      "losses": 50,
-      "wr": 49.0,
-      "avg_pnl": 0.94,
-      "avg_mae": 2.43,
-      "avg_mfe": 3.68,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 13.2,
-      "tier": "preliminary",
-      "direction": "positive",
-      "insight": "Bank sector outperforms UP_TRI baseline by 13.2pp (49.0% WR in 98 trades)"
+      "direction": "negative",
+      "insight": "Bear regime + age=0 + Grade B underperforms UP_TRI baseline by 13.4pp (22.4% WR in 49 trades)"
     },
     {
       "id": "sector=CapGoods_age=0",
@@ -1888,6 +1910,27 @@
       "insight": "UP_TRI + Metal sector underperforms UP_TRI baseline by 12.5pp (23.3% WR in 30 trades)"
     },
     {
+      "id": "sector=Bank_age=0",
+      "features": {
+        "sector": "Bank",
+        "age": "0"
+      },
+      "feature_depth": 2,
+      "n_resolved": 81,
+      "wins": 39,
+      "losses": 42,
+      "wr": 48.1,
+      "avg_pnl": 0.97,
+      "avg_mae": 2.52,
+      "avg_mfe": 3.71,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 12.3,
+      "tier": "preliminary",
+      "direction": "positive",
+      "insight": "Bank sector + age=0 outperforms UP_TRI baseline by 12.3pp (48.1% WR in 81 trades)"
+    },
+    {
       "id": "signal=UP_TRI_sector=Metal_grade=B",
       "features": {
         "signal": "UP_TRI",
@@ -1995,70 +2038,6 @@
       "tier": "preliminary",
       "direction": "negative",
       "insight": "UP_TRI + Energy sector + Grade B underperforms UP_TRI baseline by 11.9pp (23.9% WR in 46 trades)"
-    },
-    {
-      "id": "signal=UP_TRI_sector=Pharma",
-      "features": {
-        "signal": "UP_TRI",
-        "sector": "Pharma"
-      },
-      "feature_depth": 2,
-      "n_resolved": 42,
-      "wins": 20,
-      "losses": 22,
-      "wr": 47.6,
-      "avg_pnl": 0.69,
-      "avg_mae": 2.4,
-      "avg_mfe": 2.94,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 11.8,
-      "tier": "preliminary",
-      "direction": "positive",
-      "insight": "UP_TRI + Pharma sector outperforms UP_TRI baseline by 11.8pp (47.6% WR in 42 trades)"
-    },
-    {
-      "id": "signal=UP_TRI_sector=Pharma_grade=B",
-      "features": {
-        "signal": "UP_TRI",
-        "sector": "Pharma",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 42,
-      "wins": 20,
-      "losses": 22,
-      "wr": 47.6,
-      "avg_pnl": 0.69,
-      "avg_mae": 2.4,
-      "avg_mfe": 2.94,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 11.8,
-      "tier": "preliminary",
-      "direction": "positive",
-      "insight": "UP_TRI + Pharma sector + Grade B outperforms UP_TRI baseline by 11.8pp (47.6% WR in 42 trades)"
-    },
-    {
-      "id": "sector=Bank_age=0",
-      "features": {
-        "sector": "Bank",
-        "age": "0"
-      },
-      "feature_depth": 2,
-      "n_resolved": 80,
-      "wins": 38,
-      "losses": 42,
-      "wr": 47.5,
-      "avg_pnl": 0.89,
-      "avg_mae": 2.55,
-      "avg_mfe": 3.6,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 11.7,
-      "tier": "preliminary",
-      "direction": "positive",
-      "insight": "Bank sector + age=0 outperforms UP_TRI baseline by 11.7pp (47.5% WR in 80 trades)"
     },
     {
       "id": "signal=UP_TRI_sector=Metal_age=0",
@@ -2296,47 +2275,6 @@
       "insight": "BULL_PROXY + age=1 outperforms BULL_PROXY baseline by 11.1pp (40.0% WR in 10 trades)"
     },
     {
-      "id": "sector=Pharma",
-      "features": {
-        "sector": "Pharma"
-      },
-      "feature_depth": 1,
-      "n_resolved": 47,
-      "wins": 22,
-      "losses": 25,
-      "wr": 46.8,
-      "avg_pnl": 0.64,
-      "avg_mae": 2.47,
-      "avg_mfe": 3.03,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 11.0,
-      "tier": "preliminary",
-      "direction": "positive",
-      "insight": "Pharma sector outperforms UP_TRI baseline by 11.0pp (46.8% WR in 47 trades)"
-    },
-    {
-      "id": "sector=Pharma_grade=B",
-      "features": {
-        "sector": "Pharma",
-        "grade": "B"
-      },
-      "feature_depth": 2,
-      "n_resolved": 47,
-      "wins": 22,
-      "losses": 25,
-      "wr": 46.8,
-      "avg_pnl": 0.64,
-      "avg_mae": 2.47,
-      "avg_mfe": 3.03,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 11.0,
-      "tier": "preliminary",
-      "direction": "positive",
-      "insight": "Pharma sector + Grade B outperforms UP_TRI baseline by 11.0pp (46.8% WR in 47 trades)"
-    },
-    {
       "id": "regime=Bull_grade=A",
       "features": {
         "regime": "Bull",
@@ -2552,6 +2490,49 @@
       "insight": "Choppy regime + CapGoods sector + age=0 underperforms UP_TRI baseline by 10.8pp (25.0% WR in 12 trades)"
     },
     {
+      "id": "signal=UP_TRI_sector=Pharma",
+      "features": {
+        "signal": "UP_TRI",
+        "sector": "Pharma"
+      },
+      "feature_depth": 2,
+      "n_resolved": 43,
+      "wins": 20,
+      "losses": 23,
+      "wr": 46.5,
+      "avg_pnl": 0.58,
+      "avg_mae": 2.46,
+      "avg_mfe": 2.92,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 10.7,
+      "tier": "preliminary",
+      "direction": "positive",
+      "insight": "UP_TRI + Pharma sector outperforms UP_TRI baseline by 10.7pp (46.5% WR in 43 trades)"
+    },
+    {
+      "id": "signal=UP_TRI_sector=Pharma_grade=B",
+      "features": {
+        "signal": "UP_TRI",
+        "sector": "Pharma",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 43,
+      "wins": 20,
+      "losses": 23,
+      "wr": 46.5,
+      "avg_pnl": 0.58,
+      "avg_mae": 2.46,
+      "avg_mfe": 2.92,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 10.7,
+      "tier": "preliminary",
+      "direction": "positive",
+      "insight": "UP_TRI + Pharma sector + Grade B outperforms UP_TRI baseline by 10.7pp (46.5% WR in 43 trades)"
+    },
+    {
       "id": "signal=UP_TRI_sector=Infra_age=0",
       "features": {
         "signal": "UP_TRI",
@@ -2574,24 +2555,45 @@
       "insight": "UP_TRI + Infra sector + age=0 outperforms UP_TRI baseline by 10.6pp (46.4% WR in 28 trades)"
     },
     {
-      "id": "regime=Bear",
+      "id": "sector=Pharma",
       "features": {
-        "regime": "Bear"
+        "sector": "Pharma"
       },
       "feature_depth": 1,
-      "n_resolved": 78,
-      "wins": 20,
-      "losses": 58,
-      "wr": 25.6,
-      "avg_pnl": -1.28,
-      "avg_mae": 3.56,
-      "avg_mfe": 2.26,
+      "n_resolved": 48,
+      "wins": 22,
+      "losses": 26,
+      "wr": 45.8,
+      "avg_pnl": 0.54,
+      "avg_mae": 2.52,
+      "avg_mfe": 3.01,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
-      "edge_pct": -10.2,
+      "edge_pct": 10.0,
       "tier": "preliminary",
-      "direction": "negative",
-      "insight": "Bear regime underperforms UP_TRI baseline by 10.2pp (25.6% WR in 78 trades)"
+      "direction": "positive",
+      "insight": "Pharma sector outperforms UP_TRI baseline by 10.0pp (45.8% WR in 48 trades)"
+    },
+    {
+      "id": "sector=Pharma_grade=B",
+      "features": {
+        "sector": "Pharma",
+        "grade": "B"
+      },
+      "feature_depth": 2,
+      "n_resolved": 48,
+      "wins": 22,
+      "losses": 26,
+      "wr": 45.8,
+      "avg_pnl": 0.54,
+      "avg_mae": 2.52,
+      "avg_mfe": 3.01,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 10.0,
+      "tier": "preliminary",
+      "direction": "positive",
+      "insight": "Pharma sector + Grade B outperforms UP_TRI baseline by 10.0pp (45.8% WR in 48 trades)"
     },
     {
       "id": "regime=Bull_sector=FMCG_age=0",
@@ -2623,19 +2625,19 @@
         "sector": "Auto"
       },
       "feature_depth": 3,
-      "n_resolved": 7,
+      "n_resolved": 8,
       "wins": 0,
-      "losses": 7,
+      "losses": 8,
       "wr": 0.0,
-      "avg_pnl": -2.47,
-      "avg_mae": 3.53,
-      "avg_mfe": 0.56,
+      "avg_pnl": -2.65,
+      "avg_mae": 3.67,
+      "avg_mfe": 0.65,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
       "edge_pct": -35.8,
       "tier": "emerging",
       "direction": "negative",
-      "insight": "UP_TRI + Bear regime + Auto sector underperforms UP_TRI baseline by 35.8pp (0.0% WR in 7 trades)"
+      "insight": "UP_TRI + Bear regime + Auto sector underperforms UP_TRI baseline by 35.8pp (0.0% WR in 8 trades)"
     },
     {
       "id": "regime=Bear_sector=Other",
@@ -2857,6 +2859,50 @@
       "insight": "Bull regime + Bank sector + age=1 outperforms UP_TRI baseline by 24.2pp (60.0% WR in 5 trades)"
     },
     {
+      "id": "regime=Bear_sector=Auto_age=0",
+      "features": {
+        "regime": "Bear",
+        "sector": "Auto",
+        "age": "0"
+      },
+      "feature_depth": 3,
+      "n_resolved": 7,
+      "wins": 1,
+      "losses": 6,
+      "wr": 14.3,
+      "avg_pnl": -1.34,
+      "avg_mae": 3.27,
+      "avg_mfe": 1.46,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -21.5,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "Bear regime + Auto sector + age=0 underperforms UP_TRI baseline by 21.5pp (14.3% WR in 7 trades)"
+    },
+    {
+      "id": "regime=Bear_sector=Bank_age=0",
+      "features": {
+        "regime": "Bear",
+        "sector": "Bank",
+        "age": "0"
+      },
+      "feature_depth": 3,
+      "n_resolved": 7,
+      "wins": 4,
+      "losses": 3,
+      "wr": 57.1,
+      "avg_pnl": 1.03,
+      "avg_mae": 2.87,
+      "avg_mfe": 5.21,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 21.3,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "Bear regime + Bank sector + age=0 outperforms UP_TRI baseline by 21.3pp (57.1% WR in 7 trades)"
+    },
+    {
       "id": "signal=BULL_PROXY_age=1_grade=B",
       "features": {
         "signal": "BULL_PROXY",
@@ -3030,10 +3076,10 @@
       "insight": "UP_TRI + IT sector + age=1 underperforms UP_TRI baseline by 19.1pp (16.7% WR in 6 trades)"
     },
     {
-      "id": "regime=Bear_sector=Auto_age=0",
+      "id": "regime=Bear_sector=Pharma_age=0",
       "features": {
         "regime": "Bear",
-        "sector": "Auto",
+        "sector": "Pharma",
         "age": "0"
       },
       "feature_depth": 3,
@@ -3041,15 +3087,15 @@
       "wins": 1,
       "losses": 5,
       "wr": 16.7,
-      "avg_pnl": -0.92,
-      "avg_mae": 3.04,
-      "avg_mfe": 1.5,
+      "avg_pnl": -1.43,
+      "avg_mae": 2.83,
+      "avg_mfe": 1.74,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
       "edge_pct": -19.1,
       "tier": "emerging",
       "direction": "negative",
-      "insight": "Bear regime + Auto sector + age=0 underperforms UP_TRI baseline by 19.1pp (16.7% WR in 6 trades)"
+      "insight": "Bear regime + Pharma sector + age=0 underperforms UP_TRI baseline by 19.1pp (16.7% WR in 6 trades)"
     },
     {
       "id": "regime=Bear_sector=Infra_grade=B",
@@ -3354,28 +3400,6 @@
       "insight": "UP_TRI + Bank sector + Grade A underperforms UP_TRI baseline by 15.8pp (20.0% WR in 5 trades)"
     },
     {
-      "id": "regime=Bear_sector=Pharma_age=0",
-      "features": {
-        "regime": "Bear",
-        "sector": "Pharma",
-        "age": "0"
-      },
-      "feature_depth": 3,
-      "n_resolved": 5,
-      "wins": 1,
-      "losses": 4,
-      "wr": 20.0,
-      "avg_pnl": -0.84,
-      "avg_mae": 2.44,
-      "avg_mfe": 1.64,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -15.8,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "Bear regime + Pharma sector + age=0 underperforms UP_TRI baseline by 15.8pp (20.0% WR in 5 trades)"
-    },
-    {
       "id": "regime=Bull_sector=Metal_grade=B",
       "features": {
         "regime": "Bull",
@@ -3594,28 +3618,6 @@
       "insight": "UP_TRI + Bear regime + FMCG sector outperforms UP_TRI baseline by 14.2pp (50.0% WR in 8 trades)"
     },
     {
-      "id": "regime=Bear_sector=Bank_age=0",
-      "features": {
-        "regime": "Bear",
-        "sector": "Bank",
-        "age": "0"
-      },
-      "feature_depth": 3,
-      "n_resolved": 6,
-      "wins": 3,
-      "losses": 3,
-      "wr": 50.0,
-      "avg_pnl": -0.01,
-      "avg_mae": 3.34,
-      "avg_mfe": 4.05,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 14.2,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "Bear regime + Bank sector + age=0 outperforms UP_TRI baseline by 14.2pp (50.0% WR in 6 trades)"
-    },
-    {
       "id": "signal=BULL_PROXY_regime=Bull_age=0",
       "features": {
         "signal": "BULL_PROXY",
@@ -3701,28 +3703,6 @@
       "tier": "emerging",
       "direction": "negative",
       "insight": "UP_TRI + Bull regime + Metal sector underperforms UP_TRI baseline by 13.6pp (22.2% WR in 9 trades)"
-    },
-    {
-      "id": "signal=UP_TRI_regime=Bear_sector=Pharma",
-      "features": {
-        "signal": "UP_TRI",
-        "regime": "Bear",
-        "sector": "Pharma"
-      },
-      "feature_depth": 3,
-      "n_resolved": 9,
-      "wins": 2,
-      "losses": 7,
-      "wr": 22.2,
-      "avg_pnl": -0.53,
-      "avg_mae": 2.3,
-      "avg_mfe": 1.55,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -13.6,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "UP_TRI + Bear regime + Pharma sector underperforms UP_TRI baseline by 13.6pp (22.2% WR in 9 trades)"
     },
     {
       "id": "signal=UP_TRI_sector=Infra_age=1",
@@ -4204,6 +4184,26 @@
       "insight": "Auto sector + age=1 + Grade B underperforms UP_TRI baseline by 10.8pp (25.0% WR in 8 trades)"
     },
     {
+      "id": "regime=Bear",
+      "features": {
+        "regime": "Bear"
+      },
+      "feature_depth": 1,
+      "n_resolved": 81,
+      "wins": 21,
+      "losses": 60,
+      "wr": 25.9,
+      "avg_pnl": -1.24,
+      "avg_mae": 3.55,
+      "avg_mfe": 2.37,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -9.9,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "Bear regime underperforms UP_TRI baseline by 9.9pp (25.9% WR in 81 trades)"
+    },
+    {
       "id": "signal=UP_TRI_sector=Chem_age=0",
       "features": {
         "signal": "UP_TRI",
@@ -4224,6 +4224,71 @@
       "tier": "emerging",
       "direction": "negative",
       "insight": "UP_TRI + Chem sector + age=0 underperforms UP_TRI baseline by 9.9pp (25.9% WR in 27 trades)"
+    },
+    {
+      "id": "regime=Bear_sector=Bank",
+      "features": {
+        "regime": "Bear",
+        "sector": "Bank"
+      },
+      "feature_depth": 2,
+      "n_resolved": 11,
+      "wins": 5,
+      "losses": 6,
+      "wr": 45.5,
+      "avg_pnl": 0.72,
+      "avg_mae": 2.56,
+      "avg_mfe": 4.65,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 9.7,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "Bear regime + Bank sector outperforms UP_TRI baseline by 9.7pp (45.5% WR in 11 trades)"
+    },
+    {
+      "id": "signal=UP_TRI_regime=Bear_sector=Bank",
+      "features": {
+        "signal": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Bank"
+      },
+      "feature_depth": 3,
+      "n_resolved": 11,
+      "wins": 5,
+      "losses": 6,
+      "wr": 45.5,
+      "avg_pnl": 0.72,
+      "avg_mae": 2.56,
+      "avg_mfe": 4.65,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 9.7,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "UP_TRI + Bear regime + Bank sector outperforms UP_TRI baseline by 9.7pp (45.5% WR in 11 trades)"
+    },
+    {
+      "id": "regime=Bear_sector=Bank_grade=B",
+      "features": {
+        "regime": "Bear",
+        "sector": "Bank",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 11,
+      "wins": 5,
+      "losses": 6,
+      "wr": 45.5,
+      "avg_pnl": 0.72,
+      "avg_mae": 2.56,
+      "avg_mfe": 4.65,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 9.7,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "Bear regime + Bank sector + Grade B outperforms UP_TRI baseline by 9.7pp (45.5% WR in 11 trades)"
     },
     {
       "id": "grade=A",
@@ -4311,27 +4376,6 @@
       "insight": "Bull regime + Infra sector outperforms UP_TRI baseline by 9.2pp (45.0% WR in 20 trades)"
     },
     {
-      "id": "regime=Bear_grade=B",
-      "features": {
-        "regime": "Bear",
-        "grade": "B"
-      },
-      "feature_depth": 2,
-      "n_resolved": 75,
-      "wins": 20,
-      "losses": 55,
-      "wr": 26.7,
-      "avg_pnl": -1.18,
-      "avg_mae": 3.46,
-      "avg_mfe": 2.31,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -9.1,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "Bear regime + Grade B underperforms UP_TRI baseline by 9.1pp (26.7% WR in 75 trades)"
-    },
-    {
       "id": "sector=Chem_age=0",
       "features": {
         "sector": "Chem",
@@ -4373,6 +4417,27 @@
       "tier": "emerging",
       "direction": "negative",
       "insight": "Chem sector + age=0 + Grade B underperforms UP_TRI baseline by 9.1pp (26.7% WR in 30 trades)"
+    },
+    {
+      "id": "regime=Bear_grade=B",
+      "features": {
+        "regime": "Bear",
+        "grade": "B"
+      },
+      "feature_depth": 2,
+      "n_resolved": 78,
+      "wins": 21,
+      "losses": 57,
+      "wr": 26.9,
+      "avg_pnl": -1.14,
+      "avg_mae": 3.45,
+      "avg_mfe": 2.42,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -8.9,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "Bear regime + Grade B underperforms UP_TRI baseline by 8.9pp (26.9% WR in 78 trades)"
     },
     {
       "id": "signal=BULL_PROXY_sector=Auto",
@@ -4527,27 +4592,6 @@
       "insight": "Health sector + age=0 + Grade B outperforms UP_TRI baseline by 8.6pp (44.4% WR in 9 trades)"
     },
     {
-      "id": "signal=UP_TRI_regime=Bear",
-      "features": {
-        "signal": "UP_TRI",
-        "regime": "Bear"
-      },
-      "feature_depth": 2,
-      "n_resolved": 66,
-      "wins": 18,
-      "losses": 48,
-      "wr": 27.3,
-      "avg_pnl": -1.17,
-      "avg_mae": 3.5,
-      "avg_mfe": 2.45,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -8.5,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "UP_TRI + Bear regime underperforms UP_TRI baseline by 8.5pp (27.3% WR in 66 trades)"
-    },
-    {
       "id": "regime=Bull_sector=IT",
       "features": {
         "regime": "Bull",
@@ -4656,6 +4700,27 @@
       "insight": "Bull regime + IT sector + Grade B underperforms UP_TRI baseline by 8.5pp (27.3% WR in 11 trades)"
     },
     {
+      "id": "signal=UP_TRI_regime=Bear",
+      "features": {
+        "signal": "UP_TRI",
+        "regime": "Bear"
+      },
+      "feature_depth": 2,
+      "n_resolved": 69,
+      "wins": 19,
+      "losses": 50,
+      "wr": 27.5,
+      "avg_pnl": -1.13,
+      "avg_mae": 3.49,
+      "avg_mfe": 2.57,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -8.3,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "UP_TRI + Bear regime underperforms UP_TRI baseline by 8.3pp (27.5% WR in 69 trades)"
+    },
+    {
       "id": "regime=Bull_sector=Other_grade=B",
       "features": {
         "regime": "Bull",
@@ -4696,28 +4761,6 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "FMCG sector outperforms UP_TRI baseline by 7.7pp (43.5% WR in 46 trades)"
-    },
-    {
-      "id": "signal=UP_TRI_regime=Bear_grade=B",
-      "features": {
-        "signal": "UP_TRI",
-        "regime": "Bear",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 63,
-      "wins": 18,
-      "losses": 45,
-      "wr": 28.6,
-      "avg_pnl": -1.04,
-      "avg_mae": 3.37,
-      "avg_mfe": 2.51,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -7.2,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "UP_TRI + Bear regime + Grade B underperforms UP_TRI baseline by 7.2pp (28.6% WR in 63 trades)"
     },
     {
       "id": "age=0_grade=A",
@@ -5022,6 +5065,28 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "Infra sector + age=0 + Grade A outperforms UP_TRI baseline by 7.1pp (42.9% WR in 7 trades)"
+    },
+    {
+      "id": "signal=UP_TRI_regime=Bear_grade=B",
+      "features": {
+        "signal": "UP_TRI",
+        "regime": "Bear",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 66,
+      "wins": 19,
+      "losses": 47,
+      "wr": 28.8,
+      "avg_pnl": -1.01,
+      "avg_mae": 3.36,
+      "avg_mfe": 2.63,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -7.0,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "UP_TRI + Bear regime + Grade B underperforms UP_TRI baseline by 7.0pp (28.8% WR in 66 trades)"
     },
     {
       "id": "signal=UP_TRI_grade=A",
@@ -5518,28 +5583,6 @@
       "insight": "Choppy regime + Infra sector + age=0 underperforms UP_TRI baseline by 5.0pp (30.8% WR in 13 trades)"
     },
     {
-      "id": "signal=UP_TRI_sector=Auto_age=0",
-      "features": {
-        "signal": "UP_TRI",
-        "sector": "Auto",
-        "age": "0"
-      },
-      "feature_depth": 3,
-      "n_resolved": 27,
-      "wins": 11,
-      "losses": 16,
-      "wr": 40.7,
-      "avg_pnl": 0.08,
-      "avg_mae": 3.1,
-      "avg_mfe": 3.0,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 4.9,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "UP_TRI + Auto sector + age=0 outperforms UP_TRI baseline by 4.9pp (40.7% WR in 27 trades)"
-    },
-    {
       "id": "sector=Other_age=0",
       "features": {
         "sector": "Other",
@@ -5581,6 +5624,26 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "FMCG sector + age=0 + Grade B outperforms UP_TRI baseline by 4.8pp (40.6% WR in 32 trades)"
+    },
+    {
+      "id": "sector=Auto",
+      "features": {
+        "sector": "Auto"
+      },
+      "feature_depth": 1,
+      "n_resolved": 48,
+      "wins": 15,
+      "losses": 33,
+      "wr": 31.2,
+      "avg_pnl": -0.5,
+      "avg_mae": 3.17,
+      "avg_mfe": 2.51,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -4.6,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "Auto sector underperforms UP_TRI baseline by 4.6pp (31.2% WR in 48 trades)"
     },
     {
       "id": "signal=UP_TRI_regime=Choppy_sector=Infra",
@@ -5798,71 +5861,6 @@
       "insight": "Choppy regime + Infra sector + Grade B outperforms UP_TRI baseline by 4.2pp (40.0% WR in 15 trades)"
     },
     {
-      "id": "regime=Bear_sector=Bank",
-      "features": {
-        "regime": "Bear",
-        "sector": "Bank"
-      },
-      "feature_depth": 2,
-      "n_resolved": 10,
-      "wins": 4,
-      "losses": 6,
-      "wr": 40.0,
-      "avg_pnl": 0.06,
-      "avg_mae": 2.81,
-      "avg_mfe": 3.9,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 4.2,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "Bear regime + Bank sector outperforms UP_TRI baseline by 4.2pp (40.0% WR in 10 trades)"
-    },
-    {
-      "id": "signal=UP_TRI_regime=Bear_sector=Bank",
-      "features": {
-        "signal": "UP_TRI",
-        "regime": "Bear",
-        "sector": "Bank"
-      },
-      "feature_depth": 3,
-      "n_resolved": 10,
-      "wins": 4,
-      "losses": 6,
-      "wr": 40.0,
-      "avg_pnl": 0.06,
-      "avg_mae": 2.81,
-      "avg_mfe": 3.9,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 4.2,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "UP_TRI + Bear regime + Bank sector outperforms UP_TRI baseline by 4.2pp (40.0% WR in 10 trades)"
-    },
-    {
-      "id": "regime=Bear_sector=Bank_grade=B",
-      "features": {
-        "regime": "Bear",
-        "sector": "Bank",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 10,
-      "wins": 4,
-      "losses": 6,
-      "wr": 40.0,
-      "avg_pnl": 0.06,
-      "avg_mae": 2.81,
-      "avg_mfe": 3.9,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 4.2,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "Bear regime + Bank sector + Grade B outperforms UP_TRI baseline by 4.2pp (40.0% WR in 10 trades)"
-    },
-    {
       "id": "regime=Bull_sector=Health",
       "features": {
         "regime": "Bull",
@@ -5970,26 +5968,6 @@
       "tier": "emerging",
       "direction": "negative",
       "insight": "UP_TRI + Choppy regime + FMCG sector underperforms UP_TRI baseline by 4.0pp (31.8% WR in 22 trades)"
-    },
-    {
-      "id": "sector=Auto",
-      "features": {
-        "sector": "Auto"
-      },
-      "feature_depth": 1,
-      "n_resolved": 47,
-      "wins": 15,
-      "losses": 32,
-      "wr": 31.9,
-      "avg_pnl": -0.43,
-      "avg_mae": 3.14,
-      "avg_mfe": 2.54,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -3.9,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "Auto sector underperforms UP_TRI baseline by 3.9pp (31.9% WR in 47 trades)"
     },
     {
       "id": "regime=Choppy_sector=FMCG",
@@ -6119,6 +6097,28 @@
       "insight": "Bull regime + age=0 + Grade B outperforms UP_TRI baseline by 3.6pp (39.4% WR in 127 trades)"
     },
     {
+      "id": "signal=UP_TRI_sector=Auto_age=0",
+      "features": {
+        "signal": "UP_TRI",
+        "sector": "Auto",
+        "age": "0"
+      },
+      "feature_depth": 3,
+      "n_resolved": 28,
+      "wins": 11,
+      "losses": 17,
+      "wr": 39.3,
+      "avg_pnl": -0.06,
+      "avg_mae": 3.15,
+      "avg_mfe": 2.93,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 3.5,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "UP_TRI + Auto sector + age=0 outperforms UP_TRI baseline by 3.5pp (39.3% WR in 28 trades)"
+    },
+    {
       "id": "signal=UP_TRI_sector=FMCG_age=0",
       "features": {
         "signal": "UP_TRI",
@@ -6226,6 +6226,27 @@
       "tier": "emerging",
       "direction": "negative",
       "insight": "Choppy regime + age=1 underperforms UP_TRI baseline by 3.2pp (32.6% WR in 46 trades)"
+    },
+    {
+      "id": "sector=Auto_grade=B",
+      "features": {
+        "sector": "Auto",
+        "grade": "B"
+      },
+      "feature_depth": 2,
+      "n_resolved": 46,
+      "wins": 15,
+      "losses": 31,
+      "wr": 32.6,
+      "avg_pnl": -0.44,
+      "avg_mae": 3.18,
+      "avg_mfe": 2.57,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -3.2,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "Auto sector + Grade B underperforms UP_TRI baseline by 3.2pp (32.6% WR in 46 trades)"
     },
     {
       "id": "signal=BULL_PROXY_age=0",
@@ -6442,27 +6463,6 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "UP_TRI + Health sector + Grade B outperforms UP_TRI baseline by 2.7pp (38.5% WR in 13 trades)"
-    },
-    {
-      "id": "sector=Auto_grade=B",
-      "features": {
-        "sector": "Auto",
-        "grade": "B"
-      },
-      "feature_depth": 2,
-      "n_resolved": 45,
-      "wins": 15,
-      "losses": 30,
-      "wr": 33.3,
-      "avg_pnl": -0.36,
-      "avg_mae": 3.14,
-      "avg_mfe": 2.6,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -2.5,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "Auto sector + Grade B underperforms UP_TRI baseline by 2.5pp (33.3% WR in 45 trades)"
     },
     {
       "id": "signal=UP_TRI_regime=Choppy_sector=Auto",
@@ -6725,28 +6725,6 @@
       "insight": "UP_TRI + Bull regime + age=1 outperforms UP_TRI baseline by 2.3pp (38.1% WR in 21 trades)"
     },
     {
-      "id": "signal=UP_TRI_age=0_grade=B",
-      "features": {
-        "signal": "UP_TRI",
-        "age": "0",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 338,
-      "wins": 128,
-      "losses": 210,
-      "wr": 37.9,
-      "avg_pnl": -0.02,
-      "avg_mae": 3.15,
-      "avg_mfe": 3.03,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 2.1,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "UP_TRI + age=0 + Grade B outperforms UP_TRI baseline by 2.1pp (37.9% WR in 338 trades)"
-    },
-    {
       "id": "regime=Choppy_age=0_grade=B",
       "features": {
         "regime": "Choppy",
@@ -6767,6 +6745,28 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "Choppy regime + age=0 + Grade B outperforms UP_TRI baseline by 2.1pp (37.9% WR in 206 trades)"
+    },
+    {
+      "id": "signal=UP_TRI_age=0_grade=B",
+      "features": {
+        "signal": "UP_TRI",
+        "age": "0",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 341,
+      "wins": 129,
+      "losses": 212,
+      "wr": 37.8,
+      "avg_pnl": -0.03,
+      "avg_mae": 3.15,
+      "avg_mfe": 3.05,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 2.0,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "UP_TRI + age=0 + Grade B outperforms UP_TRI baseline by 2.0pp (37.8% WR in 341 trades)"
     },
     {
       "id": "signal=BULL_PROXY_grade=B",
@@ -6812,6 +6812,27 @@
       "insight": "UP_TRI + Choppy regime + Grade B outperforms UP_TRI baseline by 1.8pp (37.6% WR in 229 trades)"
     },
     {
+      "id": "signal=UP_TRI_sector=Auto",
+      "features": {
+        "signal": "UP_TRI",
+        "sector": "Auto"
+      },
+      "feature_depth": 2,
+      "n_resolved": 41,
+      "wins": 14,
+      "losses": 27,
+      "wr": 34.1,
+      "avg_pnl": -0.44,
+      "avg_mae": 3.25,
+      "avg_mfe": 2.67,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -1.7,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "UP_TRI + Auto sector underperforms UP_TRI baseline by 1.7pp (34.1% WR in 41 trades)"
+    },
+    {
       "id": "sector=Other",
       "features": {
         "sector": "Other"
@@ -6830,28 +6851,6 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "Other sector outperforms UP_TRI baseline by 1.7pp (37.5% WR in 40 trades)"
-    },
-    {
-      "id": "sector=Auto_age=0_grade=B",
-      "features": {
-        "sector": "Auto",
-        "age": "0",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 32,
-      "wins": 12,
-      "losses": 20,
-      "wr": 37.5,
-      "avg_pnl": 0.0,
-      "avg_mae": 3.01,
-      "avg_mfe": 2.81,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 1.7,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "Auto sector + age=0 + Grade B outperforms UP_TRI baseline by 1.7pp (37.5% WR in 32 trades)"
     },
     {
       "id": "regime=Bull_age=1",
@@ -6984,25 +6983,46 @@
       "insight": "Bull regime + Infra sector + Grade B outperforms UP_TRI baseline by 1.7pp (37.5% WR in 16 trades)"
     },
     {
+      "id": "sector=Auto_age=0",
+      "features": {
+        "sector": "Auto",
+        "age": "0"
+      },
+      "feature_depth": 2,
+      "n_resolved": 35,
+      "wins": 12,
+      "losses": 23,
+      "wr": 34.3,
+      "avg_pnl": -0.22,
+      "avg_mae": 3.05,
+      "avg_mfe": 2.67,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": -1.5,
+      "tier": "emerging",
+      "direction": "negative",
+      "insight": "Auto sector + age=0 underperforms UP_TRI baseline by 1.5pp (34.3% WR in 35 trades)"
+    },
+    {
       "id": "signal=UP_TRI_age=0",
       "features": {
         "signal": "UP_TRI",
         "age": "0"
       },
       "feature_depth": 2,
-      "n_resolved": 368,
-      "wins": 137,
-      "losses": 231,
+      "n_resolved": 371,
+      "wins": 138,
+      "losses": 233,
       "wr": 37.2,
       "avg_pnl": -0.03,
       "avg_mae": 3.16,
-      "avg_mfe": 3.03,
+      "avg_mfe": 3.04,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
       "edge_pct": 1.4,
       "tier": "emerging",
       "direction": "positive",
-      "insight": "UP_TRI + age=0 outperforms UP_TRI baseline by 1.4pp (37.2% WR in 368 trades)"
+      "insight": "UP_TRI + age=0 outperforms UP_TRI baseline by 1.4pp (37.2% WR in 371 trades)"
     },
     {
       "id": "signal=UP_TRI_age=1",
@@ -7053,19 +7073,19 @@
         "grade": "B"
       },
       "feature_depth": 2,
-      "n_resolved": 435,
-      "wins": 160,
-      "losses": 275,
+      "n_resolved": 438,
+      "wins": 161,
+      "losses": 277,
       "wr": 36.8,
       "avg_pnl": -0.16,
       "avg_mae": 3.18,
-      "avg_mfe": 3.0,
+      "avg_mfe": 3.01,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
       "edge_pct": 1.0,
       "tier": "emerging",
       "direction": "positive",
-      "insight": "UP_TRI + Grade B outperforms UP_TRI baseline by 1.0pp (36.8% WR in 435 trades)"
+      "insight": "UP_TRI + Grade B outperforms UP_TRI baseline by 1.0pp (36.8% WR in 438 trades)"
     },
     {
       "id": "sector=Infra",
@@ -7107,28 +7127,6 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "UP_TRI + Other sector outperforms UP_TRI baseline by 1.0pp (36.8% WR in 38 trades)"
-    },
-    {
-      "id": "signal=UP_TRI_sector=Auto_grade=B",
-      "features": {
-        "signal": "UP_TRI",
-        "sector": "Auto",
-        "grade": "B"
-      },
-      "feature_depth": 3,
-      "n_resolved": 38,
-      "wins": 14,
-      "losses": 24,
-      "wr": 36.8,
-      "avg_pnl": -0.27,
-      "avg_mae": 3.23,
-      "avg_mfe": 2.78,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": 1.0,
-      "tier": "emerging",
-      "direction": "positive",
-      "insight": "UP_TRI + Auto sector + Grade B outperforms UP_TRI baseline by 1.0pp (36.8% WR in 38 trades)"
     },
     {
       "id": "signal=UP_TRI_age=1_grade=B",
@@ -7194,27 +7192,6 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "UP_TRI + Choppy regime outperforms UP_TRI baseline by 0.8pp (36.6% WR in 243 trades)"
-    },
-    {
-      "id": "signal=UP_TRI_sector=Auto",
-      "features": {
-        "signal": "UP_TRI",
-        "sector": "Auto"
-      },
-      "feature_depth": 2,
-      "n_resolved": 40,
-      "wins": 14,
-      "losses": 26,
-      "wr": 35.0,
-      "avg_pnl": -0.36,
-      "avg_mae": 3.22,
-      "avg_mfe": 2.7,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -0.8,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "UP_TRI + Auto sector underperforms UP_TRI baseline by 0.8pp (35.0% WR in 40 trades)"
     },
     {
       "id": "age=1",
@@ -7286,39 +7263,41 @@
         "grade": "B"
       },
       "feature_depth": 2,
-      "n_resolved": 379,
-      "wins": 138,
-      "losses": 241,
+      "n_resolved": 382,
+      "wins": 139,
+      "losses": 243,
       "wr": 36.4,
       "avg_pnl": -0.14,
       "avg_mae": 3.14,
-      "avg_mfe": 2.95,
+      "avg_mfe": 2.97,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
       "edge_pct": 0.6,
       "tier": "emerging",
       "direction": "positive",
-      "insight": "age=0 + Grade B outperforms UP_TRI baseline by 0.6pp (36.4% WR in 379 trades)"
+      "insight": "age=0 + Grade B outperforms UP_TRI baseline by 0.6pp (36.4% WR in 382 trades)"
     },
     {
-      "id": "signal=UP_TRI",
+      "id": "sector=Auto_age=0_grade=B",
       "features": {
-        "signal": "UP_TRI"
+        "sector": "Auto",
+        "age": "0",
+        "grade": "B"
       },
-      "feature_depth": 1,
-      "n_resolved": 466,
-      "wins": 169,
-      "losses": 297,
-      "wr": 36.3,
-      "avg_pnl": -0.16,
-      "avg_mae": 3.19,
-      "avg_mfe": 3.0,
+      "feature_depth": 3,
+      "n_resolved": 33,
+      "wins": 12,
+      "losses": 21,
+      "wr": 36.4,
+      "avg_pnl": -0.11,
+      "avg_mae": 3.06,
+      "avg_mfe": 2.76,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
-      "edge_pct": 0.5,
+      "edge_pct": 0.6,
       "tier": "emerging",
       "direction": "positive",
-      "insight": "UP_TRI outperforms UP_TRI baseline by 0.5pp (36.3% WR in 466 trades)"
+      "insight": "Auto sector + age=0 + Grade B outperforms UP_TRI baseline by 0.6pp (36.4% WR in 33 trades)"
     },
     {
       "id": "regime=Choppy_age=0",
@@ -7361,27 +7340,6 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "age=1 + Grade B outperforms UP_TRI baseline by 0.5pp (36.3% WR in 91 trades)"
-    },
-    {
-      "id": "sector=Auto_age=0",
-      "features": {
-        "sector": "Auto",
-        "age": "0"
-      },
-      "feature_depth": 2,
-      "n_resolved": 34,
-      "wins": 12,
-      "losses": 22,
-      "wr": 35.3,
-      "avg_pnl": -0.11,
-      "avg_mae": 3.01,
-      "avg_mfe": 2.71,
-      "baseline_type": "UP_TRI",
-      "baseline_wr": 35.8,
-      "edge_pct": -0.5,
-      "tier": "emerging",
-      "direction": "negative",
-      "insight": "Auto sector + age=0 underperforms UP_TRI baseline by 0.5pp (35.3% WR in 34 trades)"
     },
     {
       "id": "regime=Choppy_sector=CapGoods",
@@ -7449,6 +7407,26 @@
       "insight": "Choppy regime + CapGoods sector + Grade B underperforms UP_TRI baseline by 0.5pp (35.3% WR in 17 trades)"
     },
     {
+      "id": "signal=UP_TRI",
+      "features": {
+        "signal": "UP_TRI"
+      },
+      "feature_depth": 1,
+      "n_resolved": 469,
+      "wins": 170,
+      "losses": 299,
+      "wr": 36.2,
+      "avg_pnl": -0.16,
+      "avg_mae": 3.19,
+      "avg_mfe": 3.01,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 0.4,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "UP_TRI outperforms UP_TRI baseline by 0.4pp (36.2% WR in 469 trades)"
+    },
+    {
       "id": "regime=Choppy",
       "features": {
         "regime": "Choppy"
@@ -7495,19 +7473,19 @@
         "grade": "B"
       },
       "feature_depth": 1,
-      "n_resolved": 484,
-      "wins": 174,
-      "losses": 310,
-      "wr": 36.0,
+      "n_resolved": 487,
+      "wins": 175,
+      "losses": 312,
+      "wr": 35.9,
       "avg_pnl": -0.22,
       "avg_mae": 3.16,
-      "avg_mfe": 2.94,
+      "avg_mfe": 2.96,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
-      "edge_pct": 0.2,
+      "edge_pct": 0.1,
       "tier": "emerging",
       "direction": "positive",
-      "insight": "Grade B outperforms UP_TRI baseline by 0.2pp (36.0% WR in 484 trades)"
+      "insight": "Grade B outperforms UP_TRI baseline by 0.1pp (35.9% WR in 487 trades)"
     },
     {
       "id": "age=0",
@@ -7515,19 +7493,19 @@
         "age": "0"
       },
       "feature_depth": 1,
-      "n_resolved": 414,
-      "wins": 148,
-      "losses": 266,
+      "n_resolved": 417,
+      "wins": 149,
+      "losses": 268,
       "wr": 35.7,
       "avg_pnl": -0.16,
       "avg_mae": 3.16,
-      "avg_mfe": 2.94,
+      "avg_mfe": 2.96,
       "baseline_type": "UP_TRI",
       "baseline_wr": 35.8,
       "edge_pct": -0.1,
       "tier": "emerging",
       "direction": "negative",
-      "insight": "age=0 underperforms UP_TRI baseline by 0.1pp (35.7% WR in 414 trades)"
+      "insight": "age=0 underperforms UP_TRI baseline by 0.1pp (35.7% WR in 417 trades)"
     },
     {
       "id": "sector=Other_grade=B",
@@ -7549,6 +7527,28 @@
       "tier": "emerging",
       "direction": "positive",
       "insight": "Other sector + Grade B outperforms UP_TRI baseline by 0.1pp (35.9% WR in 39 trades)"
+    },
+    {
+      "id": "signal=UP_TRI_sector=Auto_grade=B",
+      "features": {
+        "signal": "UP_TRI",
+        "sector": "Auto",
+        "grade": "B"
+      },
+      "feature_depth": 3,
+      "n_resolved": 39,
+      "wins": 14,
+      "losses": 25,
+      "wr": 35.9,
+      "avg_pnl": -0.36,
+      "avg_mae": 3.27,
+      "avg_mfe": 2.74,
+      "baseline_type": "UP_TRI",
+      "baseline_wr": 35.8,
+      "edge_pct": 0.1,
+      "tier": "emerging",
+      "direction": "positive",
+      "insight": "UP_TRI + Auto sector + Grade B outperforms UP_TRI baseline by 0.1pp (35.9% WR in 39 trades)"
     },
     {
       "id": "signal=BULL_PROXY",
