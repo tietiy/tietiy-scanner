@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-10-10",
+  "as_of_date": "2026-10-11",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -10,9 +10,9 @@
       {
         "level": "warn",
         "code": "eod_archive_missing",
-        "message": "bridge L4 archive missing for 2026-10-10; falling back to signal_history filter",
+        "message": "bridge L4 archive missing for 2026-10-11; falling back to signal_history filter",
         "context": {
-          "expected_path": "output/bridge_state_history/2026-10-10_EOD.json"
+          "expected_path": "output/bridge_state_history/2026-10-11_EOD.json"
         }
       }
     ]
@@ -64,5 +64,5 @@
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-10-10T22:01:06.383568+05:30"
+  "generated_at": "2026-10-11T22:01:04.228425+05:30"
 }

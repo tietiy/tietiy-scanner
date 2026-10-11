@@ -1,0 +1,68 @@
+{
+  "as_of_date": "2026-10-11",
+  "_metadata": {
+    "concentration_threshold_share": 0.1,
+    "regime_concentration_threshold_share": 0.8,
+    "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
+    "fallback_source": "signal_history.json (filter outcome==OPEN)",
+    "active_source": "fallback",
+    "warnings": [
+      {
+        "level": "warn",
+        "code": "eod_archive_missing",
+        "message": "bridge L4 archive missing for 2026-10-11; falling back to signal_history filter",
+        "context": {
+          "expected_path": "output/bridge_state_history/2026-10-11_EOD.json"
+        }
+      }
+    ]
+  },
+  "total_open": 60,
+  "by_signal_type": {
+    "UP_TRI": 49,
+    "DOWN_TRI": 3,
+    "BULL_PROXY": 4,
+    "UP_TRI_SA": 4
+  },
+  "by_sector": {
+    "CapGoods": 6,
+    "Bank": 9,
+    "FMCG": 5,
+    "Chem": 5,
+    "Health": 2,
+    "IT": 8,
+    "Metal": 7,
+    "Auto": 3,
+    "Pharma": 4,
+    "Other": 5,
+    "Energy": 1,
+    "Infra": 5
+  },
+  "by_regime": {
+    "Choppy": 31,
+    "Bull": 2,
+    "Bear": 27
+  },
+  "regime_concentration": {
+    "triggered": false,
+    "threshold": 0.8,
+    "observed": 0.5167,
+    "axis": "by_regime"
+  },
+  "concentrations": [
+    {
+      "concentration_label": "UP_TRI × Choppy × Bank",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Choppy",
+        "sector": "Bank"
+      },
+      "count": 7,
+      "share": 0.1167
+    }
+  ],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "portfolio_exposure",
+  "generated_at": "2026-10-11T22:01:04.228425+05:30"
+}
