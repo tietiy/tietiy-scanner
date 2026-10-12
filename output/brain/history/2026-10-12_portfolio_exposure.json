@@ -1,0 +1,74 @@
+{
+  "as_of_date": "2026-10-12",
+  "_metadata": {
+    "concentration_threshold_share": 0.1,
+    "regime_concentration_threshold_share": 0.8,
+    "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
+    "fallback_source": "signal_history.json (filter outcome==OPEN)",
+    "active_source": "primary",
+    "warnings": []
+  },
+  "total_open": 13,
+  "by_signal_type": {
+    "UP_TRI": 6,
+    "BULL_PROXY": 3,
+    "UP_TRI_SA": 4
+  },
+  "by_sector": {
+    "Pharma": 2,
+    "FMCG": 1,
+    "Other": 2,
+    "IT": 1,
+    "Metal": 2,
+    "Health": 1,
+    "Chem": 1,
+    "Auto": 1,
+    "Infra": 2
+  },
+  "by_regime": {
+    "Bear": 13
+  },
+  "regime_concentration": {
+    "triggered": true,
+    "threshold": 0.8,
+    "observed": 1.0,
+    "axis": "by_regime",
+    "dominant_regime": "Bear"
+  },
+  "concentrations": [
+    {
+      "concentration_label": "UP_TRI × Bear × Other",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Other"
+      },
+      "count": 2,
+      "share": 0.1538
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × Metal",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Metal"
+      },
+      "count": 2,
+      "share": 0.1538
+    },
+    {
+      "concentration_label": "UP_TRI_SA × Bear × Infra",
+      "concentration_filter": {
+        "signal_type": "UP_TRI_SA",
+        "regime": "Bear",
+        "sector": "Infra"
+      },
+      "count": 2,
+      "share": 0.1538
+    }
+  ],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "portfolio_exposure",
+  "generated_at": "2026-10-12T22:01:10.139020+05:30"
+}
