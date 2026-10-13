@@ -1,24 +1,30 @@
 {
   "schema_version": 1,
-  "phase": "POST_OPEN",
+  "phase": "EOD",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-10-13T04:10:57.679166+00:00",
+  "phase_timestamp": "2026-10-13T10:31:21.066950+00:00",
   "market_date": "2026-10-13",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "LIVE — partial data",
-    "subtext": "no signals today"
+    "message": "EOD — partial data",
+    "subtext": "no resolutions today"
   },
   "summary": {
-    "total_signals_today": 0,
-    "buckets": {
-      "TAKE_FULL": 0,
-      "TAKE_SMALL": 0,
-      "WATCH": 0,
-      "SKIP": 0
+    "total_resolutions_today": 0,
+    "outcomes": {
+      "TARGET_HIT": 0,
+      "STOP_HIT": 0,
+      "DAY6_WIN": 0,
+      "DAY6_LOSS": 0,
+      "DAY6_FLAT": 0
     },
-    "open_positions_count": 8
+    "win_count": 0,
+    "loss_count": 0,
+    "flat_count": 0,
+    "total_pnl_pct": 0.0,
+    "open_positions_count": 8,
+    "pattern_updates": []
   },
   "signals": [],
   "open_positions": [
@@ -1263,9 +1269,9 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-10-13T04:10:57.679183+00:00",
-    "compose_completed_at": "2026-10-13T04:10:57.679186+00:00",
-    "compose_duration_ms": 40,
+    "compose_started_at": "2026-10-13T10:31:21.067556+00:00",
+    "compose_completed_at": "2026-10-13T10:31:21.067559+00:00",
+    "compose_duration_ms": 129,
     "signal_count_input": 0,
     "signal_count_output": 0,
     "queries_total_distinct": 0,
@@ -1274,7 +1280,6 @@
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
-      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -1282,8 +1287,5 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  },
-  "should_send_telegram": false,
-  "bucket_changes": 0,
-  "gap_breaches": 0
+  }
 }
