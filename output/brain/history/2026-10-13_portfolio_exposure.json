@@ -1,0 +1,112 @@
+{
+  "as_of_date": "2026-10-13",
+  "_metadata": {
+    "concentration_threshold_share": 0.1,
+    "regime_concentration_threshold_share": 0.8,
+    "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
+    "fallback_source": "signal_history.json (filter outcome==OPEN)",
+    "active_source": "primary",
+    "warnings": []
+  },
+  "total_open": 8,
+  "by_signal_type": {
+    "UP_TRI": 2,
+    "BULL_PROXY": 2,
+    "UP_TRI_SA": 4
+  },
+  "by_sector": {
+    "Other": 1,
+    "Chem": 1,
+    "Auto": 1,
+    "Pharma": 1,
+    "Infra": 2,
+    "Bank": 1,
+    "FMCG": 1
+  },
+  "by_regime": {
+    "Bear": 8
+  },
+  "regime_concentration": {
+    "triggered": true,
+    "threshold": 0.8,
+    "observed": 1.0,
+    "axis": "by_regime",
+    "dominant_regime": "Bear"
+  },
+  "concentrations": [
+    {
+      "concentration_label": "UP_TRI_SA × Bear × Infra",
+      "concentration_filter": {
+        "signal_type": "UP_TRI_SA",
+        "regime": "Bear",
+        "sector": "Infra"
+      },
+      "count": 2,
+      "share": 0.25
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × Other",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Other"
+      },
+      "count": 1,
+      "share": 0.125
+    },
+    {
+      "concentration_label": "BULL_PROXY × Bear × Chem",
+      "concentration_filter": {
+        "signal_type": "BULL_PROXY",
+        "regime": "Bear",
+        "sector": "Chem"
+      },
+      "count": 1,
+      "share": 0.125
+    },
+    {
+      "concentration_label": "UP_TRI_SA × Bear × Auto",
+      "concentration_filter": {
+        "signal_type": "UP_TRI_SA",
+        "regime": "Bear",
+        "sector": "Auto"
+      },
+      "count": 1,
+      "share": 0.125
+    },
+    {
+      "concentration_label": "UP_TRI_SA × Bear × Pharma",
+      "concentration_filter": {
+        "signal_type": "UP_TRI_SA",
+        "regime": "Bear",
+        "sector": "Pharma"
+      },
+      "count": 1,
+      "share": 0.125
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × Bank",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Bank"
+      },
+      "count": 1,
+      "share": 0.125
+    },
+    {
+      "concentration_label": "BULL_PROXY × Bear × FMCG",
+      "concentration_filter": {
+        "signal_type": "BULL_PROXY",
+        "regime": "Bear",
+        "sector": "FMCG"
+      },
+      "count": 1,
+      "share": 0.125
+    }
+  ],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "portfolio_exposure",
+  "generated_at": "2026-10-13T22:01:10.311654+05:30"
+}
