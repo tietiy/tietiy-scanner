@@ -1,103 +1,27 @@
 {
   "schema_version": 1,
-  "phase": "EOD",
+  "phase": "PRE_MARKET",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-10-13T10:31:21.066950+00:00",
-  "market_date": "2026-10-13",
+  "phase_timestamp": "2026-10-14T03:25:51.344585+00:00",
+  "market_date": "2026-10-14",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "EOD — partial data",
-    "subtext": "no resolutions today"
+    "message": "PROVISIONAL — partial data",
+    "subtext": "0 signals composed; 1 warnings logged"
   },
   "summary": {
-    "total_resolutions_today": 0,
-    "outcomes": {
-      "TARGET_HIT": 0,
-      "STOP_HIT": 0,
-      "DAY6_WIN": 0,
-      "DAY6_LOSS": 0,
-      "DAY6_FLAT": 0
+    "total_signals_today": 0,
+    "buckets": {
+      "TAKE_FULL": 0,
+      "TAKE_SMALL": 0,
+      "WATCH": 0,
+      "SKIP": 0
     },
-    "win_count": 0,
-    "loss_count": 0,
-    "flat_count": 0,
-    "total_pnl_pct": 0.0,
-    "open_positions_count": 8,
-    "pattern_updates": []
+    "open_positions_count": 7
   },
   "signals": [],
   "open_positions": [
-    {
-      "id": "2026-10-06-WHIRLPOOL-UP_TRI",
-      "schema_version": 5,
-      "generation": 1,
-      "data_quality": "live",
-      "date": "2026-10-06",
-      "symbol": "WHIRLPOOL.NS",
-      "sector": "Other",
-      "grade": "B",
-      "signal": "UP_TRI",
-      "direction": "LONG",
-      "age": 1,
-      "score": 6,
-      "regime": "Bear",
-      "regime_score": -1,
-      "stock_regime": "Bull",
-      "vol_q": "High",
-      "vol_confirm": true,
-      "rs_q": "Neutral",
-      "rs_strong": false,
-      "sec_mom": "Neutral",
-      "sec_leading": false,
-      "bear_bonus": true,
-      "grade_A": false,
-      "scan_price": 871.75,
-      "scan_time": "03:18 UTC",
-      "pivot_price": 706.0,
-      "pivot_date": "2026-09-18",
-      "entry": 871.75,
-      "stop": 685.2,
-      "atr": 20.8,
-      "exit_date": "2026-10-14",
-      "target_price": 1244.85,
-      "shadow_target": 1431.4,
-      "shadow_outcome": null,
-      "shadow_r_multiple": null,
-      "actual_open": null,
-      "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
-      "tracking_start": "2026-10-07",
-      "tracking_end": "2026-10-14",
-      "mfe_pct": 0.0,
-      "mae_pct": 7.52,
-      "days_to_outcome": null,
-      "exit_price": null,
-      "exit_type": null,
-      "exit_date_actual": null,
-      "pnl_pct": null,
-      "pnl_rs": null,
-      "result": "PENDING",
-      "action": "TOOK",
-      "user_action": null,
-      "is_sa": false,
-      "sa_parent_id": null,
-      "sa_parent_outcome": null,
-      "attempt_number": 1,
-      "parent_signal_id": null,
-      "parent_signal": null,
-      "parent_date": null,
-      "parent_result": null,
-      "layer": "MINI",
-      "rejection_reason": null,
-      "scanner_version": "v2.0",
-      "effective_exit_date": "2026-10-14",
-      "day_count": 6
-    },
     {
       "id": "2026-10-07-NAVINFLUOR-BULL_PROXY",
       "schema_version": 5,
@@ -166,7 +90,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-10-15",
-      "day_count": 5
+      "day_count": 6
     },
     {
       "id": "2026-10-09-BHARATFORG-UP_TRI_SA-SA",
@@ -236,7 +160,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-10-19",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-10-09-TORNTPHARM-UP_TRI_SA-SA",
@@ -306,7 +230,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-10-19",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-10-09-ULTRACEMCO-UP_TRI_SA-SA",
@@ -376,7 +300,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-10-19",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-10-09-PHOENIXLTD-UP_TRI_SA-SA",
@@ -446,7 +370,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-10-19",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-10-12-AXISBANK-UP_TRI",
@@ -515,7 +439,7 @@
       "layer": "MINI",
       "rejection_reason": null,
       "scanner_version": "v2.0",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-10-12-ETERNAL-BULL_PROXY",
@@ -584,7 +508,7 @@
       "layer": "MINI",
       "rejection_reason": null,
       "scanner_version": "v2.0",
-      "day_count": 2
+      "day_count": 3
     }
   ],
   "contra": {
@@ -1187,6 +1111,15 @@
         "sector": "Infra",
         "regime": "Bear",
         "date": "2026-10-13"
+      },
+      {
+        "id": "contra_2026-10-14-DIXON-DOWN_TRI",
+        "kill_rule_id": "kill_002",
+        "origin_signal_type": "DOWN_TRI",
+        "symbol": "DIXON.NS",
+        "sector": "Other",
+        "regime": "Bear",
+        "date": "2026-10-14"
       }
     ],
     "recent_resolutions": [],
@@ -1269,9 +1202,9 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-10-13T10:31:21.067556+00:00",
-    "compose_completed_at": "2026-10-13T10:31:21.067559+00:00",
-    "compose_duration_ms": 129,
+    "compose_started_at": "2026-10-14T03:25:51.344599+00:00",
+    "compose_completed_at": "2026-10-14T03:25:51.344602+00:00",
+    "compose_duration_ms": 42,
     "signal_count_input": 0,
     "signal_count_output": 0,
     "queries_total_distinct": 0,
