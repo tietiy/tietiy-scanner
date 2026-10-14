@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "phase": "PRE_MARKET",
+  "phase": "POST_OPEN",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-10-14T03:25:51.344585+00:00",
+  "phase_timestamp": "2026-10-14T04:10:52.206521+00:00",
   "market_date": "2026-10-14",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "PROVISIONAL — partial data",
-    "subtext": "0 signals composed; 1 warnings logged"
+    "message": "LIVE — partial data",
+    "subtext": "no signals today"
   },
   "summary": {
     "total_signals_today": 0,
@@ -1202,9 +1202,9 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-10-14T03:25:51.344599+00:00",
-    "compose_completed_at": "2026-10-14T03:25:51.344602+00:00",
-    "compose_duration_ms": 42,
+    "compose_started_at": "2026-10-14T04:10:52.206533+00:00",
+    "compose_completed_at": "2026-10-14T04:10:52.206536+00:00",
+    "compose_duration_ms": 38,
     "signal_count_input": 0,
     "signal_count_output": 0,
     "queries_total_distinct": 0,
@@ -1213,6 +1213,7 @@
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
+      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -1220,5 +1221,8 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  }
+  },
+  "should_send_telegram": false,
+  "bucket_changes": 0,
+  "gap_breaches": 0
 }
