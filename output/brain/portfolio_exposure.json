@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-10-14",
+  "as_of_date": "2026-10-15",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -8,14 +8,13 @@
     "active_source": "primary",
     "warnings": []
   },
-  "total_open": 7,
+  "total_open": 6,
   "by_signal_type": {
-    "BULL_PROXY": 2,
     "UP_TRI_SA": 4,
-    "UP_TRI": 1
+    "UP_TRI": 1,
+    "BULL_PROXY": 1
   },
   "by_sector": {
-    "Chem": 1,
     "Auto": 1,
     "Pharma": 1,
     "Infra": 2,
@@ -23,7 +22,7 @@
     "FMCG": 1
   },
   "by_regime": {
-    "Bear": 7
+    "Bear": 6
   },
   "regime_concentration": {
     "triggered": true,
@@ -41,17 +40,7 @@
         "sector": "Infra"
       },
       "count": 2,
-      "share": 0.2857
-    },
-    {
-      "concentration_label": "BULL_PROXY × Bear × Chem",
-      "concentration_filter": {
-        "signal_type": "BULL_PROXY",
-        "regime": "Bear",
-        "sector": "Chem"
-      },
-      "count": 1,
-      "share": 0.1429
+      "share": 0.3333
     },
     {
       "concentration_label": "UP_TRI_SA × Bear × Auto",
@@ -61,7 +50,7 @@
         "sector": "Auto"
       },
       "count": 1,
-      "share": 0.1429
+      "share": 0.1667
     },
     {
       "concentration_label": "UP_TRI_SA × Bear × Pharma",
@@ -71,7 +60,7 @@
         "sector": "Pharma"
       },
       "count": 1,
-      "share": 0.1429
+      "share": 0.1667
     },
     {
       "concentration_label": "UP_TRI × Bear × Bank",
@@ -81,7 +70,7 @@
         "sector": "Bank"
       },
       "count": 1,
-      "share": 0.1429
+      "share": 0.1667
     },
     {
       "concentration_label": "BULL_PROXY × Bear × FMCG",
@@ -91,11 +80,11 @@
         "sector": "FMCG"
       },
       "count": 1,
-      "share": 0.1429
+      "share": 0.1667
     }
   ],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-10-14T22:01:10.611284+05:30"
+  "generated_at": "2026-10-15T22:01:09.619831+05:30"
 }
