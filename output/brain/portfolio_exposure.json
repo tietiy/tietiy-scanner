@@ -1,111 +1,68 @@
 {
-  "as_of_date": "2026-10-16",
+  "as_of_date": "2026-10-17",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
     "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
     "fallback_source": "signal_history.json (filter outcome==OPEN)",
-    "active_source": "primary",
-    "warnings": []
+    "active_source": "fallback",
+    "warnings": [
+      {
+        "level": "warn",
+        "code": "eod_archive_missing",
+        "message": "bridge L4 archive missing for 2026-10-17; falling back to signal_history filter",
+        "context": {
+          "expected_path": "output/bridge_state_history/2026-10-17_EOD.json"
+        }
+      }
+    ]
   },
-  "total_open": 10,
+  "total_open": 53,
   "by_signal_type": {
-    "UP_TRI_SA": 1,
-    "UP_TRI": 8,
-    "BULL_PROXY": 1
+    "UP_TRI": 47,
+    "DOWN_TRI": 3,
+    "BULL_PROXY": 2,
+    "UP_TRI_SA": 1
   },
   "by_sector": {
-    "Auto": 2,
-    "Bank": 2,
-    "FMCG": 1,
-    "IT": 2,
-    "CapGoods": 2,
-    "Chem": 1
+    "CapGoods": 8,
+    "Bank": 11,
+    "FMCG": 5,
+    "Chem": 5,
+    "Health": 1,
+    "IT": 9,
+    "Metal": 4,
+    "Auto": 4,
+    "Pharma": 1,
+    "Other": 2,
+    "Energy": 1,
+    "Infra": 2
   },
   "by_regime": {
-    "Bear": 10
+    "Choppy": 31,
+    "Bull": 2,
+    "Bear": 20
   },
   "regime_concentration": {
-    "triggered": true,
+    "triggered": false,
     "threshold": 0.8,
-    "observed": 1.0,
-    "axis": "by_regime",
-    "dominant_regime": "Bear"
+    "observed": 0.5849,
+    "axis": "by_regime"
   },
   "concentrations": [
     {
-      "concentration_label": "UP_TRI × Bear × Bank",
+      "concentration_label": "UP_TRI × Choppy × Bank",
       "concentration_filter": {
         "signal_type": "UP_TRI",
-        "regime": "Bear",
+        "regime": "Choppy",
         "sector": "Bank"
       },
-      "count": 2,
-      "share": 0.2
-    },
-    {
-      "concentration_label": "UP_TRI × Bear × IT",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "IT"
-      },
-      "count": 2,
-      "share": 0.2
-    },
-    {
-      "concentration_label": "UP_TRI × Bear × CapGoods",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "CapGoods"
-      },
-      "count": 2,
-      "share": 0.2
-    },
-    {
-      "concentration_label": "UP_TRI_SA × Bear × Auto",
-      "concentration_filter": {
-        "signal_type": "UP_TRI_SA",
-        "regime": "Bear",
-        "sector": "Auto"
-      },
-      "count": 1,
-      "share": 0.1
-    },
-    {
-      "concentration_label": "BULL_PROXY × Bear × FMCG",
-      "concentration_filter": {
-        "signal_type": "BULL_PROXY",
-        "regime": "Bear",
-        "sector": "FMCG"
-      },
-      "count": 1,
-      "share": 0.1
-    },
-    {
-      "concentration_label": "UP_TRI × Bear × Auto",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "Auto"
-      },
-      "count": 1,
-      "share": 0.1
-    },
-    {
-      "concentration_label": "UP_TRI × Bear × Chem",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "Chem"
-      },
-      "count": 1,
-      "share": 0.1
+      "count": 7,
+      "share": 0.1321
     }
   ],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-10-16T22:01:10.524903+05:30"
+  "generated_at": "2026-10-17T22:01:09.125197+05:30"
 }
