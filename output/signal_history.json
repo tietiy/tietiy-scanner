@@ -38161,26 +38161,26 @@
       "exit_date": "2026-10-19",
       "target_price": 1933.02,
       "shadow_target": 1978.63,
-      "shadow_outcome": null,
-      "shadow_r_multiple": null,
+      "shadow_outcome": "STOP_HIT",
+      "shadow_r_multiple": -1.0,
       "actual_open": null,
       "adjusted_rr": null,
       "entry_valid": null,
       "gap_pct": null,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
+      "outcome": "STOP_HIT",
+      "outcome_date": "2026-10-19",
+      "outcome_price": 1796.19,
       "tracking_start": "2026-10-12",
       "tracking_end": "2026-10-19",
       "mfe_pct": 1.26,
-      "mae_pct": 2.39,
-      "days_to_outcome": null,
+      "mae_pct": 2.7,
+      "days_to_outcome": 6,
       "exit_price": null,
-      "exit_type": null,
+      "exit_type": "STOP_HIT",
       "exit_date_actual": null,
-      "pnl_pct": null,
+      "pnl_pct": -2.48,
       "pnl_rs": null,
-      "result": "PENDING",
+      "result": "STOPPED",
       "action": "TOOK",
       "user_action": null,
       "is_sa": true,
@@ -38194,7 +38194,13 @@
       "layer": "MINI",
       "rejection_reason": null,
       "scanner_version": "v2.0",
-      "effective_exit_date": "2026-10-19"
+      "effective_exit_date": "2026-10-19",
+      "r_multiple": -1.0,
+      "exit_day": 6,
+      "failure_reason": "Directional move against \u2014 stop hit",
+      "data_quality_resolve": "yfinance_primary",
+      "day6_source": "ohlc",
+      "day6_open": 1835.0
     },
     {
       "id": "2026-10-09-TORNTPHARM-UP_TRI_SA-SA",
@@ -38461,7 +38467,7 @@
       "tracking_start": "2026-10-13",
       "tracking_end": "2026-10-21",
       "mfe_pct": 2.76,
-      "mae_pct": 1.34,
+      "mae_pct": 2.68,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -38734,7 +38740,7 @@
       "outcome_price": null,
       "tracking_start": "2026-10-16",
       "tracking_end": "2026-10-26",
-      "mfe_pct": 9.1,
+      "mfe_pct": 9.2,
       "mae_pct": 0.12,
       "days_to_outcome": null,
       "exit_price": null,
@@ -38803,8 +38809,8 @@
       "outcome_price": null,
       "tracking_start": "2026-10-16",
       "tracking_end": "2026-10-26",
-      "mfe_pct": 0.44,
-      "mae_pct": 0.95,
+      "mfe_pct": 1.47,
+      "mae_pct": 1.25,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -38940,7 +38946,7 @@
       "outcome_price": null,
       "tracking_start": "2026-10-16",
       "tracking_end": "2026-10-26",
-      "mfe_pct": 1.4,
+      "mfe_pct": 1.87,
       "mae_pct": 0.27,
       "days_to_outcome": null,
       "exit_price": null,
@@ -39010,7 +39016,7 @@
       "tracking_start": "2026-10-16",
       "tracking_end": "2026-10-26",
       "mfe_pct": 0.29,
-      "mae_pct": 1.21,
+      "mae_pct": 3.06,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -39078,8 +39084,8 @@
       "outcome_price": null,
       "tracking_start": "2026-10-19",
       "tracking_end": "2026-10-27",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 0.94,
+      "mae_pct": 1.5,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -39147,8 +39153,8 @@
       "outcome_price": null,
       "tracking_start": "2026-10-19",
       "tracking_end": "2026-10-27",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 1.32,
+      "mae_pct": 2.9,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -39216,8 +39222,8 @@
       "outcome_price": null,
       "tracking_start": "2026-10-19",
       "tracking_end": "2026-10-27",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 0.83,
+      "mae_pct": 0.85,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -39285,8 +39291,8 @@
       "outcome_price": null,
       "tracking_start": "2026-10-19",
       "tracking_end": "2026-10-27",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 3.69,
+      "mae_pct": 0.0,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -39354,8 +39360,8 @@
       "outcome_price": null,
       "tracking_start": "2026-10-19",
       "tracking_end": "2026-10-27",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 0.0,
+      "mae_pct": 4.29,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -39421,8 +39427,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -39444,7 +39450,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-FEDERALBNK-UP_TRI",
@@ -39489,8 +39496,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -39512,7 +39519,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-PNB-UP_TRI",
@@ -39557,8 +39565,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -39580,7 +39588,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-PNB-BULL_PROXY",
@@ -39625,8 +39634,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -39648,7 +39657,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-CANBK-UP_TRI",
@@ -39693,8 +39703,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -39716,7 +39726,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-RECLTD-UP_TRI",
@@ -39761,8 +39772,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -39784,7 +39795,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-PFC-UP_TRI",
@@ -39829,8 +39841,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -39852,7 +39864,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-MANAPPURAM-UP_TRI",
@@ -39897,8 +39910,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -39920,7 +39933,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-MPHASIS-UP_TRI",
@@ -39965,8 +39979,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -39988,7 +40002,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-MARICO-UP_TRI",
@@ -40033,8 +40048,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40056,7 +40071,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-TATACONSUM-UP_TRI",
@@ -40101,8 +40117,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40124,7 +40140,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-TRENT-UP_TRI",
@@ -40169,8 +40186,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40192,7 +40209,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-SHREECEM-UP_TRI",
@@ -40237,8 +40255,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40260,7 +40278,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-PHOENIXLTD-UP_TRI_SA-SA",
@@ -40305,8 +40324,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40328,7 +40347,8 @@
       "parent_result": "STOPPED",
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-HAVELLS-UP_TRI",
@@ -40373,8 +40393,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40396,7 +40416,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-PIDILITIND-UP_TRI",
@@ -40441,8 +40462,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40464,7 +40485,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-DEEPAKNTR-UP_TRI",
@@ -40509,8 +40531,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40532,7 +40554,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-NAVINFLUOR-UP_TRI",
@@ -40577,8 +40600,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40600,7 +40623,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-ALKYLAMINE-UP_TRI",
@@ -40645,8 +40669,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40668,7 +40692,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-CROMPTON-UP_TRI",
@@ -40713,8 +40738,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40736,7 +40761,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-BHARTIARTL-UP_TRI",
@@ -40781,8 +40807,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40804,7 +40830,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-IRCTC-UP_TRI",
@@ -40849,8 +40876,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40872,7 +40899,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-UBL-UP_TRI",
@@ -40917,8 +40945,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -40940,7 +40968,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-JIOFIN-UP_TRI",
@@ -40985,8 +41014,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -41008,7 +41037,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-BSE-UP_TRI",
@@ -41053,8 +41083,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -41076,7 +41106,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-CDSL-UP_TRI",
@@ -41121,8 +41152,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -41144,7 +41175,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-ESCORTS-UP_TRI",
@@ -41189,8 +41221,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -41212,7 +41244,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     },
     {
       "id": "2026-10-19-OIL-UP_TRI",
@@ -41257,8 +41290,8 @@
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
-      "tracking_start": null,
-      "tracking_end": null,
+      "tracking_start": "2026-10-21",
+      "tracking_end": "2026-10-28",
       "mfe_pct": null,
       "mae_pct": null,
       "days_to_outcome": null,
@@ -41280,7 +41313,8 @@
       "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
-      "scanner_version": "v2.0"
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-10-28"
     }
   ]
 }
