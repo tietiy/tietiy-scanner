@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-10-19",
+  "as_of_date": "2026-10-20",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -8,75 +8,19 @@
     "active_source": "primary",
     "warnings": []
   },
-  "total_open": 14,
-  "by_signal_type": {
-    "UP_TRI": 13,
-    "BULL_PROXY": 1
-  },
-  "by_sector": {
-    "Bank": 3,
-    "FMCG": 1,
-    "IT": 3,
-    "Auto": 1,
-    "CapGoods": 2,
-    "Chem": 2,
-    "Other": 1,
-    "Infra": 1
-  },
-  "by_regime": {
-    "Bear": 14
-  },
+  "total_open": 0,
+  "by_signal_type": {},
+  "by_sector": {},
+  "by_regime": {},
   "regime_concentration": {
-    "triggered": true,
+    "triggered": false,
     "threshold": 0.8,
-    "observed": 1.0,
-    "axis": "by_regime",
-    "dominant_regime": "Bear"
+    "observed": 0.0,
+    "axis": "by_regime"
   },
-  "concentrations": [
-    {
-      "concentration_label": "UP_TRI × Bear × Bank",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "Bank"
-      },
-      "count": 3,
-      "share": 0.2143
-    },
-    {
-      "concentration_label": "UP_TRI × Bear × IT",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "IT"
-      },
-      "count": 3,
-      "share": 0.2143
-    },
-    {
-      "concentration_label": "UP_TRI × Bear × CapGoods",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "CapGoods"
-      },
-      "count": 2,
-      "share": 0.1429
-    },
-    {
-      "concentration_label": "UP_TRI × Bear × Chem",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "Chem"
-      },
-      "count": 2,
-      "share": 0.1429
-    }
-  ],
+  "concentrations": [],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-10-19T22:01:08.573099+05:30"
+  "generated_at": "2026-10-20T22:01:08.874146+05:30"
 }
