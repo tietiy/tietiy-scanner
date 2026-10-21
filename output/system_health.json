@@ -1,29 +1,29 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-19T10:05:59.563615+00:00",
-  "date": "2026-10-19",
+  "generated_at": "2026-10-21T10:06:05.066702+00:00",
+  "date": "2026-10-21",
   "trading_day": true,
   "overall": "warn",
   "checks": {
     "morning_scan": {
       "status": "ok",
-      "note": "Scanned 188 stocks, 28 signals"
+      "note": "Scanned 188 stocks, 4 signals"
     },
     "open_validate": {
       "status": "warn",
-      "note": "open_prices.date=2026-10-16 not today"
+      "note": "open_prices.date=2026-10-20 not today"
     },
     "eod_update": {
       "status": "warn",
-      "note": "No symbol has 2026-10-19 data yet"
+      "note": "No symbol has 2026-10-21 data yet"
     },
     "outcome_eval": {
       "status": "ok",
-      "note": "560 records, 80 pending, 480 resolved"
+      "note": "562 records, 80 pending, 482 resolved"
     },
     "pattern_miner": {
       "status": "ok",
-      "note": "333 patterns (V:18 P:80)"
+      "note": "334 patterns (V:17 P:85)"
     },
     "rule_proposer": {
       "status": "ok",
@@ -31,7 +31,7 @@
     },
     "contra_tracker": {
       "status": "ok",
-      "note": "688 shadows (R:646 P:42) \u2014 fresh today"
+      "note": "689 shadows (R:656 P:33) \u2014 fresh today"
     }
   },
   "alerts": []
