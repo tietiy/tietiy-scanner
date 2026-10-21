@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-10-20",
+  "as_of_date": "2026-10-21",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -8,19 +8,78 @@
     "active_source": "primary",
     "warnings": []
   },
-  "total_open": 0,
-  "by_signal_type": {},
-  "by_sector": {},
-  "by_regime": {},
-  "regime_concentration": {
-    "triggered": false,
-    "threshold": 0.8,
-    "observed": 0.0,
-    "axis": "by_regime"
+  "total_open": 38,
+  "by_signal_type": {
+    "UP_TRI": 35,
+    "BULL_PROXY": 2,
+    "UP_TRI_SA": 1
   },
-  "concentrations": [],
+  "by_sector": {
+    "Bank": 13,
+    "IT": 4,
+    "Auto": 2,
+    "CapGoods": 3,
+    "Chem": 5,
+    "Other": 4,
+    "FMCG": 3,
+    "Infra": 2,
+    "Consumer": 1,
+    "Energy": 1
+  },
+  "by_regime": {
+    "Bear": 38
+  },
+  "regime_concentration": {
+    "triggered": true,
+    "threshold": 0.8,
+    "observed": 1.0,
+    "axis": "by_regime",
+    "dominant_regime": "Bear"
+  },
+  "concentrations": [
+    {
+      "concentration_label": "UP_TRI × Bear × Bank",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Bank"
+      },
+      "count": 11,
+      "share": 0.2895
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × Chem",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Chem"
+      },
+      "count": 5,
+      "share": 0.1316
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × IT",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "IT"
+      },
+      "count": 4,
+      "share": 0.1053
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × Other",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Other"
+      },
+      "count": 4,
+      "share": 0.1053
+    }
+  ],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-10-20T22:01:08.874146+05:30"
+  "generated_at": "2026-10-21T22:01:08.105373+05:30"
 }
