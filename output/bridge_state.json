@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "phase": "PRE_MARKET",
+  "phase": "POST_OPEN",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-10-22T03:25:51.817381+00:00",
+  "phase_timestamp": "2026-10-22T04:10:52.873934+00:00",
   "market_date": "2026-10-22",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "PROVISIONAL — partial data",
-    "subtext": "2 signals composed; 1 warnings logged"
+    "message": "LIVE — partial data",
+    "subtext": "2 validated, no reclassifications"
   },
   "summary": {
     "total_signals_today": 2,
@@ -22,10 +22,10 @@
   },
   "signals": [
     {
-      "sdr_id": "sdr_2026-10-22_PRE_MARKET_KPIL_UP_TRI",
+      "sdr_id": "sdr_2026-10-22_POST_OPEN_KPIL_UP_TRI",
       "signal_id": "2026-10-22-KPIL-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-22T03:25:51.810949+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-22T04:10:52.867207+00:00",
       "market_date": "2026-10-22",
       "symbol": "KPIL",
       "signal_type": "UP_TRI",
@@ -60,9 +60,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1373.63,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1373.63), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -1830,7 +1830,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-22T03:25:51.810942+00:00",
+        "compose_phase_timestamp": "2026-10-22T04:10:52.867199+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -1844,7 +1844,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_SMALL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -1865,10 +1869,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-22_PRE_MARKET_KPIL_UP_TRI_SA",
+      "sdr_id": "sdr_2026-10-22_POST_OPEN_KPIL_UP_TRI_SA",
       "signal_id": "2026-10-22-KPIL-UP_TRI_SA-SA",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-22T03:25:51.812108+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-22T04:10:52.868506+00:00",
       "market_date": "2026-10-22",
       "symbol": "KPIL",
       "signal_type": "UP_TRI_SA",
@@ -1903,9 +1907,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1373.63,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1373.63), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [],
@@ -2305,7 +2309,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-22T03:25:51.812104+00:00",
+        "compose_phase_timestamp": "2026-10-22T04:10:52.868500+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -2319,7 +2323,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": true,
       "origin": null,
@@ -5034,10 +5042,10 @@
       "shadow_target": 936.76,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 850.25,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": 0.38,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
@@ -5104,10 +5112,10 @@
       "shadow_target": 11543.97,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 10805.0,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": 1.46,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
@@ -5174,10 +5182,10 @@
       "shadow_target": 3519.66,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 2535.3,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": -2.22,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
@@ -5244,10 +5252,10 @@
       "shadow_target": 3272.64,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 2535.3,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": -2.22,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
@@ -5556,9 +5564,9 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-10-22T03:25:51.818256+00:00",
-    "compose_completed_at": "2026-10-22T03:25:51.818260+00:00",
-    "compose_duration_ms": 45,
+    "compose_started_at": "2026-10-22T04:10:52.874887+00:00",
+    "compose_completed_at": "2026-10-22T04:10:52.874892+00:00",
+    "compose_duration_ms": 38,
     "signal_count_input": 2,
     "signal_count_output": 2,
     "queries_total_distinct": 0,
@@ -5567,6 +5575,7 @@
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
+      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -5574,5 +5583,8 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  }
+  },
+  "should_send_telegram": false,
+  "bucket_changes": 0,
+  "gap_breaches": 0
 }
