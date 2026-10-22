@@ -1,6 +1,51 @@
 {
-  "date": "2026-10-20",
+  "date": "2026-10-22",
   "fetch_time": "03:57 IST",
-  "count": 0,
-  "results": []
+  "count": 4,
+  "results": [
+    {
+      "symbol": "GODREJCP.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-10-21",
+      "actual_open": 850.25,
+      "scan_price": 847.0,
+      "gap_pct": 0.38,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "ULTRACEMCO.NS",
+      "signal": "UP_TRI_SA",
+      "signal_date": "2026-10-21",
+      "actual_open": 10805.0,
+      "scan_price": 10650.0,
+      "gap_pct": 1.46,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "WELCORP.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-10-21",
+      "actual_open": 2535.3,
+      "scan_price": 2592.9,
+      "gap_pct": -2.22,
+      "gap_status": "WARNING",
+      "note": "Gap -2.2% \u2014 reduced R:R, trade with caution",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "WELCORP.NS",
+      "signal": "BULL_PROXY",
+      "signal_date": "2026-10-21",
+      "actual_open": 2535.3,
+      "scan_price": 2592.9,
+      "gap_pct": -2.22,
+      "gap_status": "WARNING",
+      "note": "Gap -2.2% \u2014 reduced R:R, trade with caution",
+      "fetch_time": "03:57 IST"
+    }
+  ]
 }
