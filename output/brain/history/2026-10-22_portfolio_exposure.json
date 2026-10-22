@@ -1,0 +1,66 @@
+{
+  "as_of_date": "2026-10-22",
+  "_metadata": {
+    "concentration_threshold_share": 0.1,
+    "regime_concentration_threshold_share": 0.8,
+    "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
+    "fallback_source": "signal_history.json (filter outcome==OPEN)",
+    "active_source": "primary",
+    "warnings": []
+  },
+  "total_open": 41,
+  "by_signal_type": {
+    "UP_TRI": 37,
+    "BULL_PROXY": 2,
+    "UP_TRI_SA": 2
+  },
+  "by_sector": {
+    "Bank": 12,
+    "IT": 4,
+    "Auto": 2,
+    "CapGoods": 3,
+    "Chem": 5,
+    "Other": 4,
+    "FMCG": 4,
+    "Infra": 3,
+    "Consumer": 1,
+    "Energy": 1,
+    "Metal": 2
+  },
+  "by_regime": {
+    "Bear": 41
+  },
+  "regime_concentration": {
+    "triggered": true,
+    "threshold": 0.8,
+    "observed": 1.0,
+    "axis": "by_regime",
+    "dominant_regime": "Bear"
+  },
+  "concentrations": [
+    {
+      "concentration_label": "UP_TRI × Bear × Bank",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Bank"
+      },
+      "count": 11,
+      "share": 0.2683
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × Chem",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Chem"
+      },
+      "count": 5,
+      "share": 0.122
+    }
+  ],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "portfolio_exposure",
+  "generated_at": "2026-10-22T22:01:08.600855+05:30"
+}
