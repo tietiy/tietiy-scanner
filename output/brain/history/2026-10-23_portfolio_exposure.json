@@ -1,0 +1,76 @@
+{
+  "as_of_date": "2026-10-23",
+  "_metadata": {
+    "concentration_threshold_share": 0.1,
+    "regime_concentration_threshold_share": 0.8,
+    "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
+    "fallback_source": "signal_history.json (filter outcome==OPEN)",
+    "active_source": "primary",
+    "warnings": []
+  },
+  "total_open": 35,
+  "by_signal_type": {
+    "UP_TRI": 31,
+    "BULL_PROXY": 1,
+    "UP_TRI_SA": 3
+  },
+  "by_sector": {
+    "Bank": 9,
+    "IT": 4,
+    "Auto": 2,
+    "CapGoods": 3,
+    "Chem": 2,
+    "Other": 3,
+    "FMCG": 4,
+    "Infra": 5,
+    "Consumer": 1,
+    "Energy": 1,
+    "Metal": 1
+  },
+  "by_regime": {
+    "Bear": 35
+  },
+  "regime_concentration": {
+    "triggered": true,
+    "threshold": 0.8,
+    "observed": 1.0,
+    "axis": "by_regime",
+    "dominant_regime": "Bear"
+  },
+  "concentrations": [
+    {
+      "concentration_label": "UP_TRI × Bear × Bank",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Bank"
+      },
+      "count": 8,
+      "share": 0.2286
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × IT",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "IT"
+      },
+      "count": 4,
+      "share": 0.1143
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × FMCG",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "FMCG"
+      },
+      "count": 4,
+      "share": 0.1143
+    }
+  ],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "portfolio_exposure",
+  "generated_at": "2026-10-23T22:01:11.812031+05:30"
+}
