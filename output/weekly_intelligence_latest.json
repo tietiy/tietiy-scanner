@@ -1,30 +1,30 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-18T17:27:28.959760Z",
+  "generated_at": "2026-10-25T17:44:36.248500Z",
   "week_range": [
-    "2026-10-11",
-    "2026-10-18"
+    "2026-10-18",
+    "2026-10-25"
   ],
   "patterns": {
     "total": 339,
-    "validated_count": 18,
-    "preliminary_count": 84,
-    "emerging_count": 237,
-    "total_resolved_signals": 487,
+    "validated_count": 16,
+    "preliminary_count": 92,
+    "emerging_count": 231,
+    "total_resolved_signals": 491,
     "baselines": {
       "UP_TRI": {
-        "wr": 37.6,
-        "avg_pnl": -0.05,
-        "n": 442,
-        "wins": 166,
-        "losses": 276
+        "wr": 36.4,
+        "avg_pnl": -0.24,
+        "n": 445,
+        "wins": 162,
+        "losses": 283
       },
       "BULL_PROXY": {
-        "wr": 31.1,
-        "avg_pnl": -0.62,
-        "n": 45,
-        "wins": 14,
-        "losses": 31
+        "wr": 26.1,
+        "avg_pnl": -1.04,
+        "n": 46,
+        "wins": 12,
+        "losses": 34
       }
     },
     "top_validated": [
@@ -32,35 +32,44 @@
         "id": "regime=Choppy_sector=Pharma",
         "wr": 60.0,
         "n": 25,
-        "edge": 22.4,
+        "edge": 23.6,
         "direction": "positive",
-        "insight": "Choppy regime + Pharma sector outperforms UP_TRI baseline by 22.4pp (60.0% WR in 25 trades)"
+        "insight": "Choppy regime + Pharma sector outperforms UP_TRI baseline by 23.6pp (60.0% WR in 25 trades)"
       },
       {
         "id": "regime=Choppy_sector=Pharma_grade=B",
         "wr": 60.0,
         "n": 25,
-        "edge": 22.4,
+        "edge": 23.6,
         "direction": "positive",
-        "insight": "Choppy regime + Pharma sector + Grade B outperforms UP_TRI baseline by 22.4pp (60.0% WR in 25 trades"
+        "insight": "Choppy regime + Pharma sector + Grade B outperforms UP_TRI baseline by 23.6pp (60.0% WR in 25 trades"
       },
       {
         "id": "regime=Choppy_sector=Pharma_age=0",
         "wr": 59.1,
         "n": 22,
-        "edge": 21.5,
+        "edge": 22.7,
         "direction": "positive",
-        "insight": "Choppy regime + Pharma sector + age=0 outperforms UP_TRI baseline by 21.5pp (59.1% WR in 22 trades)"
+        "insight": "Choppy regime + Pharma sector + age=0 outperforms UP_TRI baseline by 22.7pp (59.1% WR in 22 trades)"
       }
     ]
   },
   "proposals": {
-    "total": 163,
-    "pending_count": 129,
+    "total": 165,
+    "pending_count": 131,
     "approved_count": 0,
     "already_active_count": 4,
     "rejected_count": 30,
     "pending_items": [
+      {
+        "id": "prop_128",
+        "action": "kill",
+        "target_signal": "UP_TRI",
+        "target_sector": "Energy",
+        "wr": 20.0,
+        "n": 35,
+        "edge": -16.4
+      },
       {
         "id": "prop_110",
         "action": "warn",
@@ -68,7 +77,16 @@
         "target_sector": "IT",
         "wr": 20.0,
         "n": 20,
-        "edge": -17.6
+        "edge": -16.4
+      },
+      {
+        "id": "prop_088",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "Metal",
+        "wr": 20.0,
+        "n": 20,
+        "edge": -16.4
       },
       {
         "id": "prop_062",
@@ -77,7 +95,7 @@
         "target_sector": "CapGoods",
         "wr": 20.0,
         "n": 20,
-        "edge": -17.6
+        "edge": -16.4
       },
       {
         "id": "prop_066",
@@ -86,51 +104,33 @@
         "target_sector": "CapGoods",
         "wr": 20.0,
         "n": 20,
-        "edge": -17.6
-      },
-      {
-        "id": "prop_113",
-        "action": "warn",
-        "target_signal": null,
-        "target_sector": "IT",
-        "wr": 20.8,
-        "n": 24,
-        "edge": -16.8
-      },
-      {
-        "id": "prop_028",
-        "action": "warn",
-        "target_signal": null,
-        "target_sector": "IT",
-        "wr": 21.7,
-        "n": 23,
-        "edge": -15.9
+        "edge": -16.4
       }
     ]
   },
   "contra": {
-    "total": 686,
-    "resolved": 646,
-    "pending": 40,
-    "wr": 52.6,
-    "avg_pnl": 0.54,
+    "total": 695,
+    "resolved": 679,
+    "pending": 16,
+    "wr": 52.1,
+    "avg_pnl": 0.49,
     "unlocked": true,
     "unlock_threshold": 30,
     "recent_3": [
       {
-        "symbol": "PIIND",
+        "symbol": "UNITDSPR",
         "outcome": "CONTRA_LOSS",
-        "pnl": -2.12
+        "pnl": -5.2
       },
       {
-        "symbol": "APOLLOHOSP",
-        "outcome": "CONTRA_FLAT",
-        "pnl": 0.14
+        "symbol": "JKCEMENT",
+        "outcome": "CONTRA_WIN",
+        "pnl": 0.94
       },
       {
-        "symbol": "INDIGO",
+        "symbol": "DIXON",
         "outcome": "CONTRA_LOSS",
-        "pnl": -5.36
+        "pnl": -8.75
       }
     ]
   },
@@ -139,19 +139,19 @@
     "regime_distribution": {
       "Bear": 5
     },
-    "avg_slope": -0.01753,
-    "avg_ret20": -2.79,
+    "avg_slope": -0.01246,
+    "avg_ret20": -2.16,
     "latest": {
-      "date": "2026-10-16",
+      "date": "2026-10-23",
       "regime": "Bear",
-      "slope": -0.015873,
-      "ret20": -1.17,
+      "slope": -0.01124,
+      "ret20": -3.24,
       "above_ema50": false
     }
   },
   "health": {
     "overall": "warn",
-    "last_validated": "2026-10-16T10:06:11.971693+00:00",
+    "last_validated": "2026-10-23T10:06:07.564933+00:00",
     "checks_passed": 6,
     "checks_failed": 1
   },
@@ -173,8 +173,8 @@
     ]
   },
   "suggestions": [
-    "\ud83d\udcdd 129 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
-    "\ud83d\udd2c 18 validated patterns found. Review top items above.",
+    "\ud83d\udcdd 131 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
+    "\ud83d\udd2c 16 validated patterns found. Review top items above.",
     "\ud83c\udf21 Market classified Bear every day this week. If signal WR diverges from this, classifier may need recalibration."
   ]
 }
