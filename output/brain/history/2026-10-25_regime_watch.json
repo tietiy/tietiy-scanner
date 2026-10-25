@@ -1,0 +1,42 @@
+{
+  "as_of_date": "2026-10-25",
+  "_metadata": {
+    "stability_classifier": "stable if same regime ≥5 of last 5 trading days; shifting if any regime change in last 7 trading days; unclear otherwise",
+    "source_files": [
+      "signal_history.json",
+      "weekly_intelligence_latest.json"
+    ],
+    "warnings": [
+      {
+        "level": "warn",
+        "code": "weekly_intel_stale",
+        "message": "weekly_intelligence dated 2026-10-16; 9 days stale",
+        "context": {
+          "source_date": "2026-10-16",
+          "age_days": 9
+        }
+      }
+    ]
+  },
+  "current_regime": "Bear",
+  "regime_stability": "stable",
+  "days_in_current_regime": 7,
+  "recent_distribution_7d": {
+    "Bear": 7
+  },
+  "prior_distribution_7d": {
+    "Bear": 7
+  },
+  "weekly_intelligence_snapshot": {
+    "slope": -0.015873,
+    "avg_ret20": -1.17,
+    "above_ema50": false,
+    "source_date": "2026-10-16"
+  },
+  "weekly_intelligence_age_days": 9,
+  "transition_evidence": [],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "regime_watch",
+  "generated_at": "2026-10-25T22:01:05.514152+05:30"
+}

@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-10-24",
+  "as_of_date": "2026-10-25",
   "_metadata": {
     "stability_classifier": "stable if same regime ≥5 of last 5 trading days; shifting if any regime change in last 7 trading days; unclear otherwise",
     "source_files": [
@@ -10,10 +10,10 @@
       {
         "level": "warn",
         "code": "weekly_intel_stale",
-        "message": "weekly_intelligence dated 2026-10-16; 8 days stale",
+        "message": "weekly_intelligence dated 2026-10-16; 9 days stale",
         "context": {
           "source_date": "2026-10-16",
-          "age_days": 8
+          "age_days": 9
         }
       }
     ]
@@ -33,10 +33,10 @@
     "above_ema50": false,
     "source_date": "2026-10-16"
   },
-  "weekly_intelligence_age_days": 8,
+  "weekly_intelligence_age_days": 9,
   "transition_evidence": [],
   "_ext": {},
   "schema_version": 1,
   "view_name": "regime_watch",
-  "generated_at": "2026-10-24T22:01:04.840950+05:30"
+  "generated_at": "2026-10-25T22:01:05.514152+05:30"
 }
