@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "phase": "PRE_MARKET",
+  "phase": "POST_OPEN",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-10-26T03:25:47.425891+00:00",
+  "phase_timestamp": "2026-10-26T04:10:58.922308+00:00",
   "market_date": "2026-10-26",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "PROVISIONAL — partial data",
-    "subtext": "17 signals composed; 1 warnings logged"
+    "message": "LIVE — partial data",
+    "subtext": "17 validated, no reclassifications"
   },
   "summary": {
     "total_signals_today": 17,
@@ -22,10 +22,10 @@
   },
   "signals": [
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_SBIN_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_SBIN_UP_TRI",
       "signal_id": "2026-10-26-SBIN-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.410030+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.895726+00:00",
       "market_date": "2026-10-26",
       "symbol": "SBIN",
       "signal_type": "UP_TRI",
@@ -60,9 +60,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 977.77,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹977.77), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -2109,7 +2109,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.410023+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.895716+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -2123,7 +2123,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -2144,10 +2148,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_LICHSGFIN_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_LICHSGFIN_UP_TRI",
       "signal_id": "2026-10-26-LICHSGFIN-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.411284+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.897845+00:00",
       "market_date": "2026-10-26",
       "symbol": "LICHSGFIN",
       "signal_type": "UP_TRI",
@@ -2182,9 +2186,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 499.8,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹499.8), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -4231,7 +4235,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.411280+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.897837+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -4245,7 +4249,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -4266,10 +4274,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_KPITTECH_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_KPITTECH_UP_TRI",
       "signal_id": "2026-10-26-KPITTECH-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.412026+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.899038+00:00",
       "market_date": "2026-10-26",
       "symbol": "KPITTECH",
       "signal_type": "UP_TRI",
@@ -4304,9 +4312,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 543.3,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹543.3), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -6187,7 +6195,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.412023+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.899031+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -6201,7 +6209,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_FULL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -6222,10 +6234,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_M&M_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_M&M_UP_TRI",
       "signal_id": "2026-10-26-M&M-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.412810+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.900320+00:00",
       "market_date": "2026-10-26",
       "symbol": "M&M",
       "signal_type": "UP_TRI",
@@ -6260,9 +6272,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 2918.42,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹2918.42), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -8137,7 +8149,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.412808+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.900314+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -8151,7 +8163,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_FULL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -8172,10 +8188,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_BAJAJ-AUTO_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_BAJAJ-AUTO_UP_TRI",
       "signal_id": "2026-10-26-BAJAJ-AUTO-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.413574+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.901637+00:00",
       "market_date": "2026-10-26",
       "symbol": "BAJAJ-AUTO",
       "signal_type": "UP_TRI",
@@ -8210,9 +8226,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 10273.44,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹10273.44), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -10087,7 +10103,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.413572+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.901631+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -10101,7 +10117,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_FULL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -10122,10 +10142,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_EICHERMOT_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_EICHERMOT_UP_TRI",
       "signal_id": "2026-10-26-EICHERMOT-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.414316+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.902882+00:00",
       "market_date": "2026-10-26",
       "symbol": "EICHERMOT",
       "signal_type": "UP_TRI",
@@ -10160,9 +10180,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 7207.32,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹7207.32), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -12037,7 +12057,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.414314+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.902876+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -12051,7 +12071,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_FULL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -12072,10 +12096,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_DRREDDY_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_DRREDDY_UP_TRI",
       "signal_id": "2026-10-26-DRREDDY-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.415110+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.904178+00:00",
       "market_date": "2026-10-26",
       "symbol": "DRREDDY",
       "signal_type": "UP_TRI",
@@ -12110,9 +12134,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1254.09,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1254.09), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -13897,7 +13921,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.415108+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.904173+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -13911,7 +13935,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_FULL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -13932,10 +13960,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_CIPLA_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_CIPLA_UP_TRI",
       "signal_id": "2026-10-26-CIPLA-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.415923+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.905489+00:00",
       "market_date": "2026-10-26",
       "symbol": "CIPLA",
       "signal_type": "UP_TRI",
@@ -13970,9 +13998,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1364.76,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1364.76), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -15757,7 +15785,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.415921+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.905484+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -15771,7 +15799,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_FULL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -15792,10 +15824,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_DIVISLAB_BULL_PROXY",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_DIVISLAB_BULL_PROXY",
       "signal_id": "2026-10-26-DIVISLAB-BULL_PROXY",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.416530+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.906526+00:00",
       "market_date": "2026-10-26",
       "symbol": "DIVISLAB",
       "signal_type": "BULL_PROXY",
@@ -15830,9 +15862,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 9129.0,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹9129.0), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -16462,7 +16494,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.416528+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.906521+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -16476,7 +16508,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_SMALL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -16497,10 +16533,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_ONGC_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_ONGC_UP_TRI",
       "signal_id": "2026-10-26-ONGC-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.417331+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.907838+00:00",
       "market_date": "2026-10-26",
       "symbol": "ONGC",
       "signal_type": "UP_TRI",
@@ -16535,9 +16571,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 232.05,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹232.05), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -18595,7 +18631,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.417329+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.907832+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -18609,7 +18645,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -18630,10 +18670,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_ITC_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_ITC_UP_TRI",
       "signal_id": "2026-10-26-ITC-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.418178+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.909251+00:00",
       "market_date": "2026-10-26",
       "symbol": "ITC",
       "signal_type": "UP_TRI",
@@ -18668,9 +18708,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 263.06,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹263.06), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -20458,7 +20498,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.418175+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.909245+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -20472,7 +20512,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_FULL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -20493,10 +20537,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_ULTRACEMCO_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_ULTRACEMCO_UP_TRI",
       "signal_id": "2026-10-26-ULTRACEMCO-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.418960+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.910576+00:00",
       "market_date": "2026-10-26",
       "symbol": "ULTRACEMCO",
       "signal_type": "UP_TRI",
@@ -20531,9 +20575,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 11271.0,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹11271.0), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -22301,7 +22345,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.418958+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.910571+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -22315,7 +22359,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_SMALL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -22336,10 +22384,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_AMBUJACEM_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_AMBUJACEM_UP_TRI",
       "signal_id": "2026-10-26-AMBUJACEM-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.419714+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.911849+00:00",
       "market_date": "2026-10-26",
       "symbol": "AMBUJACEM",
       "signal_type": "UP_TRI",
@@ -22374,9 +22422,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 366.08,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹366.08), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -24144,7 +24192,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.419712+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.911844+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -24158,7 +24206,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_SMALL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -24179,10 +24231,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_ADANIPORTS_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_ADANIPORTS_UP_TRI",
       "signal_id": "2026-10-26-ADANIPORTS-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.420487+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.913124+00:00",
       "market_date": "2026-10-26",
       "symbol": "ADANIPORTS",
       "signal_type": "UP_TRI",
@@ -24217,9 +24269,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1736.75,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1736.75), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -25987,7 +26039,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.420485+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.913119+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -26001,7 +26053,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_SMALL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -26022,10 +26078,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_DLF_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_DLF_UP_TRI",
       "signal_id": "2026-10-26-DLF-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.421252+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.914398+00:00",
       "market_date": "2026-10-26",
       "symbol": "DLF",
       "signal_type": "UP_TRI",
@@ -26060,9 +26116,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 670.14,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹670.14), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -27830,7 +27886,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.421251+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.914392+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -27844,7 +27900,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_SMALL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -27865,10 +27925,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_PHOENIXLTD_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_PHOENIXLTD_UP_TRI",
       "signal_id": "2026-10-26-PHOENIXLTD-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.422028+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.915925+00:00",
       "market_date": "2026-10-26",
       "symbol": "PHOENIXLTD",
       "signal_type": "UP_TRI",
@@ -27903,9 +27963,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1909.75,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1909.75), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -29673,7 +29733,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.422024+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.915916+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -29687,7 +29747,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_SMALL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -29708,10 +29772,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-10-26_PRE_MARKET_TATAELXSI_UP_TRI",
+      "sdr_id": "sdr_2026-10-26_POST_OPEN_TATAELXSI_UP_TRI",
       "signal_id": "2026-10-26-TATAELXSI-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-10-26T03:25:47.422681+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-10-26T04:10:58.917044+00:00",
       "market_date": "2026-10-26",
       "symbol": "TATAELXSI",
       "signal_type": "UP_TRI",
@@ -29746,9 +29810,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 3774.0,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹3774.0), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -31633,7 +31697,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-10-26T03:25:47.422679+00:00",
+        "compose_phase_timestamp": "2026-10-26T04:10:58.917039+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -31647,7 +31711,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_FULL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -34029,9 +34097,9 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-10-26T03:25:47.432212+00:00",
-    "compose_completed_at": "2026-10-26T03:25:47.432216+00:00",
-    "compose_duration_ms": 49,
+    "compose_started_at": "2026-10-26T04:10:58.933332+00:00",
+    "compose_completed_at": "2026-10-26T04:10:58.933348+00:00",
+    "compose_duration_ms": 86,
     "signal_count_input": 17,
     "signal_count_output": 17,
     "queries_total_distinct": 0,
@@ -34040,6 +34108,7 @@
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
+      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -34047,5 +34116,8 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  }
+  },
+  "should_send_telegram": false,
+  "bucket_changes": 0,
+  "gap_breaches": 0
 }
