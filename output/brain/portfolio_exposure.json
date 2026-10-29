@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-10-28",
+  "as_of_date": "2026-10-29",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -10,18 +10,17 @@
   },
   "total_open": 23,
   "by_signal_type": {
-    "UP_TRI_SA": 2,
-    "UP_TRI": 20,
+    "UP_TRI": 21,
+    "UP_TRI_SA": 1,
     "BULL_PROXY": 1
   },
   "by_sector": {
-    "Infra": 8,
-    "Metal": 1,
+    "Infra": 6,
     "IT": 3,
-    "Bank": 1,
-    "Auto": 4,
+    "Bank": 2,
+    "Auto": 5,
     "Pharma": 3,
-    "Energy": 1,
+    "Energy": 2,
     "FMCG": 1,
     "Chem": 1
   },
@@ -43,8 +42,8 @@
         "regime": "Bear",
         "sector": "Infra"
       },
-      "count": 6,
-      "share": 0.2609
+      "count": 5,
+      "share": 0.2174
     },
     {
       "concentration_label": "UP_TRI × Bear × Auto",
@@ -53,8 +52,8 @@
         "regime": "Bear",
         "sector": "Auto"
       },
-      "count": 4,
-      "share": 0.1739
+      "count": 5,
+      "share": 0.2174
     },
     {
       "concentration_label": "UP_TRI × Bear × IT",
@@ -70,5 +69,5 @@
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-10-28T22:01:28.828657+05:30"
+  "generated_at": "2026-10-29T22:01:10.414755+05:30"
 }
