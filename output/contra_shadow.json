@@ -30306,10 +30306,10 @@
       "effective_exit_date": "2026-10-29",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_FLAT",
+      "outcome_date": "2026-10-29",
+      "outcome_price": 2701.0,
+      "pnl_pct": -0.21,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -30318,7 +30318,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-10-21T03:17:38.926071Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-10-29T10:05:50.275878Z"
     },
     {
       "id": "contra_2026-10-22-ALKYLAMINE-DOWN_TRI",
@@ -30639,7 +30641,7 @@
       "grade": "B",
       "atr": 14.36,
       "exit_date": "10 Nov",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-11-10",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -30657,5 +30659,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-10-28T10:06:00.531260Z"
+  "updated_at": "2026-10-29T10:05:50.276222Z"
 }
