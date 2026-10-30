@@ -1,0 +1,92 @@
+{
+  "as_of_date": "2026-10-30",
+  "_metadata": {
+    "concentration_threshold_share": 0.1,
+    "regime_concentration_threshold_share": 0.8,
+    "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
+    "fallback_source": "signal_history.json (filter outcome==OPEN)",
+    "active_source": "primary",
+    "warnings": []
+  },
+  "total_open": 24,
+  "by_signal_type": {
+    "UP_TRI": 23,
+    "BULL_PROXY": 1
+  },
+  "by_sector": {
+    "IT": 3,
+    "Bank": 3,
+    "Auto": 5,
+    "Pharma": 3,
+    "Energy": 3,
+    "FMCG": 1,
+    "Infra": 5,
+    "Chem": 1
+  },
+  "by_regime": {
+    "Bear": 24
+  },
+  "regime_concentration": {
+    "triggered": true,
+    "threshold": 0.8,
+    "observed": 1.0,
+    "axis": "by_regime",
+    "dominant_regime": "Bear"
+  },
+  "concentrations": [
+    {
+      "concentration_label": "UP_TRI × Bear × Auto",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Auto"
+      },
+      "count": 5,
+      "share": 0.2083
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × Infra",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Infra"
+      },
+      "count": 5,
+      "share": 0.2083
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × IT",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "IT"
+      },
+      "count": 3,
+      "share": 0.125
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × Bank",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Bank"
+      },
+      "count": 3,
+      "share": 0.125
+    },
+    {
+      "concentration_label": "UP_TRI × Bear × Energy",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bear",
+        "sector": "Energy"
+      },
+      "count": 3,
+      "share": 0.125
+    }
+  ],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "portfolio_exposure",
+  "generated_at": "2026-10-30T22:01:11.414286+05:30"
+}

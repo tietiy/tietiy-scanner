@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-10-29",
+  "as_of_date": "2026-10-30",
   "_metadata": {
     "n_min_for_inclusion": 3,
     "wilson_confidence": 0.95,
@@ -25,7 +25,7 @@
       }
     ]
   },
-  "total_resolved": 487,
+  "total_resolved": 488,
   "baselines": {
     "BULL_PROXY": {
       "n": 46,
@@ -38,8 +38,8 @@
       "avg_pnl_pct": -0.37
     },
     "UP_TRI_SA": {
-      "n": 15,
-      "wr": 0.3333,
+      "n": 16,
+      "wr": 0.3125,
       "avg_pnl_pct": -0.79
     }
   },
@@ -89,16 +89,16 @@
         "signal_type": "UP_TRI_SA",
         "regime": "Bear"
       },
-      "n": 11,
+      "n": 12,
       "wins": 4,
-      "losses": 6,
+      "losses": 7,
       "flat": 1,
-      "wr": 0.3636,
-      "wr_wilson_lower": 0.1517,
-      "avg_pnl_pct": -1.08,
-      "edge_vs_baseline_pp": 3.0,
-      "r_multiple": 0.08,
-      "r_multiple_count": 11,
+      "wr": 0.3333,
+      "wr_wilson_lower": 0.1381,
+      "avg_pnl_pct": -1.05,
+      "edge_vs_baseline_pp": 2.1,
+      "r_multiple": -0.01,
+      "r_multiple_count": 12,
       "tier": "Candidate"
     },
     {
@@ -191,7 +191,7 @@
       "wr": 0.25,
       "wr_wilson_lower": 0.0456,
       "avg_pnl_pct": -0.01,
-      "edge_vs_baseline_pp": -8.3,
+      "edge_vs_baseline_pp": -6.2,
       "r_multiple": -0.43,
       "r_multiple_count": 4,
       "tier": "Candidate"
@@ -248,7 +248,7 @@
       "wr": 0.0,
       "wr_wilson_lower": 0.0,
       "avg_pnl_pct": -1.75,
-      "edge_vs_baseline_pp": -33.3,
+      "edge_vs_baseline_pp": -31.2,
       "r_multiple": -1.0,
       "r_multiple_count": 3,
       "tier": "Candidate"
@@ -552,7 +552,7 @@
       "wr": 0.75,
       "wr_wilson_lower": 0.3006,
       "avg_pnl_pct": 0.74,
-      "edge_vs_baseline_pp": 41.7,
+      "edge_vs_baseline_pp": 43.8,
       "r_multiple": 1.1,
       "r_multiple_count": 4,
       "tier": "Candidate"
@@ -656,5 +656,5 @@
   "_ext": {},
   "schema_version": 1,
   "view_name": "cohort_health",
-  "generated_at": "2026-10-29T22:01:10.405486+05:30"
+  "generated_at": "2026-10-30T22:01:11.407316+05:30"
 }
