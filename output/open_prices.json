@@ -1,28 +1,50 @@
 {
-  "date": "2026-10-23",
+  "date": "2026-10-30",
   "fetch_time": "03:57 IST",
-  "count": 2,
+  "count": 4,
   "results": [
     {
-      "symbol": "KPIL.NS",
+      "symbol": "CANBK.NS",
       "signal": "UP_TRI",
-      "signal_date": "2026-10-22",
-      "actual_open": 1299.0,
-      "scan_price": 1346.7,
-      "gap_pct": -3.54,
-      "gap_status": "SKIP",
-      "note": "Gap -3.5% \u2014 skip this signal (>3%)",
+      "signal_date": "2026-10-29",
+      "actual_open": 119.43,
+      "scan_price": 118.01,
+      "gap_pct": 1.2,
+      "gap_status": "OK",
+      "note": "",
       "fetch_time": "03:57 IST"
     },
     {
-      "symbol": "KPIL.NS",
+      "symbol": "RELIANCE.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-10-29",
+      "actual_open": 1170.6,
+      "scan_price": 1158.0,
+      "gap_pct": 1.09,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "GODREJCP.NS",
       "signal": "UP_TRI_SA",
-      "signal_date": "2026-10-22",
-      "actual_open": 1299.0,
-      "scan_price": 1346.7,
-      "gap_pct": -3.54,
-      "gap_status": "SKIP",
-      "note": "Gap -3.5% \u2014 skip this signal (>3%)",
+      "signal_date": "2026-10-29",
+      "actual_open": 806.05,
+      "scan_price": 828.8,
+      "gap_pct": -2.74,
+      "gap_status": "WARNING",
+      "note": "Gap -2.7% \u2014 reduced R:R, trade with caution",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "LT.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-10-29",
+      "actual_open": 3837.1,
+      "scan_price": 3801.3,
+      "gap_pct": 0.94,
+      "gap_status": "OK",
+      "note": "",
       "fetch_time": "03:57 IST"
     }
   ]
