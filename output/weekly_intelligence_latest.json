@@ -1,66 +1,75 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-10-25T17:44:36.248500Z",
+  "generated_at": "2026-11-01T19:01:41.787556Z",
   "week_range": [
-    "2026-10-18",
-    "2026-10-25"
+    "2026-10-25",
+    "2026-11-01"
   ],
   "patterns": {
-    "total": 339,
-    "validated_count": 16,
-    "preliminary_count": 92,
-    "emerging_count": 231,
-    "total_resolved_signals": 491,
+    "total": 343,
+    "validated_count": 12,
+    "preliminary_count": 87,
+    "emerging_count": 244,
+    "total_resolved_signals": 488,
     "baselines": {
       "UP_TRI": {
-        "wr": 36.4,
-        "avg_pnl": -0.24,
-        "n": 445,
-        "wins": 162,
-        "losses": 283
+        "wr": 35.5,
+        "avg_pnl": -0.38,
+        "n": 442,
+        "wins": 157,
+        "losses": 285
       },
       "BULL_PROXY": {
-        "wr": 26.1,
-        "avg_pnl": -1.04,
+        "wr": 30.4,
+        "avg_pnl": -0.76,
         "n": 46,
-        "wins": 12,
-        "losses": 34
+        "wins": 14,
+        "losses": 32
       }
     },
     "top_validated": [
       {
-        "id": "regime=Choppy_sector=Pharma",
-        "wr": 60.0,
-        "n": 25,
-        "edge": 23.6,
+        "id": "regime=Bull_sector=Bank_grade=B",
+        "wr": 53.8,
+        "n": 26,
+        "edge": 18.3,
         "direction": "positive",
-        "insight": "Choppy regime + Pharma sector outperforms UP_TRI baseline by 23.6pp (60.0% WR in 25 trades)"
+        "insight": "Bull regime + Bank sector + Grade B outperforms UP_TRI baseline by 18.3pp (53.8% WR in 26 trades)"
       },
       {
-        "id": "regime=Choppy_sector=Pharma_grade=B",
-        "wr": 60.0,
-        "n": 25,
-        "edge": 23.6,
+        "id": "signal=UP_TRI_regime=Choppy_sector=Bank",
+        "wr": 53.1,
+        "n": 32,
+        "edge": 17.6,
         "direction": "positive",
-        "insight": "Choppy regime + Pharma sector + Grade B outperforms UP_TRI baseline by 23.6pp (60.0% WR in 25 trades"
+        "insight": "UP_TRI + Choppy regime + Bank sector outperforms UP_TRI baseline by 17.6pp (53.1% WR in 32 trades)"
       },
       {
-        "id": "regime=Choppy_sector=Pharma_age=0",
-        "wr": 59.1,
-        "n": 22,
-        "edge": 22.7,
+        "id": "regime=Choppy_sector=Bank_grade=B",
+        "wr": 52.8,
+        "n": 36,
+        "edge": 17.3,
         "direction": "positive",
-        "insight": "Choppy regime + Pharma sector + age=0 outperforms UP_TRI baseline by 22.7pp (59.1% WR in 22 trades)"
+        "insight": "Choppy regime + Bank sector + Grade B outperforms UP_TRI baseline by 17.3pp (52.8% WR in 36 trades)"
       }
     ]
   },
   "proposals": {
-    "total": 165,
-    "pending_count": 131,
+    "total": 176,
+    "pending_count": 142,
     "approved_count": 0,
     "already_active_count": 4,
     "rejected_count": 30,
     "pending_items": [
+      {
+        "id": "prop_132",
+        "action": "warn",
+        "target_signal": "UP_TRI",
+        "target_sector": "Chem",
+        "wr": 20.0,
+        "n": 35,
+        "edge": -15.5
+      },
       {
         "id": "prop_128",
         "action": "kill",
@@ -68,25 +77,16 @@
         "target_sector": "Energy",
         "wr": 20.0,
         "n": 35,
-        "edge": -16.4
+        "edge": -15.5
       },
       {
-        "id": "prop_110",
+        "id": "prop_133",
         "action": "warn",
         "target_signal": "UP_TRI",
-        "target_sector": "IT",
+        "target_sector": "Chem",
         "wr": 20.0,
-        "n": 20,
-        "edge": -16.4
-      },
-      {
-        "id": "prop_088",
-        "action": "kill",
-        "target_signal": null,
-        "target_sector": "Metal",
-        "wr": 20.0,
-        "n": 20,
-        "edge": -16.4
+        "n": 35,
+        "edge": -15.5
       },
       {
         "id": "prop_062",
@@ -95,7 +95,7 @@
         "target_sector": "CapGoods",
         "wr": 20.0,
         "n": 20,
-        "edge": -16.4
+        "edge": -15.5
       },
       {
         "id": "prop_066",
@@ -104,33 +104,33 @@
         "target_sector": "CapGoods",
         "wr": 20.0,
         "n": 20,
-        "edge": -16.4
+        "edge": -15.5
       }
     ]
   },
   "contra": {
-    "total": 695,
-    "resolved": 679,
+    "total": 706,
+    "resolved": 690,
     "pending": 16,
-    "wr": 52.1,
+    "wr": 52.2,
     "avg_pnl": 0.49,
     "unlocked": true,
     "unlock_threshold": 30,
     "recent_3": [
       {
-        "symbol": "UNITDSPR",
-        "outcome": "CONTRA_LOSS",
-        "pnl": -5.2
-      },
-      {
-        "symbol": "JKCEMENT",
+        "symbol": "LALPATHLAB",
         "outcome": "CONTRA_WIN",
-        "pnl": 0.94
+        "pnl": 1.36
       },
       {
-        "symbol": "DIXON",
+        "symbol": "ESCORTS",
+        "outcome": "CONTRA_FLAT",
+        "pnl": -0.21
+      },
+      {
+        "symbol": "ALKYLAMINE",
         "outcome": "CONTRA_LOSS",
-        "pnl": -8.75
+        "pnl": -3.04
       }
     ]
   },
@@ -139,19 +139,19 @@
     "regime_distribution": {
       "Bear": 5
     },
-    "avg_slope": -0.01246,
-    "avg_ret20": -2.16,
+    "avg_slope": -0.00826,
+    "avg_ret20": -0.5,
     "latest": {
-      "date": "2026-10-23",
+      "date": "2026-10-30",
       "regime": "Bear",
-      "slope": -0.01124,
-      "ret20": -3.24,
+      "slope": -0.006631,
+      "ret20": 1.4,
       "above_ema50": false
     }
   },
   "health": {
     "overall": "warn",
-    "last_validated": "2026-10-23T10:06:07.564933+00:00",
+    "last_validated": "2026-10-30T10:06:19.100172+00:00",
     "checks_passed": 6,
     "checks_failed": 1
   },
@@ -173,8 +173,8 @@
     ]
   },
   "suggestions": [
-    "\ud83d\udcdd 131 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
-    "\ud83d\udd2c 16 validated patterns found. Review top items above.",
+    "\ud83d\udcdd 142 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
+    "\ud83d\udd2c 12 validated patterns found. Review top items above.",
     "\ud83c\udf21 Market classified Bear every day this week. If signal WR diverges from this, classifier may need recalibration."
   ]
 }
