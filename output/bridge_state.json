@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "phase": "PRE_MARKET",
+  "phase": "POST_OPEN",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-11-02T03:25:46.693836+00:00",
+  "phase_timestamp": "2026-11-02T04:10:59.516232+00:00",
   "market_date": "2026-11-02",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "PROVISIONAL — partial data",
-    "subtext": "3 signals composed; 1 warnings logged"
+    "message": "LIVE — partial data",
+    "subtext": "3 validated, no reclassifications"
   },
   "summary": {
     "total_signals_today": 3,
@@ -22,10 +22,10 @@
   },
   "signals": [
     {
-      "sdr_id": "sdr_2026-11-02_PRE_MARKET_JSWSTEEL_UP_TRI",
+      "sdr_id": "sdr_2026-11-02_POST_OPEN_JSWSTEEL_UP_TRI",
       "signal_id": "2026-11-02-JSWSTEEL-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-02T03:25:46.688346+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-02T04:10:59.508876+00:00",
       "market_date": "2026-11-02",
       "symbol": "JSWSTEEL",
       "signal_type": "UP_TRI",
@@ -60,9 +60,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1270.92,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1270.92), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -2141,7 +2141,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-02T03:25:46.688341+00:00",
+        "compose_phase_timestamp": "2026-11-02T04:10:59.508869+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -2155,7 +2155,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_FULL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -2176,10 +2180,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-02_PRE_MARKET_DEEPAKNTR_UP_TRI_SA",
+      "sdr_id": "sdr_2026-11-02_POST_OPEN_DEEPAKNTR_UP_TRI_SA",
       "signal_id": "2026-11-02-DEEPAKNTR-UP_TRI_SA-SA",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-02T03:25:46.689185+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-02T04:10:59.509968+00:00",
       "market_date": "2026-11-02",
       "symbol": "DEEPAKNTR",
       "signal_type": "UP_TRI_SA",
@@ -2214,9 +2218,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1549.79,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1549.79), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [],
@@ -2904,7 +2908,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-02T03:25:46.689181+00:00",
+        "compose_phase_timestamp": "2026-11-02T04:10:59.509963+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -2918,7 +2922,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": true,
       "origin": null,
@@ -2939,10 +2947,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-02_PRE_MARKET_METROPOLIS_BULL_PROXY",
+      "sdr_id": "sdr_2026-11-02_POST_OPEN_METROPOLIS_BULL_PROXY",
       "signal_id": "2026-11-02-METROPOLIS-BULL_PROXY",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-02T03:25:46.689898+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-02T04:10:59.510931+00:00",
       "market_date": "2026-11-02",
       "symbol": "METROPOLIS",
       "signal_type": "BULL_PROXY",
@@ -2977,9 +2985,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 556.56,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹556.56), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -3508,7 +3516,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-02T03:25:46.689895+00:00",
+        "compose_phase_timestamp": "2026-11-02T04:10:59.510925+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -3522,7 +3530,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "TAKE_SMALL"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -5741,8 +5753,8 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-11-02T03:25:46.694867+00:00",
-    "compose_completed_at": "2026-11-02T03:25:46.694870+00:00",
+    "compose_started_at": "2026-11-02T04:10:59.517708+00:00",
+    "compose_completed_at": "2026-11-02T04:10:59.517715+00:00",
     "compose_duration_ms": 39,
     "signal_count_input": 3,
     "signal_count_output": 3,
@@ -5752,6 +5764,7 @@
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
+      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -5759,5 +5772,8 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  }
+  },
+  "should_send_telegram": false,
+  "bucket_changes": 0,
+  "gap_breaches": 0
 }
