@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "phase": "PRE_MARKET",
+  "phase": "POST_OPEN",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-11-03T03:25:46.540538+00:00",
+  "phase_timestamp": "2026-11-03T04:11:07.554176+00:00",
   "market_date": "2026-11-03",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "PROVISIONAL — partial data",
-    "subtext": "2 signals composed; 1 warnings logged"
+    "message": "LIVE — partial data",
+    "subtext": "2 validated, no reclassifications"
   },
   "summary": {
     "total_signals_today": 2,
@@ -22,10 +22,10 @@
   },
   "signals": [
     {
-      "sdr_id": "sdr_2026-11-03_PRE_MARKET_RELIANCE_UP_TRI",
+      "sdr_id": "sdr_2026-11-03_POST_OPEN_RELIANCE_UP_TRI",
       "signal_id": "2026-11-03-RELIANCE-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-03T03:25:46.536862+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-03T04:11:07.547557+00:00",
       "market_date": "2026-11-03",
       "symbol": "RELIANCE",
       "signal_type": "UP_TRI",
@@ -60,9 +60,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1326.0,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1326.0), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -253,9 +253,9 @@
         "kill_match": null,
         "exact_cohort": null,
         "sector_recent_30d": {
-          "n": 2,
+          "n": 3,
           "wr": 1.0,
-          "avg_pnl": 3.12,
+          "avg_pnl": 2.99,
           "trend": null
         },
         "regime_baseline": {
@@ -2292,30 +2292,7 @@
           }
         ],
         "colab_insight_excerpt": null,
-        "narrative_context": null,
-        "watch_warnings": [
-          {
-            "id": "watch_001",
-            "active": true,
-            "signal": "UP_TRI",
-            "regime": "Choppy",
-            "sector": null,
-            "warning_text": "⚠️ WATCH: UP_TRI breakouts haven't followed through in Choppy regime in our data. Apr 17 cluster: 11 wins / 24 losses / 1 flat (n=36, WR 31%). Take with caution. If taken, note your reason.",
-            "evidence": {
-              "n": 36,
-              "wr": 0.314,
-              "source_clusters": [
-                "2026-04-17"
-              ],
-              "report_ref": "output/eod_anomaly_2026-04-27.md"
-            },
-            "added_date": "2026-04-27",
-            "source": "user_per_anomaly_2026-04-27",
-            "watch_id": "watch_001",
-            "descriptor": "UP_TRI × Choppy",
-            "matched_on": "signal+regime"
-          }
-        ]
+        "narrative_context": null
       },
       "display": {
         "card_title": "RELIANCE • UP_TRI",
@@ -2330,7 +2307,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-03T03:25:46.536855+00:00",
+        "compose_phase_timestamp": "2026-11-03T04:11:07.547549+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -2344,7 +2321,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -2365,10 +2346,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-03_PRE_MARKET_ADANIPORTS_BULL_PROXY",
+      "sdr_id": "sdr_2026-11-03_POST_OPEN_ADANIPORTS_BULL_PROXY",
       "signal_id": "2026-11-03-ADANIPORTS-BULL_PROXY",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-03T03:25:46.537694+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-03T04:11:07.548811+00:00",
       "market_date": "2026-11-03",
       "symbol": "ADANIPORTS",
       "signal_type": "BULL_PROXY",
@@ -2396,16 +2377,16 @@
       },
       "bucket": "SKIP",
       "bucket_reason_short": "Insufficient evidence: n=1, WR 0%",
-      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=1 < 5); sector_recent_30d at 50% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=1 < 5); sector_recent_30d at 64% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 1891.08,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1891.08), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -2531,9 +2512,9 @@
           "tier_status": "emerging"
         },
         "sector_recent_30d": {
-          "n": 10,
-          "wr": 0.5,
-          "avg_pnl": -0.39,
+          "n": 14,
+          "wr": 0.6429,
+          "avg_pnl": 1.15,
           "trend": null
         },
         "regime_baseline": {
@@ -3102,7 +3083,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-03T03:25:46.537689+00:00",
+        "compose_phase_timestamp": "2026-11-03T04:11:07.548805+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -3116,7 +3097,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -3323,7 +3308,7 @@
       "outcome_price": null,
       "tracking_start": "2026-10-28",
       "tracking_end": "2026-11-06",
-      "mfe_pct": 2.16,
+      "mfe_pct": 2.29,
       "mae_pct": 4.36,
       "days_to_outcome": null,
       "exit_price": null,
@@ -3533,7 +3518,7 @@
       "outcome_price": null,
       "tracking_start": "2026-10-29",
       "tracking_end": "2026-11-09",
-      "mfe_pct": 0.0,
+      "mfe_pct": 1.85,
       "mae_pct": 4.89,
       "days_to_outcome": null,
       "exit_price": null,
@@ -3673,7 +3658,7 @@
       "outcome_price": null,
       "tracking_start": "2026-10-30",
       "tracking_end": "2026-11-10",
-      "mfe_pct": 3.03,
+      "mfe_pct": 3.31,
       "mae_pct": 0.81,
       "days_to_outcome": null,
       "exit_price": null,
@@ -3743,8 +3728,8 @@
       "outcome_price": null,
       "tracking_start": "2026-11-02",
       "tracking_end": "2026-11-11",
-      "mfe_pct": 1.67,
-      "mae_pct": 1.38,
+      "mfe_pct": 3.5,
+      "mae_pct": 0.0,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -3813,7 +3798,7 @@
       "outcome_price": null,
       "tracking_start": "2026-11-02",
       "tracking_end": "2026-11-11",
-      "mfe_pct": 4.59,
+      "mfe_pct": 6.36,
       "mae_pct": 0.0,
       "days_to_outcome": null,
       "exit_price": null,
@@ -3944,10 +3929,10 @@
       "shadow_target": 1593.91,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 1313.7,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": false,
+      "gap_pct": 5.43,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
@@ -4014,17 +3999,17 @@
       "shadow_target": 1845.95,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 1535.0,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": 1.03,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
       "tracking_start": "2026-11-03",
       "tracking_end": "2026-11-12",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 2.46,
+      "mae_pct": 0.25,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -4084,17 +4069,17 @@
       "shadow_target": 599.56,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 560.6,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": 2.74,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
       "tracking_start": "2026-11-03",
       "tracking_end": "2026-11-12",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 0.43,
+      "mae_pct": 1.03,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -4477,9 +4462,9 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-11-03T03:25:46.541171+00:00",
-    "compose_completed_at": "2026-11-03T03:25:46.541173+00:00",
-    "compose_duration_ms": 30,
+    "compose_started_at": "2026-11-03T04:11:07.555373+00:00",
+    "compose_completed_at": "2026-11-03T04:11:07.555377+00:00",
+    "compose_duration_ms": 38,
     "signal_count_input": 2,
     "signal_count_output": 2,
     "queries_total_distinct": 0,
@@ -4488,6 +4473,7 @@
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
+      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -4495,5 +4481,8 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  }
+  },
+  "should_send_telegram": false,
+  "bucket_changes": 0,
+  "gap_breaches": 0
 }
