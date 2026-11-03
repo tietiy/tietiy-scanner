@@ -1,10 +1,10 @@
 {
-  "last_scan": "2026-11-02T03:17:41Z",
+  "last_scan": "2026-11-03T03:17:29Z",
   "deployed_at": null,
-  "market_date": "2026-11-02",
-  "regime": "Bear",
+  "market_date": "2026-11-03",
+  "regime": "Choppy",
   "universe_size": 188,
-  "signals_found": 3,
+  "signals_found": 2,
   "active_signals_count": 73,
   "is_trading_day": true,
   "scanner_version": "v2.0",
@@ -16,15 +16,15 @@
   ],
   "insufficient_data": [],
   "corporate_action_skip": [],
-  "history_record_count": 536,
+  "history_record_count": 537,
   "sector_momentum": {
     "Bank": "Neutral",
     "IT": "Leading",
     "Pharma": "Leading",
-    "Auto": "Lagging",
+    "Auto": "Neutral",
     "Metal": "Lagging",
-    "Energy": "Lagging",
-    "FMCG": "Lagging",
-    "Infra": "Neutral"
+    "Energy": "Neutral",
+    "FMCG": "Neutral",
+    "Infra": "Leading"
   }
 }
