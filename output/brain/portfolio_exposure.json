@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-11-03",
+  "as_of_date": "2026-11-04",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -8,67 +8,19 @@
     "active_source": "primary",
     "warnings": []
   },
-  "total_open": 14,
-  "by_signal_type": {
-    "UP_TRI": 11,
-    "BULL_PROXY": 2,
-    "UP_TRI_SA": 1
-  },
-  "by_sector": {
-    "Auto": 3,
-    "Pharma": 1,
-    "Chem": 2,
-    "Bank": 2,
-    "Energy": 2,
-    "Infra": 1,
-    "Other": 1,
-    "Metal": 1,
-    "Health": 1
-  },
-  "by_regime": {
-    "Bear": 14
-  },
+  "total_open": 0,
+  "by_signal_type": {},
+  "by_sector": {},
+  "by_regime": {},
   "regime_concentration": {
-    "triggered": true,
+    "triggered": false,
     "threshold": 0.8,
-    "observed": 1.0,
-    "axis": "by_regime",
-    "dominant_regime": "Bear"
+    "observed": 0.0,
+    "axis": "by_regime"
   },
-  "concentrations": [
-    {
-      "concentration_label": "UP_TRI × Bear × Auto",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "Auto"
-      },
-      "count": 3,
-      "share": 0.2143
-    },
-    {
-      "concentration_label": "UP_TRI × Bear × Bank",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "Bank"
-      },
-      "count": 2,
-      "share": 0.1429
-    },
-    {
-      "concentration_label": "UP_TRI × Bear × Energy",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bear",
-        "sector": "Energy"
-      },
-      "count": 2,
-      "share": 0.1429
-    }
-  ],
+  "concentrations": [],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-11-03T22:01:13.362233+05:30"
+  "generated_at": "2026-11-04T22:01:12.525059+05:30"
 }
