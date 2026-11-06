@@ -1,6 +1,29 @@
 {
-  "date": "2026-11-05",
+  "date": "2026-11-06",
   "fetch_time": "03:57 IST",
-  "count": 0,
-  "results": []
+  "count": 2,
+  "results": [
+    {
+      "symbol": "RELIANCE.NS",
+      "signal": "UP_TRI",
+      "signal_date": "2026-11-03",
+      "actual_open": 1295.6,
+      "scan_price": 1300.0,
+      "gap_pct": -0.34,
+      "gap_status": "OK",
+      "note": "",
+      "fetch_time": "03:57 IST"
+    },
+    {
+      "symbol": "ADANIPORTS.NS",
+      "signal": "BULL_PROXY",
+      "signal_date": "2026-11-03",
+      "actual_open": 1895.3,
+      "scan_price": 1854.0,
+      "gap_pct": 2.23,
+      "gap_status": "WARNING",
+      "note": "Gap +2.2% \u2014 reduced R:R, trade with caution",
+      "fetch_time": "03:57 IST"
+    }
+  ]
 }
