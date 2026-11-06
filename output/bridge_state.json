@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "phase": "PRE_MARKET",
+  "phase": "POST_OPEN",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-11-06T03:25:48.548034+00:00",
+  "phase_timestamp": "2026-11-06T04:11:05.314273+00:00",
   "market_date": "2026-11-06",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "PROVISIONAL — partial data",
-    "subtext": "8 signals composed; 1 warnings logged"
+    "message": "LIVE — partial data",
+    "subtext": "8 validated, no reclassifications"
   },
   "summary": {
     "total_signals_today": 8,
@@ -18,14 +18,14 @@
       "WATCH": 0,
       "SKIP": 8
     },
-    "open_positions_count": 13
+    "open_positions_count": 11
   },
   "signals": [
     {
-      "sdr_id": "sdr_2026-11-06_PRE_MARKET_MARUTI_UP_TRI",
+      "sdr_id": "sdr_2026-11-06_POST_OPEN_MARUTI_UP_TRI",
       "signal_id": "2026-11-06-MARUTI-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-06T03:25:48.537460+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-06T04:11:05.300328+00:00",
       "market_date": "2026-11-06",
       "symbol": "MARUTI",
       "signal_type": "UP_TRI",
@@ -53,16 +53,16 @@
       },
       "bucket": "SKIP",
       "bucket_reason_short": "Insufficient evidence: n=4, WR 50%",
-      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=4 < 5); sector_recent_30d at 38% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=4 < 5); sector_recent_30d at 44% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 12905.04,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹12905.04), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -260,9 +260,9 @@
           "tier_status": "emerging"
         },
         "sector_recent_30d": {
-          "n": 8,
-          "wr": 0.375,
-          "avg_pnl": -0.62,
+          "n": 9,
+          "wr": 0.4444,
+          "avg_pnl": 0.64,
           "trend": null
         },
         "regime_baseline": {
@@ -272,8 +272,8 @@
         },
         "score_bucket": {
           "score": 6,
-          "n": 131,
-          "wr": 0.3893
+          "n": 132,
+          "wr": 0.3939
         },
         "stock_recency": {
           "last_signal_date": "2026-11-06",
@@ -2086,30 +2086,7 @@
           }
         ],
         "colab_insight_excerpt": null,
-        "narrative_context": null,
-        "watch_warnings": [
-          {
-            "id": "watch_001",
-            "active": true,
-            "signal": "UP_TRI",
-            "regime": "Choppy",
-            "sector": null,
-            "warning_text": "⚠️ WATCH: UP_TRI breakouts haven't followed through in Choppy regime in our data. Apr 17 cluster: 11 wins / 24 losses / 1 flat (n=36, WR 31%). Take with caution. If taken, note your reason.",
-            "evidence": {
-              "n": 36,
-              "wr": 0.314,
-              "source_clusters": [
-                "2026-04-17"
-              ],
-              "report_ref": "output/eod_anomaly_2026-04-27.md"
-            },
-            "added_date": "2026-04-27",
-            "source": "user_per_anomaly_2026-04-27",
-            "watch_id": "watch_001",
-            "descriptor": "UP_TRI × Choppy",
-            "matched_on": "signal+regime"
-          }
-        ]
+        "narrative_context": null
       },
       "display": {
         "card_title": "MARUTI • UP_TRI",
@@ -2124,7 +2101,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-06T03:25:48.537455+00:00",
+        "compose_phase_timestamp": "2026-11-06T04:11:05.300319+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -2138,7 +2115,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -2159,10 +2140,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-06_PRE_MARKET_SUNPHARMA_UP_TRI",
+      "sdr_id": "sdr_2026-11-06_POST_OPEN_SUNPHARMA_UP_TRI",
       "signal_id": "2026-11-06-SUNPHARMA-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-06T03:25:48.538556+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-06T04:11:05.301796+00:00",
       "market_date": "2026-11-06",
       "symbol": "SUNPHARMA",
       "signal_type": "UP_TRI",
@@ -2190,16 +2171,16 @@
       },
       "bucket": "SKIP",
       "bucket_reason_short": "Insufficient evidence: n=10, WR 40%",
-      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort WR weak (40% < 65%); sector_recent_30d at 75% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort WR weak (40% < 65%); sector_recent_30d at 80% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 1865.58,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1865.58), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -2397,9 +2378,9 @@
           "tier_status": "emerging"
         },
         "sector_recent_30d": {
-          "n": 4,
-          "wr": 0.75,
-          "avg_pnl": 3.94,
+          "n": 5,
+          "wr": 0.8,
+          "avg_pnl": 3.74,
           "trend": null
         },
         "regime_baseline": {
@@ -4108,30 +4089,7 @@
           }
         ],
         "colab_insight_excerpt": null,
-        "narrative_context": null,
-        "watch_warnings": [
-          {
-            "id": "watch_001",
-            "active": true,
-            "signal": "UP_TRI",
-            "regime": "Choppy",
-            "sector": null,
-            "warning_text": "⚠️ WATCH: UP_TRI breakouts haven't followed through in Choppy regime in our data. Apr 17 cluster: 11 wins / 24 losses / 1 flat (n=36, WR 31%). Take with caution. If taken, note your reason.",
-            "evidence": {
-              "n": 36,
-              "wr": 0.314,
-              "source_clusters": [
-                "2026-04-17"
-              ],
-              "report_ref": "output/eod_anomaly_2026-04-27.md"
-            },
-            "added_date": "2026-04-27",
-            "source": "user_per_anomaly_2026-04-27",
-            "watch_id": "watch_001",
-            "descriptor": "UP_TRI × Choppy",
-            "matched_on": "signal+regime"
-          }
-        ]
+        "narrative_context": null
       },
       "display": {
         "card_title": "SUNPHARMA • UP_TRI",
@@ -4146,7 +4104,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-06T03:25:48.538552+00:00",
+        "compose_phase_timestamp": "2026-11-06T04:11:05.301790+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -4160,7 +4118,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -4181,10 +4143,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-06_PRE_MARKET_AUROPHARMA_UP_TRI",
+      "sdr_id": "sdr_2026-11-06_POST_OPEN_AUROPHARMA_UP_TRI",
       "signal_id": "2026-11-06-AUROPHARMA-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-06T03:25:48.539608+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-06T04:11:05.303191+00:00",
       "market_date": "2026-11-06",
       "symbol": "AUROPHARMA",
       "signal_type": "UP_TRI",
@@ -4212,16 +4174,16 @@
       },
       "bucket": "SKIP",
       "bucket_reason_short": "Insufficient evidence: n=10, WR 40%",
-      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort WR weak (40% < 65%); sector_recent_30d at 75% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort WR weak (40% < 65%); sector_recent_30d at 80% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 1820.7,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1820.7), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -4419,9 +4381,9 @@
           "tier_status": "emerging"
         },
         "sector_recent_30d": {
-          "n": 4,
-          "wr": 0.75,
-          "avg_pnl": 3.94,
+          "n": 5,
+          "wr": 0.8,
+          "avg_pnl": 3.74,
           "trend": null
         },
         "regime_baseline": {
@@ -4431,8 +4393,8 @@
         },
         "score_bucket": {
           "score": 6,
-          "n": 131,
-          "wr": 0.3893
+          "n": 132,
+          "wr": 0.3939
         },
         "stock_recency": {
           "last_signal_date": "2026-11-06",
@@ -6130,30 +6092,7 @@
           }
         ],
         "colab_insight_excerpt": null,
-        "narrative_context": null,
-        "watch_warnings": [
-          {
-            "id": "watch_001",
-            "active": true,
-            "signal": "UP_TRI",
-            "regime": "Choppy",
-            "sector": null,
-            "warning_text": "⚠️ WATCH: UP_TRI breakouts haven't followed through in Choppy regime in our data. Apr 17 cluster: 11 wins / 24 losses / 1 flat (n=36, WR 31%). Take with caution. If taken, note your reason.",
-            "evidence": {
-              "n": 36,
-              "wr": 0.314,
-              "source_clusters": [
-                "2026-04-17"
-              ],
-              "report_ref": "output/eod_anomaly_2026-04-27.md"
-            },
-            "added_date": "2026-04-27",
-            "source": "user_per_anomaly_2026-04-27",
-            "watch_id": "watch_001",
-            "descriptor": "UP_TRI × Choppy",
-            "matched_on": "signal+regime"
-          }
-        ]
+        "narrative_context": null
       },
       "display": {
         "card_title": "AUROPHARMA • UP_TRI",
@@ -6168,7 +6107,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-06T03:25:48.539605+00:00",
+        "compose_phase_timestamp": "2026-11-06T04:11:05.303186+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -6182,7 +6121,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -6203,10 +6146,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-06_PRE_MARKET_ALKEM_UP_TRI",
+      "sdr_id": "sdr_2026-11-06_POST_OPEN_ALKEM_UP_TRI",
       "signal_id": "2026-11-06-ALKEM-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-06T03:25:48.540636+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-06T04:11:05.304576+00:00",
       "market_date": "2026-11-06",
       "symbol": "ALKEM",
       "signal_type": "UP_TRI",
@@ -6234,16 +6177,16 @@
       },
       "bucket": "SKIP",
       "bucket_reason_short": "Insufficient evidence: n=10, WR 40%",
-      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort WR weak (40% < 65%); sector_recent_30d at 75% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort WR weak (40% < 65%); sector_recent_30d at 80% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 5293.8,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹5293.8), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -6441,9 +6384,9 @@
           "tier_status": "emerging"
         },
         "sector_recent_30d": {
-          "n": 4,
-          "wr": 0.75,
-          "avg_pnl": 3.94,
+          "n": 5,
+          "wr": 0.8,
+          "avg_pnl": 3.74,
           "trend": null
         },
         "regime_baseline": {
@@ -8152,30 +8095,7 @@
           }
         ],
         "colab_insight_excerpt": null,
-        "narrative_context": null,
-        "watch_warnings": [
-          {
-            "id": "watch_001",
-            "active": true,
-            "signal": "UP_TRI",
-            "regime": "Choppy",
-            "sector": null,
-            "warning_text": "⚠️ WATCH: UP_TRI breakouts haven't followed through in Choppy regime in our data. Apr 17 cluster: 11 wins / 24 losses / 1 flat (n=36, WR 31%). Take with caution. If taken, note your reason.",
-            "evidence": {
-              "n": 36,
-              "wr": 0.314,
-              "source_clusters": [
-                "2026-04-17"
-              ],
-              "report_ref": "output/eod_anomaly_2026-04-27.md"
-            },
-            "added_date": "2026-04-27",
-            "source": "user_per_anomaly_2026-04-27",
-            "watch_id": "watch_001",
-            "descriptor": "UP_TRI × Choppy",
-            "matched_on": "signal+regime"
-          }
-        ]
+        "narrative_context": null
       },
       "display": {
         "card_title": "ALKEM • UP_TRI",
@@ -8190,7 +8110,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-06T03:25:48.540633+00:00",
+        "compose_phase_timestamp": "2026-11-06T04:11:05.304571+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -8204,7 +8124,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -8225,10 +8149,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-06_PRE_MARKET_IPCALAB_UP_TRI",
+      "sdr_id": "sdr_2026-11-06_POST_OPEN_IPCALAB_UP_TRI",
       "signal_id": "2026-11-06-IPCALAB-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-06T03:25:48.541641+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-06T04:11:05.305905+00:00",
       "market_date": "2026-11-06",
       "symbol": "IPCALAB",
       "signal_type": "UP_TRI",
@@ -8256,16 +8180,16 @@
       },
       "bucket": "SKIP",
       "bucket_reason_short": "Insufficient evidence: n=2, WR 50%",
-      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=2 < 5); sector_recent_30d at 75% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=2 < 5); sector_recent_30d at 80% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 2011.44,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹2011.44), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -8463,9 +8387,9 @@
           "tier_status": "emerging"
         },
         "sector_recent_30d": {
-          "n": 4,
-          "wr": 0.75,
-          "avg_pnl": 3.94,
+          "n": 5,
+          "wr": 0.8,
+          "avg_pnl": 3.74,
           "trend": null
         },
         "regime_baseline": {
@@ -8475,8 +8399,8 @@
         },
         "score_bucket": {
           "score": 4,
-          "n": 96,
-          "wr": 0.3125
+          "n": 97,
+          "wr": 0.3196
         },
         "stock_recency": {
           "last_signal_date": "2026-11-06",
@@ -10174,30 +10098,7 @@
           }
         ],
         "colab_insight_excerpt": null,
-        "narrative_context": null,
-        "watch_warnings": [
-          {
-            "id": "watch_001",
-            "active": true,
-            "signal": "UP_TRI",
-            "regime": "Choppy",
-            "sector": null,
-            "warning_text": "⚠️ WATCH: UP_TRI breakouts haven't followed through in Choppy regime in our data. Apr 17 cluster: 11 wins / 24 losses / 1 flat (n=36, WR 31%). Take with caution. If taken, note your reason.",
-            "evidence": {
-              "n": 36,
-              "wr": 0.314,
-              "source_clusters": [
-                "2026-04-17"
-              ],
-              "report_ref": "output/eod_anomaly_2026-04-27.md"
-            },
-            "added_date": "2026-04-27",
-            "source": "user_per_anomaly_2026-04-27",
-            "watch_id": "watch_001",
-            "descriptor": "UP_TRI × Choppy",
-            "matched_on": "signal+regime"
-          }
-        ]
+        "narrative_context": null
       },
       "display": {
         "card_title": "IPCALAB • UP_TRI",
@@ -10212,7 +10113,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-06T03:25:48.541639+00:00",
+        "compose_phase_timestamp": "2026-11-06T04:11:05.305900+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -10226,7 +10127,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -10247,10 +10152,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-06_PRE_MARKET_BPCL_UP_TRI",
+      "sdr_id": "sdr_2026-11-06_POST_OPEN_BPCL_UP_TRI",
       "signal_id": "2026-11-06-BPCL-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-06T03:25:48.542641+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-06T04:11:05.307229+00:00",
       "market_date": "2026-11-06",
       "symbol": "BPCL",
       "signal_type": "UP_TRI",
@@ -10285,9 +10190,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 323.44,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹323.44), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -10485,9 +10390,9 @@
           "tier_status": "emerging"
         },
         "sector_recent_30d": {
-          "n": 3,
+          "n": 4,
           "wr": 1.0,
-          "avg_pnl": 2.99,
+          "avg_pnl": 5.38,
           "trend": null
         },
         "regime_baseline": {
@@ -12525,30 +12430,7 @@
           }
         ],
         "colab_insight_excerpt": null,
-        "narrative_context": null,
-        "watch_warnings": [
-          {
-            "id": "watch_001",
-            "active": true,
-            "signal": "UP_TRI",
-            "regime": "Choppy",
-            "sector": null,
-            "warning_text": "⚠️ WATCH: UP_TRI breakouts haven't followed through in Choppy regime in our data. Apr 17 cluster: 11 wins / 24 losses / 1 flat (n=36, WR 31%). Take with caution. If taken, note your reason.",
-            "evidence": {
-              "n": 36,
-              "wr": 0.314,
-              "source_clusters": [
-                "2026-04-17"
-              ],
-              "report_ref": "output/eod_anomaly_2026-04-27.md"
-            },
-            "added_date": "2026-04-27",
-            "source": "user_per_anomaly_2026-04-27",
-            "watch_id": "watch_001",
-            "descriptor": "UP_TRI × Choppy",
-            "matched_on": "signal+regime"
-          }
-        ]
+        "narrative_context": null
       },
       "display": {
         "card_title": "BPCL • UP_TRI",
@@ -12563,7 +12445,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-06T03:25:48.542638+00:00",
+        "compose_phase_timestamp": "2026-11-06T04:11:05.307225+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -12577,7 +12459,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -12598,10 +12484,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-06_PRE_MARKET_NAVINFLUOR_BULL_PROXY",
+      "sdr_id": "sdr_2026-11-06_POST_OPEN_NAVINFLUOR_BULL_PROXY",
       "signal_id": "2026-11-06-NAVINFLUOR-BULL_PROXY",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-06T03:25:48.543394+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-06T04:11:05.308221+00:00",
       "market_date": "2026-11-06",
       "symbol": "NAVINFLUOR",
       "signal_type": "BULL_PROXY",
@@ -12629,16 +12515,16 @@
       },
       "bucket": "SKIP",
       "bucket_reason_short": "Insufficient evidence: n=?, WR ?%",
-      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=? < 5); sector_recent_30d at 0% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=? < 5); sector_recent_30d at 12% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 8960.7,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹8960.7), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -12739,9 +12625,9 @@
         "kill_match": null,
         "exact_cohort": null,
         "sector_recent_30d": {
-          "n": 7,
-          "wr": 0.0,
-          "avg_pnl": -5.18,
+          "n": 8,
+          "wr": 0.125,
+          "avg_pnl": -3.24,
           "trend": null
         },
         "regime_baseline": {
@@ -13598,7 +13484,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-06T03:25:48.543386+00:00",
+        "compose_phase_timestamp": "2026-11-06T04:11:05.308217+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -13612,7 +13498,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -13633,10 +13523,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-06_PRE_MARKET_APOLLOHOSP_UP_TRI",
+      "sdr_id": "sdr_2026-11-06_POST_OPEN_APOLLOHOSP_UP_TRI",
       "signal_id": "2026-11-06-APOLLOHOSP-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-06T03:25:48.544129+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-06T04:11:05.309209+00:00",
       "market_date": "2026-11-06",
       "symbol": "APOLLOHOSP",
       "signal_type": "UP_TRI",
@@ -13664,16 +13554,16 @@
       },
       "bucket": "SKIP",
       "bucket_reason_short": "Insufficient evidence: n=2, WR 50%",
-      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=2 < 5); sector_recent_30d at ?% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
+      "bucket_reason_long": "No boost match. counter-evidence flags present; cohort thin (n=2 < 5); sector_recent_30d at 100% WR insufficient for thin-evidence fallback. No edge found — skipping with logged reasoning.",
       "gap_caveat": {
         "applies": true,
         "threshold_pct": 2.0,
         "direction": "adverse",
         "absolute_threshold_price": 8538.42,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹8538.42), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -13852,7 +13742,12 @@
           "avg_mae": 4.79,
           "tier_status": "emerging"
         },
-        "sector_recent_30d": null,
+        "sector_recent_30d": {
+          "n": 1,
+          "wr": 1.0,
+          "avg_pnl": 3.74,
+          "trend": null
+        },
         "regime_baseline": {
           "n": 147,
           "wr": 0.3061,
@@ -13860,8 +13755,8 @@
         },
         "score_bucket": {
           "score": 4,
-          "n": 96,
-          "wr": 0.3125
+          "n": 97,
+          "wr": 0.3196
         },
         "stock_recency": {
           "last_signal_date": "2026-11-06",
@@ -15424,30 +15319,7 @@
           }
         ],
         "colab_insight_excerpt": null,
-        "narrative_context": null,
-        "watch_warnings": [
-          {
-            "id": "watch_001",
-            "active": true,
-            "signal": "UP_TRI",
-            "regime": "Choppy",
-            "sector": null,
-            "warning_text": "⚠️ WATCH: UP_TRI breakouts haven't followed through in Choppy regime in our data. Apr 17 cluster: 11 wins / 24 losses / 1 flat (n=36, WR 31%). Take with caution. If taken, note your reason.",
-            "evidence": {
-              "n": 36,
-              "wr": 0.314,
-              "source_clusters": [
-                "2026-04-17"
-              ],
-              "report_ref": "output/eod_anomaly_2026-04-27.md"
-            },
-            "added_date": "2026-04-27",
-            "source": "user_per_anomaly_2026-04-27",
-            "watch_id": "watch_001",
-            "descriptor": "UP_TRI × Choppy",
-            "matched_on": "signal+regime"
-          }
-        ]
+        "narrative_context": null
       },
       "display": {
         "card_title": "APOLLOHOSP • UP_TRI",
@@ -15462,7 +15334,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-06T03:25:48.544126+00:00",
+        "compose_phase_timestamp": "2026-11-06T04:11:05.309205+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -15476,7 +15348,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -15543,7 +15419,7 @@
       "outcome_price": null,
       "tracking_start": "2026-10-29",
       "tracking_end": "2026-11-09",
-      "mfe_pct": 1.68,
+      "mfe_pct": 5.0,
       "mae_pct": 3.21,
       "days_to_outcome": null,
       "exit_price": null,
@@ -15613,7 +15489,7 @@
       "outcome_price": null,
       "tracking_start": "2026-10-29",
       "tracking_end": "2026-11-09",
-      "mfe_pct": 3.71,
+      "mfe_pct": 5.91,
       "mae_pct": 3.2,
       "days_to_outcome": null,
       "exit_price": null,
@@ -15683,7 +15559,7 @@
       "outcome_price": null,
       "tracking_start": "2026-10-29",
       "tracking_end": "2026-11-09",
-      "mfe_pct": 2.12,
+      "mfe_pct": 10.45,
       "mae_pct": 4.89,
       "days_to_outcome": null,
       "exit_price": null,
@@ -15753,8 +15629,8 @@
       "outcome_price": null,
       "tracking_start": "2026-10-30",
       "tracking_end": "2026-11-10",
-      "mfe_pct": 0.88,
-      "mae_pct": 1.94,
+      "mfe_pct": 3.03,
+      "mae_pct": 2.03,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -15823,7 +15699,7 @@
       "outcome_price": null,
       "tracking_start": "2026-10-30",
       "tracking_end": "2026-11-10",
-      "mfe_pct": 3.31,
+      "mfe_pct": 6.11,
       "mae_pct": 0.81,
       "days_to_outcome": null,
       "exit_price": null,
@@ -15893,78 +15769,8 @@
       "outcome_price": null,
       "tracking_start": "2026-11-02",
       "tracking_end": "2026-11-11",
-      "mfe_pct": 4.63,
+      "mfe_pct": 14.2,
       "mae_pct": 1.38,
-      "days_to_outcome": null,
-      "exit_price": null,
-      "exit_type": null,
-      "exit_date_actual": null,
-      "pnl_pct": null,
-      "pnl_rs": null,
-      "result": "PENDING",
-      "action": "TOOK",
-      "user_action": null,
-      "is_sa": false,
-      "sa_parent_id": null,
-      "sa_parent_outcome": null,
-      "attempt_number": 1,
-      "parent_signal_id": null,
-      "parent_signal": null,
-      "parent_date": null,
-      "parent_result": null,
-      "layer": "MINI",
-      "rejection_reason": null,
-      "scanner_version": "v2.0",
-      "effective_exit_date": "2026-11-11",
-      "day_count": 4
-    },
-    {
-      "id": "2026-10-30-IOC-UP_TRI",
-      "schema_version": 5,
-      "generation": 1,
-      "data_quality": "live",
-      "date": "2026-10-30",
-      "symbol": "IOC.NS",
-      "sector": "Energy",
-      "grade": "B",
-      "signal": "UP_TRI",
-      "direction": "LONG",
-      "age": 0,
-      "score": 6,
-      "regime": "Bear",
-      "regime_score": 0,
-      "stock_regime": "Bear",
-      "vol_q": "Average",
-      "vol_confirm": false,
-      "rs_q": "Neutral",
-      "rs_strong": false,
-      "sec_mom": "Lagging",
-      "sec_leading": false,
-      "bear_bonus": true,
-      "grade_A": false,
-      "scan_price": 130.41,
-      "scan_time": "03:17 UTC",
-      "pivot_price": 124.92,
-      "pivot_date": "2026-10-14",
-      "entry": 130.41,
-      "stop": 122.22,
-      "atr": 2.7,
-      "exit_date": "2026-11-09",
-      "target_price": 146.79,
-      "shadow_target": 154.98,
-      "shadow_outcome": null,
-      "shadow_r_multiple": null,
-      "actual_open": null,
-      "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
-      "tracking_start": "2026-11-02",
-      "tracking_end": "2026-11-11",
-      "mfe_pct": 6.51,
-      "mae_pct": 0.0,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -16034,7 +15840,7 @@
       "tracking_start": "2026-11-02",
       "tracking_end": "2026-11-11",
       "mfe_pct": 0.75,
-      "mae_pct": 3.37,
+      "mae_pct": 5.55,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -16173,7 +15979,7 @@
       "outcome_price": null,
       "tracking_start": "2026-11-03",
       "tracking_end": "2026-11-12",
-      "mfe_pct": 2.48,
+      "mfe_pct": 4.81,
       "mae_pct": 1.3,
       "days_to_outcome": null,
       "exit_price": null,
@@ -16192,76 +15998,6 @@
       "parent_signal": "UP_TRI",
       "parent_date": "2026-10-19",
       "parent_result": "STOPPED",
-      "layer": "MINI",
-      "rejection_reason": null,
-      "scanner_version": "v2.0",
-      "effective_exit_date": "2026-11-12",
-      "day_count": 3
-    },
-    {
-      "id": "2026-11-02-METROPOLIS-BULL_PROXY",
-      "schema_version": 5,
-      "generation": 1,
-      "data_quality": "live",
-      "date": "2026-11-02",
-      "symbol": "METROPOLIS.NS",
-      "sector": "Health",
-      "grade": "B",
-      "signal": "BULL_PROXY",
-      "direction": "LONG",
-      "age": 1,
-      "score": 2,
-      "regime": "Bear",
-      "regime_score": 1,
-      "stock_regime": "Bear",
-      "vol_q": "Thin",
-      "vol_confirm": false,
-      "rs_q": "Neutral",
-      "rs_strong": false,
-      "sec_mom": "Neutral",
-      "sec_leading": false,
-      "bear_bonus": false,
-      "grade_A": false,
-      "scan_price": 545.65,
-      "scan_time": "03:17 UTC",
-      "pivot_price": 543.05,
-      "pivot_date": "2026-10-29",
-      "entry": 545.65,
-      "stop": 527.68,
-      "atr": 20.62,
-      "exit_date": "2026-11-10",
-      "target_price": 581.59,
-      "shadow_target": 599.56,
-      "shadow_outcome": null,
-      "shadow_r_multiple": null,
-      "actual_open": 560.6,
-      "adjusted_rr": null,
-      "entry_valid": true,
-      "gap_pct": 2.74,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
-      "tracking_start": "2026-11-03",
-      "tracking_end": "2026-11-12",
-      "mfe_pct": 2.08,
-      "mae_pct": 2.07,
-      "days_to_outcome": null,
-      "exit_price": null,
-      "exit_type": null,
-      "exit_date_actual": null,
-      "pnl_pct": null,
-      "pnl_rs": null,
-      "result": "PENDING",
-      "action": "TOOK",
-      "user_action": null,
-      "is_sa": false,
-      "sa_parent_id": null,
-      "sa_parent_outcome": null,
-      "attempt_number": 1,
-      "parent_signal_id": null,
-      "parent_signal": null,
-      "parent_date": null,
-      "parent_result": null,
       "layer": "MINI",
       "rejection_reason": null,
       "scanner_version": "v2.0",
@@ -16304,17 +16040,17 @@
       "shadow_target": 1813.15,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 1295.6,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": -0.34,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
       "tracking_start": "2026-11-06",
       "tracking_end": "2026-11-13",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 0.83,
+      "mae_pct": 0.05,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -16374,17 +16110,17 @@
       "shadow_target": 2201.28,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 1895.3,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": 2.23,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
       "tracking_start": "2026-11-06",
       "tracking_end": "2026-11-13",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 0.41,
+      "mae_pct": 0.93,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -16821,9 +16557,9 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-11-06T03:25:48.552183+00:00",
-    "compose_completed_at": "2026-11-06T03:25:48.552195+00:00",
-    "compose_duration_ms": 35,
+    "compose_started_at": "2026-11-06T04:11:05.319582+00:00",
+    "compose_completed_at": "2026-11-06T04:11:05.319587+00:00",
+    "compose_duration_ms": 51,
     "signal_count_input": 8,
     "signal_count_output": 8,
     "queries_total_distinct": 0,
@@ -16832,6 +16568,7 @@
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
+      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -16839,5 +16576,8 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  }
+  },
+  "should_send_telegram": false,
+  "bucket_changes": 0,
+  "gap_breaches": 0
 }
