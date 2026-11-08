@@ -1,157 +1,133 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-01T19:01:41.787556Z",
+  "generated_at": "2026-11-08T18:55:54.073160Z",
   "week_range": [
-    "2026-10-25",
-    "2026-11-01"
+    "2026-11-01",
+    "2026-11-08"
   ],
   "patterns": {
-    "total": 343,
-    "validated_count": 12,
-    "preliminary_count": 87,
-    "emerging_count": 244,
-    "total_resolved_signals": 488,
+    "total": 335,
+    "validated_count": 0,
+    "preliminary_count": 68,
+    "emerging_count": 267,
+    "total_resolved_signals": 436,
     "baselines": {
       "UP_TRI": {
-        "wr": 35.5,
-        "avg_pnl": -0.38,
-        "n": 442,
-        "wins": 157,
-        "losses": 285
+        "wr": 37.0,
+        "avg_pnl": -0.28,
+        "n": 389,
+        "wins": 144,
+        "losses": 245
       },
       "BULL_PROXY": {
-        "wr": 30.4,
-        "avg_pnl": -0.76,
-        "n": 46,
-        "wins": 14,
+        "wr": 31.9,
+        "avg_pnl": -0.68,
+        "n": 47,
+        "wins": 15,
         "losses": 32
       }
     },
-    "top_validated": [
-      {
-        "id": "regime=Bull_sector=Bank_grade=B",
-        "wr": 53.8,
-        "n": 26,
-        "edge": 18.3,
-        "direction": "positive",
-        "insight": "Bull regime + Bank sector + Grade B outperforms UP_TRI baseline by 18.3pp (53.8% WR in 26 trades)"
-      },
-      {
-        "id": "signal=UP_TRI_regime=Choppy_sector=Bank",
-        "wr": 53.1,
-        "n": 32,
-        "edge": 17.6,
-        "direction": "positive",
-        "insight": "UP_TRI + Choppy regime + Bank sector outperforms UP_TRI baseline by 17.6pp (53.1% WR in 32 trades)"
-      },
-      {
-        "id": "regime=Choppy_sector=Bank_grade=B",
-        "wr": 52.8,
-        "n": 36,
-        "edge": 17.3,
-        "direction": "positive",
-        "insight": "Choppy regime + Bank sector + Grade B outperforms UP_TRI baseline by 17.3pp (52.8% WR in 36 trades)"
-      }
-    ]
+    "top_validated": []
   },
   "proposals": {
-    "total": 176,
-    "pending_count": 142,
+    "total": 182,
+    "pending_count": 145,
     "approved_count": 0,
     "already_active_count": 4,
     "rejected_count": 30,
     "pending_items": [
       {
-        "id": "prop_132",
-        "action": "warn",
-        "target_signal": "UP_TRI",
-        "target_sector": "Chem",
-        "wr": 20.0,
-        "n": 35,
-        "edge": -15.5
+        "id": "prop_073",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "FMCG",
+        "wr": 16.7,
+        "n": 12,
+        "edge": -20.3
       },
       {
-        "id": "prop_128",
+        "id": "prop_075",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "FMCG",
+        "wr": 16.7,
+        "n": 12,
+        "edge": -20.3
+      },
+      {
+        "id": "prop_093",
         "action": "kill",
         "target_signal": "UP_TRI",
-        "target_sector": "Energy",
-        "wr": 20.0,
-        "n": 35,
-        "edge": -15.5
+        "target_sector": "FMCG",
+        "wr": 18.2,
+        "n": 11,
+        "edge": -18.8
       },
       {
-        "id": "prop_133",
-        "action": "warn",
-        "target_signal": "UP_TRI",
+        "id": "prop_171",
+        "action": "kill",
+        "target_signal": null,
         "target_sector": "Chem",
-        "wr": 20.0,
-        "n": 35,
-        "edge": -15.5
+        "wr": 18.2,
+        "n": 11,
+        "edge": -18.8
       },
       {
-        "id": "prop_062",
-        "action": "warn",
+        "id": "prop_180",
+        "action": "kill",
         "target_signal": null,
-        "target_sector": "CapGoods",
-        "wr": 20.0,
-        "n": 20,
-        "edge": -15.5
-      },
-      {
-        "id": "prop_066",
-        "action": "warn",
-        "target_signal": null,
-        "target_sector": "CapGoods",
-        "wr": 20.0,
-        "n": 20,
-        "edge": -15.5
+        "target_sector": "Infra",
+        "wr": 18.2,
+        "n": 11,
+        "edge": -18.8
       }
     ]
   },
   "contra": {
-    "total": 706,
-    "resolved": 690,
-    "pending": 16,
-    "wr": 52.2,
-    "avg_pnl": 0.49,
+    "total": 728,
+    "resolved": 695,
+    "pending": 33,
+    "wr": 52.4,
+    "avg_pnl": 0.5,
     "unlocked": true,
     "unlock_threshold": 30,
     "recent_3": [
       {
-        "symbol": "LALPATHLAB",
-        "outcome": "CONTRA_WIN",
-        "pnl": 1.36
-      },
-      {
-        "symbol": "ESCORTS",
-        "outcome": "CONTRA_FLAT",
-        "pnl": -0.21
-      },
-      {
         "symbol": "ALKYLAMINE",
         "outcome": "CONTRA_LOSS",
-        "pnl": -3.04
+        "pnl": -7.34
+      },
+      {
+        "symbol": "KPIL",
+        "outcome": "CONTRA_WIN",
+        "pnl": 2.23
+      },
+      {
+        "symbol": "INDIGO",
+        "outcome": "CONTRA_WIN",
+        "pnl": 7.63
       }
     ]
   },
   "regime": {
     "days_logged": 5,
     "regime_distribution": {
-      "Bear": 5
+      "Bear": 1,
+      "Choppy": 4
     },
-    "avg_slope": -0.00826,
-    "avg_ret20": -0.5,
+    "avg_slope": -0.00259,
+    "avg_ret20": 5.53,
     "latest": {
-      "date": "2026-10-30",
-      "regime": "Bear",
-      "slope": -0.006631,
-      "ret20": 1.4,
-      "above_ema50": false
+      "date": "2026-11-06",
+      "regime": "Choppy",
+      "slope": 0.002674,
+      "ret20": 10.37,
+      "above_ema50": true
     }
   },
   "health": {
     "overall": "warn",
-    "last_validated": "2026-10-30T10:06:19.100172+00:00",
+    "last_validated": "2026-11-06T10:05:53.336345+00:00",
     "checks_passed": 6,
     "checks_failed": 1
   },
@@ -173,8 +149,6 @@
     ]
   },
   "suggestions": [
-    "\ud83d\udcdd 142 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
-    "\ud83d\udd2c 12 validated patterns found. Review top items above.",
-    "\ud83c\udf21 Market classified Bear every day this week. If signal WR diverges from this, classifier may need recalibration."
+    "\ud83d\udcdd 145 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply."
   ]
 }
