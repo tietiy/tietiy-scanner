@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-11-09",
+  "as_of_date": "2026-11-10",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -8,56 +8,62 @@
     "active_source": "primary",
     "warnings": []
   },
-  "total_open": 15,
+  "total_open": 85,
   "by_signal_type": {
-    "UP_TRI": 12,
+    "UP_TRI": 78,
     "UP_TRI_SA": 1,
-    "BULL_PROXY": 2
+    "BULL_PROXY": 6
   },
   "by_sector": {
-    "Infra": 2,
-    "Auto": 2,
-    "Other": 1,
-    "Metal": 1,
-    "Chem": 2,
-    "Energy": 2,
-    "Pharma": 4,
-    "Health": 1
+    "Auto": 6,
+    "Other": 5,
+    "Metal": 9,
+    "Chem": 6,
+    "Energy": 10,
+    "Infra": 3,
+    "Pharma": 13,
+    "Health": 4,
+    "Bank": 18,
+    "FMCG": 7,
+    "CapGoods": 3,
+    "Consumer": 1
   },
   "by_regime": {
-    "Bear": 5,
-    "Choppy": 10
+    "Bear": 4,
+    "Choppy": 10,
+    "Bull": 71
   },
   "regime_concentration": {
-    "triggered": false,
+    "triggered": true,
     "threshold": 0.8,
-    "observed": 0.6667,
-    "axis": "by_regime"
+    "observed": 0.8353,
+    "axis": "by_regime",
+    "dominant_regime": "Bull"
   },
   "concentrations": [
     {
-      "concentration_label": "UP_TRI × Choppy × Pharma",
+      "concentration_label": "UP_TRI × Bull × Bank",
       "concentration_filter": {
         "signal_type": "UP_TRI",
-        "regime": "Choppy",
-        "sector": "Pharma"
+        "regime": "Bull",
+        "sector": "Bank"
       },
-      "count": 4,
-      "share": 0.2667
+      "count": 15,
+      "share": 0.1765
     },
     {
-      "concentration_label": "UP_TRI × Choppy × Energy",
+      "concentration_label": "UP_TRI × Bull × Pharma",
       "concentration_filter": {
         "signal_type": "UP_TRI",
-        "regime": "Choppy",
-        "sector": "Energy"
+        "regime": "Bull",
+        "sector": "Pharma"
       },
-      "count": 2,
-      "share": 0.1333
+      "count": 9,
+      "share": 0.1059
     }
   ],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-11-09T22:01:11.707492+05:30"
+  "generated_at": "2026-11-10T22:01:13.667180+05:30"
 }
