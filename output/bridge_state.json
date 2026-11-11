@@ -1,254 +1,27 @@
 {
   "schema_version": 1,
-  "phase": "EOD",
+  "phase": "PRE_MARKET",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-11-10T10:31:14.730412+00:00",
-  "market_date": "2026-11-10",
+  "phase_timestamp": "2026-11-11T03:25:50.356431+00:00",
+  "market_date": "2026-11-11",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "EOD — partial data",
-    "subtext": "no resolutions today"
+    "message": "PROVISIONAL — partial data",
+    "subtext": "0 signals composed; 1 warnings logged"
   },
   "summary": {
-    "total_resolutions_today": 0,
-    "outcomes": {
-      "TARGET_HIT": 0,
-      "STOP_HIT": 0,
-      "DAY6_WIN": 0,
-      "DAY6_LOSS": 0,
-      "DAY6_FLAT": 0
+    "total_signals_today": 0,
+    "buckets": {
+      "TAKE_FULL": 0,
+      "TAKE_SMALL": 0,
+      "WATCH": 0,
+      "SKIP": 0
     },
-    "win_count": 0,
-    "loss_count": 0,
-    "flat_count": 0,
-    "total_pnl_pct": 0.0,
-    "open_positions_count": 85,
-    "pattern_updates": [
-      {
-        "kind": "boost_demotion_warning",
-        "pattern_id": "win_001",
-        "signal": "UP_TRI",
-        "sector": "Auto",
-        "regime": "Bear",
-        "current_tier": "A",
-        "window_size": 10,
-        "window_wr": 0.5,
-        "window_wins": 5,
-        "window_losses": 5,
-        "window_oldest_date": "2026-10-08",
-        "window_newest_date": "2026-11-09",
-        "threshold_wr": 0.7,
-        "message": "⚠ win_001: UP_TRI × Auto × Bear, last-10 WR 50% (5/10) — below 70% floor"
-      },
-      {
-        "kind": "boost_demotion_warning",
-        "pattern_id": "win_002",
-        "signal": "UP_TRI",
-        "sector": "FMCG",
-        "regime": "Bear",
-        "current_tier": "A",
-        "window_size": 10,
-        "window_wr": 0.3,
-        "window_wins": 3,
-        "window_losses": 7,
-        "window_oldest_date": "2026-10-01",
-        "window_newest_date": "2026-11-03",
-        "threshold_wr": 0.7,
-        "message": "⚠ win_002: UP_TRI × FMCG × Bear, last-10 WR 30% (3/10) — below 70% floor"
-      },
-      {
-        "kind": "boost_demotion_warning",
-        "pattern_id": "win_005",
-        "signal": "UP_TRI",
-        "sector": "Pharma",
-        "regime": "Bear",
-        "current_tier": "A",
-        "window_size": 10,
-        "window_wr": 0.4,
-        "window_wins": 4,
-        "window_losses": 6,
-        "window_oldest_date": "2026-10-05",
-        "window_newest_date": "2026-11-03",
-        "threshold_wr": 0.7,
-        "message": "⚠ win_005: UP_TRI × Pharma × Bear, last-10 WR 40% (4/10) — below 70% floor"
-      },
-      {
-        "kind": "boost_demotion_warning",
-        "pattern_id": "win_006",
-        "signal": "UP_TRI",
-        "sector": "Infra",
-        "regime": "Bear",
-        "current_tier": "B",
-        "window_size": 10,
-        "window_wr": 0.6,
-        "window_wins": 6,
-        "window_losses": 4,
-        "window_oldest_date": "2026-10-08",
-        "window_newest_date": "2026-11-03",
-        "threshold_wr": 0.7,
-        "message": "⚠ win_006: UP_TRI × Infra × Bear, last-10 WR 60% (6/10) — below 70% floor"
-      },
-      {
-        "kind": "boost_demotion_warning",
-        "pattern_id": "win_007",
-        "signal": "BULL_PROXY",
-        "sector": null,
-        "regime": "Bear",
-        "current_tier": "B",
-        "window_size": 10,
-        "window_wr": 0.5,
-        "window_wins": 5,
-        "window_losses": 5,
-        "window_oldest_date": "2026-10-07",
-        "window_newest_date": "2026-11-06",
-        "threshold_wr": 0.7,
-        "message": "⚠ win_007: BULL_PROXY × any × Bear, last-10 WR 50% (5/10) — below 70% floor"
-      }
-    ]
+    "open_positions_count": 87
   },
   "signals": [],
   "open_positions": [
-    {
-      "id": "2026-10-30-BALKRISIND-UP_TRI",
-      "schema_version": 5,
-      "generation": 1,
-      "data_quality": "live",
-      "date": "2026-10-30",
-      "symbol": "BALKRISIND.NS",
-      "sector": "Auto",
-      "grade": "B",
-      "signal": "UP_TRI",
-      "direction": "LONG",
-      "age": 0,
-      "score": 6,
-      "regime": "Bear",
-      "regime_score": 0,
-      "stock_regime": "Bear",
-      "vol_q": "Thin",
-      "vol_confirm": false,
-      "rs_q": "Neutral",
-      "rs_strong": false,
-      "sec_mom": "Lagging",
-      "sec_leading": false,
-      "bear_bonus": true,
-      "grade_A": false,
-      "scan_price": 2101.6,
-      "scan_time": "03:17 UTC",
-      "pivot_price": 1964.7,
-      "pivot_date": "2026-10-13",
-      "entry": 2101.6,
-      "stop": 1913.05,
-      "atr": 51.65,
-      "exit_date": "2026-11-09",
-      "target_price": 2478.7,
-      "shadow_target": 2667.25,
-      "shadow_outcome": null,
-      "shadow_r_multiple": null,
-      "actual_open": null,
-      "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
-      "tracking_start": "2026-11-02",
-      "tracking_end": "2026-11-11",
-      "mfe_pct": 15.34,
-      "mae_pct": 1.38,
-      "days_to_outcome": null,
-      "exit_price": null,
-      "exit_type": null,
-      "exit_date_actual": null,
-      "pnl_pct": null,
-      "pnl_rs": null,
-      "result": "PENDING",
-      "action": "TOOK",
-      "user_action": null,
-      "is_sa": false,
-      "sa_parent_id": null,
-      "sa_parent_outcome": null,
-      "attempt_number": 1,
-      "parent_signal_id": null,
-      "parent_signal": null,
-      "parent_date": null,
-      "parent_result": null,
-      "layer": "MINI",
-      "rejection_reason": null,
-      "scanner_version": "v2.0",
-      "effective_exit_date": "2026-11-11",
-      "day_count": 6
-    },
-    {
-      "id": "2026-10-30-BATAINDIA-UP_TRI",
-      "schema_version": 5,
-      "generation": 1,
-      "data_quality": "live",
-      "date": "2026-10-30",
-      "symbol": "BATAINDIA.NS",
-      "sector": "Other",
-      "grade": "B",
-      "signal": "UP_TRI",
-      "direction": "LONG",
-      "age": 1,
-      "score": 5,
-      "regime": "Bear",
-      "regime_score": 0,
-      "stock_regime": "Choppy",
-      "vol_q": "Average",
-      "vol_confirm": false,
-      "rs_q": "Neutral",
-      "rs_strong": false,
-      "sec_mom": "Neutral",
-      "sec_leading": false,
-      "bear_bonus": true,
-      "grade_A": false,
-      "scan_price": 649.15,
-      "scan_time": "03:17 UTC",
-      "pivot_price": 599.6,
-      "pivot_date": "2026-10-13",
-      "entry": 649.15,
-      "stop": 584.98,
-      "atr": 14.62,
-      "exit_date": "2026-11-09",
-      "target_price": 777.49,
-      "shadow_target": 841.66,
-      "shadow_outcome": null,
-      "shadow_r_multiple": null,
-      "actual_open": null,
-      "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
-      "tracking_start": "2026-11-02",
-      "tracking_end": "2026-11-11",
-      "mfe_pct": 0.75,
-      "mae_pct": 5.55,
-      "days_to_outcome": null,
-      "exit_price": null,
-      "exit_type": null,
-      "exit_date_actual": null,
-      "pnl_pct": null,
-      "pnl_rs": null,
-      "result": "PENDING",
-      "action": "TOOK",
-      "user_action": null,
-      "is_sa": false,
-      "sa_parent_id": null,
-      "sa_parent_outcome": null,
-      "attempt_number": 1,
-      "parent_signal_id": null,
-      "parent_signal": null,
-      "parent_date": null,
-      "parent_result": null,
-      "layer": "MINI",
-      "rejection_reason": null,
-      "scanner_version": "v2.0",
-      "effective_exit_date": "2026-11-11",
-      "day_count": 6
-    },
     {
       "id": "2026-11-02-JSWSTEEL-UP_TRI",
       "schema_version": 5,
@@ -317,7 +90,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-12",
-      "day_count": 5
+      "day_count": 6
     },
     {
       "id": "2026-11-02-DEEPAKNTR-UP_TRI_SA-SA",
@@ -387,7 +160,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-12",
-      "day_count": 5
+      "day_count": 6
     },
     {
       "id": "2026-11-03-RELIANCE-UP_TRI",
@@ -457,7 +230,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-13",
-      "day_count": 4
+      "day_count": 5
     },
     {
       "id": "2026-11-03-ADANIPORTS-BULL_PROXY",
@@ -527,7 +300,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-13",
-      "day_count": 4
+      "day_count": 5
     },
     {
       "id": "2026-11-06-MARUTI-UP_TRI",
@@ -597,7 +370,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-16",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-11-06-SUNPHARMA-UP_TRI",
@@ -667,7 +440,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-16",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-11-06-AUROPHARMA-UP_TRI",
@@ -737,7 +510,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-16",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-11-06-ALKEM-UP_TRI",
@@ -807,7 +580,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-16",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-11-06-IPCALAB-UP_TRI",
@@ -877,7 +650,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-16",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-11-06-BPCL-UP_TRI",
@@ -947,7 +720,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-16",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-11-06-NAVINFLUOR-BULL_PROXY",
@@ -1017,7 +790,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-16",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-11-06-APOLLOHOSP-UP_TRI",
@@ -1087,7 +860,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-16",
-      "day_count": 3
+      "day_count": 4
     },
     {
       "id": "2026-11-09-AXISBANK-UP_TRI",
@@ -1157,7 +930,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-BANDHANBNK-UP_TRI",
@@ -1227,7 +1000,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-IDFCFIRSTB-UP_TRI",
@@ -1297,7 +1070,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-RBLBANK-UP_TRI",
@@ -1367,7 +1140,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-CHOLAFIN-UP_TRI",
@@ -1437,7 +1210,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-PFC-UP_TRI",
@@ -1507,7 +1280,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-MANAPPURAM-UP_TRI",
@@ -1577,7 +1350,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-MANAPPURAM-BULL_PROXY",
@@ -1647,7 +1420,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-ASHOKLEY-UP_TRI",
@@ -1717,7 +1490,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-MOTHERSON-UP_TRI",
@@ -1787,7 +1560,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-APOLLOTYRE-UP_TRI",
@@ -1857,7 +1630,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-DIVISLAB-UP_TRI",
@@ -1927,7 +1700,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-LUPIN-UP_TRI",
@@ -1997,7 +1770,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-BIOCON-UP_TRI",
@@ -2067,7 +1840,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-TORNTPHARM-UP_TRI",
@@ -2137,7 +1910,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-GLENMARK-UP_TRI",
@@ -2207,7 +1980,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-LAURUSLABS-UP_TRI",
@@ -2277,7 +2050,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-TATASTEEL-UP_TRI",
@@ -2347,7 +2120,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-HINDALCO-UP_TRI",
@@ -2417,7 +2190,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-VEDL-UP_TRI",
@@ -2487,7 +2260,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-NMDC-UP_TRI",
@@ -2557,7 +2330,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-JINDALSTEL-UP_TRI",
@@ -2627,7 +2400,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-NATIONALUM-UP_TRI",
@@ -2697,7 +2470,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-GAIL-UP_TRI",
@@ -2767,7 +2540,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-POWERGRID-UP_TRI",
@@ -2837,7 +2610,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-NTPC-UP_TRI",
@@ -2907,7 +2680,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-TATAPOWER-UP_TRI",
@@ -2977,7 +2750,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-ADANIGREEN-UP_TRI",
@@ -3047,7 +2820,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-MARICO-UP_TRI",
@@ -3117,7 +2890,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-TATACONSUM-UP_TRI",
@@ -3187,7 +2960,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-TRENT-UP_TRI",
@@ -3257,7 +3030,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-TITAN-UP_TRI",
@@ -3327,7 +3100,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-DMART-UP_TRI",
@@ -3397,7 +3170,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-GODREJPROP-UP_TRI",
@@ -3467,7 +3240,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-PRESTIGE-UP_TRI",
@@ -3537,7 +3310,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-BHEL-BULL_PROXY",
@@ -3607,7 +3380,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-ABB-UP_TRI",
@@ -3677,7 +3450,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-BEL-UP_TRI",
@@ -3747,7 +3520,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-DEEPAKNTR-UP_TRI",
@@ -3817,7 +3590,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-NAVINFLUOR-UP_TRI",
@@ -3887,7 +3660,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-SRF-UP_TRI",
@@ -3957,7 +3730,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-TATACHEM-UP_TRI",
@@ -4027,7 +3800,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-WHIRLPOOL-UP_TRI",
@@ -4097,7 +3870,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-CONCOR-UP_TRI",
@@ -4167,7 +3940,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-UBL-UP_TRI",
@@ -4237,7 +4010,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-GMRAIRPORT-UP_TRI",
@@ -4307,7 +4080,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-ABCAPITAL-UP_TRI",
@@ -4377,7 +4150,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-ABCAPITAL-BULL_PROXY",
@@ -4447,7 +4220,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-LTF-UP_TRI",
@@ -4517,7 +4290,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-JIOFIN-UP_TRI",
@@ -4587,7 +4360,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-SUNDARMFIN-UP_TRI",
@@ -4657,7 +4430,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-BSE-UP_TRI",
@@ -4727,7 +4500,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-BSE-BULL_PROXY",
@@ -4797,7 +4570,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-CDSL-UP_TRI",
@@ -4867,7 +4640,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-CAMS-UP_TRI",
@@ -4937,7 +4710,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-MCX-UP_TRI",
@@ -5007,7 +4780,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-ENDURANCE-UP_TRI",
@@ -5077,7 +4850,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-ZYDUSLIFE-UP_TRI",
@@ -5147,7 +4920,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-AJANTPHARM-UP_TRI",
@@ -5217,7 +4990,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-ABBOTINDIA-UP_TRI",
@@ -5287,7 +5060,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-HINDZINC-UP_TRI",
@@ -5357,7 +5130,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-APLAPOLLO-UP_TRI",
@@ -5427,7 +5200,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-JSWENERGY-UP_TRI",
@@ -5497,7 +5270,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-TORNTPOWER-UP_TRI",
@@ -5567,7 +5340,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-ADANIPOWER-UP_TRI",
@@ -5637,7 +5410,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-VBL-UP_TRI",
@@ -5707,7 +5480,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-JUBLFOOD-UP_TRI",
@@ -5777,7 +5550,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-MAXHEALTH-UP_TRI",
@@ -5847,7 +5620,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-METROPOLIS-UP_TRI",
@@ -5917,7 +5690,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-LALPATHLAB-UP_TRI",
@@ -5987,7 +5760,7 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
-      "day_count": 2
+      "day_count": 3
     },
     {
       "id": "2026-11-09-INDIGO-UP_TRI",
@@ -6057,6 +5830,286 @@
       "rejection_reason": null,
       "scanner_version": "v2.0",
       "effective_exit_date": "2026-11-17",
+      "day_count": 3
+    },
+    {
+      "id": "2026-11-10-CANBK-UP_TRI",
+      "schema_version": 5,
+      "generation": 1,
+      "data_quality": "live",
+      "date": "2026-11-10",
+      "symbol": "CANBK.NS",
+      "sector": "Bank",
+      "grade": "A",
+      "signal": "UP_TRI",
+      "direction": "LONG",
+      "age": 0,
+      "score": 7,
+      "regime": "Bull",
+      "regime_score": 2,
+      "stock_regime": "Choppy",
+      "vol_q": "Average",
+      "vol_confirm": false,
+      "rs_q": "Neutral",
+      "rs_strong": false,
+      "sec_mom": "Leading",
+      "sec_leading": true,
+      "bear_bonus": false,
+      "grade_A": true,
+      "scan_price": 128.1,
+      "scan_time": "03:17 UTC",
+      "pivot_price": 114.63,
+      "pivot_date": "2026-10-26",
+      "entry": 128.1,
+      "stop": 111.01,
+      "atr": 3.62,
+      "exit_date": "2026-11-18",
+      "target_price": 162.28,
+      "shadow_target": 179.37,
+      "shadow_outcome": null,
+      "shadow_r_multiple": null,
+      "actual_open": null,
+      "adjusted_rr": null,
+      "entry_valid": null,
+      "gap_pct": null,
+      "outcome": "OPEN",
+      "outcome_date": null,
+      "outcome_price": null,
+      "tracking_start": "2026-11-11",
+      "tracking_end": "2026-11-18",
+      "mfe_pct": null,
+      "mae_pct": null,
+      "days_to_outcome": null,
+      "exit_price": null,
+      "exit_type": null,
+      "exit_date_actual": null,
+      "pnl_pct": null,
+      "pnl_rs": null,
+      "result": "PENDING",
+      "action": "TOOK",
+      "user_action": null,
+      "is_sa": false,
+      "sa_parent_id": null,
+      "sa_parent_outcome": null,
+      "attempt_number": 1,
+      "parent_signal_id": null,
+      "parent_signal": null,
+      "parent_date": null,
+      "parent_result": null,
+      "layer": "MINI",
+      "rejection_reason": null,
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-11-18",
+      "day_count": 2
+    },
+    {
+      "id": "2026-11-10-LICHSGFIN-UP_TRI",
+      "schema_version": 5,
+      "generation": 1,
+      "data_quality": "live",
+      "date": "2026-11-10",
+      "symbol": "LICHSGFIN.NS",
+      "sector": "Bank",
+      "grade": "B",
+      "signal": "UP_TRI",
+      "direction": "LONG",
+      "age": 0,
+      "score": 6,
+      "regime": "Bull",
+      "regime_score": 2,
+      "stock_regime": "Choppy",
+      "vol_q": "Thin",
+      "vol_confirm": false,
+      "rs_q": "Neutral",
+      "rs_strong": false,
+      "sec_mom": "Leading",
+      "sec_leading": true,
+      "bear_bonus": false,
+      "grade_A": false,
+      "scan_price": 551.9,
+      "scan_time": "03:17 UTC",
+      "pivot_price": 485.2,
+      "pivot_date": "2026-10-26",
+      "entry": 551.9,
+      "stop": 468.79,
+      "atr": 16.41,
+      "exit_date": "2026-11-18",
+      "target_price": 718.12,
+      "shadow_target": 801.23,
+      "shadow_outcome": null,
+      "shadow_r_multiple": null,
+      "actual_open": null,
+      "adjusted_rr": null,
+      "entry_valid": null,
+      "gap_pct": null,
+      "outcome": "OPEN",
+      "outcome_date": null,
+      "outcome_price": null,
+      "tracking_start": "2026-11-11",
+      "tracking_end": "2026-11-18",
+      "mfe_pct": null,
+      "mae_pct": null,
+      "days_to_outcome": null,
+      "exit_price": null,
+      "exit_type": null,
+      "exit_date_actual": null,
+      "pnl_pct": null,
+      "pnl_rs": null,
+      "result": "PENDING",
+      "action": "TOOK",
+      "user_action": null,
+      "is_sa": false,
+      "sa_parent_id": null,
+      "sa_parent_outcome": null,
+      "attempt_number": 1,
+      "parent_signal_id": null,
+      "parent_signal": null,
+      "parent_date": null,
+      "parent_result": null,
+      "layer": "MINI",
+      "rejection_reason": null,
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-11-18",
+      "day_count": 2
+    },
+    {
+      "id": "2026-11-10-ABB-BULL_PROXY",
+      "schema_version": 5,
+      "generation": 1,
+      "data_quality": "live",
+      "date": "2026-11-10",
+      "symbol": "ABB.NS",
+      "sector": "CapGoods",
+      "grade": "B",
+      "signal": "BULL_PROXY",
+      "direction": "LONG",
+      "age": 0,
+      "score": 5,
+      "regime": "Bull",
+      "regime_score": 2,
+      "stock_regime": "Choppy",
+      "vol_q": "Average",
+      "vol_confirm": true,
+      "rs_q": "Neutral",
+      "rs_strong": false,
+      "sec_mom": "Neutral",
+      "sec_leading": false,
+      "bear_bonus": false,
+      "grade_A": false,
+      "scan_price": 6915.0,
+      "scan_time": "03:17 UTC",
+      "pivot_price": 6664.5,
+      "pivot_date": "2026-11-09",
+      "entry": 6915.0,
+      "stop": 6563.66,
+      "atr": 253.06,
+      "exit_date": "2026-11-18",
+      "target_price": 7617.68,
+      "shadow_target": 7969.02,
+      "shadow_outcome": null,
+      "shadow_r_multiple": null,
+      "actual_open": null,
+      "adjusted_rr": null,
+      "entry_valid": null,
+      "gap_pct": null,
+      "outcome": "OPEN",
+      "outcome_date": null,
+      "outcome_price": null,
+      "tracking_start": "2026-11-11",
+      "tracking_end": "2026-11-18",
+      "mfe_pct": null,
+      "mae_pct": null,
+      "days_to_outcome": null,
+      "exit_price": null,
+      "exit_type": null,
+      "exit_date_actual": null,
+      "pnl_pct": null,
+      "pnl_rs": null,
+      "result": "PENDING",
+      "action": "TOOK",
+      "user_action": null,
+      "is_sa": false,
+      "sa_parent_id": null,
+      "sa_parent_outcome": null,
+      "attempt_number": 1,
+      "parent_signal_id": null,
+      "parent_signal": null,
+      "parent_date": null,
+      "parent_result": null,
+      "layer": "MINI",
+      "rejection_reason": null,
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-11-18",
+      "day_count": 2
+    },
+    {
+      "id": "2026-11-10-PIDILITIND-BULL_PROXY",
+      "schema_version": 5,
+      "generation": 1,
+      "data_quality": "live",
+      "date": "2026-11-10",
+      "symbol": "PIDILITIND.NS",
+      "sector": "Chem",
+      "grade": "B",
+      "signal": "BULL_PROXY",
+      "direction": "LONG",
+      "age": 0,
+      "score": 4,
+      "regime": "Bull",
+      "regime_score": 2,
+      "stock_regime": "Choppy",
+      "vol_q": "Average",
+      "vol_confirm": false,
+      "rs_q": "Neutral",
+      "rs_strong": false,
+      "sec_mom": "Neutral",
+      "sec_leading": false,
+      "bear_bonus": false,
+      "grade_A": false,
+      "scan_price": 1587.5,
+      "scan_time": "03:17 UTC",
+      "pivot_price": 1563.6,
+      "pivot_date": "2026-11-09",
+      "entry": 1587.5,
+      "stop": 1512.55,
+      "atr": 40.92,
+      "exit_date": "2026-11-18",
+      "target_price": 1737.4,
+      "shadow_target": 1812.35,
+      "shadow_outcome": null,
+      "shadow_r_multiple": null,
+      "actual_open": null,
+      "adjusted_rr": null,
+      "entry_valid": null,
+      "gap_pct": null,
+      "outcome": "OPEN",
+      "outcome_date": null,
+      "outcome_price": null,
+      "tracking_start": "2026-11-11",
+      "tracking_end": "2026-11-18",
+      "mfe_pct": null,
+      "mae_pct": null,
+      "days_to_outcome": null,
+      "exit_price": null,
+      "exit_type": null,
+      "exit_date_actual": null,
+      "pnl_pct": null,
+      "pnl_rs": null,
+      "result": "PENDING",
+      "action": "TOOK",
+      "user_action": null,
+      "is_sa": false,
+      "sa_parent_id": null,
+      "sa_parent_outcome": null,
+      "attempt_number": 1,
+      "parent_signal_id": null,
+      "parent_signal": null,
+      "parent_date": null,
+      "parent_result": null,
+      "layer": "MINI",
+      "rejection_reason": null,
+      "scanner_version": "v2.0",
+      "effective_exit_date": "2026-11-18",
       "day_count": 2
     }
   ],
@@ -6399,6 +6452,15 @@
         "sector": "IT",
         "regime": "Bull",
         "date": "2026-11-10"
+      },
+      {
+        "id": "contra_2026-11-11-CYIENT-DOWN_TRI",
+        "kill_rule_id": "kill_002",
+        "origin_signal_type": "DOWN_TRI",
+        "symbol": "CYIENT.NS",
+        "sector": "IT",
+        "regime": "Bull",
+        "date": "2026-11-11"
       }
     ],
     "recent_resolutions": [],
@@ -6417,19 +6479,19 @@
   ],
   "self_queries": [],
   "upstream_health": {
-    "morning_scan": "ok",
-    "open_validate": "ok",
+    "morning_scan": "ok_yesterday",
+    "open_validate": "ok_yesterday",
     "eod_update": "warn",
-    "outcome_eval": "ok",
-    "pattern_miner": "ok",
-    "rule_proposer": "ok",
-    "contra_tracker": "ok"
+    "outcome_eval": "ok_yesterday",
+    "pattern_miner": "ok_yesterday",
+    "rule_proposer": "ok_yesterday",
+    "contra_tracker": "ok_yesterday"
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-11-10T10:31:14.731226+00:00",
-    "compose_completed_at": "2026-11-10T10:31:14.731230+00:00",
-    "compose_duration_ms": 37,
+    "compose_started_at": "2026-11-11T03:25:50.356446+00:00",
+    "compose_completed_at": "2026-11-11T03:25:50.356448+00:00",
+    "compose_duration_ms": 26,
     "signal_count_input": 0,
     "signal_count_output": 0,
     "queries_total_distinct": 0,
