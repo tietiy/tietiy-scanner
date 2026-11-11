@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-11-10",
+  "as_of_date": "2026-11-11",
   "_metadata": {
     "n_min_for_inclusion": 3,
     "wilson_confidence": 0.95,
@@ -25,17 +25,17 @@
       }
     ]
   },
-  "total_resolved": 424,
+  "total_resolved": 425,
   "baselines": {
     "BULL_PROXY": {
-      "n": 46,
-      "wr": 0.3261,
+      "n": 45,
+      "wr": 0.3333,
       "avg_pnl_pct": -0.6
     },
     "UP_TRI": {
-      "n": 362,
-      "wr": 0.3729,
-      "avg_pnl_pct": -0.23
+      "n": 364,
+      "wr": 0.3736,
+      "avg_pnl_pct": -0.2
     },
     "UP_TRI_SA": {
       "n": 16,
@@ -58,7 +58,7 @@
       "wr": 0.3125,
       "wr_wilson_lower": 0.1416,
       "avg_pnl_pct": -0.52,
-      "edge_vs_baseline_pp": -1.4,
+      "edge_vs_baseline_pp": -2.1,
       "r_multiple": -0.11,
       "r_multiple_count": 16,
       "tier": "Candidate"
@@ -70,16 +70,16 @@
         "signal_type": "UP_TRI",
         "regime": "Bear"
       },
-      "n": 145,
-      "wins": 65,
-      "losses": 72,
+      "n": 147,
+      "wins": 66,
+      "losses": 73,
       "flat": 8,
-      "wr": 0.4483,
-      "wr_wilson_lower": 0.3697,
-      "avg_pnl_pct": -0.25,
+      "wr": 0.449,
+      "wr_wilson_lower": 0.3709,
+      "avg_pnl_pct": -0.18,
       "edge_vs_baseline_pp": 7.5,
-      "r_multiple": -0.05,
-      "r_multiple_count": 145,
+      "r_multiple": -0.04,
+      "r_multiple_count": 147,
       "tier": "Candidate"
     },
     {
@@ -115,7 +115,7 @@
       "wr": 0.4444,
       "wr_wilson_lower": 0.1888,
       "avg_pnl_pct": -0.42,
-      "edge_vs_baseline_pp": 11.8,
+      "edge_vs_baseline_pp": 11.1,
       "r_multiple": -0.12,
       "r_multiple_count": 9,
       "tier": "Candidate"
@@ -134,7 +134,7 @@
       "wr": 0.3469,
       "wr_wilson_lower": 0.2601,
       "avg_pnl_pct": -0.05,
-      "edge_vs_baseline_pp": -2.6,
+      "edge_vs_baseline_pp": -2.7,
       "r_multiple": -0.02,
       "r_multiple_count": 98,
       "tier": "Candidate"
@@ -146,16 +146,16 @@
         "signal_type": "BULL_PROXY",
         "regime": "Choppy"
       },
-      "n": 21,
+      "n": 20,
       "wins": 6,
-      "losses": 12,
+      "losses": 11,
       "flat": 3,
-      "wr": 0.2857,
-      "wr_wilson_lower": 0.1381,
+      "wr": 0.3,
+      "wr_wilson_lower": 0.1455,
       "avg_pnl_pct": -0.74,
-      "edge_vs_baseline_pp": -4.0,
+      "edge_vs_baseline_pp": -3.3,
       "r_multiple": -0.29,
-      "r_multiple_count": 21,
+      "r_multiple_count": 20,
       "tier": "Candidate"
     },
     {
@@ -172,7 +172,7 @@
       "wr": 0.3025,
       "wr_wilson_lower": 0.2272,
       "avg_pnl_pct": -0.36,
-      "edge_vs_baseline_pp": -7.0,
+      "edge_vs_baseline_pp": -7.1,
       "r_multiple": -0.06,
       "r_multiple_count": 119,
       "tier": "Candidate"
@@ -203,16 +203,16 @@
         "signal_type": "BULL_PROXY",
         "sector": "Auto"
       },
-      "n": 4,
+      "n": 3,
       "wins": 0,
-      "losses": 4,
+      "losses": 3,
       "flat": 0,
       "wr": 0.0,
       "wr_wilson_lower": 0.0,
-      "avg_pnl_pct": -1.87,
-      "edge_vs_baseline_pp": -32.6,
-      "r_multiple": -0.8,
-      "r_multiple_count": 4,
+      "avg_pnl_pct": -2.24,
+      "edge_vs_baseline_pp": -33.3,
+      "r_multiple": -1.0,
+      "r_multiple_count": 3,
       "tier": "Candidate"
     },
     {
@@ -222,16 +222,16 @@
         "signal_type": "UP_TRI",
         "sector": "Auto"
       },
-      "n": 31,
-      "wins": 12,
+      "n": 32,
+      "wins": 13,
       "losses": 18,
       "flat": 1,
-      "wr": 0.3871,
-      "wr_wilson_lower": 0.2373,
-      "avg_pnl_pct": -0.28,
-      "edge_vs_baseline_pp": 1.4,
-      "r_multiple": -0.24,
-      "r_multiple_count": 31,
+      "wr": 0.4062,
+      "wr_wilson_lower": 0.2552,
+      "avg_pnl_pct": 0.1,
+      "edge_vs_baseline_pp": 3.3,
+      "r_multiple": -0.19,
+      "r_multiple_count": 32,
       "tier": "Candidate"
     },
     {
@@ -267,7 +267,7 @@
       "wr": 0.5,
       "wr_wilson_lower": 0.1876,
       "avg_pnl_pct": -0.42,
-      "edge_vs_baseline_pp": 17.4,
+      "edge_vs_baseline_pp": 16.7,
       "r_multiple": -0.15,
       "r_multiple_count": 6,
       "tier": "Candidate"
@@ -305,7 +305,7 @@
       "wr": 0.3333,
       "wr_wilson_lower": 0.0615,
       "avg_pnl_pct": -1.54,
-      "edge_vs_baseline_pp": 0.7,
+      "edge_vs_baseline_pp": 0.0,
       "r_multiple": -0.36,
       "r_multiple_count": 3,
       "tier": "Candidate"
@@ -324,7 +324,7 @@
       "wr": 0.3125,
       "wr_wilson_lower": 0.1416,
       "avg_pnl_pct": -1.27,
-      "edge_vs_baseline_pp": -6.0,
+      "edge_vs_baseline_pp": -6.1,
       "r_multiple": -0.26,
       "r_multiple_count": 16,
       "tier": "Candidate"
@@ -381,7 +381,7 @@
       "wr": 0.3333,
       "wr_wilson_lower": 0.0615,
       "avg_pnl_pct": -0.4,
-      "edge_vs_baseline_pp": 0.7,
+      "edge_vs_baseline_pp": 0.0,
       "r_multiple": -0.05,
       "r_multiple_count": 3,
       "tier": "Candidate"
@@ -419,7 +419,7 @@
       "wr": 0.25,
       "wr_wilson_lower": 0.0456,
       "avg_pnl_pct": -0.01,
-      "edge_vs_baseline_pp": -7.6,
+      "edge_vs_baseline_pp": -8.3,
       "r_multiple": -0.22,
       "r_multiple_count": 4,
       "tier": "Candidate"
@@ -457,7 +457,7 @@
       "wr": 0.5,
       "wr_wilson_lower": 0.15,
       "avg_pnl_pct": 0.69,
-      "edge_vs_baseline_pp": 17.4,
+      "edge_vs_baseline_pp": 16.7,
       "r_multiple": 0.63,
       "r_multiple_count": 4,
       "tier": "Candidate"
@@ -495,7 +495,7 @@
       "wr": 0.4545,
       "wr_wilson_lower": 0.2692,
       "avg_pnl_pct": 0.07,
-      "edge_vs_baseline_pp": 8.2,
+      "edge_vs_baseline_pp": 8.1,
       "r_multiple": -0.03,
       "r_multiple_count": 22,
       "tier": "Candidate"
@@ -514,7 +514,7 @@
       "wr": 0.0,
       "wr_wilson_lower": 0.0,
       "avg_pnl_pct": -3.28,
-      "edge_vs_baseline_pp": -32.6,
+      "edge_vs_baseline_pp": -33.3,
       "r_multiple": -0.79,
       "r_multiple_count": 6,
       "tier": "Candidate"
@@ -571,7 +571,7 @@
       "wr": 0.1429,
       "wr_wilson_lower": 0.0257,
       "avg_pnl_pct": -2.01,
-      "edge_vs_baseline_pp": -18.3,
+      "edge_vs_baseline_pp": -19.0,
       "r_multiple": -0.66,
       "r_multiple_count": 7,
       "tier": "Candidate"
@@ -602,16 +602,16 @@
         "signal_type": "UP_TRI",
         "sector": "Other"
       },
-      "n": 29,
+      "n": 30,
       "wins": 8,
-      "losses": 17,
+      "losses": 18,
       "flat": 4,
-      "wr": 0.2759,
-      "wr_wilson_lower": 0.147,
-      "avg_pnl_pct": -1.15,
-      "edge_vs_baseline_pp": -9.7,
+      "wr": 0.2667,
+      "wr_wilson_lower": 0.1418,
+      "avg_pnl_pct": -1.16,
+      "edge_vs_baseline_pp": -10.7,
       "r_multiple": -0.17,
-      "r_multiple_count": 29,
+      "r_multiple_count": 30,
       "tier": "Candidate"
     },
     {
@@ -628,7 +628,7 @@
       "wr": 0.8,
       "wr_wilson_lower": 0.3755,
       "avg_pnl_pct": 2.58,
-      "edge_vs_baseline_pp": 47.4,
+      "edge_vs_baseline_pp": 46.7,
       "r_multiple": 0.65,
       "r_multiple_count": 5,
       "tier": "Candidate"
@@ -656,5 +656,5 @@
   "_ext": {},
   "schema_version": 1,
   "view_name": "cohort_health",
-  "generated_at": "2026-11-10T22:01:13.660358+05:30"
+  "generated_at": "2026-11-11T22:01:10.664036+05:30"
 }
