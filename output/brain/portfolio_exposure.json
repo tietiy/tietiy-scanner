@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-11-12",
+  "as_of_date": "2026-11-13",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -10,31 +10,31 @@
   },
   "total_open": 85,
   "by_signal_type": {
-    "UP_TRI": 77,
-    "BULL_PROXY": 8
+    "UP_TRI": 79,
+    "BULL_PROXY": 6
   },
   "by_sector": {
-    "Energy": 10,
-    "Infra": 3,
     "Auto": 5,
     "Pharma": 13,
+    "Energy": 10,
     "Chem": 6,
     "Health": 4,
     "Bank": 20,
     "Metal": 8,
-    "FMCG": 7,
+    "FMCG": 8,
+    "Infra": 2,
     "CapGoods": 4,
     "Other": 4,
     "Consumer": 1
   },
   "by_regime": {
-    "Choppy": 10,
-    "Bull": 75
+    "Choppy": 8,
+    "Bull": 77
   },
   "regime_concentration": {
     "triggered": true,
     "threshold": 0.8,
-    "observed": 0.8824,
+    "observed": 0.9059,
     "axis": "by_regime",
     "dominant_regime": "Bull"
   },
@@ -46,8 +46,8 @@
         "regime": "Bull",
         "sector": "Bank"
       },
-      "count": 17,
-      "share": 0.2
+      "count": 18,
+      "share": 0.2118
     },
     {
       "concentration_label": "UP_TRI × Bull × Pharma",
@@ -58,10 +58,20 @@
       },
       "count": 9,
       "share": 0.1059
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × Energy",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "Energy"
+      },
+      "count": 9,
+      "share": 0.1059
     }
   ],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-11-12T22:01:05.591128+05:30"
+  "generated_at": "2026-11-13T22:01:11.468349+05:30"
 }
