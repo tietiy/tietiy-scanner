@@ -1,42 +1,54 @@
 {
-  "as_of_date": "2026-11-13",
+  "as_of_date": "2026-11-14",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
     "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
     "fallback_source": "signal_history.json (filter outcome==OPEN)",
-    "active_source": "primary",
-    "warnings": []
+    "active_source": "fallback",
+    "warnings": [
+      {
+        "level": "warn",
+        "code": "eod_archive_missing",
+        "message": "bridge L4 archive missing for 2026-11-14; falling back to signal_history filter",
+        "context": {
+          "expected_path": "output/bridge_state_history/2026-11-14_EOD.json"
+        }
+      }
+    ]
   },
-  "total_open": 85,
+  "total_open": 138,
   "by_signal_type": {
-    "UP_TRI": 79,
-    "BULL_PROXY": 6
+    "UP_TRI": 126,
+    "DOWN_TRI": 3,
+    "BULL_PROXY": 8,
+    "UP_TRI_SA": 1
   },
   "by_sector": {
-    "Auto": 5,
-    "Pharma": 13,
-    "Energy": 10,
-    "Chem": 6,
-    "Health": 4,
-    "Bank": 20,
-    "Metal": 8,
-    "FMCG": 8,
-    "Infra": 2,
-    "CapGoods": 4,
-    "Other": 4,
+    "CapGoods": 12,
+    "Bank": 32,
+    "FMCG": 14,
+    "Chem": 9,
+    "Health": 6,
+    "IT": 7,
+    "Metal": 13,
+    "Auto": 7,
+    "Pharma": 14,
+    "Other": 5,
+    "Energy": 11,
+    "Infra": 7,
     "Consumer": 1
   },
   "by_regime": {
-    "Choppy": 8,
-    "Bull": 77
+    "Choppy": 39,
+    "Bull": 87,
+    "Bear": 12
   },
   "regime_concentration": {
-    "triggered": true,
+    "triggered": false,
     "threshold": 0.8,
-    "observed": 0.9059,
-    "axis": "by_regime",
-    "dominant_regime": "Bull"
+    "observed": 0.6304,
+    "axis": "by_regime"
   },
   "concentrations": [
     {
@@ -46,32 +58,12 @@
         "regime": "Bull",
         "sector": "Bank"
       },
-      "count": 18,
-      "share": 0.2118
-    },
-    {
-      "concentration_label": "UP_TRI × Bull × Pharma",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bull",
-        "sector": "Pharma"
-      },
-      "count": 9,
-      "share": 0.1059
-    },
-    {
-      "concentration_label": "UP_TRI × Bull × Energy",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bull",
-        "sector": "Energy"
-      },
-      "count": 9,
-      "share": 0.1059
+      "count": 22,
+      "share": 0.1594
     }
   ],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-11-13T22:01:11.468349+05:30"
+  "generated_at": "2026-11-14T22:01:09.281585+05:30"
 }
