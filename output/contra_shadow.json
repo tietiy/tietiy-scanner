@@ -32020,10 +32020,10 @@
       "effective_exit_date": "2026-11-16",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-11-16",
+      "outcome_price": 1959.1,
+      "pnl_pct": 6.65,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -32032,7 +32032,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-11-06T03:17:44.922249Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-11-16T10:05:56.020779Z"
     },
     {
       "id": "contra_2026-11-09-CYIENT-DOWN_TRI",
@@ -32329,5 +32331,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-11-13T10:05:59.842915Z"
+  "updated_at": "2026-11-16T10:05:56.021007Z"
 }
