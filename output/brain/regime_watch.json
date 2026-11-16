@@ -1,44 +1,33 @@
 {
-  "as_of_date": "2026-11-15",
+  "as_of_date": "2026-11-16",
   "_metadata": {
     "stability_classifier": "stable if same regime ≥5 of last 5 trading days; shifting if any regime change in last 7 trading days; unclear otherwise",
     "source_files": [
       "signal_history.json",
       "weekly_intelligence_latest.json"
     ],
-    "warnings": [
-      {
-        "level": "warn",
-        "code": "weekly_intel_stale",
-        "message": "weekly_intelligence dated 2026-11-06; 9 days stale",
-        "context": {
-          "source_date": "2026-11-06",
-          "age_days": 9
-        }
-      }
-    ]
+    "warnings": []
   },
-  "current_regime": "Choppy",
+  "current_regime": "Bull",
   "regime_stability": "shifting",
-  "days_in_current_regime": 2,
+  "days_in_current_regime": 5,
   "recent_distribution_7d": {
-    "Bull": 4,
-    "Choppy": 2,
-    "Bear": 1
+    "Bull": 5,
+    "Choppy": 2
   },
   "prior_distribution_7d": {
     "Bear": 7
   },
   "weekly_intelligence_snapshot": {
-    "slope": 0.002674,
-    "avg_ret20": 10.37,
+    "slope": 0.020161,
+    "avg_ret20": 11.83,
     "above_ema50": true,
-    "source_date": "2026-11-06"
+    "source_date": "2026-11-13"
   },
-  "weekly_intelligence_age_days": 9,
+  "weekly_intelligence_age_days": 3,
   "transition_evidence": [],
   "_ext": {},
   "schema_version": 1,
   "view_name": "regime_watch",
-  "generated_at": "2026-11-15T22:01:08.979587+05:30"
+  "generated_at": "2026-11-16T22:01:36.865669+05:30"
 }
