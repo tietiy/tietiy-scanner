@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-11-16",
+  "as_of_date": "2026-11-17",
   "_metadata": {
     "stability_classifier": "stable if same regime ≥5 of last 5 trading days; shifting if any regime change in last 7 trading days; unclear otherwise",
     "source_files": [
@@ -10,13 +10,14 @@
   },
   "current_regime": "Bull",
   "regime_stability": "shifting",
-  "days_in_current_regime": 5,
+  "days_in_current_regime": 6,
   "recent_distribution_7d": {
-    "Bull": 5,
-    "Choppy": 2
+    "Bull": 6,
+    "Choppy": 1
   },
   "prior_distribution_7d": {
-    "Bear": 7
+    "Choppy": 1,
+    "Bear": 6
   },
   "weekly_intelligence_snapshot": {
     "slope": 0.020161,
@@ -24,10 +25,10 @@
     "above_ema50": true,
     "source_date": "2026-11-13"
   },
-  "weekly_intelligence_age_days": 3,
+  "weekly_intelligence_age_days": 4,
   "transition_evidence": [],
   "_ext": {},
   "schema_version": 1,
   "view_name": "regime_watch",
-  "generated_at": "2026-11-16T22:01:36.865669+05:30"
+  "generated_at": "2026-11-17T22:01:08.356193+05:30"
 }
