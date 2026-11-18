@@ -1,0 +1,83 @@
+{
+  "as_of_date": "2026-11-18",
+  "_metadata": {
+    "concentration_threshold_share": 0.1,
+    "regime_concentration_threshold_share": 0.8,
+    "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
+    "fallback_source": "signal_history.json (filter outcome==OPEN)",
+    "active_source": "primary",
+    "warnings": []
+  },
+  "total_open": 21,
+  "by_signal_type": {
+    "UP_TRI": 20,
+    "BULL_PROXY": 1
+  },
+  "by_sector": {
+    "Bank": 4,
+    "Energy": 2,
+    "FMCG": 4,
+    "Infra": 1,
+    "CapGoods": 1,
+    "Chem": 3,
+    "Other": 4,
+    "Consumer": 1,
+    "Health": 1
+  },
+  "by_regime": {
+    "Bull": 21
+  },
+  "regime_concentration": {
+    "triggered": true,
+    "threshold": 0.8,
+    "observed": 1.0,
+    "axis": "by_regime",
+    "dominant_regime": "Bull"
+  },
+  "concentrations": [
+    {
+      "concentration_label": "UP_TRI × Bull × Bank",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "Bank"
+      },
+      "count": 4,
+      "share": 0.1905
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × FMCG",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "FMCG"
+      },
+      "count": 4,
+      "share": 0.1905
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × Other",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "Other"
+      },
+      "count": 4,
+      "share": 0.1905
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × Chem",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "Chem"
+      },
+      "count": 3,
+      "share": 0.1429
+    }
+  ],
+  "_ext": {},
+  "schema_version": 1,
+  "view_name": "portfolio_exposure",
+  "generated_at": "2026-11-18T22:01:12.197410+05:30"
+}
