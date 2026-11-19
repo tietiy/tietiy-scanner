@@ -32152,10 +32152,10 @@
       "effective_exit_date": "2026-11-19",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-11-19",
+      "outcome_price": 1106.4,
+      "pnl_pct": 1.26,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -32164,7 +32164,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-11-11T03:17:43.102140Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-11-19T10:05:50.683675Z"
     },
     {
       "id": "contra_2026-11-12-BATAINDIA-DOWN_TRI",
@@ -32461,5 +32463,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-11-18T10:05:45.129288Z"
+  "updated_at": "2026-11-19T10:05:50.683964Z"
 }
