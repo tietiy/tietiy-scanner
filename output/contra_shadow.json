@@ -32196,10 +32196,10 @@
       "effective_exit_date": "2026-11-20",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_LOSS",
+      "outcome_date": "2026-11-20",
+      "outcome_price": 624.25,
+      "pnl_pct": -2.78,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -32208,7 +32208,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-11-12T03:17:44.683718Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-11-20T10:05:50.140747Z"
     },
     {
       "id": "contra_2026-11-12-CYIENT-DOWN_TRI",
@@ -32238,10 +32240,10 @@
       "effective_exit_date": "2026-11-20",
       "tracking_start": null,
       "tracking_end": null,
-      "outcome": null,
-      "outcome_date": null,
-      "outcome_price": null,
-      "pnl_pct": null,
+      "outcome": "CONTRA_WIN",
+      "outcome_date": "2026-11-20",
+      "outcome_price": 1124.0,
+      "pnl_pct": 2.87,
       "mfe_pct": null,
       "mae_pct": null,
       "day6_open": null,
@@ -32250,7 +32252,9 @@
       "hypothesis": "DOWN_TRI+Bank consistently fails live (0/11 WR). Data suggests INVERTED LONG may succeed. Tracking for n=30 samples before any activation decision.",
       "shadow_version": "v1",
       "recorded_at": "2026-11-12T03:17:44.703265Z",
-      "schema_version": 2
+      "schema_version": 2,
+      "day6_source": "ohlc",
+      "resolved_at": "2026-11-20T10:05:50.277708Z"
     },
     {
       "id": "contra_2026-11-13-KPITTECH-DOWN_TRI",
@@ -32487,7 +32491,7 @@
       "grade": "B",
       "atr": 41.05,
       "exit_date": "01 Dec",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-12-01",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -32529,7 +32533,7 @@
       "grade": "B",
       "atr": 150.12,
       "exit_date": "01 Dec",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-12-01",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -32571,7 +32575,7 @@
       "grade": "B",
       "atr": 40.23,
       "exit_date": "01 Dec",
-      "effective_exit_date": null,
+      "effective_exit_date": "2026-12-01",
       "tracking_start": null,
       "tracking_end": null,
       "outcome": null,
@@ -32589,5 +32593,5 @@
       "schema_version": 2
     }
   ],
-  "updated_at": "2026-11-19T10:05:50.683964Z"
+  "updated_at": "2026-11-20T10:05:50.278078Z"
 }
