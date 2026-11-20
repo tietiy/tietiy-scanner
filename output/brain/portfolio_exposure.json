@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-11-19",
+  "as_of_date": "2026-11-20",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -10,19 +10,20 @@
   },
   "total_open": 28,
   "by_signal_type": {
-    "UP_TRI": 27,
-    "BULL_PROXY": 1
+    "UP_TRI": 26,
+    "BULL_PROXY": 2
   },
   "by_sector": {
-    "Bank": 6,
-    "Energy": 2,
-    "FMCG": 5,
+    "Bank": 7,
+    "FMCG": 4,
     "Infra": 2,
     "CapGoods": 1,
     "Chem": 4,
     "Other": 6,
     "Consumer": 1,
-    "Health": 1
+    "Energy": 1,
+    "Health": 1,
+    "IT": 1
   },
   "by_regime": {
     "Bull": 28
@@ -42,8 +43,8 @@
         "regime": "Bull",
         "sector": "Bank"
       },
-      "count": 6,
-      "share": 0.2143
+      "count": 7,
+      "share": 0.25
     },
     {
       "concentration_label": "UP_TRI × Bull × Other",
@@ -62,8 +63,8 @@
         "regime": "Bull",
         "sector": "FMCG"
       },
-      "count": 5,
-      "share": 0.1786
+      "count": 4,
+      "share": 0.1429
     },
     {
       "concentration_label": "UP_TRI × Bull × Chem",
@@ -79,5 +80,5 @@
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-11-19T22:01:13.174938+05:30"
+  "generated_at": "2026-11-20T22:01:17.343210+05:30"
 }
