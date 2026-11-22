@@ -1,111 +1,136 @@
 {
   "schema_version": 1,
-  "generated_at": "2026-11-15T19:53:32.543936Z",
+  "generated_at": "2026-11-22T20:46:51.013249Z",
   "week_range": [
-    "2026-11-08",
-    "2026-11-15"
+    "2026-11-15",
+    "2026-11-22"
   ],
   "patterns": {
-    "total": 345,
-    "validated_count": 0,
-    "preliminary_count": 70,
-    "emerging_count": 275,
-    "total_resolved_signals": 429,
+    "total": 361,
+    "validated_count": 12,
+    "preliminary_count": 80,
+    "emerging_count": 269,
+    "total_resolved_signals": 509,
     "baselines": {
       "UP_TRI": {
-        "wr": 37.4,
-        "avg_pnl": -0.21,
-        "n": 382,
-        "wins": 143,
-        "losses": 239
+        "wr": 39.5,
+        "avg_pnl": -0.07,
+        "n": 456,
+        "wins": 180,
+        "losses": 276
       },
       "BULL_PROXY": {
-        "wr": 34.0,
-        "avg_pnl": -0.62,
-        "n": 47,
-        "wins": 16,
-        "losses": 31
+        "wr": 39.6,
+        "avg_pnl": -0.01,
+        "n": 53,
+        "wins": 21,
+        "losses": 32
       }
     },
-    "top_validated": []
+    "top_validated": [
+      {
+        "id": "regime=Bull_sector=Bank_grade=B",
+        "wr": 66.7,
+        "n": 33,
+        "edge": 27.2,
+        "direction": "positive",
+        "insight": "Bull regime + Bank sector + Grade B outperforms UP_TRI baseline by 27.2pp (66.7% WR in 33 trades)"
+      },
+      {
+        "id": "regime=Bull_sector=Bank_age=0",
+        "wr": 64.0,
+        "n": 25,
+        "edge": 24.5,
+        "direction": "positive",
+        "insight": "Bull regime + Bank sector + age=0 outperforms UP_TRI baseline by 24.5pp (64.0% WR in 25 trades)"
+      },
+      {
+        "id": "regime=Bull_sector=Bank",
+        "wr": 63.9,
+        "n": 36,
+        "edge": 24.4,
+        "direction": "positive",
+        "insight": "Bull regime + Bank sector outperforms UP_TRI baseline by 24.4pp (63.9% WR in 36 trades)"
+      }
+    ]
   },
   "proposals": {
-    "total": 185,
-    "pending_count": 147,
+    "total": 192,
+    "pending_count": 153,
     "approved_count": 0,
     "already_active_count": 4,
     "rejected_count": 30,
     "pending_items": [
       {
+        "id": "prop_101",
+        "action": "kill",
+        "target_signal": "UP_TRI",
+        "target_sector": null,
+        "wr": 20.0,
+        "n": 25,
+        "edge": -19.5
+      },
+      {
+        "id": "prop_128",
+        "action": "kill",
+        "target_signal": "UP_TRI",
+        "target_sector": "Energy",
+        "wr": 24.2,
+        "n": 33,
+        "edge": -15.3
+      },
+      {
         "id": "prop_073",
         "action": "kill",
         "target_signal": null,
         "target_sector": "FMCG",
-        "wr": 9.1,
-        "n": 11,
-        "edge": -28.3
+        "wr": 10.0,
+        "n": 10,
+        "edge": -29.5
+      },
+      {
+        "id": "prop_186",
+        "action": "kill",
+        "target_signal": null,
+        "target_sector": "Pharma",
+        "wr": 10.0,
+        "n": 10,
+        "edge": -29.5
       },
       {
         "id": "prop_075",
         "action": "kill",
         "target_signal": null,
         "target_sector": "FMCG",
-        "wr": 9.1,
-        "n": 11,
-        "edge": -28.3
-      },
-      {
-        "id": "prop_093",
-        "action": "kill",
-        "target_signal": "UP_TRI",
-        "target_sector": "FMCG",
         "wr": 10.0,
         "n": 10,
-        "edge": -27.4
-      },
-      {
-        "id": "prop_180",
-        "action": "kill",
-        "target_signal": null,
-        "target_sector": "Infra",
-        "wr": 10.0,
-        "n": 10,
-        "edge": -27.4
-      },
-      {
-        "id": "prop_181",
-        "action": "warn",
-        "target_signal": null,
-        "target_sector": "Infra",
-        "wr": 16.7,
-        "n": 12,
-        "edge": -20.7
+        "edge": -29.5
       }
     ]
   },
   "contra": {
-    "total": 735,
-    "resolved": 726,
+    "total": 741,
+    "resolved": 732,
     "pending": 9,
     "wr": 54.4,
-    "avg_pnl": 0.86,
+    "avg_pnl": 0.85,
     "unlocked": true,
     "unlock_threshold": 30,
     "recent_3": [
       {
-        "symbol": "IRFC",
+        "symbol": "CYIENT",
         "outcome": "CONTRA_WIN",
-        "pnl": 11.96
+        "pnl": 1.26
       },
       {
-        "symbol": "ANGELONE",
-        "outcome": "CONTRA_WIN",
-        "pnl": 16.55
+        "symbol": "BATAINDIA",
+        "outcome": "CONTRA_LOSS",
+        "pnl": -2.78
       },
       {
-        "symbol": "CAMS",
+        "symbol": "CYIENT",
         "outcome": "CONTRA_WIN",
-        "pnl": 12.11
+        "pnl": 2.87
       }
     ]
   },
@@ -114,19 +139,19 @@
     "regime_distribution": {
       "Bull": 5
     },
-    "avg_slope": 0.01398,
-    "avg_ret20": 11.74,
+    "avg_slope": 0.02879,
+    "avg_ret20": 10.52,
     "latest": {
-      "date": "2026-11-13",
+      "date": "2026-11-20",
       "regime": "Bull",
-      "slope": 0.020161,
-      "ret20": 11.83,
+      "slope": 0.032637,
+      "ret20": 12.46,
       "above_ema50": true
     }
   },
   "health": {
     "overall": "warn",
-    "last_validated": "2026-11-13T10:06:19.498979+00:00",
+    "last_validated": "2026-11-20T10:06:01.194551+00:00",
     "checks_passed": 5,
     "checks_failed": 2
   },
@@ -148,7 +173,8 @@
     ]
   },
   "suggestions": [
-    "\ud83d\udcdd 147 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
+    "\ud83d\udcdd 153 rule proposal(s) awaiting your review. Use /approve_rule <id> to apply.",
+    "\ud83d\udd2c 12 validated patterns found. Review top items above.",
     "\ud83c\udf21 Market classified Bull every day this week. If signal WR diverges from this, classifier may need recalibration."
   ]
 }
