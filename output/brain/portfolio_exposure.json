@@ -1,56 +1,60 @@
 {
-  "as_of_date": "2026-11-22",
+  "as_of_date": "2026-11-23",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
     "primary_source": "bridge_state_history/<as_of_date>_EOD.json",
     "fallback_source": "signal_history.json (filter outcome==OPEN)",
-    "active_source": "fallback",
-    "warnings": [
-      {
-        "level": "warn",
-        "code": "eod_archive_missing",
-        "message": "bridge L4 archive missing for 2026-11-22; falling back to signal_history filter",
-        "context": {
-          "expected_path": "output/bridge_state_history/2026-11-22_EOD.json"
-        }
-      }
-    ]
+    "active_source": "primary",
+    "warnings": []
   },
-  "total_open": 76,
+  "total_open": 23,
   "by_signal_type": {
-    "UP_TRI": 69,
-    "DOWN_TRI": 3,
-    "BULL_PROXY": 3,
-    "UP_TRI_SA": 1
+    "UP_TRI": 21,
+    "BULL_PROXY": 2
   },
   "by_sector": {
-    "CapGoods": 8,
-    "Bank": 18,
-    "FMCG": 8,
-    "Chem": 8,
-    "Health": 2,
-    "IT": 8,
-    "Metal": 5,
-    "Auto": 2,
-    "Pharma": 1,
-    "Other": 7,
-    "Energy": 2,
-    "Infra": 6,
-    "Consumer": 1
+    "Chem": 5,
+    "Other": 6,
+    "Consumer": 1,
+    "Energy": 1,
+    "FMCG": 2,
+    "Health": 1,
+    "Bank": 5,
+    "Infra": 1,
+    "IT": 1
   },
   "by_regime": {
-    "Choppy": 31,
-    "Bull": 33,
-    "Bear": 12
+    "Bull": 23
   },
   "regime_concentration": {
-    "triggered": false,
+    "triggered": true,
     "threshold": 0.8,
-    "observed": 0.4342,
-    "axis": "by_regime"
+    "observed": 1.0,
+    "axis": "by_regime",
+    "dominant_regime": "Bull"
   },
   "concentrations": [
+    {
+      "concentration_label": "UP_TRI × Bull × Other",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "Other"
+      },
+      "count": 6,
+      "share": 0.2609
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × Chem",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "Chem"
+      },
+      "count": 5,
+      "share": 0.2174
+    },
     {
       "concentration_label": "UP_TRI × Bull × Bank",
       "concentration_filter": {
@@ -58,12 +62,12 @@
         "regime": "Bull",
         "sector": "Bank"
       },
-      "count": 10,
-      "share": 0.1316
+      "count": 5,
+      "share": 0.2174
     }
   ],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-11-22T22:01:08.777527+05:30"
+  "generated_at": "2026-11-23T22:01:11.917779+05:30"
 }
