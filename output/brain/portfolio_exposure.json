@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-11-23",
+  "as_of_date": "2026-11-24",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -8,24 +8,23 @@
     "active_source": "primary",
     "warnings": []
   },
-  "total_open": 23,
+  "total_open": 19,
   "by_signal_type": {
-    "UP_TRI": 21,
+    "UP_TRI": 17,
     "BULL_PROXY": 2
   },
   "by_sector": {
-    "Chem": 5,
-    "Other": 6,
-    "Consumer": 1,
     "Energy": 1,
+    "Other": 5,
     "FMCG": 2,
     "Health": 1,
     "Bank": 5,
     "Infra": 1,
-    "IT": 1
+    "Chem": 2,
+    "IT": 2
   },
   "by_regime": {
-    "Bull": 23
+    "Bull": 19
   },
   "regime_concentration": {
     "triggered": true,
@@ -42,18 +41,8 @@
         "regime": "Bull",
         "sector": "Other"
       },
-      "count": 6,
-      "share": 0.2609
-    },
-    {
-      "concentration_label": "UP_TRI × Bull × Chem",
-      "concentration_filter": {
-        "signal_type": "UP_TRI",
-        "regime": "Bull",
-        "sector": "Chem"
-      },
       "count": 5,
-      "share": 0.2174
+      "share": 0.2632
     },
     {
       "concentration_label": "UP_TRI × Bull × Bank",
@@ -63,11 +52,31 @@
         "sector": "Bank"
       },
       "count": 5,
-      "share": 0.2174
+      "share": 0.2632
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × FMCG",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "FMCG"
+      },
+      "count": 2,
+      "share": 0.1053
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × Chem",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "Chem"
+      },
+      "count": 2,
+      "share": 0.1053
     }
   ],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-11-23T22:01:11.917779+05:30"
+  "generated_at": "2026-11-24T22:01:15.668571+05:30"
 }
