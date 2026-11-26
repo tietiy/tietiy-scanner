@@ -1,14 +1,14 @@
 {
   "schema_version": 1,
-  "phase": "PRE_MARKET",
+  "phase": "POST_OPEN",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-11-26T03:25:47.062025+00:00",
+  "phase_timestamp": "2026-11-26T04:11:06.434801+00:00",
   "market_date": "2026-11-26",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "PROVISIONAL — partial data",
-    "subtext": "3 signals composed; 1 warnings logged"
+    "message": "LIVE — partial data",
+    "subtext": "3 validated, no reclassifications"
   },
   "summary": {
     "total_signals_today": 3,
@@ -18,14 +18,14 @@
       "WATCH": 0,
       "SKIP": 3
     },
-    "open_positions_count": 14
+    "open_positions_count": 13
   },
   "signals": [
     {
-      "sdr_id": "sdr_2026-11-26_PRE_MARKET_BHARATFORG_UP_TRI",
+      "sdr_id": "sdr_2026-11-26_POST_OPEN_BHARATFORG_UP_TRI",
       "signal_id": "2026-11-26-BHARATFORG-UP_TRI",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-26T03:25:47.056496+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-26T04:11:06.426503+00:00",
       "market_date": "2026-11-26",
       "symbol": "BHARATFORG",
       "signal_type": "UP_TRI",
@@ -60,9 +60,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1756.44,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1756.44), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -275,9 +275,9 @@
           "trend": null
         },
         "regime_baseline": {
-          "n": 166,
-          "wr": 0.4277,
-          "avg_pnl": 0.41
+          "n": 173,
+          "wr": 0.4335,
+          "avg_pnl": 0.5
         },
         "score_bucket": {
           "score": 7,
@@ -2248,7 +2248,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-26T03:25:47.056487+00:00",
+        "compose_phase_timestamp": "2026-11-26T04:11:06.426494+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -2262,7 +2262,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -2283,10 +2287,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-26_PRE_MARKET_SUNPHARMA_BULL_PROXY",
+      "sdr_id": "sdr_2026-11-26_POST_OPEN_SUNPHARMA_BULL_PROXY",
       "signal_id": "2026-11-26-SUNPHARMA-BULL_PROXY",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-26T03:25:47.057331+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-26T04:11:06.427879+00:00",
       "market_date": "2026-11-26",
       "symbol": "SUNPHARMA",
       "signal_type": "BULL_PROXY",
@@ -2321,9 +2325,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 1939.02,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹1939.02), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -2448,14 +2452,14 @@
           "trend": null
         },
         "regime_baseline": {
-          "n": 166,
-          "wr": 0.4277,
-          "avg_pnl": 0.41
+          "n": 173,
+          "wr": 0.4335,
+          "avg_pnl": 0.5
         },
         "score_bucket": {
           "score": 5,
-          "n": 107,
-          "wr": 0.3551
+          "n": 109,
+          "wr": 0.3486
         },
         "stock_recency": {
           "last_signal_date": "2026-11-26",
@@ -3194,7 +3198,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-26T03:25:47.057328+00:00",
+        "compose_phase_timestamp": "2026-11-26T04:11:06.427871+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -3208,7 +3212,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -3229,10 +3237,10 @@
       }
     },
     {
-      "sdr_id": "sdr_2026-11-26_PRE_MARKET_TORNTPHARM_BULL_PROXY",
+      "sdr_id": "sdr_2026-11-26_POST_OPEN_TORNTPHARM_BULL_PROXY",
       "signal_id": "2026-11-26-TORNTPHARM-BULL_PROXY",
-      "phase": "PRE_MARKET",
-      "phase_timestamp": "2026-11-26T03:25:47.058039+00:00",
+      "phase": "POST_OPEN",
+      "phase_timestamp": "2026-11-26T04:11:06.429186+00:00",
       "market_date": "2026-11-26",
       "symbol": "TORNTPHARM",
       "signal_type": "BULL_PROXY",
@@ -3267,9 +3275,9 @@
         "direction": "adverse",
         "absolute_threshold_price": 4993.41,
         "instruction": "Place at 09:15 open. If actual open gaps > 2.0% above scan_price (above ₹4993.41), reconsider entry — gap likely consumed expected upside.",
-        "evaluated_at_l2": false,
-        "gap_outcome": null,
-        "gap_outcome_message": null
+        "evaluated_at_l2": true,
+        "gap_outcome": "NOT_VALIDATED",
+        "gap_outcome_message": "Signal not in today's open validation batch (SA-derived or stale)."
       },
       "evidence": {
         "patterns_supporting": [
@@ -3394,14 +3402,14 @@
           "trend": null
         },
         "regime_baseline": {
-          "n": 166,
-          "wr": 0.4277,
-          "avg_pnl": 0.41
+          "n": 173,
+          "wr": 0.4335,
+          "avg_pnl": 0.5
         },
         "score_bucket": {
           "score": 5,
-          "n": 107,
-          "wr": 0.3551
+          "n": 109,
+          "wr": 0.3486
         },
         "stock_recency": {
           "last_signal_date": "2026-11-26",
@@ -4140,7 +4148,7 @@
       },
       "audit": {
         "composed_by_version": "bridge_v1.0.0",
-        "compose_phase_timestamp": "2026-11-26T03:25:47.058036+00:00",
+        "compose_phase_timestamp": "2026-11-26T04:11:06.429178+00:00",
         "queries_executed": [
           "q_pattern_match",
           "q_boost_match",
@@ -4154,7 +4162,11 @@
           "q_cluster_check",
           "q_gap_evaluation"
         ],
-        "queries_failed": []
+        "queries_failed": [],
+        "l1_signal_id_lookup": {
+          "found": true,
+          "l1_bucket": "SKIP"
+        }
       },
       "is_sa_variant": false,
       "origin": null,
@@ -4361,7 +4373,7 @@
       "outcome_price": null,
       "tracking_start": "2026-11-19",
       "tracking_end": "2026-11-27",
-      "mfe_pct": 3.87,
+      "mfe_pct": 6.33,
       "mae_pct": 0.26,
       "days_to_outcome": null,
       "exit_price": null,
@@ -4642,7 +4654,7 @@
       "tracking_start": "2026-11-19",
       "tracking_end": "2026-11-27",
       "mfe_pct": 2.6,
-      "mae_pct": 1.26,
+      "mae_pct": 1.8,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -4737,76 +4749,6 @@
       "day_count": 5
     },
     {
-      "id": "2026-11-19-MPHASIS-BULL_PROXY",
-      "schema_version": 5,
-      "generation": 1,
-      "data_quality": "live",
-      "date": "2026-11-19",
-      "symbol": "MPHASIS.NS",
-      "sector": "IT",
-      "grade": "B",
-      "signal": "BULL_PROXY",
-      "direction": "LONG",
-      "age": 1,
-      "score": 3,
-      "regime": "Bull",
-      "regime_score": 2,
-      "stock_regime": "Choppy",
-      "vol_q": "Thin",
-      "vol_confirm": false,
-      "rs_q": "Neutral",
-      "rs_strong": false,
-      "sec_mom": "Neutral",
-      "sec_leading": false,
-      "bear_bonus": false,
-      "grade_A": false,
-      "scan_price": 2397.0,
-      "scan_time": "03:17 UTC",
-      "pivot_price": 2397.3,
-      "pivot_date": "2026-11-17",
-      "entry": 2397.0,
-      "stop": 2332.65,
-      "atr": 87.25,
-      "exit_date": "2026-11-27",
-      "target_price": 2525.7,
-      "shadow_target": 2590.05,
-      "shadow_outcome": null,
-      "shadow_r_multiple": null,
-      "actual_open": null,
-      "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
-      "outcome": "OPEN",
-      "outcome_date": null,
-      "outcome_price": null,
-      "tracking_start": "2026-11-20",
-      "tracking_end": "2026-11-30",
-      "mfe_pct": 3.87,
-      "mae_pct": 2.46,
-      "days_to_outcome": null,
-      "exit_price": null,
-      "exit_type": null,
-      "exit_date_actual": null,
-      "pnl_pct": null,
-      "pnl_rs": null,
-      "result": "PENDING",
-      "action": "TOOK",
-      "user_action": null,
-      "is_sa": false,
-      "sa_parent_id": null,
-      "sa_parent_outcome": null,
-      "attempt_number": 1,
-      "parent_signal_id": null,
-      "parent_signal": null,
-      "parent_date": null,
-      "parent_result": null,
-      "layer": "MINI",
-      "rejection_reason": null,
-      "scanner_version": "v2.0",
-      "effective_exit_date": "2026-11-30",
-      "day_count": 5
-    },
-    {
       "id": "2026-11-19-MFSL-UP_TRI",
       "schema_version": 5,
       "generation": 1,
@@ -4851,7 +4793,7 @@
       "outcome_price": null,
       "tracking_start": "2026-11-20",
       "tracking_end": "2026-11-30",
-      "mfe_pct": 2.32,
+      "mfe_pct": 3.79,
       "mae_pct": 3.15,
       "days_to_outcome": null,
       "exit_price": null,
@@ -5061,8 +5003,8 @@
       "outcome_price": null,
       "tracking_start": "2026-11-24",
       "tracking_end": "2026-12-02",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 1.87,
+      "mae_pct": 0.0,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -5122,17 +5064,17 @@
       "shadow_target": 5146.69,
       "shadow_outcome": null,
       "shadow_r_multiple": null,
-      "actual_open": null,
+      "actual_open": 4070.0,
       "adjusted_rr": null,
-      "entry_valid": null,
-      "gap_pct": null,
+      "entry_valid": true,
+      "gap_pct": 0.42,
       "outcome": "OPEN",
       "outcome_date": null,
       "outcome_price": null,
       "tracking_start": "2026-11-26",
       "tracking_end": "2026-12-03",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 1.79,
+      "mae_pct": 0.06,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -5659,9 +5601,9 @@
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-11-26T03:25:47.063002+00:00",
-    "compose_completed_at": "2026-11-26T03:25:47.063005+00:00",
-    "compose_duration_ms": 40,
+    "compose_started_at": "2026-11-26T04:11:06.436444+00:00",
+    "compose_completed_at": "2026-11-26T04:11:06.436454+00:00",
+    "compose_duration_ms": 94,
     "signal_count_input": 3,
     "signal_count_output": 3,
     "queries_total_distinct": 0,
@@ -5670,6 +5612,7 @@
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
+      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -5677,5 +5620,8 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  }
+  },
+  "should_send_telegram": false,
+  "bucket_changes": 0,
+  "gap_breaches": 0
 }
