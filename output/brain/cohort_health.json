@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-11-26",
+  "as_of_date": "2026-11-27",
   "_metadata": {
     "n_min_for_inclusion": 3,
     "wilson_confidence": 0.95,
@@ -11,7 +11,7 @@
     "source_files": [
       "signal_history.json"
     ],
-    "cohort_aggregate_r_multiple_mean": -0.02,
+    "cohort_aggregate_r_multiple_mean": -0.01,
     "warnings": [
       {
         "level": "warn",
@@ -25,7 +25,7 @@
       }
     ]
   },
-  "total_resolved": 484,
+  "total_resolved": 489,
   "baselines": {
     "BULL_PROXY": {
       "n": 54,
@@ -33,9 +33,9 @@
       "avg_pnl_pct": 0.14
     },
     "UP_TRI": {
-      "n": 413,
-      "wr": 0.4092,
-      "avg_pnl_pct": 0.05
+      "n": 418,
+      "wr": 0.4139,
+      "avg_pnl_pct": 0.09
     },
     "UP_TRI_SA": {
       "n": 17,
@@ -77,7 +77,7 @@
       "wr": 0.449,
       "wr_wilson_lower": 0.3709,
       "avg_pnl_pct": -0.18,
-      "edge_vs_baseline_pp": 4.0,
+      "edge_vs_baseline_pp": 3.5,
       "r_multiple": -0.04,
       "r_multiple_count": 147,
       "tier": "Candidate"
@@ -127,16 +127,16 @@
         "signal_type": "UP_TRI",
         "regime": "Bull"
       },
-      "n": 156,
-      "wins": 66,
-      "losses": 71,
+      "n": 161,
+      "wins": 70,
+      "losses": 72,
       "flat": 19,
-      "wr": 0.4231,
-      "wr_wilson_lower": 0.3483,
-      "avg_pnl_pct": 0.49,
-      "edge_vs_baseline_pp": 1.4,
-      "r_multiple": 0.03,
-      "r_multiple_count": 156,
+      "wr": 0.4348,
+      "wr_wilson_lower": 0.3606,
+      "avg_pnl_pct": 0.57,
+      "edge_vs_baseline_pp": 2.1,
+      "r_multiple": 0.04,
+      "r_multiple_count": 161,
       "tier": "Candidate"
     },
     {
@@ -172,7 +172,7 @@
       "wr": 0.3364,
       "wr_wilson_lower": 0.2549,
       "avg_pnl_pct": -0.27,
-      "edge_vs_baseline_pp": -7.3,
+      "edge_vs_baseline_pp": -7.8,
       "r_multiple": -0.05,
       "r_multiple_count": 110,
       "tier": "Candidate"
@@ -229,7 +229,7 @@
       "wr": 0.4062,
       "wr_wilson_lower": 0.2552,
       "avg_pnl_pct": -0.05,
-      "edge_vs_baseline_pp": -0.3,
+      "edge_vs_baseline_pp": -0.8,
       "r_multiple": -0.18,
       "r_multiple_count": 32,
       "tier": "Candidate"
@@ -279,16 +279,16 @@
         "signal_type": "UP_TRI",
         "sector": "Bank"
       },
-      "n": 87,
-      "wins": 48,
+      "n": 88,
+      "wins": 49,
       "losses": 33,
       "flat": 6,
-      "wr": 0.5517,
-      "wr_wilson_lower": 0.4472,
-      "avg_pnl_pct": 1.01,
-      "edge_vs_baseline_pp": 14.2,
+      "wr": 0.5568,
+      "wr_wilson_lower": 0.4528,
+      "avg_pnl_pct": 1.07,
+      "edge_vs_baseline_pp": 14.3,
       "r_multiple": 0.17,
-      "r_multiple_count": 87,
+      "r_multiple_count": 88,
       "tier": "Candidate"
     },
     {
@@ -324,7 +324,7 @@
       "wr": 0.4118,
       "wr_wilson_lower": 0.2161,
       "avg_pnl_pct": -1.0,
-      "edge_vs_baseline_pp": 0.3,
+      "edge_vs_baseline_pp": -0.2,
       "r_multiple": -0.25,
       "r_multiple_count": 17,
       "tier": "Candidate"
@@ -355,16 +355,16 @@
         "signal_type": "UP_TRI",
         "sector": "Chem"
       },
-      "n": 28,
+      "n": 29,
       "wins": 9,
-      "losses": 15,
+      "losses": 16,
       "flat": 4,
-      "wr": 0.3214,
-      "wr_wilson_lower": 0.1793,
-      "avg_pnl_pct": -0.2,
-      "edge_vs_baseline_pp": -8.8,
+      "wr": 0.3103,
+      "wr_wilson_lower": 0.1728,
+      "avg_pnl_pct": -0.23,
+      "edge_vs_baseline_pp": -10.4,
       "r_multiple": -0.02,
-      "r_multiple_count": 28,
+      "r_multiple_count": 29,
       "tier": "Candidate"
     },
     {
@@ -381,7 +381,7 @@
       "wr": 0.25,
       "wr_wilson_lower": 0.0456,
       "avg_pnl_pct": 0.29,
-      "edge_vs_baseline_pp": -15.9,
+      "edge_vs_baseline_pp": -16.4,
       "r_multiple": 0.03,
       "r_multiple_count": 4,
       "tier": "Candidate"
@@ -419,7 +419,7 @@
       "wr": 0.3111,
       "wr_wilson_lower": 0.1953,
       "avg_pnl_pct": -0.18,
-      "edge_vs_baseline_pp": -9.8,
+      "edge_vs_baseline_pp": -10.3,
       "r_multiple": 0.03,
       "r_multiple_count": 45,
       "tier": "Candidate"
@@ -450,16 +450,16 @@
         "signal_type": "UP_TRI",
         "sector": "FMCG"
       },
-      "n": 37,
-      "wins": 16,
+      "n": 38,
+      "wins": 17,
       "losses": 18,
       "flat": 3,
-      "wr": 0.4324,
-      "wr_wilson_lower": 0.2867,
-      "avg_pnl_pct": -0.22,
-      "edge_vs_baseline_pp": 2.3,
+      "wr": 0.4474,
+      "wr_wilson_lower": 0.3015,
+      "avg_pnl_pct": -0.08,
+      "edge_vs_baseline_pp": 3.4,
       "r_multiple": -0.05,
-      "r_multiple_count": 37,
+      "r_multiple_count": 38,
       "tier": "Candidate"
     },
     {
@@ -495,7 +495,7 @@
       "wr": 0.3636,
       "wr_wilson_lower": 0.1517,
       "avg_pnl_pct": -0.1,
-      "edge_vs_baseline_pp": -4.6,
+      "edge_vs_baseline_pp": -5.0,
       "r_multiple": -0.02,
       "r_multiple_count": 11,
       "tier": "Candidate"
@@ -533,7 +533,7 @@
       "wr": 0.5625,
       "wr_wilson_lower": 0.3318,
       "avg_pnl_pct": 0.57,
-      "edge_vs_baseline_pp": 15.3,
+      "edge_vs_baseline_pp": 14.9,
       "r_multiple": -0.01,
       "r_multiple_count": 16,
       "tier": "Candidate"
@@ -564,16 +564,16 @@
         "signal_type": "UP_TRI",
         "sector": "Infra"
       },
-      "n": 26,
-      "wins": 12,
+      "n": 27,
+      "wins": 13,
       "losses": 12,
       "flat": 2,
-      "wr": 0.4615,
-      "wr_wilson_lower": 0.2876,
-      "avg_pnl_pct": 0.22,
-      "edge_vs_baseline_pp": 5.2,
+      "wr": 0.4815,
+      "wr_wilson_lower": 0.3074,
+      "avg_pnl_pct": 0.28,
+      "edge_vs_baseline_pp": 6.8,
       "r_multiple": 0.02,
-      "r_multiple_count": 26,
+      "r_multiple_count": 27,
       "tier": "Candidate"
     },
     {
@@ -628,7 +628,7 @@
       "wr": 0.3125,
       "wr_wilson_lower": 0.1795,
       "avg_pnl_pct": -0.56,
-      "edge_vs_baseline_pp": -9.7,
+      "edge_vs_baseline_pp": -10.1,
       "r_multiple": -0.03,
       "r_multiple_count": 32,
       "tier": "Candidate"
@@ -640,16 +640,16 @@
         "signal_type": "UP_TRI",
         "sector": "Other"
       },
-      "n": 36,
-      "wins": 11,
+      "n": 37,
+      "wins": 12,
       "losses": 19,
       "flat": 6,
-      "wr": 0.3056,
-      "wr_wilson_lower": 0.18,
-      "avg_pnl_pct": -0.46,
-      "edge_vs_baseline_pp": -10.4,
-      "r_multiple": -0.08,
-      "r_multiple_count": 36,
+      "wr": 0.3243,
+      "wr_wilson_lower": 0.1963,
+      "avg_pnl_pct": -0.36,
+      "edge_vs_baseline_pp": -9.0,
+      "r_multiple": -0.07,
+      "r_multiple_count": 37,
       "tier": "Candidate"
     },
     {
@@ -685,7 +685,7 @@
       "wr": 0.3571,
       "wr_wilson_lower": 0.2299,
       "avg_pnl_pct": -0.18,
-      "edge_vs_baseline_pp": -5.2,
+      "edge_vs_baseline_pp": -5.7,
       "r_multiple": -0.14,
       "r_multiple_count": 42,
       "tier": "Candidate"
@@ -694,5 +694,5 @@
   "_ext": {},
   "schema_version": 1,
   "view_name": "cohort_health",
-  "generated_at": "2026-11-26T22:01:13.043195+05:30"
+  "generated_at": "2026-11-27T22:01:17.279505+05:30"
 }

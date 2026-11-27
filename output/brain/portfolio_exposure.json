@@ -1,5 +1,5 @@
 {
-  "as_of_date": "2026-11-26",
+  "as_of_date": "2026-11-27",
   "_metadata": {
     "concentration_threshold_share": 0.1,
     "regime_concentration_threshold_share": 0.8,
@@ -8,21 +8,21 @@
     "active_source": "primary",
     "warnings": []
   },
-  "total_open": 13,
+  "total_open": 9,
   "by_signal_type": {
-    "UP_TRI": 13
+    "UP_TRI": 7,
+    "BULL_PROXY": 2
   },
   "by_sector": {
-    "Bank": 5,
-    "FMCG": 1,
-    "Other": 2,
-    "Infra": 1,
-    "Chem": 2,
+    "Bank": 3,
+    "Chem": 1,
     "IT": 1,
-    "CapGoods": 1
+    "CapGoods": 1,
+    "Auto": 1,
+    "Pharma": 2
   },
   "by_regime": {
-    "Bull": 13
+    "Bull": 9
   },
   "regime_concentration": {
     "triggered": true,
@@ -39,18 +39,18 @@
         "regime": "Bull",
         "sector": "Bank"
       },
-      "count": 5,
-      "share": 0.3846
+      "count": 3,
+      "share": 0.3333
     },
     {
-      "concentration_label": "UP_TRI × Bull × Other",
+      "concentration_label": "BULL_PROXY × Bull × Pharma",
       "concentration_filter": {
-        "signal_type": "UP_TRI",
+        "signal_type": "BULL_PROXY",
         "regime": "Bull",
-        "sector": "Other"
+        "sector": "Pharma"
       },
       "count": 2,
-      "share": 0.1538
+      "share": 0.2222
     },
     {
       "concentration_label": "UP_TRI × Bull × Chem",
@@ -59,12 +59,42 @@
         "regime": "Bull",
         "sector": "Chem"
       },
-      "count": 2,
-      "share": 0.1538
+      "count": 1,
+      "share": 0.1111
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × IT",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "IT"
+      },
+      "count": 1,
+      "share": 0.1111
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × CapGoods",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "CapGoods"
+      },
+      "count": 1,
+      "share": 0.1111
+    },
+    {
+      "concentration_label": "UP_TRI × Bull × Auto",
+      "concentration_filter": {
+        "signal_type": "UP_TRI",
+        "regime": "Bull",
+        "sector": "Auto"
+      },
+      "count": 1,
+      "share": 0.1111
     }
   ],
   "_ext": {},
   "schema_version": 1,
   "view_name": "portfolio_exposure",
-  "generated_at": "2026-11-26T22:01:13.048366+05:30"
+  "generated_at": "2026-11-27T22:01:17.284062+05:30"
 }
