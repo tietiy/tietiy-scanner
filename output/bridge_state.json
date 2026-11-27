@@ -1,26 +1,334 @@
 {
   "schema_version": 1,
-  "phase": "POST_OPEN",
+  "phase": "EOD",
   "phase_status": "DEGRADED",
-  "phase_timestamp": "2026-11-27T04:11:04.313399+00:00",
+  "phase_timestamp": "2026-11-27T10:31:21.554651+00:00",
   "market_date": "2026-11-27",
   "banner": {
     "state": "DEGRADED",
     "color": "orange",
-    "message": "LIVE — partial data",
-    "subtext": "no signals today"
+    "message": "EOD — partial data",
+    "subtext": "5 resolved (4 won, 1 stopped)"
   },
   "summary": {
-    "total_signals_today": 0,
-    "buckets": {
-      "TAKE_FULL": 0,
-      "TAKE_SMALL": 0,
-      "WATCH": 0,
-      "SKIP": 0
+    "total_resolutions_today": 5,
+    "outcomes": {
+      "TARGET_HIT": 0,
+      "STOP_HIT": 0,
+      "DAY6_WIN": 4,
+      "DAY6_LOSS": 1,
+      "DAY6_FLAT": 0
     },
-    "open_positions_count": 9
+    "win_count": 4,
+    "loss_count": 1,
+    "flat_count": 0,
+    "total_pnl_pct": 15.06,
+    "open_positions_count": 9,
+    "pattern_updates": [
+      {
+        "kind": "boost_demotion_warning",
+        "pattern_id": "win_001",
+        "signal": "UP_TRI",
+        "sector": "Auto",
+        "regime": "Bear",
+        "current_tier": "A",
+        "window_size": 10,
+        "window_wr": 0.6,
+        "window_wins": 6,
+        "window_losses": 4,
+        "window_oldest_date": "2026-10-08",
+        "window_newest_date": "2026-11-11",
+        "threshold_wr": 0.7,
+        "message": "⚠ win_001: UP_TRI × Auto × Bear, last-10 WR 60% (6/10) — below 70% floor"
+      },
+      {
+        "kind": "boost_demotion_warning",
+        "pattern_id": "win_002",
+        "signal": "UP_TRI",
+        "sector": "FMCG",
+        "regime": "Bear",
+        "current_tier": "A",
+        "window_size": 10,
+        "window_wr": 0.3,
+        "window_wins": 3,
+        "window_losses": 7,
+        "window_oldest_date": "2026-10-01",
+        "window_newest_date": "2026-11-03",
+        "threshold_wr": 0.7,
+        "message": "⚠ win_002: UP_TRI × FMCG × Bear, last-10 WR 30% (3/10) — below 70% floor"
+      },
+      {
+        "kind": "boost_demotion_warning",
+        "pattern_id": "win_005",
+        "signal": "UP_TRI",
+        "sector": "Pharma",
+        "regime": "Bear",
+        "current_tier": "A",
+        "window_size": 10,
+        "window_wr": 0.4,
+        "window_wins": 4,
+        "window_losses": 6,
+        "window_oldest_date": "2026-10-05",
+        "window_newest_date": "2026-11-03",
+        "threshold_wr": 0.7,
+        "message": "⚠ win_005: UP_TRI × Pharma × Bear, last-10 WR 40% (4/10) — below 70% floor"
+      },
+      {
+        "kind": "boost_demotion_warning",
+        "pattern_id": "win_006",
+        "signal": "UP_TRI",
+        "sector": "Infra",
+        "regime": "Bear",
+        "current_tier": "B",
+        "window_size": 10,
+        "window_wr": 0.6,
+        "window_wins": 6,
+        "window_losses": 4,
+        "window_oldest_date": "2026-10-08",
+        "window_newest_date": "2026-11-03",
+        "threshold_wr": 0.7,
+        "message": "⚠ win_006: UP_TRI × Infra × Bear, last-10 WR 60% (6/10) — below 70% floor"
+      },
+      {
+        "kind": "boost_demotion_warning",
+        "pattern_id": "win_007",
+        "signal": "BULL_PROXY",
+        "sector": null,
+        "regime": "Bear",
+        "current_tier": "B",
+        "window_size": 10,
+        "window_wr": 0.5,
+        "window_wins": 5,
+        "window_losses": 5,
+        "window_oldest_date": "2026-10-07",
+        "window_newest_date": "2026-11-06",
+        "threshold_wr": 0.7,
+        "message": "⚠ win_007: BULL_PROXY × any × Bear, last-10 WR 50% (5/10) — below 70% floor"
+      }
+    ]
   },
-  "signals": [],
+  "signals": [
+    {
+      "sdr_id": "sdr_2026-11-27_EOD_INDUSINDBK_UP_TRI",
+      "signal_id": "2026-11-18-INDUSINDBK-UP_TRI",
+      "phase": "EOD",
+      "phase_timestamp": "2026-11-27T10:31:21.545211+00:00",
+      "market_date": "2026-11-27",
+      "symbol": "INDUSINDBK",
+      "signal_type": "UP_TRI",
+      "direction": "LONG",
+      "sector": "Bank",
+      "regime": "Bull",
+      "age_days": 0,
+      "signal_date": "2026-11-18",
+      "outcome_date": "2026-11-27",
+      "is_sa_variant": false,
+      "origin": null,
+      "outcome": {
+        "outcome": "DAY6_WIN",
+        "result": "EXITED",
+        "exit_type": "DAY6_WIN",
+        "outcome_price": 966.1,
+        "pnl_pct": 5.78,
+        "r_multiple": 0.48,
+        "mae_pct": 0.8,
+        "mfe_pct": 9.99,
+        "days_to_outcome": 6,
+        "failure_reason": "Gradual move to target — held through full window"
+      },
+      "trade_plan": {
+        "scan_price": 931.0,
+        "actual_open": 913.35,
+        "entry": 931.0,
+        "stop": 803.86,
+        "target": 1185.28,
+        "outcome_price": 966.1,
+        "atr": 23.64,
+        "score": 6
+      },
+      "evidence": {},
+      "audit": {
+        "composed_by_version": "bridge_v1.0.0",
+        "compose_phase_timestamp": "2026-11-27T10:31:21.545224+00:00"
+      }
+    },
+    {
+      "sdr_id": "sdr_2026-11-27_EOD_GODREJCP_UP_TRI",
+      "signal_id": "2026-11-18-GODREJCP-UP_TRI",
+      "phase": "EOD",
+      "phase_timestamp": "2026-11-27T10:31:21.545233+00:00",
+      "market_date": "2026-11-27",
+      "symbol": "GODREJCP",
+      "signal_type": "UP_TRI",
+      "direction": "LONG",
+      "sector": "FMCG",
+      "regime": "Bull",
+      "age_days": 1,
+      "signal_date": "2026-11-18",
+      "outcome_date": "2026-11-27",
+      "is_sa_variant": false,
+      "origin": null,
+      "outcome": {
+        "outcome": "DAY6_WIN",
+        "result": "EXITED",
+        "exit_type": "DAY6_WIN",
+        "outcome_price": 948.0,
+        "pnl_pct": 5.4,
+        "r_multiple": 0.32,
+        "mae_pct": 0.26,
+        "mfe_pct": 7.07,
+        "days_to_outcome": 6,
+        "failure_reason": "Gradual move to target — held through full window"
+      },
+      "trade_plan": {
+        "scan_price": 894.5,
+        "actual_open": 899.45,
+        "entry": 894.5,
+        "stop": 749.82,
+        "target": 1183.86,
+        "outcome_price": 948.0,
+        "atr": 27.38,
+        "score": 6
+      },
+      "evidence": {},
+      "audit": {
+        "composed_by_version": "bridge_v1.0.0",
+        "compose_phase_timestamp": "2026-11-27T10:31:21.545239+00:00"
+      }
+    },
+    {
+      "sdr_id": "sdr_2026-11-27_EOD_CROMPTON_UP_TRI",
+      "signal_id": "2026-11-18-CROMPTON-UP_TRI",
+      "phase": "EOD",
+      "phase_timestamp": "2026-11-27T10:31:21.545244+00:00",
+      "market_date": "2026-11-27",
+      "symbol": "CROMPTON",
+      "signal_type": "UP_TRI",
+      "direction": "LONG",
+      "sector": "Other",
+      "regime": "Bull",
+      "age_days": 1,
+      "signal_date": "2026-11-18",
+      "outcome_date": "2026-11-27",
+      "is_sa_variant": false,
+      "origin": null,
+      "outcome": {
+        "outcome": "DAY6_WIN",
+        "result": "EXITED",
+        "exit_type": "DAY6_WIN",
+        "outcome_price": 214.0,
+        "pnl_pct": 2.92,
+        "r_multiple": 0.25,
+        "mae_pct": 0.34,
+        "mfe_pct": 8.84,
+        "days_to_outcome": 6,
+        "failure_reason": "Gradual move to target — held through full window"
+      },
+      "trade_plan": {
+        "scan_price": 208.95,
+        "actual_open": 207.92,
+        "entry": 208.95,
+        "stop": 183.56,
+        "target": 259.73,
+        "outcome_price": 214.0,
+        "atr": 7.99,
+        "score": 4
+      },
+      "evidence": {},
+      "audit": {
+        "composed_by_version": "bridge_v1.0.0",
+        "compose_phase_timestamp": "2026-11-27T10:31:21.545248+00:00"
+      }
+    },
+    {
+      "sdr_id": "sdr_2026-11-27_EOD_RAMCOCEM_UP_TRI",
+      "signal_id": "2026-11-18-RAMCOCEM-UP_TRI",
+      "phase": "EOD",
+      "phase_timestamp": "2026-11-27T10:31:21.545250+00:00",
+      "market_date": "2026-11-27",
+      "symbol": "RAMCOCEM",
+      "signal_type": "UP_TRI",
+      "direction": "LONG",
+      "sector": "Infra",
+      "regime": "Bull",
+      "age_days": 0,
+      "signal_date": "2026-11-18",
+      "outcome_date": "2026-11-27",
+      "is_sa_variant": false,
+      "origin": null,
+      "outcome": {
+        "outcome": "DAY6_WIN",
+        "result": "EXITED",
+        "exit_type": "DAY6_WIN",
+        "outcome_price": 828.0,
+        "pnl_pct": 1.9,
+        "r_multiple": 0.13,
+        "mae_pct": 0.58,
+        "mfe_pct": 4.11,
+        "days_to_outcome": 6,
+        "failure_reason": "Gradual move to target — held through full window"
+      },
+      "trade_plan": {
+        "scan_price": 829.2,
+        "actual_open": 812.6,
+        "entry": 829.2,
+        "stop": 690.44,
+        "target": 1106.72,
+        "outcome_price": 828.0,
+        "atr": 20.86,
+        "score": 6
+      },
+      "evidence": {},
+      "audit": {
+        "composed_by_version": "bridge_v1.0.0",
+        "compose_phase_timestamp": "2026-11-27T10:31:21.545253+00:00"
+      }
+    },
+    {
+      "sdr_id": "sdr_2026-11-27_EOD_COROMANDEL_UP_TRI",
+      "signal_id": "2026-11-18-COROMANDEL-UP_TRI",
+      "phase": "EOD",
+      "phase_timestamp": "2026-11-27T10:31:21.545255+00:00",
+      "market_date": "2026-11-27",
+      "symbol": "COROMANDEL",
+      "signal_type": "UP_TRI",
+      "direction": "LONG",
+      "sector": "Chem",
+      "regime": "Bull",
+      "age_days": 1,
+      "signal_date": "2026-11-18",
+      "outcome_date": "2026-11-27",
+      "is_sa_variant": false,
+      "origin": null,
+      "outcome": {
+        "outcome": "DAY6_LOSS",
+        "result": "EXITED",
+        "exit_type": "DAY6_LOSS",
+        "outcome_price": 1951.0,
+        "pnl_pct": -0.94,
+        "r_multiple": -0.05,
+        "mae_pct": 2.32,
+        "mfe_pct": 2.6,
+        "days_to_outcome": 6,
+        "failure_reason": "Breakout without volume — weak setup, no follow-through"
+      },
+      "trade_plan": {
+        "scan_price": 1973.5,
+        "actual_open": 1969.6,
+        "entry": 1973.5,
+        "stop": 1597.35,
+        "target": 2725.8,
+        "outcome_price": 1951.0,
+        "atr": 57.75,
+        "score": 4
+      },
+      "evidence": {},
+      "audit": {
+        "composed_by_version": "bridge_v1.0.0",
+        "compose_phase_timestamp": "2026-11-27T10:31:21.545261+00:00"
+      }
+    }
+  ],
   "open_positions": [
     {
       "id": "2026-11-19-ICICIGI-UP_TRI",
@@ -417,7 +725,7 @@
       "outcome_price": null,
       "tracking_start": "2026-11-26",
       "tracking_end": "2026-12-03",
-      "mfe_pct": 3.17,
+      "mfe_pct": 3.73,
       "mae_pct": 0.06,
       "days_to_outcome": null,
       "exit_price": null,
@@ -487,8 +795,8 @@
       "outcome_price": null,
       "tracking_start": "2026-11-27",
       "tracking_end": "2026-12-04",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 3.7,
+      "mae_pct": 0.0,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -557,8 +865,8 @@
       "outcome_price": null,
       "tracking_start": "2026-11-27",
       "tracking_end": "2026-12-04",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 0.86,
+      "mae_pct": 0.55,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -627,8 +935,8 @@
       "outcome_price": null,
       "tracking_start": "2026-11-27",
       "tracking_end": "2026-12-04",
-      "mfe_pct": null,
-      "mae_pct": null,
+      "mfe_pct": 3.26,
+      "mae_pct": 0.0,
       "days_to_outcome": null,
       "exit_price": null,
       "exit_type": null,
@@ -695,33 +1003,6 @@
         "sector": "Bank",
         "regime": "Bear",
         "date": "2026-10-29"
-      },
-      {
-        "id": "contra_2026-11-18-POWERGRID-DOWN_TRI",
-        "kill_rule_id": "kill_002",
-        "origin_signal_type": "DOWN_TRI",
-        "symbol": "POWERGRID.NS",
-        "sector": "Energy",
-        "regime": "Bull",
-        "date": "2026-11-18"
-      },
-      {
-        "id": "contra_2026-11-18-AJANTPHARM-DOWN_TRI",
-        "kill_rule_id": "kill_002",
-        "origin_signal_type": "DOWN_TRI",
-        "symbol": "AJANTPHARM.NS",
-        "sector": "Pharma",
-        "regime": "Bull",
-        "date": "2026-11-18"
-      },
-      {
-        "id": "contra_2026-11-18-OIL-DOWN_TRI",
-        "kill_rule_id": "kill_002",
-        "origin_signal_type": "DOWN_TRI",
-        "symbol": "OIL.NS",
-        "sector": "Energy",
-        "regime": "Bull",
-        "date": "2026-11-18"
       },
       {
         "id": "contra_2026-11-20-LUPIN-DOWN_TRI",
@@ -1280,6 +1561,15 @@
     {
       "type": "upstream_warn",
       "severity": "warning",
+      "message": "Upstream module open_validate reports warn",
+      "evidence": {
+        "module": "open_validate",
+        "status": "warn"
+      }
+    },
+    {
+      "type": "upstream_warn",
+      "severity": "warning",
       "message": "Upstream module eod_update reports warn",
       "evidence": {
         "module": "eod_update",
@@ -1289,28 +1579,27 @@
   ],
   "self_queries": [],
   "upstream_health": {
-    "morning_scan": "ok_yesterday",
-    "open_validate": "ok_yesterday",
+    "morning_scan": "ok",
+    "open_validate": "warn",
     "eod_update": "warn",
-    "outcome_eval": "ok_yesterday",
-    "pattern_miner": "ok_yesterday",
-    "rule_proposer": "ok_yesterday",
-    "contra_tracker": "ok_yesterday"
+    "outcome_eval": "ok",
+    "pattern_miner": "ok",
+    "rule_proposer": "ok",
+    "contra_tracker": "ok"
   },
   "audit": {
     "bridge_version": "1.0.0",
-    "compose_started_at": "2026-11-27T04:11:04.313420+00:00",
-    "compose_completed_at": "2026-11-27T04:11:04.313423+00:00",
-    "compose_duration_ms": 46,
-    "signal_count_input": 0,
-    "signal_count_output": 0,
+    "compose_started_at": "2026-11-27T10:31:21.555234+00:00",
+    "compose_completed_at": "2026-11-27T10:31:21.555237+00:00",
+    "compose_duration_ms": 23,
+    "signal_count_input": 5,
+    "signal_count_output": 5,
     "queries_total_distinct": 0,
     "queries_failed": [],
     "files_read": [
       "colab_insights",
       "contra_shadow",
       "mini_scanner_rules",
-      "open_prices",
       "patterns",
       "proposed_rules",
       "signal_history"
@@ -1318,8 +1607,5 @@
     "warnings": [
       "DEGRADED load_truth_files:colab_insights.json: FileNotFoundError: output/colab_insights.json"
     ]
-  },
-  "should_send_telegram": false,
-  "bucket_changes": 0,
-  "gap_breaches": 0
+  }
 }
